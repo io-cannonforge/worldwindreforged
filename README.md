@@ -22,6 +22,11 @@ remains a viable open-source 3D globe toolkit for researchers, educators, and de
   compute-shader mesh generation (GL 4.3+), and crack-free LOD stitching
 - **Performance** — Pick optimisation, tile invalidation, heightmap throttling, VAO rendering, FPS stats
 - **Bug fixes** — Event consumption, shutdown handling, AMD driver workarounds, and more
+- **Examples** — New ExamplesIndex launcher with dark-themed UI, category browser, and comprehensive
+  in-app documentation for every example. New examples: GPU Terrain Demo, WMS Time-Series Demo,
+  Layer Opacity & Blending, Dashed Lines, Procedural Fill Patterns, Surface Shape Showcase,
+  GeoJSON Viewer, Coordinate Search, Measure Tool, and Terrain Rendering Benchmark. All existing
+  examples fixed for proper `DISPOSE_ON_CLOSE` when launched from the browser.
 - Full backwards compatibility with the original WorldWind Java API
 
 ## Requirements
