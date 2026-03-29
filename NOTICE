@@ -1,0 +1,22 @@
+WorldWind Reforged
+Copyright 2025-2026 seaglassfoundry.com
+
+This product is a derivative work of NASA World Wind Java (WWJ),
+originally developed at the NASA Ames Research Center.
+
+NASA World Wind Java (WWJ)
+Copyright 2006-2009, 2017, 2020 United States Government, as represented by the
+Administrator of the National Aeronautics and Space Administration.
+All rights reserved.
+
+NASA World Wind Java (WWJ) also contains the following 3rd party Open Source software:
+
+    Jackson Parser - Licensed under Apache 2.0
+    GDAL - Licensed under MIT
+    JOGL - Licensed under Berkeley Software Distribution (BSD)
+    Gluegen - Licensed under Berkeley Software Distribution (BSD)
+
+WorldWind Reforged additionally includes:
+
+    FlatLaf - Licensed under Apache 2.0
+    JUnit - Licensed under Eclipse Public License 1.0 (test scope only)

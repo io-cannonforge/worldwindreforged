@@ -1,0 +1,38 @@
+# Build output
+target/
+build/
+*.class
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+*.launch
+bin/
+
+# IDE - IntelliJ
+.idea/
+*.iml
+out/
+
+# IDE - VS Code
+.vscode/
+
+# Claude Code
+.claude/
+
+# JVM crash logs
+hs_err_pid*.log
+replay_pid*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Maven wrapper (keep .mvn/jvm.config, ignore wrapper jar/properties)
+.mvn/wrapper/
+
+# Logs (but keep logging.properties config file)
+*.log
