@@ -11,7 +11,7 @@
     <name>World Wind Reforged</name>
     <description>Modernised and extended build of the NASA World Wind Java SDK — GPU terrain,
         GLSL shaders, WMS/GIBS time-series, and performance enhancements.</description>
-    <url>https://github.com/rwill2001/worldwindreforged</url>
+    <url>https://github.com/io-cannonforge/worldwindreforged</url>
 
     <licenses>
         <license>
@@ -34,9 +34,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/rwill2001/worldwindreforged</url>
-        <connection>scm:git:https://github.com/rwill2001/worldwindreforged.git</connection>
-        <developerConnection>scm:git:git@github.com:rwill2001/worldwindreforged.git</developerConnection>
+        <url>https://github.com/io-cannonforge/worldwindreforged</url>
+        <connection>scm:git:https://github.com/io-cannonforge/worldwindreforged.git</connection>
+        <developerConnection>scm:git:git@github.com:io-cannonforge/worldwindreforged.git</developerConnection>
     </scm>
 
     <properties>
