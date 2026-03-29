@@ -1,12 +1,36 @@
 # WorldWind Reforged
 
+*A modern Java 17+ revival of NASA WorldWind — GLSL shaders, GPU-accelerated terrain, and a full Maven build.*
+
 A modernised and extended build of the [NASA World Wind Java](https://worldwind.arc.nasa.gov/java/) SDK,
 developed by [seaglassfoundry.com](https://seaglassfoundry.com).
 
-WorldWind Reforged preserves, maintains, and advances the NASA World Wind Java platform so that it
-remains a viable open-source 3D globe toolkit for researchers, educators, and developers.
+<!-- Screenshots — drop your captures into docs/images/ and uncomment:
+![ExamplesIndex launcher](docs/images/examples-index.png)
+![GPU Terrain Demo](docs/images/gpu-terrain.png)
+![WMS Time-Series Animation](docs/images/wms-timeseries.png)
+-->
 
-## What's New in Reforged
+## Why Reforged?
+
+NASA WorldWind Java was a powerful open-source 3D globe toolkit, but active development stalled —
+leaving users stuck on legacy Java, a manual Ant build, broken WMS servers, and no path to modern
+OpenGL. Reforged picks up where NASA left off:
+
+- **Modernised for Java 17+** — compiles, runs, and builds cleanly with Maven
+- **GPU-first rendering** — GLSL shaders, hardware tessellation, and compute-shader terrain
+- **Fully backwards compatible** — drop-in replacement for existing WorldWind Java projects
+
+## Quick Start
+
+```bash
+mvn clean compile
+mvn exec:java -Dexec.mainClass="gov.nasa.worldwindx.examples.ExamplesIndex"
+```
+
+See [Running from an IDE](#from-an-ide-eclipse-intellij) below for Eclipse/IntelliJ setup.
+
+## Key Improvements
 
 - **Maven build** — Fully mavenised project replacing the original Ant/manual-JAR build. Dependencies
   (JOGL 2.6.0, Gluegen 2.6.0, Jackson 2.18.6, GDAL 3.12.0, FlatLaf 3.4.1) are managed automatically.
@@ -35,7 +59,7 @@ remains a viable open-source 3D globe toolkit for researchers, educators, and de
 |---|---|---|
 | **Java** | JDK 17+ | JDK, not JRE — required for `--add-opens` flags |
 | **Maven** | 3.8+ | Dependency management and build |
-| **OpenGL** | 2.0+ | 3.0+ for Phase 3 shaders; 4.0+ for tessellation; 4.3+ for compute shaders |
+| **OpenGL** | 2.0+ | 3.0+ for GLSL shaders; 4.0+ for tessellation; 4.3+ for compute shaders |
 | **Network** | Internet | WMS/GIBS imagery tiles are downloaded on first run |
 
 ## Building
