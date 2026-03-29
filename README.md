@@ -8,6 +8,14 @@ remains a viable open-source 3D globe toolkit for researchers, educators, and de
 
 ## What's New in Reforged
 
+- **Maven build** — Fully mavenised project replacing the original Ant/manual-JAR build. Dependencies
+  (JOGL 2.6.0, Gluegen 2.6.0, Jackson 2.18.6, GDAL 3.12.0, FlatLaf 3.4.1) are managed automatically.
+  The 75 embedded Jackson 1.x source files have been removed and replaced with the Maven dependency.
+- **Phase 1 — Java 17 modernisation** — Compiles and runs on Java 17+ with all required `--add-opens`
+  flags. Raw types fixed (~35 files), diamond operator (~1,138 instances), try-with-resources (31
+  blocks), lambda expressions (43 conversions), pattern matching instanceof (54 conversions), switch
+  expressions (~30 conversions), StringBuffer to StringBuilder (31 instances). Dead NASA WMS server
+  errors downgraded from SEVERE to WARNING.
 - **Phase 2** — Modern WMS engine with GIBS time-series animation, layer preview, and opacity blending
 - **Phase 3** — GLSL shader-based rendering: dashed lines, procedural fill patterns, and GPU styling
 - **Phase 4** — GPU-accelerated terrain: shader heightmaps (GL 3.0+), hardware tessellation (GL 4.0+),
