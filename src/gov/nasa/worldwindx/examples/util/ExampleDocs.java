@@ -1370,23 +1370,7 @@ public final class ExampleDocs {
                 + "<li><code class='api-class'>AirspaceBuilderModel</code> &mdash; <code>AbstractTableModel</code> for the shape table</li>"
                 + "</ul>"));
 
-        put("RadarVolume",
-            section("Overview",
-                "Renders a radar coverage volume as a 3D cone emanating from a point on the globe. "
-                + "Demonstrates volume rendering for sensor coverage or line-of-sight visualisation.")
-            + section("What You'll See",
-                "<ul>"
-                + "<li>A conical radar coverage volume displayed on the globe</li>"
-                + "<li>Semi-transparent fill showing the coverage area in 3D</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li>Tilt and rotate to see the volume in 3D from different angles</li>"
-                + "</ul>")
-            + section("Key APIs",
-                "<ul>"
-                + "<li><code class='api-class'>RadarVolume</code> &mdash; 3D radar sweep volume shape</li>"
-                + "</ul>"));
+        // Modified by seaglassfoundry.com - removed RadarVolume entry (shape class, not a launchable example)
 
         put("RadarVolumeExample",
             section("Overview",
@@ -1455,25 +1439,30 @@ public final class ExampleDocs {
 
         put("WMSLayerManager",
             section("Overview",
-                "Manage active WMS layers with visibility toggling, ordering, and per-layer opacity controls. "
-                + "Demonstrates the runtime layer management API for controlling which layers are visible "
-                + "and how they are composited.")
+                "Connect to any WMS server, browse its layer catalog, and manage active layers with "
+                + "opacity and ordering controls. Demonstrates the reusable WMSServerPanel and "
+                + "WMSLayerEntry components integrated with WorldWind's layer system.")
             + section("What You'll See",
                 "<ul>"
-                + "<li>A control panel listing all active layers with checkboxes and opacity sliders</li>"
-                + "<li>Up/down buttons for reordering the layer draw priority</li>"
+                + "<li><b>WMS Browser tab</b> &mdash; server connection panel with preset servers, "
+                + "layer catalog with search/filter, and add/remove buttons per layer</li>"
+                + "<li><b>Active WMS tab</b> &mdash; per-layer opacity slider, up/down ordering, "
+                + "and remove controls for all active WMS layers</li>"
+                + "<li><b>Layers tab</b> &mdash; standard WorldWind layer list for base layers</li>"
                 + "</ul>")
             + section("How to Interact",
                 "<ul>"
-                + "<li>Toggle layer checkboxes to show or hide layers</li>"
-                + "<li>Adjust opacity sliders to blend layers transparently</li>"
-                + "<li>Reorder layers using up/down buttons to change their compositing order</li>"
+                + "<li>Select a preset server or enter a custom URL and click Connect</li>"
+                + "<li>Browse the layer catalog; use the filter field to search by name</li>"
+                + "<li>Click <b>Add</b> to place a WMS layer on the globe, <b>Remove</b> to take it off</li>"
+                + "<li>Switch to the Active WMS tab to adjust opacity and layer ordering</li>"
                 + "</ul>")
             + section("Key APIs",
                 "<ul>"
-                + "<li><code class='api-class'>LayerList</code> &mdash; ordered collection of layers; draw order matches list order</li>"
-                + "<li><code class='api-method'>layer.setEnabled(boolean)</code> &mdash; toggle visibility</li>"
-                + "<li><code class='api-method'>layer.setOpacity(double)</code> &mdash; set transparency from 0.0 (invisible) to 1.0 (opaque)</li>"
+                + "<li><code class='api-class'>WMSServerPanel</code> &mdash; async server connection with status indicators</li>"
+                + "<li><code class='api-class'>WMSLayerEntry</code> &mdash; data model with lazy Layer/ElevationModel creation</li>"
+                + "<li><code class='api-method'>ApplicationTemplate.insertBeforePlacenames()</code> &mdash; layer insertion</li>"
+                + "<li><code class='api-method'>layer.setOpacity(double)</code> &mdash; per-layer transparency control</li>"
                 + "</ul>"));
 
         put("WMSTimeSeriesDemo",

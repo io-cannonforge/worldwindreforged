@@ -28,6 +28,7 @@
 package gov.nasa.worldwindx.examples.dataimport;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
@@ -48,6 +49,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.xml.xpath.XPath;
@@ -102,7 +106,47 @@ public class InstallImageryAndElevationsDemo extends ApplicationTemplate
             WWUtil.alignComponent(this, this.installedDataFrame, AVKey.RIGHT);
             this.installedDataFrame.setVisible(true);
 
-            this.layoutComponents();
+            Box installControls = this.layoutComponents();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(installControls);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         public InstalledDataFrame getInstalledDataFrame()
@@ -110,7 +154,7 @@ public class InstallImageryAndElevationsDemo extends ApplicationTemplate
             return this.installedDataFrame;
         }
 
-        protected void layoutComponents()
+        protected Box layoutComponents()
         {
             JButton button = new JButton("Show Installed Data...");
             button.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -126,9 +170,9 @@ public class InstallImageryAndElevationsDemo extends ApplicationTemplate
             Box box = Box.createVerticalBox();
             box.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // top, left, bottom, right
             box.add(button);
-            this.getControlPanel().add(box, BorderLayout.SOUTH);
             this.validate();
             this.pack();
+            return box;
         }
     }
 

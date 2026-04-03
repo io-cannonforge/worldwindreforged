@@ -11,6 +11,7 @@
 package gov.nasa.worldwindx.examples;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -22,6 +23,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -103,7 +107,7 @@ public class GPUTerrainDemo extends ApplicationTemplate
         public AppFrame()
         {
             super(true, true, false);
-            getControlPanel().add(buildControlPanel(), BorderLayout.SOUTH);
+            JPanel gpuControlPanel = buildControlPanel();
 
             // Start at Rocky Mountains — good for seeing LOD transitions
             getWwd().getView().setEyePosition(
@@ -132,6 +136,46 @@ public class GPUTerrainDemo extends ApplicationTemplate
 
             // Apply initial mode immediately (will be re-checked once GL is live)
             applyMode(currentMode);
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(gpuControlPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         // ── Mode management ───────────────────────────────────────────────────

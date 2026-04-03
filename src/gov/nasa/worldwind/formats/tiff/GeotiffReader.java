@@ -190,6 +190,11 @@ public class GeotiffReader implements Disposable, AutoCloseable {
         long[] stripOffsets = null;
         byte[][] cmap = null;
         long[] stripCounts = null;
+        // Modified by seaglassfoundry.com — tiled TIFF support for ArcGIS WCS servers.
+        long[] tileOffsets = null;
+        long[] tileCounts = null;
+        int tileWidth = 0;
+        int tileLength = 0;
 
         boolean tiffDifferencing = false;
 
@@ -257,6 +262,24 @@ public class GeotiffReader implements Disposable, AutoCloseable {
                         stripCounts = entry.getAsLongs();
                         break;
 
+                    // Modified by seaglassfoundry.com — read tile tags so we can fall back to
+                    // tiled layout when strip tags are absent (ArcGIS WCS returns tiled TIFFs).
+                    case Tiff.Tag.TILE_OFFSETS:
+                        tileOffsets = entry.getAsLongs();
+                        break;
+
+                    case Tiff.Tag.TILE_COUNTS:
+                        tileCounts = entry.getAsLongs();
+                        break;
+
+                    case Tiff.Tag.TILE_WIDTH:
+                        tileWidth = (int) entry.asLong();
+                        break;
+
+                    case Tiff.Tag.TILE_LENGTH:
+                        tileLength = (int) entry.asLong();
+                        break;
+
                     case Tiff.Tag.COLORMAP:
                         cmap = this.tiffReader.readColorMap(entry);
                         break;
@@ -266,16 +289,39 @@ public class GeotiffReader implements Disposable, AutoCloseable {
             }
         }
 
-        if (null == stripOffsets || 0 == stripOffsets.length) {
-            String message = Logging.getMessage("GeotiffReader.MissingRequiredTag", "StripOffsets");
-            Logging.logger().severe(message);
-            throw new IOException(message);
+        // Modified by seaglassfoundry.com — detect tiled TIFF layout.  ArcGIS WCS servers
+        // (e.g. USGS 3DEP) return tiled GeoTIFFs even for small (150×150) elevation tiles.
+        // Tiled TIFFs store pixels in a 2D grid of tiles — reading them sequentially as
+        // strips garbles the spatial layout.  We handle tiled elevation data with a dedicated
+        // reading path below; for non-elevation images we still fall back to strip substitution.
+        boolean isTiledTiff = tileOffsets != null && tileOffsets.length > 0
+            && tileWidth > 0 && tileLength > 0;
+
+        if (!isTiledTiff && (null == stripOffsets || 0 == stripOffsets.length)
+            && tileOffsets != null && tileOffsets.length > 0)
+        {
+            // Fallback for tiled images without full tile dimension tags — treat as strips.
+            stripOffsets = tileOffsets;
+            stripCounts = tileCounts;
+            tiff.rowsPerStrip = tileLength > 0 ? tileLength : tiff.height;
+            isTiledTiff = false;
         }
 
-        if (null == stripCounts || 0 == stripCounts.length) {
-            String message = Logging.getMessage("GeotiffReader.MissingRequiredTag", "StripCounts");
-            Logging.logger().severe(message);
-            throw new IOException(message);
+        // Modified by seaglassfoundry.com — skip strip checks for tiled TIFFs; they use
+        // tile offsets/counts instead.
+        if (!isTiledTiff)
+        {
+            if (null == stripOffsets || 0 == stripOffsets.length) {
+                String message = Logging.getMessage("GeotiffReader.MissingRequiredTag", "StripOffsets");
+                Logging.logger().severe(message);
+                throw new IOException(message);
+            }
+
+            if (null == stripCounts || 0 == stripCounts.length) {
+                String message = Logging.getMessage("GeotiffReader.MissingRequiredTag", "StripCounts");
+                Logging.logger().severe(message);
+                throw new IOException(message);
+            }
         }
 
         TiffIFDEntry notToday = getByTag(ifd, Tiff.Tag.COMPRESSION);
@@ -292,20 +338,22 @@ public class GeotiffReader implements Disposable, AutoCloseable {
             throw new IOException(message);
         }
 
-        notToday = getByTag(ifd, Tiff.Tag.TILE_WIDTH);
-        if (notToday != null) {
-            String message = Logging.getMessage("GeotiffReader.NoTiled");
-            Logging.logger().severe(message);
-            throw new IOException(message);
-        }
-
-        long offset = stripOffsets[0];
+        long offset = (stripOffsets != null && stripOffsets.length > 0) ? stripOffsets[0] : 0;
 
         if (values.getValue(AVKey.PIXEL_FORMAT) == AVKey.ELEVATION) {
             ByteBufferRaster raster = new ByteBufferRaster(tiff.width, tiff.height,
                     (Sector) values.getValue(AVKey.SECTOR), values);
 
-            if (raster.getValue(AVKey.DATA_TYPE) == AVKey.INT8) {
+            // Modified by seaglassfoundry.com — proper tiled TIFF elevation reading.
+            // Tiled TIFFs store pixels in a 2D grid of fixed-size tiles (e.g. 128×128).
+            // Edge tiles are padded to full tile dimensions, so we must read each tile
+            // individually and copy only the valid pixels to the correct raster position.
+            if (isTiledTiff)
+            {
+                readTiledElevation(raster, tiff, tileOffsets, tileCounts,
+                    tileWidth, tileLength, values);
+            }
+            else if (raster.getValue(AVKey.DATA_TYPE) == AVKey.INT8) {
                 byte[][] data = this.tiffReader.readPlanar8(tiff.width, tiff.height, tiff.samplesPerPixel,
                         stripOffsets, stripCounts, tiff.rowsPerStrip);
 
@@ -901,6 +949,112 @@ public class GeotiffReader implements Disposable, AutoCloseable {
             String message = Logging.getMessage("GeotiffReader.BadIFD", ex.getMessage());
             Logging.logger().severe(message);
             throw new IOException(message);
+        }
+    }
+
+    // ── Tiled TIFF elevation reader ─────────────────────────────────────────
+    // Added by seaglassfoundry.com — reads tiled GeoTIFF elevation data correctly.
+    // Tiled TIFFs store pixels in a 2D grid of fixed-size tiles.  The tiles are
+    // ordered left-to-right, top-to-bottom.  Edge tiles are padded to the full
+    // tile dimensions, so we read each tile into a temporary buffer and copy only
+    // the valid pixels into the output raster at the correct (row, col) position.
+
+    private void readTiledElevation(ByteBufferRaster raster, BaselineTiff tiff,
+        long[] tileOffsets, long[] tileCounts,
+        int tileWidth, int tileLength, AVList values) throws IOException
+    {
+        int imgW = tiff.width;
+        int imgH = tiff.height;
+        int tilesAcross = (imgW + tileWidth - 1) / tileWidth;
+        int tilesDown   = (imgH + tileLength - 1) / tileLength;
+
+        Object dataType = raster.getValue(AVKey.DATA_TYPE);
+
+        // Retrieve the missing-data signal so we can replace extreme nodata values
+        // (e.g. ArcGIS uses -3.4028235E38) with the raster's declared missing value.
+        // Default to -9999 (WorldWind convention) if not specified in metadata.
+        Double missingSignal = AVListImpl.getDoubleValue(values, AVKey.MISSING_DATA_SIGNAL);
+        double fillValue = (missingSignal != null) ? missingSignal : -9999.0;
+
+        for (int tileIdx = 0; tileIdx < tileOffsets.length; tileIdx++)
+        {
+            int tileCol = tileIdx % tilesAcross;
+            int tileRow = tileIdx / tilesAcross;
+            int xOff = tileCol * tileWidth;
+            int yOff = tileRow * tileLength;
+
+            // Determine how many valid pixels this tile contributes
+            int validW = Math.min(tileWidth, imgW - xOff);
+            int validH = Math.min(tileLength, imgH - yOff);
+            if (validW <= 0 || validH <= 0)
+                continue;
+
+            int tileBytes = (int) tileCounts[tileIdx];
+
+            // Skip empty tiles (ArcGIS returns 0-byte tiles for partial-coverage areas).
+            // Fill with missing-data signal so WorldWind treats them as absent.
+            if (tileBytes <= 0)
+            {
+                for (int row = 0; row < validH; row++)
+                    for (int col = 0; col < validW; col++)
+                        raster.setDoubleAtPosition(yOff + row, xOff + col, fillValue);
+                continue;
+            }
+
+            ByteBuffer buf = ByteBuffer.allocate(tileBytes);
+            buf.order(this.tiffReader.getByteOrder());
+            this.theChannel.position(tileOffsets[tileIdx]);
+            this.theChannel.read(buf);
+            buf.flip();
+
+            if (dataType == AVKey.FLOAT32)
+            {
+                java.nio.FloatBuffer fb = buf.asFloatBuffer();
+                for (int row = 0; row < validH; row++)
+                {
+                    // Position to start of this row within the tile (tile rows are tileWidth wide)
+                    fb.position(row * tileWidth);
+                    for (int col = 0; col < validW; col++)
+                    {
+                        float val = fb.get();
+                        // Filter extreme nodata values that would cause terrain spikes
+                        if (Float.isNaN(val) || val < -1e7 || val > 1e7)
+                            val = (float) fillValue;
+                        raster.setDoubleAtPosition(yOff + row, xOff + col, val);
+                    }
+                }
+            }
+            else if (dataType == AVKey.INT16)
+            {
+                java.nio.ShortBuffer sb = buf.asShortBuffer();
+                for (int row = 0; row < validH; row++)
+                {
+                    sb.position(row * tileWidth);
+                    for (int col = 0; col < validW; col++)
+                    {
+                        short val = sb.get();
+                        raster.setDoubleAtPosition(yOff + row, xOff + col, val);
+                    }
+                }
+            }
+            else if (dataType == AVKey.INT8)
+            {
+                for (int row = 0; row < validH; row++)
+                {
+                    buf.position(row * tileWidth);
+                    for (int col = 0; col < validW; col++)
+                    {
+                        byte val = buf.get();
+                        raster.setDoubleAtPosition(yOff + row, xOff + col, val);
+                    }
+                }
+            }
+            else
+            {
+                String message = Logging.getMessage("Geotiff.UnsupportedDataTypeRaster", tiff.toString());
+                Logging.logger().severe(message);
+                throw new IOException(message);
+            }
         }
     }
 

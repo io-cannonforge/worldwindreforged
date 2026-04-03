@@ -676,6 +676,35 @@ public class BasicOrbitView extends BasicView implements OrbitView
         this.roll = this.getOrbitViewLimits().limitRoll(this, this.roll);
         this.zoom = this.getOrbitViewLimits().limitZoom(this, this.zoom);
 
+        // Modified by seaglassfoundry.com - resolve terrain collisions each frame.
+        // This is critical on the first frame after construction, when setter-time
+        // collision resolution was skipped because dc was null. Also handles the
+        // case where terrain elevation data loads asynchronously after init.
+        resolveCollisionsWithCenterPosition();
+        resolveCollisionsWithPitch();
+
+        // Modified by seaglassfoundry.com - direct eye-altitude safety check.
+        // The standard collision resolution only samples two points (eye + near plane center)
+        // and can miss cases where setModelCoordinates() bypasses collision checks entirely
+        // (e.g. computeAndSetViewCenterIfNeeded during user interaction). This direct check
+        // computes the eye position from current orbit parameters and ensures it stays above
+        // the terrain elevation at that location.
+        if (isDetectCollisions() && this.globe != null)
+        {
+            Position eyePos = this.getCurrentEyePosition();
+            if (eyePos != null)
+            {
+                double terrainElev = this.globe.getElevation(eyePos.getLatitude(), eyePos.getLongitude())
+                    * dc.getVerticalExaggeration();
+                double heightAbove = eyePos.getElevation() - terrainElev;
+                if (heightAbove < COLLISION_THRESHOLD)
+                {
+                    double deficit = COLLISION_THRESHOLD - heightAbove;
+                    this.center = new Position(this.center, this.center.getElevation() + deficit);
+                }
+            }
+        }
+
         //========== modelview matrix state ==========//
         // Compute the current modelview matrix.
         this.modelview = OrbitViewInputSupport.computeTransformMatrix(this.globe, this.center,

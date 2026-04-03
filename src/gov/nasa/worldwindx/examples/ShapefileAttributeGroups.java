@@ -38,6 +38,9 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.WorldWind;
@@ -67,11 +70,52 @@ public class ShapefileAttributeGroups extends ApplicationTemplate
         private static final long serialVersionUID = 1L;
         protected static String SHAPEFILE_PATH = "gov/nasa/worldwindx/examples/data/ShapefileAttributeGroups.xml";
         protected Map<Integer, AttributeGroup> groups = new LinkedHashMap<>();
+        private JPanel titlePanel;
 
         public AppFrame()
         {
             this.setupGroups();
             this.loadShapefile();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(this.titlePanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Continents", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         protected void setupGroups()
@@ -89,14 +133,13 @@ public class ShapefileAttributeGroups extends ApplicationTemplate
 
             // Setup the group control panel.
 
-            JPanel titlePanel = new JPanel(new GridLayout(0, 1, 0, 10));
-            titlePanel.setBorder(WWStyle.sectionBorder("Continents"));
-            titlePanel.setToolTipText("Continents to highlight");
-            this.getControlPanel().add(titlePanel, BorderLayout.SOUTH);
+            this.titlePanel = new JPanel(new GridLayout(0, 1, 0, 10));
+            this.titlePanel.setBorder(WWStyle.sectionBorder("Continents"));
+            this.titlePanel.setToolTipText("Continents to highlight");
 
             JPanel groupPanel = new JPanel(new GridLayout(0, 1, 0, 5));
             groupPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            titlePanel.add(groupPanel);
+            this.titlePanel.add(groupPanel);
 
             for (AttributeGroup group : this.groups.values())
             {

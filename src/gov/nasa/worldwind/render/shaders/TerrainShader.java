@@ -136,7 +136,12 @@ public class TerrainShader
 
             // Pick color mode: replace imagery RGB with primary color (pick color)
             vec3 rgb = (u_usePickColor == 1) ? v_primaryColor.rgb : color.rgb;
-            fragColor = vec4(rgb, alpha);
+
+            // seaglassfoundry.com: apply per-layer opacity from v_primaryColor.a (set via
+            // glColor4d in TiledImageLayer.setBlendingFunction). Premultiplied alpha blending
+            // requires scaling both RGB and alpha by the layer opacity.
+            float layerOpacity = v_primaryColor.a;
+            fragColor = vec4(rgb * layerOpacity, alpha * layerOpacity);
         }
         """;
 

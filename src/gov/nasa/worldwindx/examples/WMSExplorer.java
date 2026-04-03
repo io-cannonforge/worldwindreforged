@@ -76,6 +76,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import java.util.logging.Logger;
+
 import gov.nasa.worldwind.Factory;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
@@ -102,6 +104,7 @@ import gov.nasa.worldwind.wms.WMSTiledImageLayer;
  */
 public class WMSExplorer
 {
+    private static final Logger logger = Logger.getLogger(WMSExplorer.class.getName());
     // ---- Color palette ----
     private static final Color BG_DARK = new Color(45, 45, 48);
     private static final Color BG_PANEL = new Color(60, 63, 65);
@@ -110,6 +113,8 @@ public class WMSExplorer
     private static final Color FG_SECONDARY = new Color(160, 160, 160);
     private static final Color ACCENT = new Color(0, 122, 204);
     private static final Color ACCENT_HOVER = new Color(28, 151, 234);
+    private static final Color BG_SELECTED = new Color(30, 70, 110);   // Modified by seaglassfoundry.com - highlight selected layer entries
+    private static final Color BG_HOVER    = new Color(70, 73, 76);    // Modified by seaglassfoundry.com - hover feedback on layer entries
     private static final Color BORDER_COLOR = new Color(80, 83, 85);
     private static final Color STATUS_GREEN  = new Color(80,  200, 120);
     private static final Color STATUS_YELLOW = new Color(230, 180,  50);
@@ -123,9 +128,9 @@ public class WMSExplorer
     private static final String[][] PRESET_SERVERS = {
         {"NASA GIBS", "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi"},
         {"USGS NatMap", "https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WmsServer"},
-        {"Canada Weather", "https://geo.weather.gc.ca/geomet"},
+        {"NOAA Nautical Charts", "https://gis.charttools.noaa.gov/arcgis/rest/services/MCS/NOAAChartDisplay/MapServer/exts/MaritimeChartService/WMSServer"},
         {"NOAA Radar", "https://mapservices.weather.noaa.gov/eventdriven/services/radar/radar_base_reflectivity/MapServer/WMSServer"},
-        {"NOAA GOES", "https://idpgis.ncep.noaa.gov/arcgis/services/satellite/goes_imagery/MapServer/WMSServer"},
+        {"NOAA GOES", "https://nowcoast.noaa.gov/geoserver/satellite/wms"},
         {"DWD Germany", "https://maps.dwd.de/geoserver/wms"},
     };
 
@@ -196,6 +201,23 @@ public class WMSExplorer
             return false;
         }
 
+        // Modified by seaglassfoundry.com - detect live/current WMS layers for auto-refresh
+        /** Check whether this WMS layer advertises current="true" on its time dimension. */
+        protected boolean isLiveData()
+        {
+            if (layerCaps == null)
+                return false;
+            Set<WMSLayerDimension> dims = layerCaps.getDimensions();
+            if (dims == null)
+                return false;
+            for (WMSLayerDimension d : dims)
+            {
+                if ("time".equalsIgnoreCase(d.getName()) && Boolean.TRUE.equals(d.isCurrent()))
+                    return true;
+            }
+            return false;
+        }
+
         /** Return the raw time dimension string, or null. */
         protected String getTimeDimensionString()
         {
@@ -249,6 +271,7 @@ public class WMSExplorer
 
             JPanel rightPanel = new JPanel(new BorderLayout(0, 0));
             rightPanel.setBackground(BG_DARK);
+            rightPanel.setMinimumSize(new Dimension(250, 0));
             rightPanel.setPreferredSize(new Dimension(350, 0));
             rightPanel.add(serverPanel, BorderLayout.CENTER);
             rightPanel.add(activeLayersPanel, BorderLayout.SOUTH);
@@ -269,9 +292,28 @@ public class WMSExplorer
             statusLabel.setPreferredSize(new Dimension(0, 26));
             bottomBar.add(statusLabel, BorderLayout.SOUTH);
 
-            root.add(globePanel, BorderLayout.CENTER);
-            root.add(rightPanel, BorderLayout.EAST);
+            // Modified by seaglassfoundry.com - use a split pane between the globe and
+            // the right panel so it can be resized, consistent with other examples.
+            javax.swing.JSplitPane splitPane = new javax.swing.JSplitPane(
+                javax.swing.JSplitPane.HORIZONTAL_SPLIT, globePanel, rightPanel);
+            splitPane.setResizeWeight(0.67);
+            splitPane.setDividerSize(5);
+            splitPane.setContinuousLayout(true);
+
+            root.add(splitPane, BorderLayout.CENTER);
             root.add(bottomBar, BorderLayout.SOUTH);
+
+            // Set initial divider at 2/3 after layout is complete.
+            this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                private boolean initialized;
+                @Override
+                public void componentResized(java.awt.event.ComponentEvent e) {
+                    if (!initialized) {
+                        splitPane.setDividerLocation(getWidth() * 2 / 3);
+                        initialized = true;
+                    }
+                }
+            });
 
             this.getContentPane().removeAll();
             this.getContentPane().add(root, BorderLayout.CENTER);
@@ -451,6 +493,9 @@ public class WMSExplorer
         private ScheduledExecutorService healthExecutor;
         // Auto-select layer name when a temporal preset is loaded
         private volatile String pendingAutoSelect;
+        // Modified by seaglassfoundry.com - track active server button for selection highlight
+        private final List<JButton> allServerButtons = new ArrayList<>();
+        private JButton activeServerButton;
 
         public ServerPanel(WorldWindow wwd, ActiveLayersPanel activeLayersPanel,
                            TimeControlPanel timeControlPanel,
@@ -508,6 +553,7 @@ public class WMSExplorer
             presetsPanel.setBackground(BG_PANEL);
             presetsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             presetsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 105));
+            // Modified by seaglassfoundry.com - track server buttons for active highlight
             for (String[] preset : PRESET_SERVERS)
             {
                 JLabel dot = createStatusDot(STATUS_GRAY);
@@ -517,8 +563,10 @@ public class WMSExplorer
                 btn.addActionListener(e -> {
                     pendingAutoSelect = null;
                     urlField.setText(url);
+                    setActiveServerButton(btn);
                     connectToServer();
                 });
+                allServerButtons.add(btn);
                 presetsPanel.add(btn);
             }
             connectionArea.add(presetsPanel);
@@ -534,6 +582,7 @@ public class WMSExplorer
             temporalPanel.setBackground(BG_PANEL);
             temporalPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             temporalPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+            // Modified by seaglassfoundry.com - track temporal buttons for active highlight
             for (String[] tp : TEMPORAL_PRESETS)
             {
                 JButton btn = createPresetButton(tp[0]);
@@ -542,8 +591,10 @@ public class WMSExplorer
                 btn.addActionListener(e -> {
                     pendingAutoSelect = layer;
                     urlField.setText(url);
+                    setActiveServerButton(btn);
                     connectToServer();
                 });
+                allServerButtons.add(btn);
                 temporalPanel.add(btn);
             }
             connectionArea.add(temporalPanel);
@@ -669,7 +720,8 @@ public class WMSExplorer
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                logger.log(java.util.logging.Level.WARNING, "WMS capabilities retrieval failed: " + uri + " — " + e.getMessage());
+                logger.log(java.util.logging.Level.FINE, "WMS capabilities error details", e);
                 SwingUtilities.invokeLater(() -> {
                     layerListPanel.removeAll();
                     JLabel errorLabel = createLabel("  Error: " + e.getMessage(), UI_FONT);
@@ -719,7 +771,8 @@ public class WMSExplorer
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                logger.log(java.util.logging.Level.WARNING, "Error parsing WMS capabilities: " + e.getMessage());
+                logger.log(java.util.logging.Level.FINE, "WMS parsing error details", e);
                 SwingUtilities.invokeLater(() -> {
                     statusCallback.accept("Error parsing capabilities.");
                 });
@@ -786,21 +839,53 @@ public class WMSExplorer
                 if (!filter.isEmpty() && title != null && !title.toLowerCase().contains(filter))
                     continue;
 
-                JCheckBox cb = new JCheckBox(title != null ? title : "(unnamed)");
+                // Modified by seaglassfoundry.com - highlight selected layers and add hover feedback
+                String label = title != null ? title : "(unnamed)";
+                if (entry.isLiveData())
+                    label += "  [LIVE]";
+                JCheckBox cb = new JCheckBox(label);
                 cb.setFont(UI_FONT);
                 cb.setForeground(FG_PRIMARY);
-                cb.setBackground(BG_PANEL);
+                cb.setOpaque(true);
+                cb.setBackground(entry.enabled ? BG_SELECTED : BG_PANEL);
                 cb.setFocusPainted(false);
                 cb.setSelected(entry.enabled);
                 cb.setAlignmentX(Component.LEFT_ALIGNMENT);
-                cb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
-                cb.setBorder(BorderFactory.createEmptyBorder(2, 10, 2, 10));
+                cb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+                cb.setBorder(entry.enabled
+                    ? BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 3, 0, 0, ACCENT),
+                        BorderFactory.createEmptyBorder(2, 7, 2, 10))
+                    : BorderFactory.createEmptyBorder(2, 10, 2, 10));
 
                 if (entry.getAbstract() != null)
                     cb.setToolTipText(truncate(entry.getAbstract(), 200));
 
                 final LayerEntry layerEntry = entry;
-                cb.addActionListener(e -> toggleLayer(layerEntry, cb.isSelected()));
+                cb.addActionListener(e -> {
+                    toggleLayer(layerEntry, cb.isSelected());
+                    cb.setBackground(cb.isSelected() ? BG_SELECTED : BG_PANEL);
+                    cb.setBorder(cb.isSelected()
+                        ? BorderFactory.createCompoundBorder(
+                            BorderFactory.createMatteBorder(0, 3, 0, 0, ACCENT),
+                            BorderFactory.createEmptyBorder(2, 7, 2, 10))
+                        : BorderFactory.createEmptyBorder(2, 10, 2, 10));
+                });
+                cb.addMouseListener(new MouseAdapter()
+                {
+                    @Override
+                    public void mouseEntered(MouseEvent e)
+                    {
+                        if (!cb.isSelected())
+                            cb.setBackground(BG_HOVER);
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e)
+                    {
+                        cb.setBackground(cb.isSelected() ? BG_SELECTED : BG_PANEL);
+                    }
+                });
 
                 layerListPanel.add(cb);
                 allCheckBoxes.add(cb);
@@ -820,6 +905,25 @@ public class WMSExplorer
         private void applyFilter()
         {
             rebuildLayerList();
+        }
+
+        // Modified by seaglassfoundry.com - highlight the active server button and reset others
+        private void setActiveServerButton(JButton btn)
+        {
+            for (JButton b : allServerButtons)
+            {
+                b.putClientProperty("wms.active", Boolean.FALSE);
+                b.setBackground(BG_FIELD);
+                b.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                    BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+            }
+            activeServerButton = btn;
+            btn.putClientProperty("wms.active", Boolean.TRUE);
+            btn.setBackground(BG_SELECTED);
+            btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ACCENT, 2),
+                BorderFactory.createEmptyBorder(3, 5, 3, 5)));
         }
 
         private void toggleLayer(LayerEntry entry, boolean enable)
@@ -968,7 +1072,7 @@ public class WMSExplorer
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                logger.log(java.util.logging.Level.WARNING, "Failed to create time-step layer for " + isoDate + ": " + e.getMessage());
                 return null;
             }
         }
@@ -1108,7 +1212,7 @@ public class WMSExplorer
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                logger.log(java.util.logging.Level.WARNING, "Failed to create WMS component: " + e.getMessage());
             }
             return null;
         }
@@ -1176,6 +1280,8 @@ public class WMSExplorer
         private final WorldWindow wwd;
         private final JPanel listPanel;
         private final Map<LayerEntry, JPanel> entryPanels = new LinkedHashMap<>();
+        // Modified by seaglassfoundry.com - refresh status labels keyed by layer entry
+        private final Map<LayerEntry, JLabel> refreshLabels = new LinkedHashMap<>();
 
         public ActiveLayersPanel(WorldWindow wwd)
         {
@@ -1206,6 +1312,8 @@ public class WMSExplorer
             add(scroll, BorderLayout.CENTER);
         }
 
+        // Modified by seaglassfoundry.com - auto-refresh toggle for all layers, auto-enabled
+        // when WMS advertises current="true" on its time dimension (live data indicator).
         public void addLayer(LayerEntry entry)
         {
             if (entryPanels.containsKey(entry))
@@ -1214,7 +1322,6 @@ public class WMSExplorer
             JPanel row = new JPanel(new BorderLayout(6, 0));
             row.setBackground(BG_PANEL);
             row.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-            row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
             row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             String title = entry.getTitle();
@@ -1244,7 +1351,7 @@ public class WMSExplorer
             sliderRow.add(opacitySlider, BorderLayout.CENTER);
             sliderRow.add(pctLabel, BorderLayout.EAST);
 
-            // Legend button — fetches GetLegendGraphic and shows it in a dialog
+            // Legend button
             JButton legendBtn = new JButton("Legend");
             legendBtn.setFont(UI_FONT_SMALL);
             legendBtn.setForeground(FG_SECONDARY);
@@ -1256,19 +1363,95 @@ public class WMSExplorer
             legendBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             legendBtn.addActionListener(e -> fetchAndShowLegend(entry));
 
+            // Refresh status label (shown when auto-refresh is active)
+            JLabel refreshLabel = createLabel("", UI_FONT_SMALL);
+            refreshLabel.setForeground(STATUS_GREEN);
+            refreshLabels.put(entry, refreshLabel);
+
+            // Modified by seaglassfoundry.com - auto-refresh toggle delegates to
+            // WMSTiledImageLayer.setAutoRefresh() so refresh works even without this panel.
+            boolean isWmsLayer = entry.component instanceof WMSTiledImageLayer;
+            boolean autoStart = isWmsLayer && ((WMSTiledImageLayer) entry.component).getAutoRefresh();
+            JButton refreshBtn = new JButton("Auto 5m");
+            refreshBtn.setFont(new Font("Segoe UI", Font.BOLD, 9));
+            refreshBtn.setFocusPainted(false);
+            refreshBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            refreshBtn.setToolTipText("Toggle auto-refresh (every 5 minutes)");
+            refreshBtn.putClientProperty("refresh.active", autoStart);
+            styleRefreshButton(refreshBtn, autoStart);
+            refreshBtn.addActionListener(e -> {
+                if (!(entry.component instanceof WMSTiledImageLayer wmsLayer))
+                    return;
+                boolean active = Boolean.TRUE.equals(refreshBtn.getClientProperty("refresh.active"));
+                boolean next = !active;
+                wmsLayer.setAutoRefresh(next);
+                refreshBtn.putClientProperty("refresh.active", next);
+                styleRefreshButton(refreshBtn, next);
+                refreshLabel.setText(next ? "  Auto-refresh: 5 min" : "");
+                row.revalidate();
+                row.repaint();
+            });
+
+            // Top row: name + buttons
             JPanel topRow = new JPanel(new BorderLayout(4, 0));
             topRow.setBackground(BG_PANEL);
             topRow.add(nameLabel, BorderLayout.CENTER);
-            topRow.add(legendBtn, BorderLayout.EAST);
+
+            JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 3, 0));
+            btnRow.setBackground(BG_PANEL);
+            btnRow.setOpaque(false);
+
+            // LIVE badge for layers that advertise current="true"
+            if (isWmsLayer && ((WMSTiledImageLayer) entry.component).isLiveData())
+            {
+                JLabel liveBadge = new JLabel("LIVE");
+                liveBadge.setFont(new Font("Segoe UI", Font.BOLD, 9));
+                liveBadge.setForeground(new Color(255, 255, 255));
+                liveBadge.setBackground(STATUS_GREEN);
+                liveBadge.setOpaque(true);
+                liveBadge.setBorder(BorderFactory.createEmptyBorder(1, 4, 1, 4));
+                btnRow.add(liveBadge);
+            }
+            btnRow.add(refreshBtn);
+            btnRow.add(legendBtn);
+            topRow.add(btnRow, BorderLayout.EAST);
+
+            // Bottom area: slider + refresh status
+            JPanel bottomRow = new JPanel(new BorderLayout(4, 0));
+            bottomRow.setBackground(BG_PANEL);
+            bottomRow.add(sliderRow, BorderLayout.CENTER);
+            bottomRow.add(refreshLabel, BorderLayout.SOUTH);
 
             row.add(topRow, BorderLayout.NORTH);
-            row.add(sliderRow, BorderLayout.CENTER);
-            row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
+            row.add(bottomRow, BorderLayout.CENTER);
+            row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
 
             entryPanels.put(entry, row);
             listPanel.add(row);
             listPanel.revalidate();
             listPanel.repaint();
+
+            // Show refresh status if layer already has auto-refresh active (e.g., live data)
+            if (autoStart)
+                refreshLabel.setText("  Auto-refresh: 5 min");
+        }
+
+        private void styleRefreshButton(JButton btn, boolean active)
+        {
+            if (active)
+            {
+                btn.setForeground(new Color(255, 255, 255));
+                btn.setBackground(STATUS_GREEN);
+                btn.setBorder(BorderFactory.createEmptyBorder(1, 4, 1, 4));
+            }
+            else
+            {
+                btn.setForeground(FG_SECONDARY);
+                btn.setBackground(BG_FIELD);
+                btn.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                    BorderFactory.createEmptyBorder(1, 3, 1, 3)));
+            }
         }
 
         /** Fetch GetLegendGraphic from the WMS server and display it in a dialog. */
@@ -1342,6 +1525,7 @@ public class WMSExplorer
 
         public void removeLayer(LayerEntry entry)
         {
+            refreshLabels.remove(entry);
             JPanel row = entryPanels.remove(entry);
             if (row != null)
             {
@@ -1353,6 +1537,7 @@ public class WMSExplorer
 
         public void clearAll()
         {
+            refreshLabels.clear();
             entryPanels.clear();
             listPanel.removeAll();
             listPanel.revalidate();
@@ -1757,6 +1942,7 @@ public class WMSExplorer
         return btn;
     }
 
+    // Modified by seaglassfoundry.com - hover respects active server selection state
     private static JButton createPresetButton(String text)
     {
         JButton btn = new JButton(text);
@@ -1771,9 +1957,17 @@ public class WMSExplorer
         btn.addMouseListener(new MouseAdapter()
         {
             @Override
-            public void mouseEntered(MouseEvent e) { btn.setBackground(ACCENT); }
+            public void mouseEntered(MouseEvent e)
+            {
+                if (!Boolean.TRUE.equals(btn.getClientProperty("wms.active")))
+                    btn.setBackground(ACCENT_HOVER);
+            }
             @Override
-            public void mouseExited(MouseEvent e) { btn.setBackground(BG_FIELD); }
+            public void mouseExited(MouseEvent e)
+            {
+                if (!Boolean.TRUE.equals(btn.getClientProperty("wms.active")))
+                    btn.setBackground(BG_FIELD);
+            }
         });
         return btn;
     }
@@ -1812,10 +2006,19 @@ public class WMSExplorer
             BorderFactory.createLineBorder(BORDER_COLOR, 1),
             BorderFactory.createEmptyBorder(4, 6, 4, 6)));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        // Modified by seaglassfoundry.com - hover respects active server selection state
         btn.addMouseListener(new MouseAdapter()
         {
-            @Override public void mouseEntered(MouseEvent e) { btn.setBackground(ACCENT); }
-            @Override public void mouseExited(MouseEvent e)  { btn.setBackground(BG_FIELD); }
+            @Override public void mouseEntered(MouseEvent e)
+            {
+                if (!Boolean.TRUE.equals(btn.getClientProperty("wms.active")))
+                    btn.setBackground(ACCENT_HOVER);
+            }
+            @Override public void mouseExited(MouseEvent e)
+            {
+                if (!Boolean.TRUE.equals(btn.getClientProperty("wms.active")))
+                    btn.setBackground(BG_FIELD);
+            }
         });
         return btn;
     }

@@ -88,6 +88,10 @@ public class ContourBuilderExample extends ApplicationTemplate
             contourLayer.setName("Contour Lines");
             this.getWwd().getModel().getLayers().add(contourLayer);
 
+            // Modified by seaglassfoundry.com - set the initial view to show the contour data
+            this.getWwd().getView().setEyePosition(
+                Position.fromDegrees(25, -105, 2_000_000));
+
             // Create a ContourBuilder with the rectangular array of numeric values as a one-dimensional array of
             // floating point numbers. The contour builder assumes that the array is organized in row-major order, with
             // the first value indicating the value at the upper-left corner.

@@ -53,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
@@ -162,11 +163,51 @@ public class Annotations extends ApplicationTemplate
             this.setupAnnotations();
 
             // Add control panel
-            this.getControlPanel().add(makeControlPanel(), BorderLayout.SOUTH);
+            JPanel annotationControlPanel = makeControlPanel();
             this.enableControlPanel(false);
 
             // Add a select listener to select or highlight annotations on rollover
             this.setupSelection();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(annotationControlPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         private void setupAnnotations()

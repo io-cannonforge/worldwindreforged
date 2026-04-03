@@ -444,15 +444,13 @@ public class TextureTile extends Tile implements SurfaceTile
                 gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, (float) maxAnisotropy);
             }
         }
-        // If the texture does not qualify for mipmaps, then apply a linear minification filter.
         else
         {
             gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         }
 
-        // Set the texture magnification filter to a linear filter. This will blur the texture as the eye gets very
-        // near, but this is still a better choice than nearest neighbor filtering.
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+        // Modified by seaglassfoundry.com - use nearest-neighbor for sharp pixel rendering
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         // Set the S and T wrapping modes to clamp to the texture edge. This way no border pixels will be sampled by
         // either the minification or magnification filters.

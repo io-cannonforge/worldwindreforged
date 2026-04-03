@@ -37,6 +37,9 @@ import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import gov.nasa.worldwindx.examples.util.SectorSelector;
 
@@ -66,10 +69,8 @@ public class SectorSelection extends ApplicationTemplate
             JButton btn = new JButton(new EnableSelectorAction());
             btn.setToolTipText("Press Start then press and drag button 1 on globe");
 
-            JPanel p = new JPanel(new BorderLayout(5, 5));
-            p.add(btn, BorderLayout.CENTER);
-
-            this.getControlPanel().add(p, BorderLayout.SOUTH);
+            JPanel customPanel = new JPanel(new BorderLayout(5, 5));
+            customPanel.add(btn, BorderLayout.CENTER);
 
             // Listen for changes to the sector selector's region. Could also just wait until the user finishes
             // and query the result using selector.getSector().
@@ -82,6 +83,46 @@ public class SectorSelection extends ApplicationTemplate
 //                    System.out.println(sector != null ? sector : "no sector");
                 }
             });
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(customPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Selection", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         private class EnableSelectorAction extends AbstractAction

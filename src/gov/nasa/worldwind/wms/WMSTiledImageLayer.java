@@ -28,11 +28,17 @@
 package gov.nasa.worldwind.wms;
 
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
@@ -48,6 +54,8 @@ import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.BasicTiledImageLayer;
 import gov.nasa.worldwind.layers.TextureTile;
 import gov.nasa.worldwind.ogc.wms.WMSCapabilities;
+import gov.nasa.worldwind.ogc.wms.WMSLayerCapabilities;
+import gov.nasa.worldwind.ogc.wms.WMSLayerDimension;
 import gov.nasa.worldwind.util.DataConfigurationUtils;
 import gov.nasa.worldwind.util.ImageUtil;
 import gov.nasa.worldwind.util.Level;
@@ -70,6 +78,19 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
             "image/dds", "image/png", "image/jpeg"
         };
 
+    // Modified by seaglassfoundry.com - auto-refresh support for live WMS layers.
+    // When a WMS layer advertises current="true" on its time dimension, or when
+    // the user manually enables auto-refresh, tiles are periodically expired and
+    // re-fetched from the server.  A shared daemon executor is used so that no
+    // per-layer threads are created, and the JVM can exit cleanly.
+    private static final long DEFAULT_REFRESH_INTERVAL_MS = 300_000; // 5 minutes
+    private static ScheduledExecutorService refreshExecutor;
+
+    private boolean liveData;                    // true if caps advertised current="true"
+    private boolean autoRefresh;                 // whether auto-refresh is currently active
+    private long autoRefreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS;
+    private ScheduledFuture<?> refreshTask;
+
     public WMSTiledImageLayer(AVList params)
     {
         super(params);
@@ -85,9 +106,13 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
         this(wmsGetParamsFromDocument(domElement, params));
     }
 
+    // Modified by seaglassfoundry.com - detect current="true" from WMS capabilities
     public WMSTiledImageLayer(WMSCapabilities caps, AVList params)
     {
         this(wmsGetParamsFromCapsDoc(caps, params));
+        this.liveData = detectLiveData(caps, params);
+        if (this.liveData)
+            setAutoRefresh(true);
     }
 
     public WMSTiledImageLayer(String stateInXml)
@@ -109,6 +134,156 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
 
         this.doRestoreState(rs, null);
     }
+
+    //**************************************************************//
+    //********************  Auto-Refresh (Live Data)  *************//
+    //**************************************************************//
+    // Modified by seaglassfoundry.com - auto-refresh for live WMS layers
+
+    /**
+     * Returns true if the WMS capabilities indicated this layer serves live/current data
+     * (i.e., the time dimension had current="true").
+     */
+    public boolean isLiveData()
+    {
+        return this.liveData;
+    }
+
+    /** Returns true if auto-refresh is currently active. */
+    public boolean getAutoRefresh()
+    {
+        return this.autoRefresh;
+    }
+
+    /**
+     * Enables or disables automatic tile refresh.  When enabled, all cached tiles are
+     * periodically expired, forcing a re-download from the server on the next render pass.
+     * The default interval is 5 minutes.
+     *
+     * @param enabled true to start auto-refresh, false to stop.
+     */
+    public synchronized void setAutoRefresh(boolean enabled)
+    {
+        if (this.autoRefresh == enabled)
+            return;
+
+        this.autoRefresh = enabled;
+        if (enabled)
+            startRefreshTimer();
+        else
+            stopRefreshTimer();
+    }
+
+    /** Returns the auto-refresh interval in milliseconds. */
+    public long getAutoRefreshInterval()
+    {
+        return this.autoRefreshIntervalMs;
+    }
+
+    /**
+     * Sets the auto-refresh interval.  If auto-refresh is already active the timer is
+     * restarted with the new interval.
+     *
+     * @param intervalMs interval in milliseconds (minimum 30 000).
+     */
+    public synchronized void setAutoRefreshInterval(long intervalMs)
+    {
+        if (intervalMs < 30_000)
+            intervalMs = 30_000;
+
+        this.autoRefreshIntervalMs = intervalMs;
+        if (this.autoRefresh)
+        {
+            stopRefreshTimer();
+            startRefreshTimer();
+        }
+    }
+
+    @Override
+    public void setEnabled(boolean enabled)
+    {
+        super.setEnabled(enabled);
+
+        // Pause/resume the refresh timer when the layer is disabled/enabled.
+        synchronized (this)
+        {
+            if (this.autoRefresh)
+            {
+                if (enabled)
+                    startRefreshTimer();
+                else
+                    stopRefreshTimer();
+            }
+        }
+    }
+
+    private void startRefreshTimer()
+    {
+        if (this.refreshTask != null)
+            return; // already running
+
+        if (refreshExecutor == null)
+        {
+            refreshExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "WMS-AutoRefresh");
+                t.setDaemon(true);
+                return t;
+            });
+        }
+
+        this.refreshTask = refreshExecutor.scheduleWithFixedDelay(() -> {
+            if (this.isEnabled())
+            {
+                this.setExpiryTime(System.currentTimeMillis());
+                this.firePropertyChange(
+                    new PropertyChangeEvent(this, AVKey.LAYER, null, this));
+            }
+        }, this.autoRefreshIntervalMs, this.autoRefreshIntervalMs, TimeUnit.MILLISECONDS);
+    }
+
+    private void stopRefreshTimer()
+    {
+        if (this.refreshTask != null)
+        {
+            this.refreshTask.cancel(false);
+            this.refreshTask = null;
+        }
+    }
+
+    /**
+     * Check WMS capabilities for a time dimension with current="true".
+     */
+    private static boolean detectLiveData(WMSCapabilities caps, AVList params)
+    {
+        if (caps == null || params == null)
+            return false;
+
+        String layerNames = params.getStringValue(AVKey.LAYER_NAMES);
+        if (layerNames == null)
+            return false;
+
+        for (String name : layerNames.split(","))
+        {
+            WMSLayerCapabilities layerCaps = caps.getLayerByName(name.trim());
+            if (layerCaps == null)
+                continue;
+
+            Set<WMSLayerDimension> dims = layerCaps.getDimensions();
+            if (dims == null)
+                continue;
+
+            for (WMSLayerDimension d : dims)
+            {
+                if ("time".equalsIgnoreCase(d.getName()) && Boolean.TRUE.equals(d.isCurrent()))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    //**************************************************************//
+    //********************  Parameter Extraction  *****************//
+    //**************************************************************//
 
     /**
      * Extracts parameters necessary to configure the layer from an XML DOM element.

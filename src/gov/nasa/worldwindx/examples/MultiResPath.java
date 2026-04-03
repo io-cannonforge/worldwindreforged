@@ -102,7 +102,9 @@ public class MultiResPath extends ApplicationTemplate {
             attrs.setDrawInterior(false);
             attrs.setOutlineMaterial(Material.RED);
 
-            Path path = new Path(positions);
+            // Modified by seaglassfoundry.com - use MultiResolutionPath instead of Path
+            // so that the 108k positions are adaptively thinned based on view distance
+            Path path = new MultiResolutionPath(positions);
 
             // Indicate that dots are to be drawn at each specified path position.
             path.setShowPositions(true);

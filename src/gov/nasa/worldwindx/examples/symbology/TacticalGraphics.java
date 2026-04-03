@@ -29,6 +29,7 @@
 package gov.nasa.worldwindx.examples.symbology;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -41,7 +42,10 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -127,7 +131,7 @@ public class TacticalGraphics extends ApplicationTemplate
             // Add a BasicDragger so that graphics can be moved by clicking and dragging.
             this.getWwd().addSelectListener(new BasicDragger(this.getWwd()));
 
-            this.addGraphicControls();
+            javax.swing.Box graphicControls = this.addGraphicControls();
 
             // Size the WorldWindow to provide enough screen space for the graphics, and center the WorldWindow
             // on the screen.
@@ -135,6 +139,46 @@ public class TacticalGraphics extends ApplicationTemplate
             this.setPreferredSize(size);
             this.pack();
             WWUtil.alignComponent(null, this, AVKey.CENTER);
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(graphicControls);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         protected void createPointGraphics(RenderableLayer layer)
@@ -967,7 +1011,7 @@ public class TacticalGraphics extends ApplicationTemplate
             }
         }
 
-        protected void addGraphicControls()
+        protected javax.swing.Box addGraphicControls()
         {
             javax.swing.Box box = javax.swing.Box.createVerticalBox();
             box.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -1087,7 +1131,7 @@ public class TacticalGraphics extends ApplicationTemplate
             box.add(javax.swing.Box.createVerticalStrut(10));
             box.add(cb);
 
-            this.getControlPanel().add(box, BorderLayout.SOUTH);
+            return box;
         }
     }
 

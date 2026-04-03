@@ -192,25 +192,47 @@ public class WCSElevationModel extends BasicElevationModel
             params.setValue(AVKey.ELEVATION_MAX, 8850.0);
     }
 
+    // Modified by seaglassfoundry.com — guard against non-degree offset vectors.
+    // ArcGIS WCS servers (e.g. USGS 3DEP) report offset vectors in projected coordinates
+    // (metres) rather than degrees, which makes the level calculation produce negative values.
+    // Fall back to the default 18 levels when the calculation yields an invalid result.
     protected static void determineNumLevels(WCS100DescribeCoverage coverage, AVList params)
     {
-        List<GMLRectifiedGrid> grids =
-            coverage.getCoverageOfferings().get(0).getDomainSet().getSpatialDomain().getRectifiedGrids();
-        if (grids.size() < 1 || grids.get(0).getOffsetVectors().size() < 2)
+        try
+        {
+            List<GMLRectifiedGrid> grids =
+                coverage.getCoverageOfferings().get(0).getDomainSet().getSpatialDomain().getRectifiedGrids();
+            if (grids.size() < 1 || grids.get(0).getOffsetVectors().size() < 2)
+            {
+                params.setValue(AVKey.NUM_LEVELS, 18);
+                return;
+            }
+
+            double xRes = Math.abs(grids.get(0).getOffsetVectors().get(0).x);
+            double yRes = Math.abs(grids.get(0).getOffsetVectors().get(1).y);
+            double dataResolution = Math.min(xRes, yRes);
+
+            if (dataResolution <= 0)
+            {
+                params.setValue(AVKey.NUM_LEVELS, 18);
+                return;
+            }
+
+            int tileSize = (Integer) params.getValue(AVKey.TILE_WIDTH);
+            LatLon level0Delta = (LatLon) params.getValue(AVKey.LEVEL_ZERO_TILE_DELTA);
+
+            double n = Math.log(level0Delta.getLatitude().degrees / (dataResolution * tileSize)) / Math.log(2);
+            int numLevels = (int) (Math.ceil(n) + 1);
+
+            if (numLevels < 1)
+                numLevels = 18;
+
+            params.setValue(AVKey.NUM_LEVELS, numLevels);
+        }
+        catch (Exception e)
         {
             params.setValue(AVKey.NUM_LEVELS, 18);
-            return;
         }
-
-        double xRes = Math.abs(grids.get(0).getOffsetVectors().get(0).x);
-        double yRes = Math.abs(grids.get(0).getOffsetVectors().get(1).y);
-        double dataResolution = Math.min(xRes, yRes);
-
-        int tileSize = (Integer) params.getValue(AVKey.TILE_WIDTH);
-        LatLon level0Delta = (LatLon) params.getValue(AVKey.LEVEL_ZERO_TILE_DELTA);
-
-        double n = Math.log(level0Delta.getLatitude().degrees / (dataResolution * tileSize)) / Math.log(2);
-        params.setValue(AVKey.NUM_LEVELS, (int) (Math.ceil(n) + 1));
     }
 
     public static AVList getWCSElevationModelConfigParams(WCS100Capabilities caps, WCS100DescribeCoverage coverage,

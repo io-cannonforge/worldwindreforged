@@ -486,9 +486,9 @@ public class GraticuleAttributesPanel extends JPanel
             Component c = this.delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (c instanceof JLabel label)
             {
-                if (value instanceof String lineStyle)
+                if (value != null)
                 {
-                    String labelText = getLineStyleLabel(lineStyle);
+                    String labelText = getLineStyleLabel(value);
                     label.setText(labelText);
                 }
             }

@@ -110,7 +110,7 @@ public class Shapes {
         private Dimension canvasSize = new Dimension(800, 600);
         private ApplicationTemplate.AppPanel wwjPanel;
         private RenderableLayer layer = new RenderableLayer();
-        private TextRenderer textRenderer = new TextRenderer(java.awt.Font.decode("Arial-Plain-13"), true, false);
+        private TextRenderer textRenderer; // initialized lazily when GL context is available
 
         public AppFrame() {
             // Create the WorldWindow.
@@ -151,6 +151,9 @@ public class Shapes {
                     return;
                 }
                 if (currentShape instanceof Path p1) {
+                    if (textRenderer == null) {
+                        textRenderer = new TextRenderer(java.awt.Font.decode("Arial-Plain-13"), true, false);
+                    }
                     String length = Double.toString(p1.getLength());
                     textRenderer.beginRendering(wwjPanel.getWidth(), wwjPanel.getHeight());
                     textRenderer.draw(length, 100, 100);

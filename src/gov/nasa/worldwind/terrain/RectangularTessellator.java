@@ -1230,7 +1230,12 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         }
         else if (useShader)
         {
-            terrainShader.activate(dc.getGL().getGL2(), dc, tile.ri.heightmapCacheKey,
+            // Modified by seaglassfoundry.com - pass null heightmap for the TerrainShader path.
+            // CPU vertices already include full elevation displacement (buildVerts computes
+            // ECEF at vertExagg * elevation). The TerrainShader lacks delta-correction, so
+            // passing the heightmap causes double displacement — terrain appears 2x too high,
+            // pushing geometry into the near clip plane at close range.
+            terrainShader.activate(dc.getGL().getGL2(), dc, null,
                 tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
                 usePickColor);
         }

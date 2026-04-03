@@ -52,7 +52,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.xml.parsers.ParserConfigurationException;
@@ -241,9 +244,9 @@ public class MarkersOrder extends ApplicationTemplate
             insertBeforePlacenames(getWwd(), this.renderableLayer);
 
             // Add UI to control the layer color ramp type and scale
-            JPanel controlPanel = new JPanel();
-            controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
-            controlPanel.setBorder(WWStyle.sectionBorder("Markers Color"));
+            JPanel markerControlPanel = new JPanel();
+            markerControlPanel.setLayout(new BoxLayout(markerControlPanel, BoxLayout.Y_AXIS));
+            markerControlPanel.setBorder(WWStyle.sectionBorder("Markers Color"));
 
             // Color mode radio buttons
             JPanel radioPanel = new JPanel(new GridLayout(0, 4, 0, 0));
@@ -315,7 +318,7 @@ public class MarkersOrder extends ApplicationTemplate
             });
             group.add(btHours);
             radioPanel.add(btHours);
-            controlPanel.add(radioPanel);
+            markerControlPanel.add(radioPanel);
 
             // Time scale slider
             JPanel sliderPanel = new JPanel(new GridLayout(0, 1, 0, 0));
@@ -336,7 +339,7 @@ public class MarkersOrder extends ApplicationTemplate
             timeScaleSlider.setPaintTicks(true);
             timeScaleSlider.setMajorTickSpacing(15);
             sliderPanel.add(timeScaleSlider);
-            controlPanel.add(sliderPanel);
+            markerControlPanel.add(sliderPanel);
             // Color ramp type combo
             JPanel comboPanel = new JPanel(new GridLayout(0, 2, 0, 0));
             comboPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
@@ -367,8 +370,7 @@ public class MarkersOrder extends ApplicationTemplate
                 }
             });
             comboPanel.add(colorRampCombo);
-            controlPanel.add(comboPanel);
-            this.getControlPanel().add(controlPanel, BorderLayout.SOUTH);
+            markerControlPanel.add(comboPanel);
 
             // Setup select listener to highlight markers on rollover
             this.getWwd().addSelectListener(new SelectListener()
@@ -399,6 +401,46 @@ public class MarkersOrder extends ApplicationTemplate
                     }
                 }
             });
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(markerControlPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         protected TimedMarkerLayer buildTracksLayer()

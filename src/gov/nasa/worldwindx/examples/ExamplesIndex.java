@@ -162,8 +162,8 @@ public class ExamplesIndex extends JFrame {
             new ExampleEntry("Rigid Shapes",   BASE + "RigidShapes",    "All 3D rigid shape types displayed together."),
             new ExampleEntry("Airspaces",      BASE + "Airspaces",      "Airspace polygons: box, orbit, corridor, curtain, cake, and sphere."),
             new ExampleEntry("Airspace Builder",BASE + "AirspaceBuilder","Interactive builder for complex airspace geometry."),
-            new ExampleEntry("Radar Volume",   BASE + "RadarVolume",    "Radar coverage volume rendered as a line-of-sight cone."),
-            new ExampleEntry("Radar Volume Example", BASE + "RadarVolumeExample", "Radar volume with terrain intersection and configurable azimuth/elevation ranges."),
+            // Modified by seaglassfoundry.com - removed duplicate RadarVolume entry (it's a shape class, not a launchable example)
+            new ExampleEntry("Radar Volume",   BASE + "RadarVolumeExample", "Radar volume with terrain intersection and configurable azimuth/elevation ranges."),
         });
 
         CATEGORIES.put("Layers / WMS", new ExampleEntry[]{
@@ -282,7 +282,9 @@ public class ExamplesIndex extends JFrame {
 
     public ExamplesIndex() {
         super("WorldWind Reforged — Examples");
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        // Modified by seaglassfoundry.com - use EXIT_ON_CLOSE so the JVM terminates when
+        // the launcher is closed (child examples use DISPOSE_ON_CLOSE to avoid killing us).
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(1100, 700);
         setLocationRelativeTo(null);
         getContentPane().setBackground(WWStyle.BG_BASE);

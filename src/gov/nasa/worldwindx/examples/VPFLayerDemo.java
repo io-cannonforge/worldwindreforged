@@ -37,6 +37,9 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.filechooser.FileFilter;
 
 import gov.nasa.worldwind.Configuration;
@@ -67,9 +70,51 @@ public class VPFLayerDemo extends ApplicationTemplate
     public static class AppFrame extends ApplicationTemplate.AppFrame
     {
         private static final long serialVersionUID = 1L;
+        private Box vpfBox;
+
         public AppFrame()
         {
             this.makeControlPanel();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new java.awt.Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(this.vpfBox);
+                controlScroll.setBorder(null);
+                tabs.addTab("Database", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         protected void addVPFLayer(File file)
@@ -118,11 +163,9 @@ public class VPFLayerDemo extends ApplicationTemplate
                 }
             });
 
-            Box box = Box.createHorizontalBox();
-            box.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // top, left, bottom, right
-            box.add(button);
-
-            this.getControlPanel().add(box, BorderLayout.SOUTH);
+            this.vpfBox = Box.createHorizontalBox();
+            this.vpfBox.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // top, left, bottom, right
+            this.vpfBox.add(button);
         }
     }
 

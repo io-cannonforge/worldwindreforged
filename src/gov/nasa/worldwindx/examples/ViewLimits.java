@@ -42,7 +42,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -82,6 +85,7 @@ public class ViewLimits extends ApplicationTemplate
     {
         private static final long serialVersionUID = 1L;
         private Controller controller;
+        private JPanel limitsPanel;
         // UI components.
         private JSpinner minLatitude;
         private JSpinner maxLatitude;
@@ -100,6 +104,46 @@ public class ViewLimits extends ApplicationTemplate
             this.controller = new Controller(this);
             this.initComponents();
             this.updateComponents();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new java.awt.Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(this.limitsPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         public Sector getSectorLimits()
@@ -271,9 +315,9 @@ public class ViewLimits extends ApplicationTemplate
             this.minZoom = this.createDoubleSpinner(ZOOM_LIMITS_CHANGED, 0, 0, Double.MAX_VALUE);
             this.maxZoom = this.createDoubleSpinner(ZOOM_LIMITS_CHANGED, Double.MAX_VALUE, 0, Double.MAX_VALUE);
 
-            JPanel controlPanel = new JPanel(new BorderLayout(0, 0)); // hgap, vgap
+            this.limitsPanel = new JPanel(new BorderLayout(0, 0)); // hgap, vgap
             {
-                controlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 0)); // top, left, bottom, right
+                this.limitsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 0)); // top, left, bottom, right
 
                 Box box = Box.createVerticalBox();
 
@@ -328,9 +372,8 @@ public class ViewLimits extends ApplicationTemplate
                 hbox.add(this.maxZoom);
                 box.add(hbox);
 
-                controlPanel.add(box, BorderLayout.NORTH);
+                this.limitsPanel.add(box, BorderLayout.NORTH);
             }
-            this.getControlPanel().add(controlPanel, BorderLayout.SOUTH);
 
             JMenuBar menuBar = new JMenuBar();
             {

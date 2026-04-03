@@ -31,13 +31,14 @@ package gov.nasa.worldwindx.examples;
 import java.util.ArrayList;
 
 import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.ExtrudedPolygon;
 import gov.nasa.worldwind.render.Material;
-import gov.nasa.worldwind.render.Path;
 import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwind.view.orbit.OrbitView;
 
 /**
  * Shows how to use {@link ExtrudedPolygon} with a specified base depth that places the extruded polygon's base vertices
@@ -57,54 +58,56 @@ public class ExtrudedPolygonWithBaseDepth extends ApplicationTemplate
         {
             super(true, true, false);
 
+            // Modified by seaglassfoundry.com - reworked example with larger polygon over flat
+            // coastal terrain so the orbit view center at sea level doesn't embed in terrain.
+            // The orbit view does not resolve terrain collisions for the initial camera position
+            // (resolveCollisionsWithCenterPosition requires a DrawContext, unavailable at init).
             RenderableLayer layer = new RenderableLayer();
 
             // Create and set an attribute bundle.
             ShapeAttributes sideAttributes = new BasicShapeAttributes();
             sideAttributes.setInteriorMaterial(Material.MAGENTA);
             sideAttributes.setOutlineOpacity(0.5);
-            sideAttributes.setInteriorOpacity(0.25);
+            sideAttributes.setInteriorOpacity(0.5);
             sideAttributes.setOutlineMaterial(Material.GREEN);
-            sideAttributes.setOutlineWidth(1);
+            sideAttributes.setOutlineWidth(2);
             sideAttributes.setDrawOutline(true);
             sideAttributes.setDrawInterior(true);
 
             ShapeAttributes capAttributes = new BasicShapeAttributes(sideAttributes);
             capAttributes.setInteriorMaterial(Material.YELLOW);
-            capAttributes.setInteriorOpacity(0.25);
+            capAttributes.setInteriorOpacity(0.5);
             capAttributes.setDrawInterior(true);
 
-            // Create a path, set some of its properties and set its attributes.
+            // Create an extruded polygon over flat coastal terrain (Outer Banks, NC area).
+            // The cap sits 200m above ground. The base depth of 200m pushes the base vertices
+            // below the terrain surface, demonstrating how base depth fills gaps where terrain
+            // dips below the polygon boundary.
             ArrayList<Position> pathPositions = new ArrayList<>();
-            pathPositions.add(Position.fromDegrees(43.84344, -114.63673, 20));
-            pathPositions.add(Position.fromDegrees(43.84343, -114.63468, 20));
-            pathPositions.add(Position.fromDegrees(43.84316, -114.63468, 20));
-            pathPositions.add(Position.fromDegrees(43.84314, -114.63675, 20));
-            pathPositions.add(Position.fromDegrees(43.84344, -114.63673, 20));
+            pathPositions.add(Position.fromDegrees(35.51, -75.51, 200));
+            pathPositions.add(Position.fromDegrees(35.51, -75.49, 200));
+            pathPositions.add(Position.fromDegrees(35.49, -75.49, 200));
+            pathPositions.add(Position.fromDegrees(35.49, -75.51, 200));
+            pathPositions.add(Position.fromDegrees(35.51, -75.51, 200));
             ExtrudedPolygon pgon = new ExtrudedPolygon(pathPositions);
 
             pgon.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
             pgon.setSideAttributes(sideAttributes);
             pgon.setCapAttributes(capAttributes);
-            pgon.setBaseDepth(20); // Set the base depth to the extruded polygon's height.
+            pgon.setBaseDepth(200); // Push base 200m below terrain to fill any gaps.
             layer.addRenderable(pgon);
-
-            Path path = new Path(Position.fromDegrees(43.8425, -114.6355, 0),
-                Position.fromDegrees(43.8442, -114.6356, 0));
-
-            ShapeAttributes pathAttributes = new BasicShapeAttributes();
-            pathAttributes.setOutlineOpacity(1);
-            pathAttributes.setOutlineMaterial(Material.GREEN);
-            pathAttributes.setOutlineWidth(4);
-            path.setAttributes(pathAttributes);
-            path.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
-            layer.addRenderable(path);
 
             // Add the layer to the model.
             insertBeforeCompass(getWwd(), layer);
 
-            getWwd().getView().setEyePosition(
-                Position.fromDegrees(43.843162670564354, -114.63551647988652, 2652.865781935775));
+            // Set an angled orbit view looking at the polygon. Using flat coastal terrain
+            // ensures center elevation 0 is at ground level, avoiding the camera-in-terrain
+            // bug caused by the orbit view not resolving terrain collisions at init time.
+            OrbitView view = (OrbitView) getWwd().getView();
+            view.setCenterPosition(Position.fromDegrees(35.50, -75.50, 0));
+            view.setHeading(Angle.fromDegrees(0));
+            view.setPitch(Angle.fromDegrees(50));
+            view.setZoom(5000);
         }
     }
 

@@ -43,6 +43,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.Timer;
 
 import gov.nasa.worldwind.View;
@@ -109,7 +112,7 @@ public class KeepingObjectsInView extends ApplicationTemplate {
             // Set up a layer to render the objects we're tracking.
             this.addObjectsToWorldWindow(this.objectsToTrack);
             // Set up swing components to toggle the view controller's behavior.
-            this.initSwingComponents();
+            Box trackingControlBox = this.initSwingComponents();
 
             // Set up a one-shot timer to zoom to the objects once the app launches.
             Timer timer = new Timer(1000, (ActionEvent e) -> {
@@ -118,6 +121,46 @@ public class KeepingObjectsInView extends ApplicationTemplate {
             });
             timer.setRepeats(false);
             timer.start();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(trackingControlBox);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         protected void enableHelpAnnotation() {
@@ -179,7 +222,7 @@ public class KeepingObjectsInView extends ApplicationTemplate {
             });
         }
 
-        protected void initSwingComponents() {
+        protected Box initSwingComponents() {
             // Create a checkbox to enable/disable the view controller.
             JCheckBox checkBox = new JCheckBox("Enable view tracking", true);
             checkBox.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -198,7 +241,7 @@ public class KeepingObjectsInView extends ApplicationTemplate {
             box.add(Box.createVerticalStrut(5));
             box.add(button);
 
-            this.getControlPanel().add(box, BorderLayout.SOUTH);
+            return box;
         }
     }
 

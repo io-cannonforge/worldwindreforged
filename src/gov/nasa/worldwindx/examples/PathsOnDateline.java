@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
@@ -41,6 +42,7 @@ import gov.nasa.worldwind.render.Path;
 import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.util.BasicDragger;
 import gov.nasa.worldwind.util.WWUtil;
+import gov.nasa.worldwind.view.orbit.OrbitView;
 
 /**
  * Demonstrates {@link gov.nasa.worldwind.render.Path} objects that cross the anti-meridian (±180° longitude).
@@ -101,6 +103,14 @@ public class PathsOnDateline extends ApplicationTemplate
             layer.addRenderable(path);
 
             insertBeforeCompass(getWwd(), layer);
+
+            // Modified by seaglassfoundry.com - set initial view centered on the dateline
+            // where the path is, rather than the default timezone-based longitude
+            OrbitView view = (OrbitView) getWwd().getView();
+            view.setCenterPosition(Position.fromDegrees(33, 180, 0));
+            view.setHeading(Angle.ZERO);
+            view.setPitch(Angle.ZERO);
+            view.setZoom(3e6);
 
             this.getWwd().addSelectListener(new BasicDragger((this.getWwd())));
         }

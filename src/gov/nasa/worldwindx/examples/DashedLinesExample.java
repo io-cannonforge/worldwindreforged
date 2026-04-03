@@ -18,7 +18,6 @@ package gov.nasa.worldwindx.examples;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +27,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
@@ -132,8 +134,50 @@ public class DashedLinesExample extends ApplicationTemplate
             this.getWwd().getView().setEyePosition(
                 Position.fromDegrees(35, -100, 5000000));
 
-            // Add a legend panel
-            this.getContentPane().add(createLegendPanel(), BorderLayout.EAST);
+            // Modified by seaglassfoundry.com - disable rollover highlighting so the
+            // dashed line patterns remain visible without being obscured by highlight colors
+            this.setHighlightController(null);
+
+            // Modified by seaglassfoundry.com - put the layers panel and legend panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane legendScroll = new JScrollPane(createLegendPanel());
+                legendScroll.setBorder(null);
+                tabs.addTab("Legend", legendScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67); // map 2/3, side panel 1/3
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                // Set initial divider at 2/3 after layout is complete.
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         private static void addPolyline(RenderableLayer layer, String name, Color color, double width,
@@ -183,10 +227,7 @@ public class DashedLinesExample extends ApplicationTemplate
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
             panel.setBackground(new Color(45, 45, 48));
-            panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 1, 0, 0, new Color(80, 83, 85)),
-                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-            panel.setPreferredSize(new Dimension(250, 0));
+            panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
             JLabel title = new JLabel("Shader-Based Dashed Lines");
             title.setFont(new Font("Segoe UI", Font.BOLD, 14));

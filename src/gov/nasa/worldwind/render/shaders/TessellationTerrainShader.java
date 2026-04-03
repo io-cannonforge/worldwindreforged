@@ -158,11 +158,14 @@ public class TessellationTerrainShader
                 vec4 c2 = u_mvp * gl_in[2].gl_Position;
                 vec4 c3 = u_mvp * gl_in[3].gl_Position;
 
-                // Clamp |w| to avoid division by zero for behind-camera vertices.
-                float w0 = max(abs(c0.w), 1e-4);
-                float w1 = max(abs(c1.w), 1e-4);
-                float w2 = max(abs(c2.w), 1e-4);
-                float w3 = max(abs(c3.w), 1e-4);
+                // Modified by seaglassfoundry.com - clamp w to a small positive value
+                // instead of using abs(w). When vertices fall behind the near clip plane
+                // (w < 0), abs(w) inverts the perspective divide, flipping screen-space
+                // coordinates and causing terrain tiles to appear rotated/inside-out.
+                float w0 = max(c0.w, 1e-4);
+                float w1 = max(c1.w, 1e-4);
+                float w2 = max(c2.w, 1e-4);
+                float w3 = max(c3.w, 1e-4);
 
                 // NDC → screen pixel coordinates.
                 vec2 s0 = (c0.xy / w0 * 0.5 + 0.5) * u_viewport;
@@ -313,7 +316,12 @@ public class TessellationTerrainShader
 
             // Pick color mode: replace imagery RGB with primary color (pick color)
             vec3 rgb = (u_usePickColor == 1) ? v_primaryColor.rgb : color.rgb;
-            fragColor = vec4(rgb, alpha);
+
+            // seaglassfoundry.com: apply per-layer opacity from v_primaryColor.a (set via
+            // glColor4d in TiledImageLayer.setBlendingFunction). Premultiplied alpha blending
+            // requires scaling both RGB and alpha by the layer opacity.
+            float layerOpacity = v_primaryColor.a;
+            fragColor = vec4(rgb * layerOpacity, alpha * layerOpacity);
         }
         """;
 

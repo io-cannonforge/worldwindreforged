@@ -1768,7 +1768,10 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     public void setFillPattern(ProceduralFillPattern pattern)
     {
         this.fillPattern = pattern;
-        // No geometry change — just affects shader uniforms, so no clearCaches() needed
+        // Modified by seaglassfoundry.com - must update modified time so the surface tile
+        // builder re-renders the FBO tile with the new pattern uniforms. No clearCaches()
+        // needed since geometry hasn't changed.
+        this.updateModifiedTime();
     }
 
     @SuppressWarnings("unchecked")

@@ -22,7 +22,10 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -137,7 +140,47 @@ public class ProceduralFillPatternsExample extends ApplicationTemplate {
             getWwd().getView().setEyePosition(
                 Position.fromDegrees(CENTER_LAT, -103.0, 4_500_000));
 
-            getControlPanel().add(buildControlPanel(), BorderLayout.SOUTH);
+            JPanel customPanel = buildControlPanel();
+
+            // Modified by seaglassfoundry.com - put the layers panel and controls panel in a
+            // tabbed pane so they don't overlap. Each tab gets a scroll pane for small windows.
+            // Use a split pane between the map and the side panel so it can be resized.
+            if (this.controlPanel != null)
+            {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(customPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                this.controlPanel.add(tabs, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
         }
 
         // ── Pattern construction ──────────────────────────────────────────────
@@ -153,6 +196,8 @@ public class ProceduralFillPatternsExample extends ApplicationTemplate {
 
         // ── Control panel ─────────────────────────────────────────────────────
 
+        // Modified by seaglassfoundry.com - fixed layout: constrain slider max height
+        // so BoxLayout doesn't stretch them vertically, and ensure consistent alignment.
         private JPanel buildControlPanel() {
             JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -162,6 +207,7 @@ public class ProceduralFillPatternsExample extends ApplicationTemplate {
             // ── Shape selector ────────────────────────────────────────────────
             shapeCombo = WWStyle.comboBox(SHAPE_NAMES);
             shapeCombo.setSelectedIndex(0);
+            shapeCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, shapeCombo.getPreferredSize().height));
             shapeCombo.setAlignmentX(Component.LEFT_ALIGNMENT);
             shapeCombo.addActionListener(e -> {
                 if (!syncing) {
@@ -170,28 +216,36 @@ public class ProceduralFillPatternsExample extends ApplicationTemplate {
                 }
             });
 
-            panel.add(makeRow("Shape:", shapeCombo));
+            JLabel shapeLabel = WWStyle.label("Shape:");
+            shapeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(shapeLabel);
+            panel.add(shapeCombo);
             panel.add(vgap(WWStyle.GAP_S));
 
             // ── Scale ─────────────────────────────────────────────────────────
             // slider value = scale × 100; range 5–80 → 0.05°–0.80°
             scaleSlider = WWStyle.slider(5, 80, Math.round(scales[selected] * 100));
             scaleSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+            scaleSlider.setMaximumSize(new Dimension(Integer.MAX_VALUE, scaleSlider.getPreferredSize().height));
             scaleSlider.addChangeListener(e -> {
                 if (!syncing) {
                     scales[selected] = scaleSlider.getValue() / 100f;
                     applyToSelected();
                 }
             });
-            panel.add(WWStyle.label("Scale (°):"));
+            JLabel scaleLabel = WWStyle.label("Scale (°):");
+            scaleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(scaleLabel);
             panel.add(scaleSlider);
             panel.add(vgap(WWStyle.GAP_S));
 
             // ── Line width / dot radius ───────────────────────────────────────
             // slider value = width × 100; range 1–70
             widthLabel = WWStyle.label(widthLabelText(selected));
+            widthLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             widthSlider = WWStyle.slider(1, 70, Math.round(widths[selected] * 100));
             widthSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+            widthSlider.setMaximumSize(new Dimension(Integer.MAX_VALUE, widthSlider.getPreferredSize().height));
             widthSlider.addChangeListener(e -> {
                 if (!syncing) {
                     widths[selected] = widthSlider.getValue() / 100f;
@@ -204,8 +258,10 @@ public class ProceduralFillPatternsExample extends ApplicationTemplate {
 
             // ── Angle (hatch only) ────────────────────────────────────────────
             angleLabel = WWStyle.label("Angle (°) — hatch only:");
+            angleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             angleSlider = WWStyle.slider(0, 180, Math.round(angles[selected]));
             angleSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+            angleSlider.setMaximumSize(new Dimension(Integer.MAX_VALUE, angleSlider.getPreferredSize().height));
             angleSlider.addChangeListener(e -> {
                 if (!syncing) {
                     angles[selected] = angleSlider.getValue();

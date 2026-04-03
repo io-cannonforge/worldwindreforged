@@ -508,11 +508,11 @@ public class BasicElevationModel extends AbstractElevationModel implements BulkR
                     }
                     else
                     {
-                        // Assume that something's wrong with the file and delete it.
-                        this.elevationModel.getDataFileStore().removeFile(url);
+                        // Modified by seaglassfoundry.com — keep the file so we don't re-download
+                        // it in a loop.  WCS servers return empty TIFFs or XML error responses for
+                        // tiles outside their coverage; mark the tile absent and move on.
                         this.elevationModel.levels.markResourceAbsent(tile);
-                        String message = Logging.getMessage("generic.DeletedCorruptDataFile", url);
-                        Logging.logger().info(message);
+                        return;
                     }
                 }
 
@@ -623,9 +623,12 @@ public class BasicElevationModel extends AbstractElevationModel implements BulkR
         }
         catch (Exception e)
         {
-            Logging.logger().log(java.util.logging.Level.SEVERE,
-                "ElevationModel.ExceptionReadingElevationFile", url.toString());
-            throw e;
+            // Modified by seaglassfoundry.com — WCS servers return empty TIFFs or XML error
+            // responses for tiles outside their coverage area; treat these as missing data
+            // rather than propagating errors that flood the log.
+            Logging.logger().log(java.util.logging.Level.FINE,
+                "ElevationModel.ExceptionReadingElevationFile: " + url.toString(), e);
+            return null;
         }
     }
 
@@ -652,14 +655,30 @@ public class BasicElevationModel extends AbstractElevationModel implements BulkR
         DataRasterReaderFactory readerFactory = (DataRasterReaderFactory) WorldWind.createConfigurationComponent(
             AVKey.DATA_RASTER_READER_FACTORY_CLASS_NAME);
         DataRasterReader reader = readerFactory.findReaderFor(file, null);
-        if (reader == null)
+
+        // Modified by seaglassfoundry.com — attempt the WorldWind GeotiffReader first, but fall
+        // back to Java ImageIO for tiled / compressed GeoTIFFs (e.g. ArcGIS WCS responses) that
+        // the legacy reader cannot handle.
+        if (reader != null)
         {
-            String msg = Logging.getMessage("generic.UnknownFileFormatOrMatchingReaderNotFound", file.getPath());
-            Logging.logger().severe(msg);
-            throw new WWRuntimeException(msg);
+            try
+            {
+                return makeTiffElevationsFromReader(file, reader);
+            }
+            catch (Exception e)
+            {
+                Logging.logger().fine("GeotiffReader failed for " + file.getName()
+                    + ", falling back to ImageIO: " + e.getMessage());
+            }
         }
 
-        // Read the file into the raster.
+        // Fallback: use Java ImageIO (handles tiled, LZW, Deflate, and other TIFF variants).
+        return makeTiffElevationsFromImageIO(file);
+    }
+
+    /** Original WorldWind DataRasterReader path for GeoTIFF elevation files. */
+    private BufferWrapper makeTiffElevationsFromReader(File file, DataRasterReader reader) throws Exception
+    {
         DataRaster[] rasters;
         synchronized (this.fileLock)
         {
@@ -669,59 +688,133 @@ public class BasicElevationModel extends AbstractElevationModel implements BulkR
         if (rasters == null || rasters.length == 0)
         {
             String msg = Logging.getMessage("ElevationModel.CannotReadElevations", file.getAbsolutePath());
-            Logging.logger().severe(msg);
             throw new WWRuntimeException(msg);
         }
 
         DataRaster raster = rasters[0];
-
-        // Request a sub-raster that contains the whole file. This step is necessary because only sub-rasters
-        // are reprojected (if necessary); primary rasters are not.
         int width = raster.getWidth();
         int height = raster.getHeight();
 
-        // Determine the sector covered by the elevations. This information is in the GeoTIFF file or auxiliary
-        // files associated with the elevations file.
         final Sector sector = (Sector) raster.getValue(AVKey.SECTOR);
         if (sector == null)
         {
+            raster.dispose();
             String msg = Logging.getMessage("DataRaster.MissingMetadata", AVKey.SECTOR);
-            Logging.logger().severe(msg);
             throw new IllegalStateException(msg);
         }
 
         DataRaster subRaster = raster.getSubRaster(width, height, sector, raster);
-
-        // Verify that the sub-raster can create a ByteBuffer, then create one.
         if (!(subRaster instanceof ByteBufferRaster))
         {
+            raster.dispose();
             String msg = Logging.getMessage("ElevationModel.CannotCreateElevationBuffer", file.getPath());
-            Logging.logger().severe(msg);
             throw new WWRuntimeException(msg);
         }
-        ByteBuffer elevations = ((ByteBufferRaster) subRaster).getByteBuffer();
 
-        // The sub-raster can now be disposed. Disposal won't affect the ByteBuffer.
+        ByteBuffer elevations = ((ByteBufferRaster) subRaster).getByteBuffer();
         subRaster.dispose();
 
-        // Setup parameters to instruct BufferWrapper on how to interpret the ByteBuffer.
         AVList bufferParams = new AVListImpl();
-        bufferParams.setValues(raster.copy()); // copies params from avlist
+        bufferParams.setValues(raster.copy());
 
         String dataType = bufferParams.getStringValue(AVKey.DATA_TYPE);
         if (WWUtil.isEmpty(dataType))
         {
+            raster.dispose();
             String msg = Logging.getMessage("DataRaster.MissingMetadata", AVKey.DATA_TYPE);
-            Logging.logger().severe(msg);
             throw new IllegalStateException(msg);
         }
 
         BufferWrapper bufferWrapper = BufferWrapper.wrap(elevations, bufferParams);
-
-        // Tne primary raster can now be disposed.
         raster.dispose();
-
         return bufferWrapper;
+    }
+
+    /**
+     * Fallback elevation reader using Java ImageIO.  Handles tiled, LZW-compressed, and
+     * Deflate-compressed GeoTIFFs that the legacy WorldWind GeotiffReader cannot parse.
+     * Reads the raster via {@link ImageIO#read(File)}, extracts elevation samples from
+     * the first band, and wraps them in a {@link BufferWrapper} with FLOAT32 data type.
+     *
+     * seaglassfoundry.com — new method for WorldWind Reforged
+     */
+    private BufferWrapper makeTiffElevationsFromImageIO(File file) throws IOException
+    {
+        // WorldWind registers its own GeotiffImageReader as an ImageIO service provider,
+        // which intercepts ImageIO.read() for TIFF files but cannot handle tiled/compressed
+        // variants.  We must bypass it and use Java's built-in TIFF reader directly.
+        BufferedImage image;
+        synchronized (this.fileLock)
+        {
+            image = readTiffWithBuiltInReader(file);
+        }
+
+        if (image == null)
+            throw new IOException("ImageIO could not read elevation TIFF: " + file.getName());
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        // Extract elevation values from the raster's first band into a float array,
+        // then wrap as a FLOAT32 ByteBuffer for the elevation model.
+        // ArcGIS WCS servers embed extreme nodata values (e.g. -3.4E38) for pixels outside
+        // coverage; replace them with the model's missing-data signal so they don't inflate
+        // vertex positions to astronomical coordinates and crash the view.
+        float missingSignal = (float) this.getMissingDataSignal();
+        WritableRaster raster = image.getRaster();
+        ByteBuffer bb = ByteBuffer.allocateDirect(width * height * Float.BYTES);
+        bb.order(java.nio.ByteOrder.nativeOrder());
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                float value = raster.getSampleFloat(x, y, 0);
+                if (!Float.isFinite(value) || value < -1e7f || value > 1e7f)
+                    value = missingSignal;
+                bb.putFloat(value);
+            }
+        }
+        bb.flip();
+
+        AVList bufferParams = new AVListImpl();
+        bufferParams.setValue(AVKey.DATA_TYPE, AVKey.FLOAT32);
+        bufferParams.setValue(AVKey.BYTE_ORDER, AVKey.LITTLE_ENDIAN);
+        return BufferWrapper.wrap(bb, bufferParams);
+    }
+
+    /**
+     * Reads a TIFF file using Java's built-in TIFF ImageReader, skipping WorldWind's
+     * GeotiffImageReader which cannot handle tiled or compressed variants.
+     *
+     * seaglassfoundry.com — new method for WorldWind Reforged
+     */
+    private static BufferedImage readTiffWithBuiltInReader(File file) throws IOException
+    {
+        java.util.Iterator<javax.imageio.ImageReader> readers =
+            ImageIO.getImageReadersByFormatName("tiff");
+
+        while (readers.hasNext())
+        {
+            javax.imageio.ImageReader reader = readers.next();
+            // Skip WorldWind's own GeotiffImageReader — it can't handle tiled/compressed TIFFs.
+            if (reader.getClass().getName().contains("gov.nasa.worldwind"))
+                continue;
+
+            try (javax.imageio.stream.ImageInputStream iis =
+                     ImageIO.createImageInputStream(file))
+            {
+                if (iis == null)
+                    throw new IOException("Cannot create ImageInputStream for " + file.getName());
+                reader.setInput(iis);
+                return reader.read(0);
+            }
+            finally
+            {
+                reader.dispose();
+            }
+        }
+
+        throw new IOException("No suitable TIFF ImageReader found (Java built-in TIFF reader unavailable)");
     }
 
     protected static ByteBuffer convertImageToElevations(ByteBuffer buffer, String contentType) throws IOException
@@ -1410,11 +1503,19 @@ public class BasicElevationModel extends AbstractElevationModel implements BulkR
             // If an elevation is not available but the location is within the elevation model's coverage, write the
             // elevation models extreme elevation at the location. Do nothing if the location is not within the
             // elevation model's coverage.
+            //
+            // Modified by seaglassfoundry.com — when called via getUnmappedElevations (mapMissingData
+            // == false), do NOT overwrite the buffer with extreme-elevation placeholders for tiles that
+            // simply haven't loaded yet (value == null).  In a CompoundElevationModel the buffer already
+            // contains a valid lower-resolution elevation from the base model; overwriting it with
+            // getExtremeElevations()[0] (e.g. -11000 m) causes severe terrain tears until WCS tiles
+            // are fully fetched.  The placeholder is still written in the mapped path (single-model
+            // case) where there is no lower-resolution fallback in the buffer.
             if (value != null && value != this.getMissingDataSignal())
                 buffer[i] = value;
             else if (this.contains(ll.getLatitude(), ll.getLongitude()))
             {
-                if (value == null)
+                if (value == null && mapMissingData)
                     buffer[i] = this.getExtremeElevations(sector)[0];
                 else if (mapMissingData && value == this.getMissingDataSignal())
                     buffer[i] = this.getMissingDataReplacement();

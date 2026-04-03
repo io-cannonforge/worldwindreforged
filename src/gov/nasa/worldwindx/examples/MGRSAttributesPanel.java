@@ -625,9 +625,9 @@ public class MGRSAttributesPanel extends JPanel
                 {
                     label.setIcon(this.icon);
                 }
-                if (value instanceof String graticuleType)
+                if (value != null)
                 {
-                    String labelText = getGraticuleLabel(graticuleType);
+                    String labelText = getGraticuleLabel(value);
                     label.setText(labelText);
                 }
             }
