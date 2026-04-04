@@ -44,10 +44,35 @@ See [Running from an IDE](#from-an-ide-eclipse-intellij) below for Eclipse/Intel
 - **GLSL shader-based rendering** — Dashed lines, procedural fill patterns, and GPU styling
 - **GPU-accelerated terrain** — Shader heightmaps (GL 3.0+), hardware tessellation (GL 4.0+),
   compute-shader mesh generation (GL 4.3+), and crack-free LOD stitching
-- **Performance** — Pick optimisation, tile invalidation, heightmap throttling, VAO rendering, FPS stats
-- **Bug fixes** — Event consumption, shutdown handling, AMD driver workarounds, and more
+- **Real-time live data showcase demos** — Two new flagship examples demonstrating WorldWind as a
+  serious real-time situational awareness platform:
+  - **AIS Vessel Tracker** — Live maritime vessel tracking using Finland's Digitraffic AIS API (free,
+    no API key). Ships rendered with type-specific icons (cargo, tanker, passenger, fishing, tug,
+    military), heading rotation, fading track-history trails, speed/type/name filtering, and
+    click-for-detail popups. Includes synthetic-data fallback for offline use.
+  - **Live Air Traffic** — Global real-time 3D air traffic from airplanes.live ADS-B data (free, no
+    API key). Aircraft rendered at actual 3D altitude with top-down planform silhouettes, altitude
+    colour spectrum (ground green → cruise blue → high violet), 3D contrail paths, speed leader
+    projections, vertical drop lines, emergency squawk alerts, military overlay via dedicated
+    endpoint, smooth inter-update interpolation, and viewport-aware loading that scales query radius
+    with eye altitude.
+- **Rendering pipeline hardening** — Null-safe TextureTile, try-with-resources for texture streams,
+  guaranteed pick-object cleanup, per-renderable error isolation in pick path, fixed-function texture
+  matrix stack eliminated in favour of shader uniforms, and redundant shader bind/unbind cycles
+  removed from terrain tile rendering.
+- **Shapefile rendering optimisation** — Cached per-tile state keys (zero allocations in steady
+  state), eye-distance hysteresis to skip tile-tree traversal on sub-meter camera movements, per-frame
+  constant caching, and pick-pass gating when the mouse is outside the window.
+- **Terrain vertex batching** — `EllipsoidalGlobe.computeTerrainGridToBuffer()` computes the full
+  terrain vertex grid directly into a FloatBuffer with pre-computed trig arrays, eliminating
+  per-vertex object allocation.
+- **Performance** — Pick optimisation, tile invalidation, heightmap throttling, VAO rendering, FPS
+  stats, shapefile hysteresis, terrain vertex batching, and shader cycle elimination.
+- **Bug fixes** — Event consumption, shutdown handling, AMD driver workarounds, defunct NASA WFS
+  server removal, and more.
 - **Examples** — New ExamplesIndex launcher with dark-themed UI, category browser, and comprehensive
-  in-app documentation for every example. New examples: GPU Terrain Demo, WMS Time-Series Demo,
+  in-app documentation for every example. New "Showcase" category with the AIS Vessel Tracker and
+  Live Air Traffic demos. Additional examples: GPU Terrain Demo, WMS Time-Series Demo,
   Layer Opacity & Blending, Dashed Lines, Procedural Fill Patterns, Surface Shape Showcase,
   GeoJSON Viewer, Coordinate Search, Measure Tool, and Terrain Rendering Benchmark. All existing
   examples fixed for proper `DISPOSE_ON_CLOSE` when launched from the browser.
@@ -165,6 +190,18 @@ All dependencies are managed by Maven and downloaded automatically:
 | GDAL Java | 3.12.0 | MIT |
 | FlatLaf | 3.4.1 | Apache 2.0 |
 | JUnit | 4.13.2 | EPL 1.0 (test scope) |
+
+## Live Data Sources
+
+The showcase demos use free, open data feeds — no API keys required:
+
+| Demo | Source | License | Notes |
+|---|---|---|---|
+| AIS Vessel Tracker | [Digitraffic](https://www.digitraffic.fi/en/marine/) (Fintraffic) | CC BY 4.0 | Real-time AIS for the Baltic Sea |
+| Live Air Traffic | [airplanes.live](https://airplanes.live) | Free / community | Global ADS-B data, 1 req/sec limit |
+
+Both demos work offline — the AIS demo falls back to bundled synthetic data, and the air traffic demo
+gracefully handles network failures with a retry cycle.
 
 ## Acknowledgements
 
