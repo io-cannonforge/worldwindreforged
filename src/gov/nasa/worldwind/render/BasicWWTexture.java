@@ -299,9 +299,9 @@ public class BasicWWTexture implements WWTexture
                 return null;
             }
 
-            try
+            try (InputStream stream = (InputStream) streamOrException)
             {
-                TextureData td = OGLUtil.newTextureData(gl.getGLProfile(), (InputStream) streamOrException,
+                TextureData td = OGLUtil.newTextureData(gl.getGLProfile(), stream,
                     this.useMipMaps);
                 t = TextureIO.newTexture(td);
                 haveMipMapData = td.getMipmapData() != null;
@@ -334,9 +334,8 @@ public class BasicWWTexture implements WWTexture
         }
         else if (imageSource instanceof URL)
         {
-            try
+            try (InputStream stream = ((URL) imageSource).openStream())
             {
-                InputStream stream = ((URL) imageSource).openStream();
                 if (stream == null)
                 {
                     Logging.logger().log(java.util.logging.Level.SEVERE, "generic.ExceptionAttemptingToReadImageFile",

@@ -28,6 +28,8 @@
 package gov.nasa.worldwind.retrieve;
 
 import java.net.SocketTimeoutException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -65,6 +67,9 @@ public final class BasicRetrievalService extends WWObjectImpl
 
     private RetrievalExecutor executor; // thread pool for running retrievers
     private ConcurrentLinkedQueue<RetrievalTask> activeTasks; // tasks currently allocated a thread
+    // Modified by seaglassfoundry.com - O(1) dedup set shadows activeTasks for fast contains() checks.
+    // ConcurrentLinkedQueue.contains() is O(n); this set provides O(1) lookups.
+    private Set<RetrievalTask> activeTaskSet; // shadow set for O(1) contains
     private int queueSize; // maximum queue size
 
     /** Encapsulates a single threaded retrieval as a {@link java.util.concurrent.FutureTask}. */
@@ -250,7 +255,7 @@ public final class BasicRetrievalService extends WWObjectImpl
                 task.cancel(true);
             }
 
-            if (BasicRetrievalService.this.activeTasks.contains(task))
+            if (BasicRetrievalService.this.activeTaskSet.contains(task))
             {
                 // Task is a duplicate
                 Logging.logger().finer(Logging.getMessage("BasicRetrievalService.CancellingDuplicateRetrieval",
@@ -259,6 +264,7 @@ public final class BasicRetrievalService extends WWObjectImpl
             }
 
             BasicRetrievalService.this.activeTasks.add(task);
+            BasicRetrievalService.this.activeTaskSet.add(task);
 
             thread.setName(RUNNING_THREAD_NAME_PREFIX + task.getRetriever().getName());
             thread.setPriority(Thread.MIN_PRIORITY); // Subordinate thread priority to rendering
@@ -287,6 +293,7 @@ public final class BasicRetrievalService extends WWObjectImpl
 
             RetrievalTask task = (RetrievalTask) runnable;
             BasicRetrievalService.this.activeTasks.remove(task);
+            BasicRetrievalService.this.activeTaskSet.remove(task);
             task.retriever.setEndTime(System.currentTimeMillis());
 
             try
@@ -347,6 +354,7 @@ public final class BasicRetrievalService extends WWObjectImpl
 
         // this.activeTasks holds the list of currently executing tasks (*not* those pending on the queue)
         this.activeTasks = new ConcurrentLinkedQueue<>();
+        this.activeTaskSet = ConcurrentHashMap.newKeySet();
     }
 
     @Override
@@ -358,6 +366,7 @@ public final class BasicRetrievalService extends WWObjectImpl
             this.executor.shutdown();
 
         this.activeTasks.clear();
+        this.activeTaskSet.clear();
     }
 
     /**
@@ -420,8 +429,8 @@ public final class BasicRetrievalService extends WWObjectImpl
         RetrievalTask task = new RetrievalTask(retriever, priority);
         retriever.setSubmitTime(System.currentTimeMillis());
 
-        // Do not queue duplicates.
-        if (this.activeTasks.contains(task) || this.executor.getQueue().contains(task))
+        // Modified by seaglassfoundry.com - use O(1) HashSet for active task dedup instead of O(n) queue scan.
+        if (this.activeTaskSet.contains(task) || this.executor.getQueue().contains(task))
             return null;
 
         this.executor.execute(task);
@@ -503,7 +512,7 @@ public final class BasicRetrievalService extends WWObjectImpl
             throw new IllegalArgumentException(msg);
         }
         RetrievalTask task = new RetrievalTask(retriever, 0d);
-        return (this.activeTasks.contains(task) || this.executor.getQueue().contains(task));
+        return (this.activeTaskSet.contains(task) || this.executor.getQueue().contains(task));
     }
 
     public double getProgress()

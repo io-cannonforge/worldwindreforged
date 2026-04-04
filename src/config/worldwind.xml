@@ -91,8 +91,8 @@
     <Property name="gov.nasa.worldwind.avkey.RetrievalPoolSize" value="4"/>
     <Property name="gov.nasa.worldwind.avkey.RetrievalQueueSize" value="200"/>
     <Property name="gov.nasa.worldwind.avkey.RetrievalStaleRequestLimit" value="9000"/>
-    <Property name="gov.nasa.worldwind.avkey.TaskPoolSize" value="4"/>
-    <Property name="gov.nasa.worldwind.avkey.TaskQueueSize" value="20"/>
+    <Property name="gov.nasa.worldwind.avkey.TaskPoolSize" value="8"/>
+    <Property name="gov.nasa.worldwind.avkey.TaskQueueSize" value="50"/>
     <Property name="gov.nasa.worldwind.avkey.ScheduledTaskPoolSize" value="1"/>
     <Property name="gov.nasa.worldwind.avkey.VerticalExaggeration" value="1"/>
     <Property name="gov.nasa.worldwind.avkey.URLConnectTimeout" value="8000"/>

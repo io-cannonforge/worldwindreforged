@@ -41,6 +41,7 @@ import gov.nasa.worldwind.geom.Line;
 import gov.nasa.worldwind.geom.Matrix;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
+import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.RestorableSupport;
@@ -58,6 +59,16 @@ public class BasicOrbitView extends BasicView implements OrbitView
     protected boolean viewOutOfFocus;
     // Stateless helper classes.
     protected final OrbitViewCollisionSupport collisionSupport = new OrbitViewCollisionSupport();
+
+    // Modified by seaglassfoundry.com - cache for redundant modelview computations.
+    // getCurrentEyePoint() and getCurrentEyePosition() each independently compute
+    // the full modelview + inverse. During doApply(), collision resolution calls these
+    // 2-3 times with the same orbit parameters before anything changes.
+    private Position cachedMvCenter;
+    private Angle cachedMvHeading, cachedMvPitch, cachedMvRoll;
+    private double cachedMvZoom;
+    private Globe cachedMvGlobe;
+    private Matrix cachedMvInv;
 
     public BasicOrbitView()
     {
@@ -539,23 +550,36 @@ public class BasicOrbitView extends BasicView implements OrbitView
         this.updateModelViewStateID();
     }
 
+    // Modified by seaglassfoundry.com - avoid redundant modelview matrix + LU decomposition.
+    // Returns the cached inverse modelview, recomputing only when orbit parameters change.
+    private Matrix getOrComputeModelviewInv()
+    {
+        if (this.globe == null)
+            return null;
+        if (cachedMvInv != null && this.globe == cachedMvGlobe && this.center == cachedMvCenter
+            && this.heading == cachedMvHeading && this.pitch == cachedMvPitch
+            && this.roll == cachedMvRoll && this.zoom == cachedMvZoom)
+        {
+            return cachedMvInv;
+        }
+        cachedMvGlobe = this.globe;
+        cachedMvCenter = this.center;
+        cachedMvHeading = this.heading;
+        cachedMvPitch = this.pitch;
+        cachedMvRoll = this.roll;
+        cachedMvZoom = this.zoom;
+        Matrix mv = OrbitViewInputSupport.computeTransformMatrix(this.globe, this.center,
+            this.heading, this.pitch, this.roll, this.zoom);
+        cachedMvInv = mv != null ? mv.getInverse() : null;
+        return cachedMvInv;
+    }
+
     @Override
 	public Vec4 getCurrentEyePoint()
     {
-        if (this.globe != null)
-        {
-            Matrix modelview = OrbitViewInputSupport.computeTransformMatrix(this.globe, this.center,
-                this.heading, this.pitch, this.roll, this.zoom);
-            if (modelview != null)
-            {
-                Matrix modelviewInv = modelview.getInverse();
-                if (modelviewInv != null)
-                {
-                    return Vec4.UNIT_W.transformBy4(modelviewInv);
-                }
-            }
-        }
-
+        Matrix inv = this.getOrComputeModelviewInv();
+        if (inv != null)
+            return Vec4.UNIT_W.transformBy4(inv);
         return Vec4.ZERO;
     }
 
@@ -564,19 +588,13 @@ public class BasicOrbitView extends BasicView implements OrbitView
     {
         if (this.globe != null)
         {
-            Matrix modelview = OrbitViewInputSupport.computeTransformMatrix(this.globe, this.center,
-                this.heading, this.pitch, this.roll, this.zoom);
-            if (modelview != null)
+            Matrix inv = this.getOrComputeModelviewInv();
+            if (inv != null)
             {
-                Matrix modelviewInv = modelview.getInverse();
-                if (modelviewInv != null)
-                {
-                    Vec4 eyePoint = Vec4.UNIT_W.transformBy4(modelviewInv);
-                    return this.globe.computePositionFromPoint(eyePoint);
-                }
+                Vec4 eyePoint = Vec4.UNIT_W.transformBy4(inv);
+                return this.globe.computePositionFromPoint(eyePoint);
             }
         }
-
         return Position.ZERO;
     }
 

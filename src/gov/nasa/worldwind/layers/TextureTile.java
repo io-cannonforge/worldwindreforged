@@ -169,7 +169,7 @@ public class TextureTile extends Tile implements SurfaceTile
     public void setTextureData(TextureData textureData)
     {
         this.textureData = textureData;
-        if (textureData.getMipmapData() != null)
+        if (textureData != null && textureData.getMipmapData() != null)
             this.hasMipmapData = true;
     }
 

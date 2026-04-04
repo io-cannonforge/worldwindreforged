@@ -97,6 +97,9 @@ public abstract class TiledImageLayer extends AbstractLayer
     protected boolean levelZeroLoaded = false;
     protected boolean retainLevelZeroTiles = false;
     protected String tileCountName;
+    // Modified by seaglassfoundry.com - cache constant trig value used in LOD calculation.
+    private static final double DEFAULT_FOV_TAN_HALF_ANGLE = Angle.fromDegrees(45).tanHalfAngle();
+
     protected double detailHintOrigin = 2.8;
     protected double detailHint = 0;
     protected boolean useMipMaps = true;
@@ -478,6 +481,8 @@ public abstract class TiledImageLayer extends AbstractLayer
         }
     }
 
+    // Modified by seaglassfoundry.com - cache isTextureInMemory() result to avoid redundant
+    // GPU cache lookups per tile (was called up to 5 times with identical results).
     protected void addTile(DrawContext dc, TextureTile tile)
     {
         tile.setFallbackTile(null);
@@ -489,7 +494,7 @@ public abstract class TiledImageLayer extends AbstractLayer
         }
 
         // Level 0 loads may be forced
-        if (tile.getLevelNumber() == 0 && this.forceLevelZeroLoads && !tile.isTextureInMemory(dc.getTextureCache()))
+        if (tile.getLevelNumber() == 0 && this.forceLevelZeroLoads)
         {
             this.forceTextureLoad(tile);
             if (tile.isTextureInMemory(dc.getTextureCache()))
@@ -511,7 +516,6 @@ public abstract class TiledImageLayer extends AbstractLayer
         if (this.currentResourceTile != null)
         {
             if (this.currentResourceTile.getLevelNumber() == 0 && this.forceLevelZeroLoads &&
-                !this.currentResourceTile.isTextureInMemory(dc.getTextureCache()) &&
                 !this.currentResourceTile.isTextureInMemory(dc.getTextureCache()))
                 this.forceTextureLoad(this.currentResourceTile);
 
@@ -563,7 +567,7 @@ public abstract class TiledImageLayer extends AbstractLayer
         if (sector.getMinLatitude().degrees >= 75 || sector.getMaxLatitude().degrees <= -75)
             s *= 0.9;
         double detailScale = Math.pow(10, -s);
-        double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / Angle.fromDegrees(45).tanHalfAngle();
+        double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / DEFAULT_FOV_TAN_HALF_ANGLE;
         fieldOfViewScale = WWMath.clamp(fieldOfViewScale, 0, 1);
 
         // Compute the distance between the eye point and the sector in meters, and compute a fraction of that distance
