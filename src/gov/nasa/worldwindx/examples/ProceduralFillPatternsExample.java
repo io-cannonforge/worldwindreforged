@@ -283,14 +283,6 @@ public class ProceduralFillPatternsExample extends ApplicationTemplate {
             return gap;
         }
 
-        /** Small helper: label on the left, control on the right, both in a row panel. */
-        private JPanel makeRow(String text, JComponent control) {
-            JPanel row = WWStyle.rowPanel();
-            row.add(WWStyle.label(text));
-            row.add(control);
-            return row;
-        }
-
         private String widthLabelText(int idx) {
             return MODES[idx] == ProceduralFillPattern.DOTS ? "Dot Radius (factor):" : "Line Width (°):";
         }

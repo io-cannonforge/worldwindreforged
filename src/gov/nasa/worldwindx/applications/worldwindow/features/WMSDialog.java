@@ -71,6 +71,7 @@ public class WMSDialog extends AbstractFeatureDialog
     protected static final String ICON_PATH = "gov/nasa/worldwindx/applications/worldwindow/images/wms-64x64.png";
 
     protected JTabbedPane tabbedPane = new JTabbedPane();
+    @SuppressWarnings("unused") // constructed for side effects (registers mouse listener on WorldWindow)
     private WMSFeatureInfoController featureInfoController;
 
     public WMSDialog(Registry registry)

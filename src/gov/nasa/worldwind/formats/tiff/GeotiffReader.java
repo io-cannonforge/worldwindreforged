@@ -966,7 +966,6 @@ public class GeotiffReader implements Disposable, AutoCloseable {
         int imgW = tiff.width;
         int imgH = tiff.height;
         int tilesAcross = (imgW + tileWidth - 1) / tileWidth;
-        int tilesDown   = (imgH + tileLength - 1) / tileLength;
 
         Object dataType = raster.getValue(AVKey.DATA_TYPE);
 

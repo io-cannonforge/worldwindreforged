@@ -495,6 +495,7 @@ public class WMSExplorer
         private volatile String pendingAutoSelect;
         // Modified by seaglassfoundry.com - track active server button for selection highlight
         private final List<JButton> allServerButtons = new ArrayList<>();
+        @SuppressWarnings("unused") // assigned to track state; read access planned for future highlight logic
         private JButton activeServerButton;
 
         public ServerPanel(WorldWindow wwd, ActiveLayersPanel activeLayersPanel,

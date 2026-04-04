@@ -88,6 +88,7 @@ public class MeasureToolUsage extends ApplicationTemplate {
         private final TerrainProfileLayer profile = new TerrainProfileLayer();
         private final PropertyChangeListener measureToolListener = new MeasureToolListener();
 
+        @SuppressWarnings("deprecation")
         public AppFrame() {
             super(true, true, false);
 
@@ -233,6 +234,7 @@ public class MeasureToolUsage extends ApplicationTemplate {
          * Small "x" close button rendered inline in the tab header.
          */
         private static class CloseTabButton extends JButton {
+            private static final long serialVersionUID = 1L;
             private static final int SIZE = 16;
 
             CloseTabButton() {
