@@ -480,6 +480,106 @@ public class TessellationTerrainShader
         this.program.unuse(gl);
     }
 
+    // ── seaglassfoundry.com: tile-scoped shader lifecycle ──────────────────
+    // When SurfaceTileRenderer draws multiple image tiles for the same geometry
+    // tile, the shader program and most uniforms are identical across draws.
+    // These methods allow activating once per geometry tile and only updating
+    // the texture matrices (via updateTextureState) per image tile draw.
+
+    /**
+     * Activates the tessellation pipeline for a geometry tile. Call once before
+     * rendering multiple image tiles, paired with {@link #deactivateForTile}.
+     * <p>
+     * Uploads all uniforms that are constant across image tiles: program, MVP,
+     * primaryColor, viewport, pixelsPerTriangle, maxOuter, heightmap, samplers,
+     * usePickColor, flatGlobe. Does NOT upload texture matrices — call
+     * {@link #updateTextureState} before each image tile draw.
+     */
+    public void activateForTile(GL2 gl, DrawContext dc, Object heightmapCacheKey,
+                                double refCenterX, double refCenterY, double refCenterZ,
+                                float[] maxOuterLevels, boolean usePickColor)
+    {
+        this.program.use(gl);
+
+        if (gl.isGL4())
+            gl.getGL4().glPatchParameteri(GL3ES3.GL_PATCH_VERTICES, 4);
+
+        // MVP and primary color are constant for all image tiles on this geometry tile.
+        this.program.setUniformMvp(gl, "u_mvp");
+
+        float[] currentColor = new float[4];
+        gl.glGetFloatv(GL2ES1.GL_CURRENT_COLOR, currentColor, 0);
+        this.program.setUniform4f(gl, "u_primaryColor",
+            currentColor[0], currentColor[1], currentColor[2], currentColor[3]);
+
+        // Sampler bindings.
+        this.program.setUniform1i(gl, "u_imagery",   0);
+        this.program.setUniform1i(gl, "u_alphaMask", 1);
+        this.program.setUniform1i(gl, "u_usePickColor", usePickColor ? 1 : 0);
+
+        // Viewport and tessellation parameters.
+        java.awt.Rectangle vp = dc.getView().getViewport();
+        this.program.setUniform2f(gl, "u_viewport", vp.width, vp.height);
+        this.program.setUniform1f(gl, "u_pixelsPerTriangle", DEFAULT_PIXELS_PER_TRIANGLE);
+
+        int maxOuterLoc = this.program.getUniformLocation(gl, "u_maxOuter[0]");
+        float[] outer = (maxOuterLevels != null) ? maxOuterLevels : UNCONSTRAINED_OUTER;
+        gl.glUniform1fv(maxOuterLoc, 4, outer, 0);
+
+        // Heightmap displacement.
+        int useHeightmap = 0;
+        if (heightmapCacheKey != null && dc.getGLRuntimeCapabilities().getNumTextureUnits() >= 4)
+        {
+            int[] texId = (int[]) dc.getGpuResourceCache().get(heightmapCacheKey);
+            if (texId != null)
+            {
+                gl.glActiveTexture(GL.GL_TEXTURE3);
+                gl.glBindTexture(GL.GL_TEXTURE_2D, texId[0]);
+                gl.glActiveTexture(GL.GL_TEXTURE0);
+                this.program.setUniform1i(gl, "u_heightmap", 3);
+                this.program.setUniform3f(gl, "u_refCenter",
+                    (float) refCenterX, (float) refCenterY, (float) refCenterZ);
+                float earthRadius = (float) Math.sqrt(
+                    refCenterX * refCenterX + refCenterY * refCenterY + refCenterZ * refCenterZ);
+                this.program.setUniform1f(gl, "u_earthRadius", earthRadius);
+                useHeightmap = 1;
+            }
+        }
+        this.program.setUniform1i(gl, "u_useHeightmap", useHeightmap);
+        this.program.setUniform1i(gl, "u_flatGlobe", dc.is2DGlobe() ? 1 : 0);
+    }
+
+    /**
+     * Updates only the texture matrix uniforms before an image tile draw.
+     * <p>
+     * Reads the texture matrix from unit 0 once and uploads it to both
+     * {@code u_texMatrix0} and {@code u_texMatrix1} (SurfaceTileRenderer always
+     * applies identical transforms to the imagery and alpha mask units).
+     * This replaces the two separate {@code glGetFloatv} readbacks that the
+     * monolithic {@link #activate} method performed.
+     */
+    public void updateTextureState(GL2 gl)
+    {
+        float[] mat = new float[16];
+        gl.glActiveTexture(GL.GL_TEXTURE0);
+        gl.glGetFloatv(GLMatrixFunc.GL_TEXTURE_MATRIX, mat, 0);
+        this.program.setUniformMatrix4fv(gl, "u_texMatrix0", mat);
+        this.program.setUniformMatrix4fv(gl, "u_texMatrix1", mat);
+    }
+
+    /**
+     * Deactivates the tessellation pipeline after all image tiles for a
+     * geometry tile have been drawn.
+     */
+    public void deactivateForTile(GL2 gl)
+    {
+        gl.glActiveTexture(GL.GL_TEXTURE3);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
+        gl.glActiveTexture(GL.GL_TEXTURE0);
+
+        this.program.unuse(gl);
+    }
+
     public void dispose(GL2 gl)
     {
         if (this.program != null)

@@ -250,6 +250,67 @@ public class TerrainShader
         this.program.unuse(gl);
     }
 
+    // ── seaglassfoundry.com: tile-scoped shader lifecycle ──────────────────
+    // When SurfaceTileRenderer draws multiple image tiles for the same geometry
+    // tile, the shader program and most uniforms are identical across draws.
+    // These methods allow activating once per geometry tile and only updating
+    // what changes (texture binds + fixed-function texture matrices) per draw.
+
+    /**
+     * Activates the shader for a geometry tile. Call once before rendering
+     * multiple image tiles, paired with {@link #deactivateForTile}.
+     * <p>
+     * The GLSL 1.30 vertex shader reads {@code gl_TextureMatrix[0/1]} from
+     * fixed-function state automatically, so no per-image-tile texture matrix
+     * upload is needed — SurfaceTileRenderer's {@code glScaled/glTranslated}
+     * calls are visible on the next draw call.
+     */
+    public void activateForTile(GL2 gl, DrawContext dc, Object heightmapCacheKey,
+                                double refCenterX, double refCenterY, double refCenterZ,
+                                boolean usePickColor)
+    {
+        // Same setup as activate() — program, samplers, heightmap, uniforms.
+        this.program.use(gl);
+
+        this.program.setUniform1i(gl, "u_imagery", 0);
+        this.program.setUniform1i(gl, "u_alphaMask", 1);
+        this.program.setUniform1i(gl, "u_useLighting", 0);
+        this.program.setUniform1i(gl, "u_usePickColor", usePickColor ? 1 : 0);
+
+        int useHeightmap = 0;
+        if (heightmapCacheKey != null && dc.getGLRuntimeCapabilities().getNumTextureUnits() >= 4)
+        {
+            int[] texId = (int[]) dc.getGpuResourceCache().get(heightmapCacheKey);
+            if (texId != null)
+            {
+                gl.glActiveTexture(GL.GL_TEXTURE3);
+                gl.glBindTexture(GL.GL_TEXTURE_2D, texId[0]);
+                gl.glActiveTexture(GL.GL_TEXTURE0);
+                this.program.setUniform1i(gl, "u_heightmap", 3);
+                this.program.setUniform3f(gl, "u_refCenter",
+                    (float) refCenterX, (float) refCenterY, (float) refCenterZ);
+                this.program.setUniform1f(gl, "u_heightScale",
+                    (float) dc.getVerticalExaggeration());
+                useHeightmap = 1;
+            }
+        }
+        this.program.setUniform1i(gl, "u_useHeightmap", useHeightmap);
+        this.program.setUniform1i(gl, "u_flatGlobe", dc.is2DGlobe() ? 1 : 0);
+    }
+
+    /**
+     * Deactivates the shader after all image tiles for a geometry tile have
+     * been drawn.
+     */
+    public void deactivateForTile(GL2 gl)
+    {
+        gl.glActiveTexture(GL.GL_TEXTURE3);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
+        gl.glActiveTexture(GL.GL_TEXTURE0);
+
+        this.program.unuse(gl);
+    }
+
     public void dispose(GL2 gl)
     {
         if (this.program != null)

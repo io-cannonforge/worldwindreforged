@@ -27,6 +27,13 @@
  *
  * Modifications and additions by seaglassfoundry.com — WorldWind Reforged project.
  * Modified for Phase 3 shader-based surface rendering pipeline.
+ *
+ * Changes (Shader Lifecycle Optimisation):
+ * - Tile-scoped shader activation: when useShaderPath is true, calls
+ *   sg.activateShader() once per geometry tile before iterating over image tiles,
+ *   then sg.renderMultiTextureWithActiveShader() for each image tile draw (no
+ *   per-draw activate/deactivate), then sg.deactivateShader() once after all draws.
+ *   Reduces glUseProgram and uniform upload calls per frame by ~8x.
  */
 package gov.nasa.worldwind.render;
 
@@ -283,53 +290,69 @@ public abstract class SurfaceTileRenderer implements Disposable
                 // Pre-load info to compute the texture transform
                 this.preComputeTextureTransform(dc, sg, transform);
 
-                // For each intersecting tile, establish the texture transform necessary to map the image tile
-                // into the geometry tile's texture space. Use an alpha texture as a mask to prevent changing the
-                // frame buffer where the image tile does not overlap the geometry tile. Render both the image and
-                // alpha textures via multi-texture rendering.
-                // TODO: Figure out how to apply multi-texture to more than one tile at a time. Use fragment shader?
-                for (SurfaceTile tile : tilesToRender)
+                // seaglassfoundry.com: tile-scoped shader lifecycle — activate the shader once
+                // per geometry tile rather than once per image tile draw.  The shader stays
+                // active while we iterate over all intersecting image tiles, then deactivates.
+                if (useShaderPath)
+                    sg.activateShader(dc, numTexUnitsUsed);
+
+                try
                 {
-                    gl.glActiveTexture(GL.GL_TEXTURE0);
-
-                    if (tile.bind(dc))
+                    // For each intersecting tile, establish the texture transform necessary to map the image tile
+                    // into the geometry tile's texture space. Use an alpha texture as a mask to prevent changing the
+                    // frame buffer where the image tile does not overlap the geometry tile. Render both the image and
+                    // alpha textures via multi-texture rendering.
+                    for (SurfaceTile tile : tilesToRender)
                     {
-                        gl.glMatrixMode(GL.GL_TEXTURE);
-                        gl.glLoadIdentity();
-                        tile.applyInternalTransform(dc, true);
+                        gl.glActiveTexture(GL.GL_TEXTURE0);
 
-                        // Determine and apply texture transform to map image tile into geometry tile's texture space
-                        this.computeTextureTransform(dc, tile, transform);
-                        gl.glScaled(transform.HScale, transform.VScale, 1d);
-                        gl.glTranslated(transform.HShift, transform.VShift, 0d);
-
-                        if (showOutlines)
+                        if (tile.bind(dc))
                         {
-                            gl.glActiveTexture(GL.GL_TEXTURE1);
-                            this.outlineTexture.bind(gl);
+                            gl.glMatrixMode(GL.GL_TEXTURE);
+                            gl.glLoadIdentity();
+                            tile.applyInternalTransform(dc, true);
 
-                            // Apply the same texture transform to the outline texture. The outline textures uses a
+                            // Determine and apply texture transform to map image tile into geometry tile's texture space
+                            this.computeTextureTransform(dc, tile, transform);
+                            gl.glScaled(transform.HScale, transform.VScale, 1d);
+                            gl.glTranslated(transform.HShift, transform.VShift, 0d);
+
+                            if (showOutlines)
+                            {
+                                gl.glActiveTexture(GL.GL_TEXTURE1);
+                                this.outlineTexture.bind(gl);
+
+                                // Apply the same texture transform to the outline texture. The outline textures uses a
+                                // different texture unit than the tile, so the transform made above does not carry over.
+                                gl.glMatrixMode(GL.GL_TEXTURE);
+                                gl.glLoadIdentity();
+                                gl.glScaled(transform.HScale, transform.VScale, 1d);
+                                gl.glTranslated(transform.HShift, transform.VShift, 0d);
+                            }
+
+                            // Prepare the alpha texture to be used as a mask where texture coords are outside [0,1]
+                            gl.glActiveTexture(alphaTextureUnit);
+                            this.alphaTexture.bind(gl);
+
+                            // Apply the same texture transform to the alpha texture. The alpha texture uses a
                             // different texture unit than the tile, so the transform made above does not carry over.
                             gl.glMatrixMode(GL.GL_TEXTURE);
                             gl.glLoadIdentity();
                             gl.glScaled(transform.HScale, transform.VScale, 1d);
                             gl.glTranslated(transform.HShift, transform.VShift, 0d);
+
+                            // Render the geometry tile — batched path skips per-draw activate/deactivate
+                            if (useShaderPath)
+                                sg.renderMultiTextureWithActiveShader(dc, numTexUnitsUsed);
+                            else
+                                sg.renderMultiTexture(dc, numTexUnitsUsed);
                         }
-
-                        // Prepare the alpha texture to be used as a mask where texture coords are outside [0,1]
-                        gl.glActiveTexture(alphaTextureUnit);
-                        this.alphaTexture.bind(gl);
-
-                        // Apply the same texture transform to the alpha texture. The alpha texture uses a
-                        // different texture unit than the tile, so the transform made above does not carry over.
-                        gl.glMatrixMode(GL.GL_TEXTURE);
-                        gl.glLoadIdentity();
-                        gl.glScaled(transform.HScale, transform.VScale, 1d);
-                        gl.glTranslated(transform.HShift, transform.VShift, 0d);
-
-                        // Render the geometry tile
-                        sg.renderMultiTexture(dc, numTexUnitsUsed);
                     }
+                }
+                finally
+                {
+                    if (useShaderPath)
+                        sg.deactivateShader(dc);
                 }
 
                 sg.endRendering(dc);

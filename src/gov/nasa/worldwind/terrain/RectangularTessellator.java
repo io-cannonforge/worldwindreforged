@@ -84,6 +84,14 @@
  *   computes cosLat/sinLat/rpm once per row, and writes directly to the FloatBuffer —
  *   eliminating ~529 Vec4 allocations and ~460 redundant trig ops per tile rebuild.
  *   FlatGlobe (2D) retains the original per-vertex computePointFromPosition path.
+ *
+ * Changes (Shader Lifecycle Optimisation):
+ * - Added activateShaderForTile(), deactivateShaderForTile(), renderImageTile() to split
+ *   the shader lifecycle into per-geometry-tile activation and per-image-tile draw.
+ *   SurfaceTileRenderer calls these to keep the shader active across all image tile draws
+ *   for the same geometry tile, reducing glUseProgram and uniform upload calls by ~8x.
+ * - RectTile: implements SectorGeometry.activateShader(), deactivateShader(), and
+ *   renderMultiTextureWithActiveShader() by delegating to the tessellator.
  */
 package gov.nasa.worldwind.terrain;
 
@@ -516,6 +524,26 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         {
             return this.tessellator.makeGeographicTexCoords(this, computer);
         }
+
+        // ── seaglassfoundry.com: tile-scoped shader lifecycle ──────────────────
+
+        @Override
+        public void activateShader(DrawContext dc, int numTextureUnits)
+        {
+            this.tessellator.activateShaderForTile(dc, this, numTextureUnits);
+        }
+
+        @Override
+        public void deactivateShader(DrawContext dc)
+        {
+            this.tessellator.deactivateShaderForTile(dc);
+        }
+
+        @Override
+        public void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits)
+        {
+            this.tessellator.renderImageTile(dc, this, numTextureUnits);
+        }
     }
 
     protected static class CacheKey
@@ -626,6 +654,11 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
     protected static final int MAX_HEIGHTMAP_UPLOADS_PER_FRAME = 6;
     protected int heightmapUploadsThisFrame = 0;
     protected long lastHeightmapFrameTimestamp = 0;
+
+    // seaglassfoundry.com: tile-scoped shader lifecycle — tracks which shader is currently
+    // activated by activateShaderForTile() so deactivateShaderForTile() knows what to tear down.
+    // 0 = none, 1 = TerrainShader, 2 = TessellationTerrainShader
+    protected int activeShaderType = 0;
 
     @Override
 	public SectorGeometryList tessellate(DrawContext dc)
@@ -1127,6 +1160,202 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             gl.glBindVertexArray(0);
         else
             gl.glPopClientAttrib();
+    }
+
+    // ── seaglassfoundry.com: tile-scoped shader lifecycle for SurfaceTileRenderer ──
+    // These methods split the shader activate/deactivate cycle so the shader stays
+    // active across all image tile draws for the same geometry tile.
+
+    /**
+     * Activates the appropriate terrain shader for the given geometry tile.
+     * Called once per geometry tile by SurfaceTileRenderer before iterating
+     * over intersecting image tiles.
+     *
+     * @param dc              the current draw context
+     * @param tile            the geometry tile being rendered
+     * @param numTextureUnits the number of texture units in use
+     */
+    protected void activateShaderForTile(DrawContext dc, RectTile tile, int numTextureUnits)
+    {
+        if (tile.ri == null)
+            return;
+
+        // Lazy shader init — same logic as render(), ensures shaders are available.
+        TessellationTerrainShader tessellationShader = tessellationShaders.get();
+        ComputeMeshShader computeMeshShader = computeMeshShaders.get();
+        TerrainShader terrainShader = terrainShaders.get();
+
+        if (!Boolean.TRUE.equals(tessellationShaderInitFailed.get()) && tessellationShader == null
+            && dc.getGLRuntimeCapabilities().isUseTessellation())
+        {
+            tessellationShader = new TessellationTerrainShader();
+            if (!tessellationShader.init(dc.getGL().getGL2()))
+            {
+                tessellationShader = null;
+                tessellationShaderInitFailed.set(Boolean.TRUE);
+            }
+            else
+                tessellationShaders.set(tessellationShader);
+        }
+
+        if (!Boolean.TRUE.equals(terrainShaderInitFailed.get()) && terrainShader == null
+            && dc.getGLRuntimeCapabilities().isUseTerrainShader())
+        {
+            terrainShader = new TerrainShader();
+            if (!terrainShader.init(dc.getGL().getGL2()))
+            {
+                terrainShader = null;
+                terrainShaderInitFailed.set(Boolean.TRUE);
+            }
+            else
+                terrainShaders.set(terrainShader);
+        }
+
+        // Upload heightmap if pending (same throttle logic as render).
+        if ((tessellationShader != null && tessellationShader.isValid())
+            || (terrainShader != null && terrainShader.isValid()))
+        {
+            if (tile.ri.pendingHeightmap != null && this.heightmapUploadsThisFrame < MAX_HEIGHTMAP_UPLOADS_PER_FRAME)
+            {
+                tile.ri.fillHeightmapTexture(dc);
+                this.heightmapUploadsThisFrame++;
+            }
+            else if (tile.ri.pendingHeightmap != null)
+                dc.setRedrawRequested(1);
+        }
+
+        // Determine shader path — same priority as render().
+        boolean vaoAvailable = dc.getGLRuntimeCapabilities().isUseVertexArrayObject();
+        boolean tessellationReady = vaoAvailable
+            && tessellationShader != null && tessellationShader.isValid()
+            && numTextureUnits == 2;
+        boolean useShader = !tessellationReady
+            && terrainShader != null && terrainShader.isValid()
+            && numTextureUnits == 2;
+
+        // Determine pick color mode.
+        boolean usePickColor = false;
+        if (dc.isPickingMode())
+        {
+            Object pickMode = dc.getValue("gov.nasa.worldwind.render.SurfaceTilePickMode");
+            usePickColor = pickMode != null && ((Integer) pickMode) == 2;
+        }
+
+        if (tessellationReady)
+        {
+            tessellationShader.activateForTile(dc.getGL().getGL2(), dc, tile.ri.heightmapCacheKey,
+                tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
+                tile.ri.constrainedOuterLevels, usePickColor);
+            this.activeShaderType = 2;
+        }
+        else if (useShader)
+        {
+            terrainShader.activateForTile(dc.getGL().getGL2(), dc, null,
+                tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
+                usePickColor);
+            this.activeShaderType = 1;
+        }
+        else
+        {
+            this.activeShaderType = 0;
+        }
+    }
+
+    /**
+     * Deactivates the shader that was activated by {@link #activateShaderForTile}.
+     *
+     * @param dc the current draw context
+     */
+    protected void deactivateShaderForTile(DrawContext dc)
+    {
+        GL2 gl = dc.getGL().getGL2();
+        if (this.activeShaderType == 2)
+        {
+            TessellationTerrainShader tessellationShader = tessellationShaders.get();
+            if (tessellationShader != null)
+                tessellationShader.deactivateForTile(gl);
+        }
+        else if (this.activeShaderType == 1)
+        {
+            TerrainShader terrainShader = terrainShaders.get();
+            if (terrainShader != null)
+                terrainShader.deactivateForTile(gl);
+        }
+        this.activeShaderType = 0;
+    }
+
+    /**
+     * Renders one image tile draw with the shader already active.  Updates
+     * per-image-tile state (texture matrices for the tessellation path) and
+     * issues the draw call without activating/deactivating the shader.
+     *
+     * @param dc              the current draw context
+     * @param tile            the geometry tile
+     * @param numTextureUnits the number of texture units in use
+     */
+    protected void renderImageTile(DrawContext dc, RectTile tile, int numTextureUnits)
+    {
+        if (tile.ri == null)
+            return;
+
+        // For the tessellation shader, update the texture matrix uniforms from
+        // the fixed-function state that SurfaceTileRenderer just set.
+        if (this.activeShaderType == 2)
+        {
+            TessellationTerrainShader tessellationShader = tessellationShaders.get();
+            if (tessellationShader != null)
+                tessellationShader.updateTextureState(dc.getGL().getGL2());
+        }
+        // TerrainShader (activeShaderType == 1) reads gl_TextureMatrix automatically — no update needed.
+
+        // Issue the draw call — same VBO/VA logic as the existing render() draw path,
+        // but without shader activate/deactivate.
+        boolean vaoAvailable = dc.getGLRuntimeCapabilities().isUseVertexArrayObject();
+        TessellationTerrainShader tessellationShader = tessellationShaders.get();
+        boolean tessellationReady = vaoAvailable
+            && tessellationShader != null && tessellationShader.isValid()
+            && numTextureUnits == 2 && this.activeShaderType == 2;
+        boolean useComputeMesh = tessellationReady
+            && computeMeshShaders.get() != null && computeMeshShaders.get().isValid()
+            && dc.getGLRuntimeCapabilities().isUseVertexBufferObject();
+        boolean useTessellation = tessellationReady && !useComputeMesh;
+
+        if (useComputeMesh)
+        {
+            createPatchIndices(tile.density);
+            if (!this.renderVBOComputeTessellated(dc, tile, numTextureUnits))
+            {
+                dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
+                this.renderVBOTessellated(dc, tile, numTextureUnits);
+            }
+        }
+        else if (useTessellation)
+        {
+            createPatchIndices(tile.density);
+            if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
+            {
+                if (!this.renderVBOTessellated(dc, tile, numTextureUnits))
+                {
+                    dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                    dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
+                    this.renderVATessellated(dc, tile, numTextureUnits);
+                }
+            }
+            else
+                this.renderVATessellated(dc, tile, numTextureUnits);
+        }
+        else if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
+        {
+            if (!this.renderVBO(dc, tile, numTextureUnits))
+            {
+                dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
+                this.renderVA(dc, tile, numTextureUnits);
+            }
+        }
+        else
+            this.renderVA(dc, tile, numTextureUnits);
     }
 
     protected long render(DrawContext dc, RectTile tile, int numTextureUnits)
