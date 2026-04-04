@@ -28,6 +28,7 @@
 package gov.nasa.worldwind.globes;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.List;
 
 import gov.nasa.worldwind.BasicFactory;
@@ -1076,6 +1077,119 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
                 double y = (rpm * (1.0 - this.es) + elev) * sinLat;
                 double z = (rpm + elev) * cosLat * cosLon[i];
                 out[pos++] = new Vec4(x, y, z);
+            }
+        }
+    }
+
+    /**
+     * Batch-computes the terrain tile vertex grid directly into a FloatBuffer, avoiding per-vertex
+     * object allocation. The grid layout matches {@code RectangularTessellator.computeLocations}:
+     * a (density+3)&times;(density+3) grid where the outermost ring duplicates the edge positions
+     * (for skirts). Vertices are written as float triplets (x, y, z) relative to {@code refCenter}.
+     * <p>
+     * Compared to iterating {@link #computePointFromPosition} per vertex, this method:
+     * <ul>
+     *   <li>Pre-computes cosine/sine arrays for each unique longitude (eliminates redundant trig
+     *       per row)</li>
+     *   <li>Computes cosLat/sinLat/rpm once per row instead of per vertex</li>
+     *   <li>Writes directly to the FloatBuffer without intermediate Vec4 allocation</li>
+     * </ul>
+     *
+     * Modified by seaglassfoundry.com — new method for terrain vertex generation optimisation.
+     *
+     * @param sector         the geographic sector covered by the tile
+     * @param density        the tile grid density (interior grid is (density+1)&times;(density+1))
+     * @param elevations     pre-fetched elevation array, length (density+3)&sup2;, row-major.
+     *                       The outer ring contains edge-duplicate elevations matching the skirt
+     *                       positions produced by {@code computeLocations}.
+     * @param vertExagg      vertical exaggeration factor applied to each elevation value
+     * @param skirtElevation if non-null, vertices on the outer ring (j==0, j==density+2, i==0,
+     *                       i==density+2) use this elevation instead of the array value, producing
+     *                       tile skirts
+     * @param out            destination FloatBuffer; must have capacity &ge; (density+3)&sup2; &times; 3
+     * @param refCenter      reference centre subtracted from each ECEF position to keep float
+     *                       precision
+     */
+    public void computeTerrainGridToBuffer(Sector sector, int density, double[] elevations,
+        double vertExagg, Double skirtElevation, FloatBuffer out, Vec4 refCenter)
+    {
+        int gridSize = density + 3;
+        double minLat = sector.getMinLatitude().radians;
+        double maxLat = sector.getMaxLatitude().radians;
+        double minLon = sector.getMinLongitude().radians;
+        double maxLon = sector.getMaxLongitude().radians;
+        double dLat = (maxLat - minLat) / density;
+        double dLon = (maxLon - minLon) / density;
+
+        // Build the latitude radians array matching computeLocations progression:
+        //   j=0: minLat (skirt, same as j=1)
+        //   j=1: minLat
+        //   j=k (2 <= k <= density): minLat + (k-1)*dLat
+        //   j=density+1: maxLat
+        //   j=density+2: maxLat (skirt)
+        double[] latRad = new double[gridSize];
+        latRad[0] = minLat;
+        latRad[1] = minLat;
+        for (int j = 2; j <= density; j++)
+            latRad[j] = minLat + (j - 1) * dLat;
+        latRad[density + 1] = maxLat;
+        latRad[density + 2] = maxLat;
+
+        // Build longitude radians array (same structure, columns):
+        double[] lonRad = new double[gridSize];
+        lonRad[0] = minLon;
+        lonRad[1] = minLon;
+        for (int i = 2; i <= density; i++)
+            lonRad[i] = minLon + (i - 1) * dLon;
+        lonRad[density + 1] = maxLon;
+        lonRad[density + 2] = maxLon;
+
+        // Clamp longitudes to [-PI, PI] (matches Angle.NEG180 / POS180 guard in computeLocations)
+        for (int i = 0; i < gridSize; i++)
+        {
+            if (lonRad[i] < -Math.PI) lonRad[i] = -Math.PI;
+            else if (lonRad[i] > Math.PI) lonRad[i] = Math.PI;
+        }
+
+        // Pre-compute cos/sin of each unique longitude value — saves (gridSize-1) * gridSize trig ops.
+        double[] cosLon = new double[gridSize];
+        double[] sinLon = new double[gridSize];
+        for (int i = 0; i < gridSize; i++)
+        {
+            cosLon[i] = Math.cos(lonRad[i]);
+            sinLon[i] = Math.sin(lonRad[i]);
+        }
+
+        double refX = refCenter.x;
+        double refY = refCenter.y;
+        double refZ = refCenter.z;
+        double esComp = 1.0 - this.es;
+        int ie = 0;
+        int iv = 0;
+
+        for (int j = 0; j < gridSize; j++)
+        {
+            // Per-row constants: cosLat, sinLat, radius of curvature in prime meridian.
+            double cosLat = Math.cos(latRad[j]);
+            double sinLat = Math.sin(latRad[j]);
+            double rpm = this.equatorialRadius / Math.sqrt(1.0 - this.es * sinLat * sinLat);
+
+            boolean isSkirtRow = (j == 0 || j == density + 2);
+
+            for (int i = 0; i < gridSize; i++)
+            {
+                double elevation = vertExagg * elevations[ie++];
+
+                if (skirtElevation != null && (isSkirtRow || i == 0 || i == density + 2))
+                    elevation = skirtElevation;
+
+                double x = (rpm + elevation) * cosLat * sinLon[i];
+                double y = (rpm * esComp + elevation) * sinLat;
+                double z = (rpm + elevation) * cosLat * cosLon[i];
+
+                out.put(iv++, (float) (x - refX));
+                out.put(iv++, (float) (y - refY));
+                out.put(iv++, (float) (z - refZ));
             }
         }
     }

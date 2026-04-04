@@ -77,6 +77,13 @@
  * - beginRendering(dc) / endRendering(dc): skip glPushClientAttrib/glPopClientAttrib when VAOs
  *   are active (VAO per-tile state makes the frame-level push/pop redundant and incompatible);
  *   endRendering() calls glBindVertexArray(0) in the VAO path to restore default state
+ *
+ * Changes (Batch Vertex Transform Optimisation):
+ * - buildVerts(): for EllipsoidalGlobe (3D), delegates the geodetic-to-ECEF vertex loop to
+ *   EllipsoidalGlobe.computeTerrainGridToBuffer() which pre-computes cosLon/sinLon arrays,
+ *   computes cosLat/sinLat/rpm once per row, and writes directly to the FloatBuffer —
+ *   eliminating ~529 Vec4 allocations and ~460 redundant trig ops per tile rebuild.
+ *   FlatGlobe (2D) retains the original per-vertex computePointFromPosition path.
  */
 package gov.nasa.worldwind.terrain;
 
@@ -125,6 +132,7 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.geom.Triangle;
 import gov.nasa.worldwind.geom.Vec4;
+import gov.nasa.worldwind.globes.EllipsoidalGlobe;
 import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.globes.Globe2D;
 import gov.nasa.worldwind.pick.PickSupport;
@@ -936,25 +944,38 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         LatLon centroid = tile.sector.getCentroid();
         Vec4 refCenter = globe.computePointFromPosition(centroid.getLatitude(), centroid.getLongitude(), 0d);
 
-        int ie = 0;
-        int iv = 0;
-        var latLonIter = latlons.iterator();
-        for (int j = 0; j <= density + 2; j++)
+        // seaglassfoundry.com: batch vertex computation — for EllipsoidalGlobe (the 3D globe) we
+        // use a dedicated method that pre-computes cos/sin arrays and writes directly to the
+        // FloatBuffer, avoiding ~529 Vec4 allocations and ~460 redundant trig ops per tile.
+        // FlatGlobe (2D) delegates to a projection with different math, so it uses the original
+        // per-vertex path via computePointFromPosition.
+        if (globe instanceof EllipsoidalGlobe && !(globe instanceof Globe2D))
         {
-            for (int i = 0; i <= density + 2; i++)
+            ((EllipsoidalGlobe) globe).computeTerrainGridToBuffer(tile.sector, density, elevations,
+                verticalExaggeration, exaggeratedMinElevation, verts, refCenter);
+        }
+        else
+        {
+            int ie = 0;
+            int iv = 0;
+            var latLonIter = latlons.iterator();
+            for (int j = 0; j <= density + 2; j++)
             {
-                LatLon latlon = latLonIter.next();
-                double elevation = verticalExaggeration * elevations[ie++];
+                for (int i = 0; i <= density + 2; i++)
+                {
+                    LatLon latlon = latLonIter.next();
+                    double elevation = verticalExaggeration * elevations[ie++];
 
-                // Tile edges use min elevation to draw the skirts
-                if (exaggeratedMinElevation != null &&
-                    (j == 0 || j >= tile.density + 2 || i == 0 || i >= tile.density + 2))
-                    elevation = exaggeratedMinElevation;
+                    // Tile edges use min elevation to draw the skirts
+                    if (exaggeratedMinElevation != null &&
+                        (j == 0 || j >= tile.density + 2 || i == 0 || i >= tile.density + 2))
+                        elevation = exaggeratedMinElevation;
 
-                Vec4 p = globe.computePointFromPosition(latlon.getLatitude(), latlon.getLongitude(), elevation);
-                verts.put(iv++, (float) (p.x - refCenter.x));
-                verts.put(iv++, (float) (p.y - refCenter.y));
-                verts.put(iv++, (float) (p.z - refCenter.z));
+                    Vec4 p = globe.computePointFromPosition(latlon.getLatitude(), latlon.getLongitude(), elevation);
+                    verts.put(iv++, (float) (p.x - refCenter.x));
+                    verts.put(iv++, (float) (p.y - refCenter.y));
+                    verts.put(iv++, (float) (p.z - refCenter.z));
+                }
             }
         }
 
