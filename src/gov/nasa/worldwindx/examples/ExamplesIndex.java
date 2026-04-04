@@ -108,6 +108,11 @@ public class ExamplesIndex extends JFrame {
     private static final LinkedHashMap<String, ExampleEntry[]> CATEGORIES = new LinkedHashMap<>();
 
     static {
+        CATEGORIES.put("Showcase", new ExampleEntry[]{
+            new ExampleEntry("AIS Vessel Tracker",  BASE + "AISVesselTrackerDemo", "Real-time AIS maritime vessel tracking with live Digitraffic data, vessel-type symbology, track history, and interactive filtering.", "New"),
+            new ExampleEntry("Live Air Traffic",    BASE + "AirTrafficDemo",        "Real-time 3D air traffic at actual altitude with contrails, speed leaders, altitude colouring, emergency alerts, military overlay, and follow camera.", "New"),
+        });
+
         CATEGORIES.put("Basics", new ExampleEntry[]{
             new ExampleEntry("Simplest Possible Example",    BASE + "SimplestPossibleExample",    "The minimal WorldWind application — a globe with default imagery layers."),
             new ExampleEntry("Hello World Wind",             BASE + "HelloWorldWind",             "Basic WorldWind window with default Earth imagery and navigation."),
