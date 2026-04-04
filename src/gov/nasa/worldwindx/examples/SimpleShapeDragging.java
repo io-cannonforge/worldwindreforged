@@ -38,9 +38,7 @@ import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.Layer;
-import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
 import gov.nasa.worldwind.render.SurfaceImage;
 import gov.nasa.worldwind.util.BasicDragger;
 
@@ -96,16 +94,9 @@ public class SimpleShapeDragging extends JFrame
         });
     }
 
+    // Modified by seaglassfoundry.com - delegate to ApplicationTemplate for consistent fallback behavior
     public static void insertBeforePlacenames(WorldWindow wwd, Layer layer)
     {
-        // Insert the layer into the layer list just before the placenames.
-        int compassPosition = 0;
-        LayerList layers = wwd.getModel().getLayers();
-        for (Layer l : layers)
-        {
-            if (l instanceof PlaceNameLayer)
-                compassPosition = layers.indexOf(l);
-        }
-        layers.add(compassPosition, layer);
+        ApplicationTemplate.insertBeforePlacenames(wwd, layer);
     }
 }

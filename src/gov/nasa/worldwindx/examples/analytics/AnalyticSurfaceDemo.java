@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
@@ -399,6 +400,11 @@ public class AnalyticSurfaceDemo extends ApplicationTemplate
 
     public static void main(String[] args)
     {
+        // Modified by seaglassfoundry.com - set initial view to center on the analytic surfaces
+        // (25-35°N, -110 to -80°W) so they are visible on launch.
+        Configuration.setValue(AVKey.INITIAL_LATITUDE, 30);
+        Configuration.setValue(AVKey.INITIAL_LONGITUDE, -95);
+        Configuration.setValue(AVKey.INITIAL_ALTITUDE, 6e6);
         ApplicationTemplate.start("WorldWind Analytic Surface", AppFrame.class);
     }
 }

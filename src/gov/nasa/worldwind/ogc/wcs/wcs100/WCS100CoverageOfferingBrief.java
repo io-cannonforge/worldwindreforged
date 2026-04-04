@@ -65,9 +65,11 @@ public class WCS100CoverageOfferingBrief extends AbstractXMLEventParser
         return (AttributesOnlyXMLEventParser) this.getField("metadataLink");
     }
 
+    // Modified by seaglassfoundry.com — null-safe; servers may omit keywords.
     public List<String> getKeywords()
     {
-        return ((StringListXMLEventParser) this.getField("keywords")).getStrings();
+        StringListXMLEventParser parser = (StringListXMLEventParser) this.getField("keywords");
+        return parser != null ? parser.getStrings() : null;
     }
 
     public WCS100LonLatEnvelope getLonLatEnvelope()

@@ -80,11 +80,11 @@ public class GPUTerrainDemo extends ApplicationTemplate
 
     // ── Camera presets [label, lat, lon, altitudeMetres] ─────────────────────
     private static final Object[][] CAMERA_PRESETS = {
-        {"Grand Canyon",     36.10,  -112.10,   45_000},
-        {"Rocky Mountains",  39.50,  -106.00,  200_000},
-        {"Mount Everest",    27.99,    86.93,  120_000},
-        {"Alps Overview",    46.50,     8.50,  500_000},
-        {"World",            20.00,     0.00, 20_000_000},
+        {"Grand Canyon",     36.10,  -112.10,   45_000d},
+        {"Rocky Mountains",  39.50,  -106.00,  200_000d},
+        {"Mount Everest",    27.99,    86.93,  120_000d},
+        {"Alps Overview",    46.50,     8.50,  500_000d},
+        {"World",            20.00,     0.00, 20_000_000d},
     };
 
     // ── AppFrame ──────────────────────────────────────────────────────────────

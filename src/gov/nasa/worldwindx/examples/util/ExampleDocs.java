@@ -1544,21 +1544,19 @@ public final class ExampleDocs {
                 + "<li><code class='api-class'>WCSCoveragePanel</code> &mdash; UI panel for browsing available WCS coverages</li>"
                 + "</ul>"));
 
+        // Modified by seaglassfoundry.com - updated docs to note defunct NASA WFS server
         put("PlaceNames",
             section("Overview",
-                "Displays the NASA place-name label layer with density controls. Labels appear at "
-                + "appropriate zoom levels based on feature importance &mdash; country names at wide zoom, "
-                + "city names at medium zoom, and local features at close zoom.")
+                "<b>Note:</b> This example is non-functional. The NASA WFS place-name server "
+                + "(worldwind22.arc.nasa.gov) is no longer available, and the data format (GML2-GZIP) "
+                + "was NASA-specific with no standardized replacement.<br><br>"
+                + "Originally displayed the NASA place-name label layer with density controls. Labels "
+                + "appeared at appropriate zoom levels based on feature importance &mdash; country names "
+                + "at wide zoom, city names at medium zoom, and local features at close zoom.")
             + section("What You'll See",
                 "<ul>"
-                + "<li>Geographic place name labels rendered on the globe</li>"
-                + "<li>Labels appear and disappear based on zoom level</li>"
-                + "<li>Country names, city names, ocean labels, mountain names, etc.</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li>Zoom in to see more detailed and local place names appear</li>"
-                + "<li>Zoom out to see only major geographic features (countries, oceans)</li>"
+                + "<li>The Place Names control panel will appear but no labels will render on the globe</li>"
+                + "<li>The layer cannot fetch data because the NASA WFS server no longer exists</li>"
                 + "</ul>")
             + section("Key APIs",
                 "<ul>"
@@ -1588,22 +1586,25 @@ public final class ExampleDocs {
 
         put("LayerTreeUsage",
             section("Overview",
-                "Hierarchical layer tree panel with group and leaf nodes. Shows how to organise layers "
-                + "into a tree structure with expandable groups for complex applications with many layers.")
+                "Hierarchical layer tree with expandable groups. Layers are automatically categorised "
+                + "into <b>Background</b> (stars, sky, BMNG), <b>Imagery</b> (Landsat, NAIP, Bing), "
+                + "<b>Overlays</b> (boundaries, Earth at Night), and <b>Controls</b> (compass, scalebar, "
+                + "world map) &mdash; demonstrating how to build a real tree rather than a flat list.")
             + section("What You'll See",
                 "<ul>"
-                + "<li>A tree panel with expandable layer groups</li>"
-                + "<li>Checkboxes at each level for toggling visibility of groups or individual layers</li>"
+                + "<li>Four expandable group nodes, each containing related layers</li>"
+                + "<li>Checkboxes on leaf nodes for toggling individual layer visibility</li>"
                 + "</ul>")
             + section("How to Interact",
                 "<ul>"
-                + "<li>Expand/collapse groups in the tree by clicking the expand arrows</li>"
-                + "<li>Toggle individual layers or entire groups via checkboxes</li>"
+                + "<li>Expand/collapse groups by clicking the expand arrows</li>"
+                + "<li>Toggle individual layers via checkboxes</li>"
                 + "</ul>")
             + section("Key APIs",
                 "<ul>"
-                + "<li><code class='api-class'>LayerTree</code> &mdash; tree component for hierarchical layer management</li>"
-                + "<li><code class='api-class'>BasicLayerTreeNode</code> &mdash; tree nodes wrapping <code>Layer</code> objects</li>"
+                + "<li><code class='api-class'>LayerTree</code> &mdash; on-screen tree component</li>"
+                + "<li><code class='api-class'>BasicTreeNode</code> &mdash; group nodes for organising layers</li>"
+                + "<li><code class='api-class'>LayerTreeNode</code> &mdash; leaf nodes wrapping <code>Layer</code> objects</li>"
                 + "</ul>"));
 
         // ── Terrain ─────────────────────────────────────────────────────────────
@@ -1720,47 +1721,7 @@ public final class ExampleDocs {
                 + "<li>Terrain tessellation and tile loading pipeline internals</li>"
                 + "</ul>"));
 
-        put("HighResolutionTerrainTest",
-            section("Overview",
-                "Samples high-resolution elevation at many positions asynchronously using "
-                + "<code class='api-class'>HighResolutionTerrain</code>. Demonstrates bulk elevation queries "
-                + "that load detailed elevation data on demand with progressive refinement.")
-            + section("What You'll See",
-                "<ul>"
-                + "<li>Points sampled at high-resolution elevation positions</li>"
-                + "<li>Progressive refinement as higher-resolution elevation data loads from the server</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li>Watch as elevation data loads and positions refine to higher accuracy</li>"
-                + "</ul>")
-            + section("Key APIs",
-                "<ul>"
-                + "<li><code class='api-class'>HighResolutionTerrain</code> &mdash; high-resolution elevation sampling "
-                + "with configurable target resolution and memory cache</li>"
-                + "<li><code class='api-method'>terrain.getElevation(lat, lon)</code> &mdash; blocking query for the best "
-                + "available elevation at a position</li>"
-                + "</ul>"));
 
-        put("CustomElevationModel",
-            section("Overview",
-                "Shows how to plug in a custom elevation model implementation via the API. Replace "
-                + "the default terrain data source with your own elevation data &mdash; from local files, "
-                + "custom servers, or procedurally generated terrain.")
-            + section("What You'll See",
-                "<ul>"
-                + "<li>A globe using a custom elevation data source instead of the default</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li>Navigate to see terrain rendered from the custom elevation data</li>"
-                + "</ul>")
-            + section("Key APIs",
-                "<ul>"
-                + "<li><code class='api-class'>ElevationModel</code> &mdash; interface for custom elevation sources; "
-                + "implement <code>getElevation()</code> and <code>getElevations()</code></li>"
-                + "<li><code class='api-method'>globe.setElevationModel(model)</code> &mdash; replace the active terrain model</li>"
-                + "</ul>"));
 
         put("GetBestElevations",
             section("Overview",
@@ -2740,28 +2701,6 @@ public final class ExampleDocs {
                 + "<li><code class='api-method'>tool.getArea()</code> &mdash; geodetic area in square meters</li>"
                 + "<li><code class='api-class'>TerrainProfileLayer</code> &mdash; with <code>FOLLOW_PATH</code> mode synced to "
                 + "the active measurement path</li>"
-                + "</ul>"));
-
-        put("lineofsight.LinesOfSight",
-            section("Overview",
-                "Compute terrain line-of-sight coverage from an observer position. Casts rays from the "
-                + "observer to a grid of surrounding terrain positions to determine visibility. "
-                + "Visible positions are shown in green, obstructed positions in red.")
-            + section("What You'll See",
-                "<ul>"
-                + "<li>Coloured rays radiating from an observer position</li>"
-                + "<li>Green lines and points for clear line-of-sight</li>"
-                + "<li>Red lines and points for terrain-obstructed views</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li>Navigate to the observer position to see line-of-sight results</li>"
-                + "</ul>")
-            + section("Key APIs",
-                "<ul>"
-                + "<li><code class='api-method'>terrain.intersect(Position observer, Position target)</code> &mdash; "
-                + "ray-terrain intersection to determine visibility</li>"
-                + "<li>Radiating ray computation from observer to a grid of target positions</li>"
                 + "</ul>"));
 
         put("lineofsight.GridOfPoints",

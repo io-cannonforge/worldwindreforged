@@ -58,7 +58,8 @@
     <!--<Layer href="config/Earth/OpenStreetMap.xml" actuate="onRequest"/>-->
     <!--<Layer href="config/Earth/WorldBordersShapefile.xml" actuate="onRequest"/>-->
     <Layer href="config/Earth/EarthAtNightLayer.xml" actuate="onRequest"/>
-    <Layer className="gov.nasa.worldwind.layers.Earth.NASAWFSPlaceNameLayer"/>
+    <!-- Modified by seaglassfoundry.com - removed NASAWFSPlaceNameLayer (NASA WFS server is defunct) -->
+    <!--<Layer className="gov.nasa.worldwind.layers.Earth.NASAWFSPlaceNameLayer"/>-->
     <Layer className="gov.nasa.worldwind.layers.WorldMapLayer"/>
     <Layer className="gov.nasa.worldwind.layers.ScalebarLayer"/>
     <Layer className="gov.nasa.worldwind.layers.CompassLayer"/>

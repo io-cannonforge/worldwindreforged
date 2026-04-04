@@ -110,3 +110,34 @@ New GPU infrastructure from Phases 3 and 4 has almost no test coverage. Each ite
 - [x] **SurfaceShapeFillShader compile + mode test** — 20 tests: pattern constants (NONE/HATCH/CROSSHATCH/DOTS distinct, semantics); initial state; vertex source (u_mvp, a_position, a_texCoord, u_texMatrix, branching); fragment source (all uniforms, hatch/crosshatch/dots modes, discard, explicit fragColor). File: `SurfaceShapeFillShaderTest.java`
 - [x] **TerrainShader / TessellationTerrainShader compile tests** — 31 tests: TerrainShader (isValid, program null, vertex uniforms, fragment fragColor/discard/samplers); TessellationTerrainShader (DEFAULT_PIXELS_PER_TRIANGLE, UNCONSTRAINED_OUTER, TCS u_maxOuter/tessLevel output, TES u_earthRadius/u_useHeightmap/h_bilinear); tessellation arithmetic (clamp, u_maxOuter cap). File: `TerrainShaderTest.java`
 - [ ] **RectangularTessellator heightmap upload test** — Verify `fillHeightmapTexture()` uploads a correctly sized GL_R32F texture and that `u_useHeightmap` is set to 1 when data is available. Requires headless JOGL context. File: new `HeightmapUploadTest.java`
+
+## Phase 9: Example Fixes & UI Consistency (2026-04-03)
+
+Bug fixes, camera corrections, and unified split-pane layout across all examples.
+
+### 9.1 Core Rendering Fixes
+- [x] **OrbitView per-frame terrain collision resolution** — `BasicOrbitView.doApply()` now calls `resolveCollisionsWithCenterPosition()` and `resolveCollisionsWithPitch()` every frame, plus a direct eye-altitude safety check. Fixes camera starting underground when `dc` is null during construction (all setter-time collision resolution was skipped). File: `BasicOrbitView.java`
+- [x] **TerrainShader double displacement fix** — `RectangularTessellator` now passes `null` heightmap to `TerrainShader.activate()` on the non-tessellation path. CPU vertices already include full elevation (ECEF at vertExagg × elevation); passing the heightmap caused double displacement, producing starburst/distortion artifacts at close range on AMD Vega. File: `RectangularTessellator.java`
+- [x] **TessellationTerrainShader TCS w-clamping fix** — Changed `abs(w)` to `max(w, 1e-4)` for clip-space w in TCS screen-space edge length computation. Prevents screen-space coordinate inversion for behind-camera vertices. File: `TessellationTerrainShader.java`
+- [x] **setFillPattern() missing updateModifiedTime()** — `AbstractSurfaceShape.setFillPattern()` now calls `updateModifiedTime()` so the surface tile builder re-renders FBO tiles when procedural fill pattern parameters change. Without this, slider controls in ProceduralFillPatternsExample had no visible effect. File: `AbstractSurfaceShape.java`
+
+### 9.2 Example Camera & Content Fixes
+- [x] **ExtrudedPolygonWithBaseDepth** — Relocated to flat coastal terrain (Outer Banks, NC) with proper OrbitView (center, heading, pitch, zoom) instead of setEyePosition in Idaho mountains where terrain collision caused the camera to start underground. File: `ExtrudedPolygonWithBaseDepth.java`
+- [x] **PathsOnDateline** — Added OrbitView centered at (33°, 180°) with zoom 3e6 to properly show the dateline path on launch. File: `PathsOnDateline.java`
+- [x] **MultiResPath** — Changed `new Path(positions)` to `new MultiResolutionPath(positions)` so the 108k-position paths are adaptively thinned based on view distance, making them actually visible. File: `MultiResPath.java`
+- [x] **ContourBuilderExample** — Added `setEyePosition(25°N, -105°W, 2000km)` to frame the contour data sector (20-30°N, -110 to -100°W) on launch. File: `ContourBuilderExample.java`
+- [x] **ExamplesIndex / ExampleDocs — RadarVolume cleanup** — Removed `RadarVolume` entry from example browser (it's a shape class, not a launchable example). Merged into single "Radar Volume" entry pointing to `RadarVolumeExample`. Files: `ExamplesIndex.java`, `ExampleDocs.java`
+
+### 9.3 Unified Split-Pane Layout
+Applied consistent tabbed split-pane layout to **37 examples** (plus DashedLinesExample as template and WMSExplorer as special case). Pattern: `JSplitPane(HORIZONTAL_SPLIT, wwjPanel, controlPanel)` with `resizeWeight(0.67)`, `JTabbedPane` with "Layers" + context-appropriate control tabs, `JScrollPane` wrapping each tab, initial divider at `getWidth() * 2/3` via `componentResized` listener.
+
+- [x] **DashedLinesExample** — Template: tabbed pane (Layers + Legend), split pane, disabled highlight controller. File: `DashedLinesExample.java`
+- [x] **WMSExplorer** — Special case (`super(false,false,false)` custom layout): added split pane between globe panel and right panel with minimum width. File: `WMSExplorer.java`
+- [x] **Batch 1** — AlarmIcons, Annotations, Cones, ContourLines, CoordinateSearchExample, Cylinders, DetailHints, DimGlobeSurface
+- [x] **Batch 2** — Ellipsoids, ExportImageOrElevations, GeoJSONViewer, GPUTerrainDemo, KeepingObjectsInView, LayerOpacityAndBlendingDemo, MarkersOrder, MGRSGraticule
+- [x] **Batch 3** — PlaceNames, ProceduralFillPatternsExample, RubberSheetImage, ScreenSelection, SectorSelection, ShapeClipping, ShapefileAttributeGroups, SurfaceImageViewer
+- [x] **Batch 4** — SurfaceShapeShowcase, TerrainProfiler, ViewControls, ViewLookAround, ViewLimits, VPFLayerDemo, Wedges, WMSTimeSeriesDemo
+- [x] **Batch 5** — TacticalGraphics, TacticalSymbols, ViewSwitch, AddAnimator, InstallImageryAndElevationsDemo (RetrieveElevations skipped — fully custom layout with no controlPanel)
+
+### 9.4 ProceduralFillPatternsExample Layout Fix
+- [x] **BoxLayout slider stretch fix** — Added `setMaximumSize()` constraints to all JSliders and JComboBox in the control panel to prevent vertical stretching. Ensured consistent `LEFT_ALIGNMENT` on all labels. File: `ProceduralFillPatternsExample.java`

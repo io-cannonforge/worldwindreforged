@@ -172,7 +172,7 @@ public class ExamplesIndex extends JFrame {
             new ExampleEntry("WMS Time-Series Demo",    BASE + "WMSTimeSeriesDemo",       "Animate GIBS time-series layers (MODIS Terra, VIIRS S-NPP, fires, snow).", "Ph2"),
             new ExampleEntry("Layer Opacity & Blending",BASE + "LayerOpacityAndBlendingDemo","Per-layer opacity sliders with GIBS BlueMarble and Landsat blending.", "Ph2"),
             new ExampleEntry("WCS Elevations",          BASE + "WCSElevations",           "Load elevation data from a WCS 1.0.0 service endpoint."),
-            new ExampleEntry("Place Names",             BASE + "PlaceNames",              "NASA place-name label layer with density controls."),
+            // PlaceNames example removed — NASA WFS server (worldwind22.arc.nasa.gov) is defunct
             new ExampleEntry("On-Screen Layer Manager", BASE + "OnScreenLayerManager",    "Layer manager rendered as an in-globe overlay widget."),
             new ExampleEntry("Layer Tree Usage",        BASE + "LayerTreeUsage",          "Hierarchical layer tree panel with group and leaf nodes."),
         });
@@ -182,8 +182,6 @@ public class ExamplesIndex extends JFrame {
             new ExampleEntry("Terrain Profiler",         BASE + "TerrainProfiler",         "Interactive cross-section elevation profile along a user-drawn path."),
             new ExampleEntry("Terrain Intersections",    BASE + "TerrainIntersections",     "Ray-terrain intersection calculations for line-of-sight analysis."),
             new ExampleEntry("Terrain Benchmark",        BASE + "TerrainRenderingBenchmark","Benchmarks terrain tile loading and rendering throughput."),
-            new ExampleEntry("High-Resolution Terrain",  BASE + "HighResolutionTerrainTest","Sample high-resolution elevation at many positions asynchronously."),
-            new ExampleEntry("Custom Elevation Model",   BASE + "CustomElevationModel",     "Plug in a custom elevation model implementation via the API."),
             new ExampleEntry("Get Best Elevations",      BASE + "GetBestElevations",        "Query the best available elevation for a set of geographic positions."),
             new ExampleEntry("Elevations All Zero",      BASE + "ElevationsAllZero",        "Demonstrates behaviour when the elevation model returns all zeros."),
             new ExampleEntry("Bathymetry Removal",       BASE + "BathymetryRemoval",        "Strip bathymetry (negative elevations) from the active model."),
@@ -243,7 +241,6 @@ public class ExamplesIndex extends JFrame {
         CATEGORIES.put("Advanced / GPU", new ExampleEntry[]{
             new ExampleEntry("Analytic Surface Demo",  BASE + "analytics.AnalyticSurfaceDemo",  "Color-mapped analytic surface rendered from 2D numeric data grids."),
             new ExampleEntry("Measure Tool",           BASE + "MeasureToolUsage",               "Interactive measurement tool with per-segment distances, cumulative totals, bearings, elevation, terrain profile, multi-tab support, and clipboard export.", "New"),
-            new ExampleEntry("Lines Of Sight",         BASE + "lineofsight.LinesOfSight",       "Compute terrain line-of-sight coverage for an observer position."),
             new ExampleEntry("Grid Of Points",         BASE + "lineofsight.GridOfPoints",       "Sample terrain intersection for a grid of observer positions."),
             new ExampleEntry("Flat World",             BASE + "FlatWorld",                      "Flat (2D projected) globe with selectable map projections."),
             new ExampleEntry("Flat World Earthquakes", BASE + "FlatWorldEarthquakes",           "Live USGS earthquake feed rendered on a flat-projected globe."),

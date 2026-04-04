@@ -41,6 +41,8 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.globes.ElevationModel;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.WCSTiledImageLayer;
 import gov.nasa.worldwind.ogc.wcs.wcs100.WCS100Capabilities;
 import gov.nasa.worldwind.ogc.wcs.wcs100.WCS100CoverageOfferingBrief;
 import gov.nasa.worldwind.ogc.wcs.wcs100.WCS100DescribeCoverage;
@@ -49,18 +51,19 @@ import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.util.WWStyle;
 
 /**
- * Demonstrates loading elevation data from a WCS (Web Coverage Service) 1.0.0 endpoint.
+ * Demonstrates loading WCS (Web Coverage Service) 1.0.0 data — both elevation and
+ * derived products (slope maps, aspect, hillshade, etc.).
  * <p>
- * The default server is the USGS 3DEP (3D Elevation Program) WCS service, which provides
- * high-resolution elevation data for the United States.  The Controls tab provides a server
- * URL field, a Connect button, and a list of available coverages that can be toggled on and
- * off.  Each selected coverage is added to the globe's compound elevation model so its
- * terrain is rendered with the additional elevation detail.
+ * The default server is the USGS 3DEP (3D Elevation Program) WCS service.  Coverages
+ * are automatically classified as either <em>elevation</em> (fed into the globe's
+ * compound elevation model for terrain deformation) or <em>overlay</em> (rendered as
+ * coloured imagery draped on the terrain).  The Controls tab shows both categories.
  * <p>
  * Additional WCS servers can be connected by entering a new URL and clicking Connect.
  *
  * @see gov.nasa.worldwind.ogc.wcs.wcs100.WCS100Capabilities
  * @see gov.nasa.worldwind.terrain.CompoundElevationModel
+ * @see gov.nasa.worldwind.layers.WCSTiledImageLayer
  *
  * seaglassfoundry.com — rewritten for WorldWind Reforged
  */
@@ -267,20 +270,43 @@ public class WCSElevations extends ApplicationTemplate
                 new ArrayList<>(caps.getContentMetadata().getCoverageOfferings());
             offerings.sort((a, b) -> String.valueOf(a.getLabel()).compareTo(String.valueOf(b.getLabel())));
 
+            // Partition into elevation and derived/overlay coverages.
+            List<WCS100CoverageOfferingBrief> elevationOfferings = new ArrayList<>();
+            List<WCS100CoverageOfferingBrief> overlayOfferings = new ArrayList<>();
+
             for (WCS100CoverageOfferingBrief offering : offerings)
             {
-                CoverageEntry entry = new CoverageEntry(
-                    offering.getName(),
-                    offering.getLabel() != null ? offering.getLabel() : offering.getName(),
-                    caps);
+                if (isDerivedCoverage(offering))
+                    overlayOfferings.add(offering);
+                else
+                    elevationOfferings.add(offering);
+            }
 
-                JCheckBox cb = WWStyle.checkBox(entry.displayName, false);
-                cb.setAlignmentX(Component.LEFT_ALIGNMENT);
-                cb.addActionListener(e -> toggleCoverage(entry, cb.isSelected()));
-                entry.checkBox = cb;
+            // Elevation section
+            if (!elevationOfferings.isEmpty())
+            {
+                JLabel header = WWStyle.label("Elevation", true);
+                header.setAlignmentX(Component.LEFT_ALIGNMENT);
+                coveragesPanel.add(header);
+                coveragesPanel.add(vgap(2));
 
-                coverageEntries.add(entry);
-                coveragesPanel.add(cb);
+                for (WCS100CoverageOfferingBrief offering : elevationOfferings)
+                    addCoverageCheckBox(offering, false);
+            }
+
+            // Overlay section
+            if (!overlayOfferings.isEmpty())
+            {
+                if (!elevationOfferings.isEmpty())
+                    coveragesPanel.add(vgap(WWStyle.GAP_XS));
+
+                JLabel header = WWStyle.label("Overlays", true);
+                header.setAlignmentX(Component.LEFT_ALIGNMENT);
+                coveragesPanel.add(header);
+                coveragesPanel.add(vgap(2));
+
+                for (WCS100CoverageOfferingBrief offering : overlayOfferings)
+                    addCoverageCheckBox(offering, true);
             }
 
             setStatus(WWStyle.STATUS_OK, "Ready \u2014 " + offerings.size() + " coverage"
@@ -289,37 +315,139 @@ public class WCSElevations extends ApplicationTemplate
             coveragesPanel.repaint();
         }
 
+        private void addCoverageCheckBox(WCS100CoverageOfferingBrief offering, boolean derived)
+        {
+            String label = offering.getLabel() != null ? offering.getLabel() : offering.getName();
+            CoverageEntry entry = new CoverageEntry(
+                offering.getName(), label, caps, derived);
+
+            String cbLabel = derived ? label + " (overlay)" : label;
+            JCheckBox cb = WWStyle.checkBox(cbLabel, false);
+            cb.setAlignmentX(Component.LEFT_ALIGNMENT);
+            cb.addActionListener(e -> toggleCoverage(entry, cb.isSelected()));
+            entry.checkBox = cb;
+
+            coverageEntries.add(entry);
+            coveragesPanel.add(cb);
+        }
+
+        // ── Coverage classification ──────────────────────────────────────────
+
+        /** Keywords that indicate a derived product rather than raw elevation. */
+        private static final String[] DERIVED_KEYWORDS = {
+            "slope", "aspect", "hillshade", "curvature", "roughness", "shade", "relief",
+            "contour"
+        };
+
+        private static boolean isDerivedCoverage(WCS100CoverageOfferingBrief offering)
+        {
+            // WCS 1.0.0 has no standard field that explicitly marks a coverage as
+            // "elevation" vs "derived product".  The spec provides <semantic> and
+            // <description> in the RangeSet for this purpose, but most servers
+            // (including USGS 3DEP / ArcGIS) leave them empty or generic.
+            // We therefore check the three text fields that *are* populated —
+            // name, label, and offering-level description — for well-known
+            // derived-product keywords.
+            String name  = offering.getName()  != null ? offering.getName().toLowerCase()  : "";
+            String label = offering.getLabel() != null ? offering.getLabel().toLowerCase() : "";
+            String desc  = offering.getDescription() != null ? offering.getDescription().toLowerCase() : "";
+
+            for (String kw : DERIVED_KEYWORDS)
+            {
+                if (name.contains(kw) || label.contains(kw) || desc.contains(kw))
+                    return true;
+            }
+
+            // Also check keywords list if available.
+            try
+            {
+                List<String> keywords = offering.getKeywords();
+                if (keywords != null)
+                {
+                    for (String keyword : keywords)
+                    {
+                        if (keyword == null) continue;
+                        String lower = keyword.toLowerCase();
+                        for (String kw : DERIVED_KEYWORDS)
+                        {
+                            if (lower.contains(kw))
+                                return true;
+                        }
+                    }
+                }
+            }
+            catch (NullPointerException ignored)
+            {
+                // getKeywords() can NPE if the server didn't provide keywords.
+            }
+
+            return false;
+        }
+
         // ── Coverage toggle ───────────────────────────────────────────────────
 
         private void toggleCoverage(CoverageEntry entry, boolean enable)
+        {
+            if (entry.derived)
+                toggleOverlay(entry, enable);
+            else
+                toggleElevation(entry, enable);
+
+            getWwd().redraw();
+        }
+
+        private void toggleElevation(CoverageEntry entry, boolean enable)
         {
             CompoundElevationModel compoundModel =
                 (CompoundElevationModel) getWwd().getModel().getGlobe().getElevationModel();
 
             if (enable)
             {
-                if (entry.model == null)
-                    entry.model = createElevationModel(entry);
+                if (entry.elevationModel == null)
+                    entry.elevationModel = createElevationModel(entry);
 
-                if (entry.model == null)
+                if (entry.elevationModel == null)
                 {
                     entry.checkBox.setSelected(false);
                     setStatus(WWStyle.STATUS_ERROR, "Failed to load: " + entry.displayName);
                     return;
                 }
 
-                if (!compoundModel.getElevationModels().contains(entry.model))
-                    compoundModel.addElevationModel(entry.model);
+                if (!compoundModel.getElevationModels().contains(entry.elevationModel))
+                    compoundModel.addElevationModel(entry.elevationModel);
             }
             else
             {
-                if (entry.model != null)
-                    compoundModel.removeElevationModel(entry.model);
+                if (entry.elevationModel != null)
+                    compoundModel.removeElevationModel(entry.elevationModel);
             }
 
             getWwd().firePropertyChange(
                 new PropertyChangeEvent(getWwd(), AVKey.ELEVATION_MODEL, null, compoundModel));
-            getWwd().redraw();
+        }
+
+        private void toggleOverlay(CoverageEntry entry, boolean enable)
+        {
+            if (enable)
+            {
+                if (entry.imageLayer == null)
+                    entry.imageLayer = createImageLayer(entry);
+
+                if (entry.imageLayer == null)
+                {
+                    entry.checkBox.setSelected(false);
+                    setStatus(WWStyle.STATUS_ERROR, "Failed to load overlay: " + entry.displayName);
+                    return;
+                }
+
+                if (!getWwd().getModel().getLayers().contains(entry.imageLayer))
+                    insertBeforePlacenames(getWwd(), entry.imageLayer);
+            }
+            else
+            {
+                if (entry.imageLayer != null)
+                    getWwd().getModel().getLayers().remove(entry.imageLayer);
+            }
         }
 
         // ── Disconnect / cleanup ──────────────────────────────────────────────
@@ -331,8 +459,10 @@ public class WCSElevations extends ApplicationTemplate
 
             for (CoverageEntry entry : coverageEntries)
             {
-                if (entry.model != null)
-                    compoundModel.removeElevationModel(entry.model);
+                if (entry.elevationModel != null)
+                    compoundModel.removeElevationModel(entry.elevationModel);
+                if (entry.imageLayer != null)
+                    getWwd().getModel().getLayers().remove(entry.imageLayer);
             }
 
             coverageEntries.clear();
@@ -343,14 +473,13 @@ public class WCSElevations extends ApplicationTemplate
             caps = null;
         }
 
-        // ── Elevation model factory ───────────────────────────────────────────
+        // ── Coverage factories ────────────────────────────────────────────────
 
         /**
-         * Creates an {@link ElevationModel} for the given coverage by fetching its
-         * DescribeCoverage document and passing it to the WorldWind elevation model factory.
-         * Inlined from {@code WCSCoveragePanel.createComponent()}.
+         * Fetches DescribeCoverage and builds an AVList with common WCS config.
+         * Returns null on failure.
          */
-        private static ElevationModel createElevationModel(CoverageEntry entry)
+        private static AVList fetchCoverageConfig(CoverageEntry entry)
         {
             AVList configParams = new AVListImpl();
             configParams.setValue(AVKey.COVERAGE_IDENTIFIERS, entry.name);
@@ -375,6 +504,19 @@ public class WCSElevations extends ApplicationTemplate
                 return null;
             }
 
+            return configParams;
+        }
+
+        /**
+         * Creates an {@link ElevationModel} for the given coverage by fetching its
+         * DescribeCoverage document and passing it to the WorldWind elevation model factory.
+         */
+        private static ElevationModel createElevationModel(CoverageEntry entry)
+        {
+            AVList configParams = fetchCoverageConfig(entry);
+            if (configParams == null)
+                return null;
+
             try
             {
                 Factory factory = (Factory) WorldWind.createConfigurationComponent(AVKey.ELEVATION_MODEL_FACTORY);
@@ -383,6 +525,30 @@ public class WCSElevations extends ApplicationTemplate
             catch (Exception e)
             {
                 Logging.logger().warning("WCSElevations: factory creation failed for " + entry.name
+                    + ": " + e.getMessage());
+                return null;
+            }
+        }
+
+        /**
+         * Creates a {@link WCSTiledImageLayer} for derived coverages (slope, aspect, etc.)
+         * that renders scalar WCS data as coloured imagery draped on the globe.
+         *
+         * seaglassfoundry.com — new method for WorldWind Reforged
+         */
+        private static Layer createImageLayer(CoverageEntry entry)
+        {
+            AVList configParams = fetchCoverageConfig(entry);
+            if (configParams == null)
+                return null;
+
+            try
+            {
+                return WCSTiledImageLayer.fromWCS(entry.caps, configParams);
+            }
+            catch (Exception e)
+            {
+                Logging.logger().warning("WCSElevations: overlay creation failed for " + entry.name
                     + ": " + e.getMessage());
                 return null;
             }
@@ -414,14 +580,17 @@ public class WCSElevations extends ApplicationTemplate
             final String name;
             final String displayName;
             final WCS100Capabilities caps;
-            ElevationModel model;
+            final boolean derived;
+            ElevationModel elevationModel;  // for elevation coverages
+            Layer imageLayer;               // for derived/overlay coverages
             JCheckBox checkBox;
 
-            CoverageEntry(String name, String displayName, WCS100Capabilities caps)
+            CoverageEntry(String name, String displayName, WCS100Capabilities caps, boolean derived)
             {
                 this.name = name;
                 this.displayName = displayName;
                 this.caps = caps;
+                this.derived = derived;
             }
         }
     }

@@ -293,43 +293,71 @@ public class ApplicationTemplate {
     /**
      * Inserts a layer into the WorldWindow's layer list just before the {@link PlaceNameLayer}.
      * Use this for imagery and shape layers that should render beneath place-name labels so that
-     * labels remain readable on top.
+     * labels remain readable on top. If no PlaceNameLayer is present, falls back to inserting
+     * before the compass layer.
      *
      * <pre>
      *     ApplicationTemplate.insertBeforePlacenames(getWwd(), myImageLayer);
      * </pre>
      *
+     * Modified by seaglassfoundry.com - added CompassLayer fallback since
+     * NASAWFSPlaceNameLayer was removed from defaults (NASA WFS server is defunct).
+     *
      * @param wwd   the WorldWindow whose layer list will be modified
      * @param layer the layer to insert
      */
     public static void insertBeforePlacenames(WorldWindow wwd, Layer layer) {
-        int compassPosition = 0;
+        int position = -1;
         LayerList layers = wwd.getModel().getLayers();
         for (Layer l : layers) {
             if (l instanceof PlaceNameLayer) {
-                compassPosition = layers.indexOf(l);
+                position = layers.indexOf(l);
             }
         }
-        layers.add(compassPosition, layer);
+        if (position < 0) {
+            // Fallback: insert before compass/scalebar UI layers
+            for (Layer l : layers) {
+                if (l instanceof WorldMapLayer || l instanceof CompassLayer) {
+                    position = layers.indexOf(l);
+                    break;
+                }
+            }
+        }
+        layers.add(Math.max(position, 0), layer);
     }
 
     /**
      * Inserts a layer into the WorldWindow's layer list just after the {@link PlaceNameLayer}.
      * Use this for overlay layers that must draw on top of place-name labels (e.g. UI annotations,
-     * pick-highlight layers).
+     * pick-highlight layers). If no PlaceNameLayer is present, falls back to inserting before
+     * the compass layer.
+     *
+     * Modified by seaglassfoundry.com - added CompassLayer fallback since
+     * NASAWFSPlaceNameLayer was removed from defaults (NASA WFS server is defunct).
      *
      * @param wwd   the WorldWindow whose layer list will be modified
      * @param layer the layer to insert
      */
     public static void insertAfterPlacenames(WorldWindow wwd, Layer layer) {
-        int compassPosition = 0;
+        int position = -1;
         LayerList layers = wwd.getModel().getLayers();
         for (Layer l : layers) {
             if (l instanceof PlaceNameLayer) {
-                compassPosition = layers.indexOf(l);
+                position = layers.indexOf(l);
             }
         }
-        layers.add(compassPosition + 1, layer);
+        if (position >= 0) {
+            layers.add(position + 1, layer);
+        } else {
+            // Fallback: insert before compass/scalebar UI layers
+            for (Layer l : layers) {
+                if (l instanceof WorldMapLayer || l instanceof CompassLayer) {
+                    position = layers.indexOf(l);
+                    break;
+                }
+            }
+            layers.add(Math.max(position, 0), layer);
+        }
     }
 
     /**

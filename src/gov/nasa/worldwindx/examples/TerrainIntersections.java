@@ -28,7 +28,11 @@
 package gov.nasa.worldwindx.examples;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,26 +42,34 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import com.jogamp.opengl.GL4;
 
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.event.RenderingEvent;
+import gov.nasa.worldwind.event.RenderingListener;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Intersection;
+import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.geom.Vec4;
+import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.GLRuntimeCapabilities;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Path;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.render.PointPlacemarkAttributes;
 import gov.nasa.worldwind.render.ShapeAttributes;
+import gov.nasa.worldwind.render.shaders.TerrainIntersectionCompute;
 import gov.nasa.worldwind.terrain.HighResolutionTerrain;
+import gov.nasa.worldwindx.examples.util.WWStyle;
 
 /**
  * Shows how to compute terrain intersections using the highest resolution terrain data available from a globe's
@@ -116,6 +128,20 @@ public class TerrainIntersections extends ApplicationTemplate {
         protected long startTime, endTime; // for reporting calculation duration
         protected Position previousCurrentPosition;
 
+        // Modified by seaglassfoundry.com — GPU compute shader intersection path with toggle UI
+        protected volatile boolean useGpu;
+        protected JRadioButton cpuRadio;
+        protected JRadioButton gpuRadio;
+        protected JLabel cpuTimeLabel;
+        protected JLabel gpuTimeLabel;
+        protected JLabel speedupLabel;
+        protected TerrainIntersectionCompute gpuCompute;
+        protected long cpuLastTime = -1;
+        protected long gpuLastTime = -1;
+
+        /** Maximum heightmap dimension per axis for the GPU path. */
+        private static final int MAX_HEIGHTMAP_DIM = 1024;
+
         public AppFrame() {
             super(true, true, false);
 
@@ -123,12 +149,74 @@ public class TerrainIntersections extends ApplicationTemplate {
             this.threadPool = new ThreadPoolExecutor(NUM_THREADS, NUM_THREADS, 200, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>());
 
-            // Display a progress bar.
+            // Modified by seaglassfoundry.com — build a Controls tab for CPU/GPU comparison
+            JPanel controlPanel = buildControlPanel();
+
+            // Progress bar (shared, shown below the tabs)
             this.progressBar = new JProgressBar(0, 100);
             this.progressBar.setBorder(new EmptyBorder(0, 10, 0, 10));
             this.progressBar.setBorderPainted(false);
             this.progressBar.setStringPainted(true);
-            this.layerPanel.add(this.progressBar, BorderLayout.SOUTH);
+
+            // Tabbed pane: Layers + Controls
+            if (this.controlPanel != null) {
+                this.getContentPane().remove(this.controlPanel);
+                this.getContentPane().remove(this.wwjPanel);
+
+                JTabbedPane tabs = new JTabbedPane();
+                tabs.setBackground(new Color(45, 45, 48));
+
+                JScrollPane layerScroll = new JScrollPane(this.layerPanel);
+                layerScroll.setBorder(null);
+                tabs.addTab("Layers", layerScroll);
+
+                JScrollPane controlScroll = new JScrollPane(controlPanel);
+                controlScroll.setBorder(null);
+                tabs.addTab("Controls", controlScroll);
+
+                // Add progress bar below the tabs
+                JPanel sidePanel = new JPanel(new BorderLayout());
+                sidePanel.add(tabs, BorderLayout.CENTER);
+                sidePanel.add(this.progressBar, BorderLayout.SOUTH);
+
+                this.controlPanel.add(sidePanel, BorderLayout.CENTER);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                    this.wwjPanel, this.controlPanel);
+                splitPane.setResizeWeight(0.67);
+                splitPane.setDividerSize(5);
+                splitPane.setContinuousLayout(true);
+                this.getContentPane().add(splitPane, BorderLayout.CENTER);
+
+                this.addComponentListener(new java.awt.event.ComponentAdapter() {
+                    private boolean initialized;
+                    @Override
+                    public void componentResized(java.awt.event.ComponentEvent e) {
+                        if (!initialized) {
+                            splitPane.setDividerLocation(getWidth() * 2 / 3);
+                            initialized = true;
+                        }
+                    }
+                });
+            }
+
+            // One-shot RenderingListener to check GL 4.3 compute shader availability
+            getWwd().addRenderingListener(new RenderingListener() {
+                @Override
+                public void stageChanged(RenderingEvent event) {
+                    if (!RenderingEvent.BEFORE_BUFFER_SWAP.equals(event.getStage()))
+                        return;
+                    GLRuntimeCapabilities caps = getWwd().getSceneController().getDrawContext()
+                            .getGLRuntimeCapabilities();
+                    boolean gpuAvailable = caps.isComputeMeshAvailable();
+                    SwingUtilities.invokeLater(() -> {
+                        gpuRadio.setEnabled(gpuAvailable);
+                        if (!gpuAvailable)
+                            gpuRadio.setToolTipText("GPU compute not available (requires GL 4.3)");
+                    });
+                    getWwd().removeRenderingListener(this);
+                }
+            });
 
             // Be sure to re-use the Terrain object to take advantage of its caching.
             this.terrain = new HighResolutionTerrain(getWwd().getModel().getGlobe(), TARGET_RESOLUTION);
@@ -193,10 +281,14 @@ public class TerrainIntersections extends ApplicationTemplate {
                 setCursor(WaitCursor);
             });
 
-            // Dispatch the calculation threads in a separate thread to avoid locking up the user interface.
+            // Modified by seaglassfoundry.com — dispatch to CPU or GPU path based on toggle
             this.calculationDispatchThread = new Thread(() -> {
                 try {
-                    performIntersectionTests(curPos);
+                    if (useGpu) {
+                        performGpuIntersectionTests(curPos);
+                    } else {
+                        performIntersectionTests(curPos);
+                    }
                 } catch (InterruptedException e) {
                     System.out.println("Operation was interrupted");
                 }
@@ -247,9 +339,12 @@ public class TerrainIntersections extends ApplicationTemplate {
 
                 if (progress >= 100) {
                     setCursor(Cursor.getDefaultCursor());
-                    progressBar.setString((endTime - startTime) + " ms");
+                    long elapsed = endTime - startTime;
+                    progressBar.setString(elapsed + " ms");
+                    cpuLastTime = elapsed;
+                    updateTimingLabel();
                     showResults();
-                    System.out.printf("Calculation time %d milliseconds\n", endTime - startTime);
+                    System.out.printf("CPU calculation time %d milliseconds\n", elapsed);
                 }
             });
         }
@@ -319,7 +414,8 @@ public class TerrainIntersections extends ApplicationTemplate {
             Intersection[] intersections = this.terrain.intersect(this.referencePosition, gridPosition);
             if (intersections == null || intersections.length == 0) {
                 // No intersection, so the line goes from the center to the grid point.
-                this.sightLines.add(new Position[]{this.referencePosition, gridPosition});
+                this.addSightLine(this.referencePosition, gridPosition);
+                this.updateProgress();
                 return;
             }
 
@@ -332,6 +428,7 @@ public class TerrainIntersections extends ApplicationTemplate {
             if (iPoint.distanceTo3(this.referencePoint) >= gPoint.distanceTo3(this.referencePoint)) {
                 // Intersection is beyond the grid point; the line goes from the center to the grid point.
                 this.addSightLine(this.referencePosition, gridPosition);
+                this.updateProgress();
                 return;
             }
 
@@ -367,6 +464,337 @@ public class TerrainIntersections extends ApplicationTemplate {
                 }
             }
         }
+
+        // ---- Modified by seaglassfoundry.com — GPU compute shader intersection path ----
+
+        /**
+         * Builds the Controls tab panel with CPU/GPU mode selection and timing comparison.
+         */
+        private JPanel buildControlPanel() {
+            JPanel root = new JPanel();
+            root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
+            root.setBackground(WWStyle.BG_DARK);
+
+            // ── Mode selection ──
+            JPanel modePanel = new JPanel();
+            modePanel.setLayout(new BoxLayout(modePanel, BoxLayout.Y_AXIS));
+            modePanel.setBackground(WWStyle.BG_DARK);
+            modePanel.setBorder(WWStyle.sectionBorder("Intersection Mode"));
+
+            ButtonGroup modeGroup = new ButtonGroup();
+
+            this.cpuRadio = new JRadioButton("CPU (HighResolutionTerrain)");
+            this.cpuRadio.setFont(WWStyle.FONT_BASE);
+            this.cpuRadio.setForeground(WWStyle.FG_PRIMARY);
+            this.cpuRadio.setBackground(WWStyle.BG_DARK);
+            this.cpuRadio.setFocusPainted(false);
+            this.cpuRadio.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.cpuRadio.setSelected(true);
+            this.cpuRadio.addActionListener(e -> this.useGpu = false);
+            modeGroup.add(this.cpuRadio);
+            modePanel.add(this.cpuRadio);
+
+            JLabel cpuDesc = WWStyle.label("  Per-ray tile fetch + triangle intersection", false);
+            cpuDesc.setAlignmentX(Component.LEFT_ALIGNMENT);
+            modePanel.add(cpuDesc);
+            modePanel.add(vgap(WWStyle.GAP_XS));
+
+            this.gpuRadio = new JRadioButton("GPU Compute Shader");
+            this.gpuRadio.setFont(WWStyle.FONT_BASE);
+            this.gpuRadio.setForeground(WWStyle.FG_PRIMARY);
+            this.gpuRadio.setBackground(WWStyle.BG_DARK);
+            this.gpuRadio.setFocusPainted(false);
+            this.gpuRadio.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.gpuRadio.setEnabled(false); // enabled after GL capability check
+            this.gpuRadio.setToolTipText("Requires GL 4.3 — checking...");
+            this.gpuRadio.addActionListener(e -> this.useGpu = true);
+            modeGroup.add(this.gpuRadio);
+            modePanel.add(this.gpuRadio);
+
+            JLabel gpuDesc = WWStyle.label("  Bulk elevation fetch + GLSL 430 ray-march", false);
+            gpuDesc.setAlignmentX(Component.LEFT_ALIGNMENT);
+            modePanel.add(gpuDesc);
+
+            root.add(modePanel);
+            root.add(vgap(WWStyle.GAP_XS));
+
+            // ── Timing comparison ──
+            JPanel timingPanel = new JPanel(new GridLayout(0, 2, WWStyle.GAP_XS, WWStyle.GAP_XS));
+            timingPanel.setBackground(WWStyle.BG_DARK);
+            timingPanel.setBorder(WWStyle.sectionBorder("Timing Comparison"));
+
+            this.cpuTimeLabel = statsValue("—");
+            this.gpuTimeLabel = statsValue("—");
+            this.speedupLabel = statsValue("—");
+
+            timingPanel.add(statsKey("CPU time:"));   timingPanel.add(this.cpuTimeLabel);
+            timingPanel.add(statsKey("GPU time:"));   timingPanel.add(this.gpuTimeLabel);
+            timingPanel.add(statsKey("Speedup:"));    timingPanel.add(this.speedupLabel);
+
+            root.add(timingPanel);
+            root.add(vgap(WWStyle.GAP_XS));
+
+            // ── Instructions ──
+            JPanel instrPanel = new JPanel();
+            instrPanel.setLayout(new BoxLayout(instrPanel, BoxLayout.Y_AXIS));
+            instrPanel.setBackground(WWStyle.BG_DARK);
+            instrPanel.setBorder(WWStyle.sectionBorder("Instructions"));
+
+            String[] instructions = {
+                "Shift+Click — compute intersections",
+                "Alt+Click — repeat last position",
+                "Ctrl+Click — cancel operation",
+                "",
+                "Run both modes on the same area",
+                "to compare timing."
+            };
+            for (String line : instructions) {
+                JLabel l = WWStyle.label(line.isEmpty() ? " " : line, false);
+                l.setAlignmentX(Component.LEFT_ALIGNMENT);
+                instrPanel.add(l);
+            }
+
+            root.add(instrPanel);
+            return root;
+        }
+
+        /**
+         * Updates the timing comparison labels in the Controls tab.
+         */
+        protected void updateTimingLabel() {
+            if (cpuLastTime >= 0)
+                cpuTimeLabel.setText(cpuLastTime + " ms");
+            if (gpuLastTime >= 0)
+                gpuTimeLabel.setText(gpuLastTime + " ms");
+            if (cpuLastTime >= 0 && gpuLastTime >= 0) {
+                double speedup = (double) cpuLastTime / Math.max(1, gpuLastTime);
+                speedupLabel.setText(String.format("%.1fx", speedup));
+            }
+        }
+
+        /**
+         * Computes the heightmap grid dimension for a sector, clamped to MAX_HEIGHTMAP_DIM.
+         */
+        protected int computeHeightmapDimension(double sectorWidthMeters) {
+            int ideal = (int) Math.ceil(sectorWidthMeters / TARGET_RESOLUTION);
+            return Math.min(Math.max(ideal, 2), MAX_HEIGHTMAP_DIM);
+        }
+
+        /**
+         * GPU intersection path: fetches elevation data for the sector, uploads it with ray definitions
+         * to a compute shader, and reads back intersection results.
+         */
+        protected void performGpuIntersectionTests(final Position curPos) throws InterruptedException {
+            this.firstIntersectionPositions.clear();
+            this.sightLines.clear();
+
+            final double height = 5; // meters above ground, same as CPU path
+
+            // Form the grid sector
+            double gridRadius = GRID_RADIUS.degrees;
+            Sector sector = Sector.fromDegrees(
+                    curPos.getLatitude().degrees - gridRadius, curPos.getLatitude().degrees + gridRadius,
+                    curPos.getLongitude().degrees - gridRadius, curPos.getLongitude().degrees + gridRadius);
+
+            // Build the display grid (same as CPU path)
+            this.grid = buildGrid(sector, height, GRID_DIMENSION, GRID_DIMENSION);
+            this.numGridPoints = grid.size();
+            this.referencePosition = new Position(curPos.getLatitude(), curPos.getLongitude(), height);
+
+            // Show the grid immediately on the EDT
+            SwingUtilities.invokeLater(() -> {
+                progressBar.setValue(0);
+                progressBar.setString("Fetching elevations...");
+                clearLayers();
+                showGrid(grid, referencePosition);
+                getWwd().redraw();
+            });
+
+            // Compute sector dimensions in local meters (flat-earth approximation)
+            Globe globe = getWwd().getModel().getGlobe();
+            double metersPerDegreeLat = globe.getEquatorialRadius() * Math.PI / 180.0;
+            double cosLat = Math.cos(Math.toRadians(curPos.getLatitude().degrees));
+            double metersPerDegreeLon = metersPerDegreeLat * cosLat;
+
+            double sectorCenterLat = sector.getCentroid().getLatitude().degrees;
+            double sectorCenterLon = sector.getCentroid().getLongitude().degrees;
+
+            double sectorWidthM = sector.getDeltaLonDegrees() * metersPerDegreeLon;
+            double sectorHeightM = sector.getDeltaLatDegrees() * metersPerDegreeLat;
+
+            // Determine heightmap dimensions (clamped to MAX_HEIGHTMAP_DIM)
+            int hmWidth = computeHeightmapDimension(sectorWidthM);
+            int hmHeight = computeHeightmapDimension(sectorHeightM);
+
+            // Build regular lat/lon grid for elevation query
+            ArrayList<LatLon> hmLatlons = new ArrayList<>(hmWidth * hmHeight);
+            double dLat = sector.getDeltaLatDegrees() / (hmHeight - 1);
+            double dLon = sector.getDeltaLonDegrees() / (hmWidth - 1);
+            for (int row = 0; row < hmHeight; row++) {
+                double lat = row == hmHeight - 1
+                        ? sector.getMaxLatitude().degrees : sector.getMinLatitude().degrees + row * dLat;
+                for (int col = 0; col < hmWidth; col++) {
+                    double lon = col == hmWidth - 1
+                            ? sector.getMaxLongitude().degrees : sector.getMinLongitude().degrees + col * dLon;
+                    hmLatlons.add(LatLon.fromDegrees(lat, lon));
+                }
+            }
+
+            // Fetch elevations with polling (same pattern as HighResolutionTerrain.getElevations)
+            double[] elevations = new double[hmLatlons.size()];
+            double[] targetRes = globe.getElevationModel().getBestResolutions(sector);
+            for (int i = 0; i < targetRes.length; i++)
+                targetRes[i] = Math.max(targetRes[i], TARGET_RESOLUTION / globe.getEquatorialRadius());
+
+            long fetchStart = System.currentTimeMillis();
+            double[] actualRes = new double[targetRes.length];
+            for (int i = 0; i < actualRes.length; i++) actualRes[i] = Double.MAX_VALUE;
+            while (true) {
+                actualRes = globe.getElevations(sector, hmLatlons, targetRes, elevations);
+                boolean met = true;
+                for (int i = 0; i < actualRes.length; i++) {
+                    if (actualRes[i] > targetRes[i]) { met = false; break; }
+                }
+                if (met) break;
+                Thread.sleep(5);
+                if (System.currentTimeMillis() - fetchStart > 30_000)
+                    break; // timeout after 30s, use what we have
+            }
+
+            // Convert elevations to float heightmap
+            float[] heightmap = new float[elevations.length];
+            for (int i = 0; i < elevations.length; i++)
+                heightmap[i] = (float) elevations[i];
+
+            // Sector bounds in local meters (relative to sector centroid)
+            float sectorMinX = (float) ((sector.getMinLongitude().degrees - sectorCenterLon) * metersPerDegreeLon);
+            float sectorMinY = (float) ((sector.getMinLatitude().degrees - sectorCenterLat) * metersPerDegreeLat);
+            float sectorMaxX = (float) ((sector.getMaxLongitude().degrees - sectorCenterLon) * metersPerDegreeLon);
+            float sectorMaxY = (float) ((sector.getMaxLatitude().degrees - sectorCenterLat) * metersPerDegreeLat);
+
+            // Build ray data: 6 floats per ray (origin xyz, target xyz) in local meters
+            // Origin = reference position, target = each grid point
+            double refElev = globe.getElevation(curPos.getLatitude(), curPos.getLongitude()) + height;
+            float refX = (float) ((curPos.getLongitude().degrees - sectorCenterLon) * metersPerDegreeLon);
+            float refY = (float) ((curPos.getLatitude().degrees - sectorCenterLat) * metersPerDegreeLat);
+            float refZ = (float) refElev;
+
+            int numRays = grid.size();
+            float[] rayData = new float[numRays * 6];
+            for (int i = 0; i < numRays; i++) {
+                Position gp = grid.get(i);
+                double gpElev = globe.getElevation(gp.getLatitude(), gp.getLongitude()) + gp.getAltitude();
+                rayData[i * 6]     = refX;
+                rayData[i * 6 + 1] = refY;
+                rayData[i * 6 + 2] = refZ;
+                rayData[i * 6 + 3] = (float) ((gp.getLongitude().degrees - sectorCenterLon) * metersPerDegreeLon);
+                rayData[i * 6 + 4] = (float) ((gp.getLatitude().degrees - sectorCenterLat) * metersPerDegreeLat);
+                rayData[i * 6 + 5] = (float) gpElev;
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                progressBar.setValue(50);
+                progressBar.setString("Computing on GPU...");
+            });
+
+            // Schedule GL-thread work via RenderingListener
+            final float[] fHeightmap = heightmap;
+            final float[] fRayData = rayData;
+            final int fHmWidth = hmWidth;
+            final int fHmHeight = hmHeight;
+
+            this.startTime = System.currentTimeMillis();
+
+            getWwd().addRenderingListener(new RenderingListener() {
+                @Override
+                public void stageChanged(RenderingEvent event) {
+                    if (!RenderingEvent.BEFORE_BUFFER_SWAP.equals(event.getStage()))
+                        return;
+                    getWwd().removeRenderingListener(this);
+
+                    try {
+                        GL4 gl4 = getWwd().getSceneController().getDrawContext().getGL().getGL4();
+
+                        // Lazy init
+                        if (gpuCompute == null) {
+                            gpuCompute = new TerrainIntersectionCompute();
+                            if (!gpuCompute.init(gl4)) {
+                                System.err.println("GPU compute shader init failed");
+                                SwingUtilities.invokeLater(() -> {
+                                    setCursor(Cursor.getDefaultCursor());
+                                    progressBar.setString("GPU init failed");
+                                    gpuRadio.setEnabled(false);
+                                });
+                                return;
+                            }
+                        }
+
+                        TerrainIntersectionCompute.IntersectionResult[] results = gpuCompute.dispatch(
+                                gl4, fHeightmap, fHmWidth, fHmHeight,
+                                sectorMinX, sectorMinY, sectorMaxX, sectorMaxY,
+                                fRayData, numRays);
+
+                        long gpuEndTime = System.currentTimeMillis();
+
+                        // Convert results back to Positions and populate the result lists
+                        for (int i = 0; i < numRays; i++) {
+                            Position gridPos = grid.get(i);
+                            if (results[i].hit) {
+                                // Convert local meters back to lat/lon
+                                double hitLat = sectorCenterLat + results[i].y / metersPerDegreeLat;
+                                double hitLon = sectorCenterLon + results[i].x / metersPerDegreeLon;
+                                double hitElev = results[i].z;
+
+                                Position iPos = Position.fromDegrees(hitLat, hitLon, hitElev);
+
+                                // Check if intersection is closer than the grid point
+                                double hitDistSq = (results[i].x - refX) * (results[i].x - refX)
+                                        + (results[i].y - refY) * (results[i].y - refY)
+                                        + (results[i].z - refZ) * (results[i].z - refZ);
+                                float gpX = fRayData[i * 6 + 3];
+                                float gpY = fRayData[i * 6 + 4];
+                                float gpZ = fRayData[i * 6 + 5];
+                                double gpDistSq = (gpX - refX) * (gpX - refX)
+                                        + (gpY - refY) * (gpY - refY)
+                                        + (gpZ - refZ) * (gpZ - refZ);
+
+                                if (hitDistSq < gpDistSq) {
+                                    sightLines.add(new Position[]{referencePosition, new Position(iPos, 0)});
+                                    firstIntersectionPositions.add(iPos);
+                                } else {
+                                    sightLines.add(new Position[]{referencePosition, gridPos});
+                                }
+                            } else {
+                                sightLines.add(new Position[]{referencePosition, gridPos});
+                            }
+                        }
+
+                        long elapsed = gpuEndTime - startTime;
+
+                        SwingUtilities.invokeLater(() -> {
+                            setCursor(Cursor.getDefaultCursor());
+                            progressBar.setValue(100);
+                            progressBar.setString(elapsed + " ms");
+                            gpuLastTime = elapsed;
+                            updateTimingLabel();
+                            showResults();
+                            System.out.printf("GPU calculation time %d milliseconds\n", elapsed);
+                        });
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        SwingUtilities.invokeLater(() -> {
+                            setCursor(Cursor.getDefaultCursor());
+                            progressBar.setString("GPU error: " + ex.getMessage());
+                        });
+                    }
+                }
+            });
+
+            // Trigger a redraw so the RenderingListener fires
+            getWwd().redraw();
+        }
+
+        // ---- End GPU compute shader intersection path ----
 
         protected List<Position> buildGrid(Sector sector, double height, int nLatCells, int nLonCells) {
             List<Position> grid = new ArrayList<>((nLatCells + 1) * (nLonCells + 1));
@@ -520,6 +948,29 @@ public class TerrainIntersections extends ApplicationTemplate {
             pm.setValue(AVKey.DISPLAY_NAME, cPos.toString());
             pm.setLineEnabled(true);
             this.gridLayer.addRenderable(pm);
+        }
+
+        // ── UI helpers (same pattern as GPUTerrainDemo) ──
+
+        private static JLabel statsKey(String text) {
+            JLabel l = WWStyle.label(text, false);
+            l.setHorizontalAlignment(SwingConstants.RIGHT);
+            return l;
+        }
+
+        private static JLabel statsValue(String text) {
+            JLabel l = new JLabel(text);
+            l.setFont(WWStyle.FONT_BOLD);
+            l.setForeground(WWStyle.ACCENT);
+            return l;
+        }
+
+        private static JPanel vgap(int height) {
+            JPanel p = new JPanel();
+            p.setBackground(WWStyle.BG_DARK);
+            p.setPreferredSize(new Dimension(0, height));
+            p.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+            return p;
         }
     }
 

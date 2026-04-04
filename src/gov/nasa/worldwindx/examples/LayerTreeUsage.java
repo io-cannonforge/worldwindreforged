@@ -29,21 +29,43 @@
 package gov.nasa.worldwindx.examples;
 
 import java.awt.Dimension;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.layers.CompassLayer;
+import gov.nasa.worldwind.layers.Earth.BMNGOneImage;
+import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.ScalebarLayer;
+import gov.nasa.worldwind.layers.SkyGradientLayer;
+import gov.nasa.worldwind.layers.StarsLayer;
+import gov.nasa.worldwind.layers.TiledImageLayer;
+import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.WWUtil;
 import gov.nasa.worldwind.util.layertree.LayerTree;
+import gov.nasa.worldwind.util.layertree.LayerTreeNode;
+import gov.nasa.worldwind.util.tree.BasicTreeNode;
 import gov.nasa.worldwindx.examples.util.HotSpotController;
 
 /**
- * Example of using {@link gov.nasa.worldwind.util.tree.BasicTree} to display a list of layers.
+ * Example of using {@link gov.nasa.worldwind.util.tree.BasicTree} to display a hierarchical layer tree with
+ * expandable groups. Layers are automatically categorised into Background, Imagery, Overlays, and Controls
+ * groups, demonstrating how to build a real tree rather than a flat list.
+ *
+ * <p>Modified by seaglassfoundry.com &mdash; reorganised from flat list into grouped hierarchy.</p>
  *
  * @author pabercrombie
  * @version $Id: LayerTreeUsage.java 1171 2013-02-11 21:45:02Z dcollins $
  */
 public class LayerTreeUsage extends ApplicationTemplate
 {
+    /** Group names used to organise layers in the tree. */
+    protected static final String GROUP_BACKGROUND = "Background";
+    protected static final String GROUP_IMAGERY    = "Imagery";
+    protected static final String GROUP_OVERLAYS   = "Overlays";
+    protected static final String GROUP_CONTROLS   = "Controls";
+
     public static class AppFrame extends ApplicationTemplate.AppFrame
     {
         private static final long serialVersionUID = 1L;
@@ -63,23 +85,95 @@ public class LayerTreeUsage extends ApplicationTemplate
             this.hiddenLayer.addRenderable(this.layerTree);
             this.getWwd().getModel().getLayers().add(this.hiddenLayer);
 
-            // Mark the layer as hidden to prevent it being included in the layer tree's model. Including the layer in
-            // the tree would enable the user to hide the layer tree display with no way of bringing it back.
+            // Mark the layer as hidden to prevent it being included in the layer tree's model.
             this.hiddenLayer.setValue(AVKey.HIDDEN, true);
 
-            // Refresh the tree model with the WorldWindow's current layer list.
-            this.layerTree.getModel().refresh(this.getWwd().getModel().getLayers());
+            // Build a grouped tree instead of a flat list.
+            this.buildGroupedTree();
+
+            // Expand all group nodes so the full hierarchy is visible on startup.
+            this.expandAllGroups();
 
             // Add a controller to handle input events on the layer tree.
             this.controller = new HotSpotController(this.getWwd());
 
-            // Size the WorldWindow to take up the space typically used by the layer panel. This illustrates the
-            // screen space gained by using the on-screen layer tree.
+            // Size the WorldWindow to take up the space typically used by the layer panel.
             Dimension size = new Dimension(1000, 600);
             this.setPreferredSize(size);
             this.pack();
             WWUtil.alignComponent(null, this, AVKey.CENTER);
         }
+
+        /**
+         * Classifies each layer into a named group and builds a tree with group nodes as parents
+         * and layer nodes as children.
+         */
+        protected void buildGroupedTree()
+        {
+            // Use a linked map so groups appear in insertion order.
+            Map<String, BasicTreeNode> groups = new LinkedHashMap<>();
+            groups.put(GROUP_BACKGROUND, new BasicTreeNode(GROUP_BACKGROUND));
+            groups.put(GROUP_IMAGERY,    new BasicTreeNode(GROUP_IMAGERY));
+            groups.put(GROUP_OVERLAYS,   new BasicTreeNode(GROUP_OVERLAYS));
+            groups.put(GROUP_CONTROLS,   new BasicTreeNode(GROUP_CONTROLS));
+
+            for (Layer layer : this.getWwd().getModel().getLayers())
+            {
+                if (layer.getValue(AVKey.HIDDEN) == Boolean.TRUE)
+                    continue;
+
+                String group = classifyLayer(layer);
+                BasicTreeNode groupNode = groups.get(group);
+                groupNode.addChild(new LayerTreeNode(layer));
+            }
+
+            // Attach only non-empty groups to the tree root.
+            this.layerTree.getModel().removeAllLayers();
+            for (BasicTreeNode groupNode : groups.values())
+            {
+                if (groupNode.getChildren().iterator().hasNext())
+                    this.layerTree.getModel().getRoot().addChild(groupNode);
+            }
+        }
+
+        /** Expands every group path so the tree starts fully open. */
+        protected void expandAllGroups()
+        {
+            for (var child : this.layerTree.getModel().getRoot().getChildren())
+                this.layerTree.expandPath(child.getPath());
+        }
+    }
+
+    /**
+     * Determines which group a layer belongs to based on its type.
+     *
+     * @param layer the layer to classify.
+     * @return one of the GROUP_* constants.
+     */
+    protected static String classifyLayer(Layer layer)
+    {
+        // Atmosphere and single-image background layers.
+        if (layer instanceof StarsLayer || layer instanceof SkyGradientLayer
+            || layer instanceof BMNGOneImage)
+            return GROUP_BACKGROUND;
+
+        // HUD / navigation controls.
+        if (layer instanceof CompassLayer || layer instanceof ScalebarLayer
+            || layer instanceof WorldMapLayer)
+            return GROUP_CONTROLS;
+
+        // Distinguish imagery base maps from thematic overlays by name.
+        // Overlays are layers whose content is informational rather than base imagery.
+        String name = layer.getName() != null ? layer.getName().toLowerCase() : "";
+        if (name.contains("boundar") || name.contains("place") || name.contains("night"))
+            return GROUP_OVERLAYS;
+
+        // Remaining TiledImageLayers (BMNG, Landsat, NAIP, Bing, etc.) are imagery.
+        if (layer instanceof TiledImageLayer)
+            return GROUP_IMAGERY;
+
+        // Anything else falls into overlays.
+        return GROUP_OVERLAYS;
     }
 
     public static void main(String[] args)

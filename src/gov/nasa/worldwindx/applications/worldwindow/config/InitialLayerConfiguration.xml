@@ -36,5 +36,6 @@
     <Layer href="config/Earth/BMNGWMSLayer2.xml" title="Blue Marble" actuate="onLoad"/>
     <Layer href="config/Earth/LandsatI3WMSLayer2.xml" title="Landsat 7 ICube" actuate="onLoad"/>
     <Layer href="config/Earth/MSVirtualEarthAerialLayer.xml" title="MS Virtual Earth Satellite" actuate="onRequest"/>
-    <Layer className="gov.nasa.worldwind.layers.Earth.NASAWFSPlaceNameLayer" title="Place Names" actuate="onLoad"/>
+    <!-- Modified by seaglassfoundry.com - removed NASAWFSPlaceNameLayer (NASA WFS server is defunct) -->
+    <!--<Layer className="gov.nasa.worldwind.layers.Earth.NASAWFSPlaceNameLayer" title="Place Names" actuate="onLoad"/>-->
 </LayerList>
