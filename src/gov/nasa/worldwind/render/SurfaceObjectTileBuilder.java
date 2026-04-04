@@ -166,6 +166,11 @@ public class SurfaceObjectTileBuilder
     protected TileInfo currentInfo;
     /** Support class used to render to an offscreen surface tile. */
     protected OGLRenderToTextureSupport rttSupport = new OGLRenderToTextureSupport();
+    // Per-frame cached split threshold — avoids redundant Math.pow/trig per tile (seaglassfoundry.com)
+    protected double cachedSplitScale = Double.NaN;
+    protected double cachedPolarSplitScale = Double.NaN;
+    protected long cachedSplitFrameStamp = -1;
+    protected static final double TAN_HALF_45 = Math.tan(Math.toRadians(22.5));
 
     /**
      * Constructs a new SurfaceObjectTileBuilder with a tile width and height of <code>512</code>, with the default tile
@@ -1145,27 +1150,29 @@ public class SurfaceObjectTileBuilder
         // Compute the height in meters of a texel from the specified tile. Take care to convert from the radians to
         // meters by multiplying by the globe's radius, not the length of a Cartesian point. Using the length of a
         // Cartesian point is incorrect when the globe is flat.
-        double texelSizeRadians = tile.getLevel().getTexelSize();
-        double texelSizeMeters = dc.getGlobe().getRadius() * texelSizeRadians;
+        double texelSizeMeters = dc.getGlobe().getRadius() * tile.getLevel().getTexelSize();
 
-        // Compute the level of detail scale and the field of view scale. These scales are multiplied by the eye
-        // distance to derive a scaled distance that is then compared to the texel size. The level of detail scale is
-        // specified as a power of 10. For example, a detail factor of 3 means split when the cell size becomes more
-        // than one thousandth of the eye distance. The field of view scale is specified as a ratio between the current
-        // field of view and a the default field of view. In a perspective projection, decreasing the field of view by
-        // 50% has the same effect on object size as decreasing the distance between the eye and the object by 50%.
+        // Use cached split scale (detailScale * fieldOfViewScale) — constant for all tiles in a frame.
+        // Avoids redundant Math.pow + trig per tile. (seaglassfoundry.com)
+        long frameStamp = dc.getFrameTimeStamp();
+        if (frameStamp != this.cachedSplitFrameStamp)
+        {
+            double s = this.getSplitScale();
+            double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / TAN_HALF_45;
+            fieldOfViewScale = WWMath.clamp(fieldOfViewScale, 0, 1);
+            this.cachedSplitScale = Math.pow(10, -s) * fieldOfViewScale;
+            this.cachedPolarSplitScale = Math.pow(10, -s * 0.85) * fieldOfViewScale;
+            this.cachedSplitFrameStamp = frameStamp;
+        }
+
         // The detail hint is reduced for tiles above 75 degrees north and below 75 degrees south.
-        double s = this.getSplitScale();
-        if (tile.getSector().getMinLatitude().degrees >= 75 || tile.getSector().getMaxLatitude().degrees <= -75)
-            s *= 0.85;
-        double detailScale = Math.pow(10, -s);
-        double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / Angle.fromDegrees(45).tanHalfAngle();
-        fieldOfViewScale = WWMath.clamp(fieldOfViewScale, 0, 1);
+        double splitScale = (tile.getSector().getMinLatitude().degrees >= 75
+            || tile.getSector().getMaxLatitude().degrees <= -75)
+            ? this.cachedPolarSplitScale : this.cachedSplitScale;
 
         // Compute the distance between the eye point and the sector in meters, and compute a fraction of that distance
         // by multiplying the actual distance by the level of detail scale and the field of view scale.
-        double eyeDistanceMeters = tile.getSector().distanceTo(dc, dc.getView().getEyePoint());
-        double scaledEyeDistanceMeters = eyeDistanceMeters * detailScale * fieldOfViewScale;
+        double scaledEyeDistanceMeters = tile.getSector().distanceTo(dc, dc.getView().getEyePoint()) * splitScale;
 
         // Split when the texel size in meters becomes greater than the specified fraction of the eye distance, also in
         // meters. Another way to say it is, use the current tile if its texel size is less than the specified fraction

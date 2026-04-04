@@ -189,6 +189,11 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
         protected ShapefileGeometry geometry;
         protected ShapefileTile[] children; // cached subdivision — avoids per-frame allocations
         protected final Object nullGeometryStateKey = new Object();
+        // Cached state key — avoids deep-copying ShapeAttributes every frame (seaglassfoundry.com)
+        protected Object cachedStateKey;
+        protected long cachedStateKeyRecordStateID = -1;
+        protected long cachedStateKeyAttributeStateID = -1;
+        protected int cachedStateKeyAttributeHash;
 
         public ShapefileTile(ShapefileRenderable shape, Sector sector, double resolution)
         {
@@ -256,7 +261,42 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
         @Override
         public Object getStateKey(DrawContext dc)
         {
-            return this.geometry != null ? new ShapefileGeometryStateKey(this.geometry) : this.nullGeometryStateKey;
+            if (this.geometry == null)
+                return this.nullGeometryStateKey;
+
+            // Cache the state key and only regenerate when record structure (recordStateID) or
+            // attribute properties actually change. This eliminates per-frame deep-copy of all
+            // ShapeAttributes for every visible tile. (seaglassfoundry.com)
+            long currentRecordStateID = ((ShapefilePolygons) this.shape).recordStateID;
+            long currentAttrStateID = this.geometry.attributeStateID;
+            int currentAttrHash = computeAttributeHash(this.geometry);
+
+            if (this.cachedStateKey != null
+                && this.cachedStateKeyRecordStateID == currentRecordStateID
+                && this.cachedStateKeyAttributeStateID == currentAttrStateID
+                && this.cachedStateKeyAttributeHash == currentAttrHash)
+            {
+                return this.cachedStateKey;
+            }
+
+            this.cachedStateKey = new ShapefileGeometryStateKey(this.geometry);
+            this.cachedStateKeyRecordStateID = currentRecordStateID;
+            this.cachedStateKeyAttributeStateID = currentAttrStateID;
+            this.cachedStateKeyAttributeHash = currentAttrHash;
+            return this.cachedStateKey;
+        }
+
+        /** Compute a lightweight hash of all attribute group properties, avoiding deep copy. */
+        protected static int computeAttributeHash(ShapefileGeometry geom)
+        {
+            int hash = geom.attributeGroups.size();
+            for (int i = 0; i < geom.attributeGroups.size(); i++)
+            {
+                ShapeAttributes attrs = geom.attributeGroups.get(i).attributes;
+                hash = 31 * hash + System.identityHashCode(attrs);
+                hash = 31 * hash + attrs.hashCode();
+            }
+            return hash;
         }
 
         @Override
@@ -496,6 +536,14 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
         GL2.GL_RGBA8, false, false);
     protected ByteBuffer pickColors;
     protected Layer layer;
+    // Eye-distance hysteresis — reuse assembled tile set when the view hasn't changed enough to matter.
+    // Avoids redundant tile tree traversal + SurfaceObjectTileBuilder churn on every frame during
+    // continuous zoom at close range. Only reassemble when eye distance changes by >5% or the view
+    // direction changes beyond a threshold. (seaglassfoundry.com)
+    protected Vec4 lastAssemblyEyePoint;
+    protected double lastAssemblyEyeDistance = -1;
+    protected long lastAssemblyRecordStateID = -1;
+    protected static final double EYE_DISTANCE_THRESHOLD = 0.05; // 5% change triggers reassembly
     protected double[] matrixArray = new double[16];
     protected double[] baseMatrixArray = new double[16]; // cached SurfaceTileDrawContext modelview (same for all tiles in FBO)
     protected Object lastSdc; // tracks which SurfaceTileDrawContext was cached
@@ -508,6 +556,10 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
     // Bounding extent cache — avoids recomputing Sector.computeBoundingBox() every frame for static tile sectors.
     // Invalidated when globe or vertical exaggeration changes.
     protected HashMap<Sector, Extent> extentCache = new HashMap<>();
+    // Per-frame cached split threshold — avoids redundant Math.pow/trig per tile (seaglassfoundry.com)
+    protected double cachedSplitScale = Double.NaN;
+    protected long cachedSplitFrameStamp = -1;
+    protected static final double TAN_HALF_45 = Math.tan(Math.toRadians(22.5)); // tan(45°/2), constant
     protected Object extentCacheGlobe;
     protected double extentCacheVertExag = Double.NaN;
 
@@ -721,18 +773,28 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
 
         this.layer = dc.getCurrentLayer();
 
-        // Assemble the tiles used for rendering, then add those tiles to the scene controller's list of renderables to
-        // draw into the scene's shared surface tiles.
-        this.assembleTiles(dc);
+        // Assemble the tiles used for rendering, then add those tiles to the scene controller's list of
+        // renderables to draw into the scene's shared surface tiles. Use eye-distance hysteresis to avoid
+        // redundant tile tree traversal when the view hasn't changed enough to affect the tile set.
+        // At close zoom, tiny eye movements would otherwise trigger full reassembly every frame.
+        // (seaglassfoundry.com)
+        if (this.mustReassembleTiles(dc))
+        {
+            this.assembleTiles(dc);
+        }
         for (ShapefileTile tile : this.currentTiles)
         {
             dc.addOrderedSurfaceRenderable(tile);
         }
 
-        // Assemble the tiles used for picking, then build a set of surface object tiles containing unique colors for
-        // each record.
-        if (dc.getCurrentLayer().isPickEnabled())
+        // Assemble the tiles used for picking. Keep pick color assignments stable across frames so the
+        // tile builder's state key cache can skip redundant FBO re-rendering when nothing has changed.
+        // Only force full rebuild when record structure changes. (seaglassfoundry.com)
+        if (dc.getCurrentLayer().isPickEnabled()
+            && (dc.getPickPoint() != null || dc.getPickRectangle() != null))
         {
+            // Save render tiles — pick assembleTiles() overwrites currentTiles with pick-frustum tiles
+            ArrayList<ShapefileTile> savedRenderTiles = new ArrayList<>(this.currentTiles);
             try
             {
                 // Setup the draw context state and GL state for creating pick tiles.
@@ -740,17 +802,21 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
                 this.pickSupport.beginPicking(dc);
                 // Assemble the tiles intersecting the pick frustums, then draw them with unique pick colors.
                 this.assembleTiles(dc);
+                // Must clear pick colors every frame: dc.getUniquePickColor() uses a per-frame global
+                // counter, so cached colors from a prior frame could collide with other renderables.
+                this.pickColorMap.clear();
                 this.pickTileBuilder.setForceTileUpdates(true);
                 this.pickTileBuilder.buildTiles(dc, this.currentTiles);
             }
             finally
             {
-                // Clear pick color map in order to use different pick colors for each globe.
-                this.pickColorMap.clear();
                 // Restore the draw context state and GL state.
                 this.pickSupport.endPicking(dc);
                 dc.disablePickingMode();
             }
+            // Restore render tiles so hysteresis check on next frame sees the correct tile set
+            this.currentTiles.clear();
+            this.currentTiles.addAll(savedRenderTiles);
         }
 
         // Send requests for tile geometry.
@@ -831,9 +897,48 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
             this.combineContours(cc);
     }
 
+    /**
+     * Determines whether the tile set needs to be reassembled. Returns true if the eye position has changed enough
+     * to potentially affect which tiles are visible or their subdivision level, or if record attributes have changed.
+     * This prevents redundant tile tree traversal at close zoom where tiny eye movements don't change the tile set.
+     */
+    protected boolean mustReassembleTiles(DrawContext dc)
+    {
+        // Always reassemble if no previous assembly, or if record attributes changed
+        if (this.currentTiles.isEmpty() || this.lastAssemblyRecordStateID != this.recordStateID)
+            return true;
+
+        Vec4 eyePoint = dc.getView().getEyePoint();
+        double eyeDistance = this.sector.distanceTo(dc, eyePoint);
+
+        // Always reassemble if we have no previous eye state
+        if (this.lastAssemblyEyePoint == null)
+            return true;
+
+        // Check if eye distance has changed by more than the threshold percentage.
+        // At close zoom, this prevents churn from sub-meter eye movements.
+        double distanceChange = Math.abs(eyeDistance - this.lastAssemblyEyeDistance);
+        if (this.lastAssemblyEyeDistance > 0
+            && distanceChange / this.lastAssemblyEyeDistance < EYE_DISTANCE_THRESHOLD)
+        {
+            // Distance hasn't changed much — also check if the eye has moved laterally enough
+            // to shift which tiles are visible. Use the same threshold scaled to the eye distance.
+            double lateralShift = eyePoint.distanceTo3(this.lastAssemblyEyePoint);
+            if (lateralShift / Math.max(eyeDistance, 1) < EYE_DISTANCE_THRESHOLD)
+                return false; // View hasn't changed enough, reuse current tiles
+        }
+
+        return true;
+    }
+
     protected void assembleTiles(DrawContext dc)
     {
         this.currentTiles.clear();
+
+        // Record eye state for hysteresis check on next frame
+        this.lastAssemblyEyePoint = dc.getView().getEyePoint();
+        this.lastAssemblyEyeDistance = this.sector.distanceTo(dc, this.lastAssemblyEyePoint);
+        this.lastAssemblyRecordStateID = this.recordStateID;
 
         if (this.topLevelTiles.size() == 0)
         {
@@ -1017,23 +1122,24 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
         // Compute the resolution in meters of the specified tile. Take care to convert from the radians to meters by
         // multiplying by the globe's radius, not the length of a Cartesian point. Using the length of a Cartesian point
         // is incorrect when the globe is flat.
-        double resolutionRadians = tile.resolution;
-        double resolutionMeters = dc.getGlobe().getRadius() * resolutionRadians;
+        double resolutionMeters = dc.getGlobe().getRadius() * tile.resolution;
 
-        // Compute the level of detail scale and the field of view scale. These scales are multiplied by the eye
-        // distance to derive a scaled distance that is then compared to the resolution. The level of detail scale is
-        // specified as a power of 10. For example, a detail factor of 3 means split when the resolution becomes more
-        // than one thousandth of the eye distance. The field of view scale is specified as a ratio between the current
-        // field of view and a the default field of view. In a perspective projection, decreasing the field of view by
-        // 50% has the same effect on object size as decreasing the distance between the eye and the object by 50%.
-        double detailScale = Math.pow(10, -this.getDetailFactor());
-        double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / Angle.fromDegrees(45).tanHalfAngle();
-        fieldOfViewScale = WWMath.clamp(fieldOfViewScale, 0, 1);
+        // Use cached split scale (detailScale * fieldOfViewScale) — these are constant for all tiles in a
+        // frame, so computing Math.pow/tanHalfAngle once per frame instead of per tile. (seaglassfoundry.com)
+        long frameStamp = dc.getFrameTimeStamp();
+        if (frameStamp != this.cachedSplitFrameStamp)
+        {
+            double detailScale = Math.pow(10, -this.getDetailFactor());
+            double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / TAN_HALF_45;
+            fieldOfViewScale = WWMath.clamp(fieldOfViewScale, 0, 1);
+            this.cachedSplitScale = detailScale * fieldOfViewScale;
+            this.cachedSplitFrameStamp = frameStamp;
+        }
 
         // Compute the distance between the eye point and the sector in meters, and compute a fraction of that distance
         // by multiplying the actual distance by the level of detail scale and the field of view scale.
-        double eyeDistanceMeters = tile.sector.distanceTo(dc, dc.getView().getEyePoint());
-        double scaledEyeDistanceMeters = eyeDistanceMeters * detailScale * fieldOfViewScale;
+        double scaledEyeDistanceMeters = tile.sector.distanceTo(dc, dc.getView().getEyePoint())
+            * this.cachedSplitScale;
 
         // Split when the resolution in meters becomes greater than the specified fraction of the eye distance, also in
         // meters. Another way to say it is, use the current tile if its texel size is less than the specified fraction
@@ -1811,6 +1917,8 @@ public class ShapefilePolygons extends ShapefileRenderable implements OrderedRen
     {
         GL2 gl = dc.getGL().getGL2();
         ShapefileGeometry geom = tile.getGeometry();
+        if (geom == null || geom.vertexCount == 0)
+            return; // geometry evicted from cache or empty — skip this tile
         boolean useVbo = dc.getGLRuntimeCapabilities().isUseVertexBufferObject() && !forceDisableVBO;
 
         // Cache the SurfaceTileDrawContext base matrix — it's the same for all tiles in one FBO pass.
