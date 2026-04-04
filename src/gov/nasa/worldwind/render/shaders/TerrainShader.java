@@ -32,8 +32,14 @@
  * - Replaced deprecated gl_TexCoord[] built-in with explicit v_texCoord0/v_texCoord1 varyings.
  * - Replaced deprecated gl_FragColor with explicit out vec4 fragColor.
  * - Remaining deprecated built-ins (gl_Vertex, gl_MultiTexCoord0, gl_ModelViewProjectionMatrix,
- *   gl_TextureMatrix, gl_Color) require Java-side refactoring of vertex attribute setup and
+ *   gl_Color) require Java-side refactoring of vertex attribute setup and
  *   matrix upload — deferred to a future phase.
+ *
+ * Changes (Texture Matrix Optimisation):
+ * - Replaced deprecated gl_TextureMatrix[0/1] built-ins with explicit u_texMatrix0/u_texMatrix1
+ *   uniform mat4 uploads. SurfaceTileRenderer computes the texture matrix in Java and uploads
+ *   directly via updateTextureState(), eliminating the fixed-function matrix stack calls and
+ *   glGetFloatv readbacks that cause GPU pipeline stalls.
  */
 package gov.nasa.worldwind.render.shaders;
 
@@ -67,10 +73,11 @@ import gov.nasa.worldwind.util.Logging;
 public class TerrainShader
 {
     // seaglassfoundry.com: uses deprecated GLSL 1.30 compatibility built-ins (gl_Vertex,
-    // gl_MultiTexCoord0, gl_Color, gl_ModelViewProjectionMatrix, gl_TextureMatrix) so the
-    // shader works with the existing fixed-function client state set up by beginRendering()
-    // and SurfaceTileRenderer. This avoids glVertexAttribPointer / VAO requirements that
+    // gl_MultiTexCoord0, gl_Color, gl_ModelViewProjectionMatrix) so the shader works with
+    // the existing fixed-function client state set up by beginRendering() and
+    // SurfaceTileRenderer. This avoids glVertexAttribPointer / VAO requirements that
     // crash on AMD Vega Mobile (atio6axx.dll) in compatibility profile.
+    // Texture matrices are explicit uniforms (u_texMatrix0/u_texMatrix1) uploaded from Java.
     private static final String VERTEX_SOURCE = """
         #version 130
 
@@ -79,6 +86,8 @@ public class TerrainShader
         uniform float u_heightScale;
         uniform int u_useHeightmap;
         uniform int u_flatGlobe;
+        uniform mat4 u_texMatrix0;
+        uniform mat4 u_texMatrix1;
 
         out vec2 v_tileUV;
         out vec4 v_primaryColor;
@@ -104,8 +113,8 @@ public class TerrainShader
 
             gl_Position = gl_ModelViewProjectionMatrix * vec4(pos, 1.0);
 
-            v_texCoord0 = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
-            v_texCoord1 = (gl_TextureMatrix[1] * gl_MultiTexCoord0).st;
+            v_texCoord0 = (u_texMatrix0 * gl_MultiTexCoord0).st;
+            v_texCoord1 = (u_texMatrix1 * gl_MultiTexCoord0).st;
         }
         """;
 
@@ -309,6 +318,20 @@ public class TerrainShader
         gl.glActiveTexture(GL.GL_TEXTURE0);
 
         this.program.unuse(gl);
+    }
+
+    /**
+     * Uploads a pre-computed texture matrix to both {@code u_texMatrix0} and
+     * {@code u_texMatrix1}.  Called per image tile draw when the shader is kept
+     * active across multiple draws via the tile-scoped lifecycle.
+     *
+     * @param gl        the GL2 context
+     * @param texMatrix column-major 4×4 texture matrix (float[16])
+     */
+    public void updateTextureState(GL2 gl, float[] texMatrix)
+    {
+        this.program.setUniformMatrix4fv(gl, "u_texMatrix0", texMatrix);
+        this.program.setUniformMatrix4fv(gl, "u_texMatrix1", texMatrix);
     }
 
     public void dispose(GL2 gl)

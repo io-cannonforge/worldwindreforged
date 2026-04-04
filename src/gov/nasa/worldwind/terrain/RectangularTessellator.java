@@ -92,6 +92,9 @@
  *   for the same geometry tile, reducing glUseProgram and uniform upload calls by ~8x.
  * - RectTile: implements SectorGeometry.activateShader(), deactivateShader(), and
  *   renderMultiTextureWithActiveShader() by delegating to the tessellator.
+ * - renderImageTile() accepts a pre-computed float[16] texture matrix from
+ *   SurfaceTileRenderer and uploads it directly to the active shader's uniforms,
+ *   bypassing the fixed-function matrix stack and glGetFloatv readbacks.
  */
 package gov.nasa.worldwind.terrain;
 
@@ -540,9 +543,10 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         }
 
         @Override
-        public void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits)
+        public void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits,
+                                                       float[] texMatrix)
         {
-            this.tessellator.renderImageTile(dc, this, numTextureUnits);
+            this.tessellator.renderImageTile(dc, this, numTextureUnits, texMatrix);
         }
     }
 
@@ -1285,28 +1289,35 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
     }
 
     /**
-     * Renders one image tile draw with the shader already active.  Updates
-     * per-image-tile state (texture matrices for the tessellation path) and
-     * issues the draw call without activating/deactivating the shader.
+     * Renders one image tile draw with the shader already active.  Uploads the
+     * pre-computed texture matrix to the active shader's uniforms, then issues
+     * the draw call without activating/deactivating the shader.
      *
      * @param dc              the current draw context
      * @param tile            the geometry tile
      * @param numTextureUnits the number of texture units in use
+     * @param texMatrix       column-major 4×4 texture matrix (float[16])
      */
-    protected void renderImageTile(DrawContext dc, RectTile tile, int numTextureUnits)
+    protected void renderImageTile(DrawContext dc, RectTile tile, int numTextureUnits,
+                                   float[] texMatrix)
     {
         if (tile.ri == null)
             return;
 
-        // For the tessellation shader, update the texture matrix uniforms from
-        // the fixed-function state that SurfaceTileRenderer just set.
+        // Upload the pre-computed texture matrix to the active shader.
+        GL2 gl = dc.getGL().getGL2();
         if (this.activeShaderType == 2)
         {
             TessellationTerrainShader tessellationShader = tessellationShaders.get();
             if (tessellationShader != null)
-                tessellationShader.updateTextureState(dc.getGL().getGL2());
+                tessellationShader.updateTextureState(gl, texMatrix);
         }
-        // TerrainShader (activeShaderType == 1) reads gl_TextureMatrix automatically — no update needed.
+        else if (this.activeShaderType == 1)
+        {
+            TerrainShader terrainShader = terrainShaders.get();
+            if (terrainShader != null)
+                terrainShader.updateTextureState(gl, texMatrix);
+        }
 
         // Issue the draw call — same VBO/VA logic as the existing render() draw path,
         // but without shader activate/deactivate.

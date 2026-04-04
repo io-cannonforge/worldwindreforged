@@ -44,4 +44,24 @@ public interface SurfaceTile
     Sector getSector();
     Extent getExtent(DrawContext dc);
     List<? extends LatLon> getCorners();
+
+    // seaglassfoundry.com: shader-path texture matrix computation.
+    // Returns the internal texture transform (flip, fallback scaling) as a
+    // scale+translate quadruple [sx, sy, tx, ty].  SurfaceTileRenderer uses
+    // this to compute the full texture matrix in Java, bypassing the
+    // fixed-function matrix stack and eliminating glGetFloatv readbacks.
+    /**
+     * Returns this tile's internal texture transform as a scale+translate.
+     * The result is written into {@code out} as {@code [sx, sy, tx, ty]}
+     * representing the 2D affine transform that would be applied by
+     * {@link #applyInternalTransform}.  The default implementation returns
+     * identity (no flip, no fallback).
+     *
+     * @param dc  the current draw context
+     * @param out a double[4] array to receive [sx, sy, tx, ty]
+     */
+    default void getTextureTransform(DrawContext dc, double[] out)
+    {
+        out[0] = 1; out[1] = 1; out[2] = 0; out[3] = 0;
+    }
 }

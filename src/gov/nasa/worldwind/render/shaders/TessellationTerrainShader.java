@@ -568,6 +568,20 @@ public class TessellationTerrainShader
     }
 
     /**
+     * Uploads a pre-computed texture matrix to both {@code u_texMatrix0} and
+     * {@code u_texMatrix1}, bypassing the {@code glGetFloatv} readback that
+     * the zero-arg overload uses.
+     *
+     * @param gl        the GL2 context
+     * @param texMatrix column-major 4×4 texture matrix (float[16])
+     */
+    public void updateTextureState(GL2 gl, float[] texMatrix)
+    {
+        this.program.setUniformMatrix4fv(gl, "u_texMatrix0", texMatrix);
+        this.program.setUniformMatrix4fv(gl, "u_texMatrix1", texMatrix);
+    }
+
+    /**
      * Deactivates the tessellation pipeline after all image tiles for a
      * geometry tile have been drawn.
      */

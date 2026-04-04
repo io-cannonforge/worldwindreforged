@@ -584,6 +584,63 @@ public class TextureTile extends Tile implements SurfaceTile
         gl.glScaled(oneOverTwoToTheN, oneOverTwoToTheN, 1);
     }
 
+    // seaglassfoundry.com: shader-path texture matrix computation — returns the
+    // internal transform (flip + fallback) as [sx, sy, tx, ty] so the caller can
+    // compose with the tile transform and upload as a uniform, bypassing the
+    // fixed-function matrix stack and glGetFloatv readbacks.
+    @Override
+    public void getTextureTransform(DrawContext dc, double[] out)
+    {
+        out[0] = 1; out[1] = 1; out[2] = 0; out[3] = 0;
+
+        // Primary texture — check flip.
+        Texture t = this.getTexture(dc.getTextureCache());
+        if (t != null)
+        {
+            if (t.getMustFlipVertically())
+            {
+                out[1] = -1;  // sy: glScaled(1, -1, 1)
+                out[3] = 1;   // ty: glTranslated(0, -1, 0) → ty = 0 + (-1)*(-1) = 1
+            }
+            return;
+        }
+
+        // Fallback texture — flip + resource transform.
+        TextureTile resourceTile = this.getFallbackTile();
+        if (resourceTile == null)
+            return;
+
+        t = resourceTile.getTexture(dc.getTextureCache());
+        if (t == null)
+            return;
+
+        if (t.getMustFlipVertically())
+        {
+            out[1] = -1;
+            out[3] = 1;
+        }
+
+        // Equivalent of applyResourceTextureTransform — glTranslated then glScaled.
+        if (this.getLevel() != null)
+        {
+            int levelDelta = this.getLevelNumber() - resourceTile.getLevelNumber();
+            if (levelDelta > 0)
+            {
+                double twoToTheN = Math.pow(2, levelDelta);
+                double scale = 1.0 / twoToTheN;
+                double sShift = scale * (this.getColumn() % twoToTheN);
+                double tShift = scale * (this.getRow() % twoToTheN);
+
+                // glTranslated(sShift, tShift, 0)
+                out[2] += out[0] * sShift;
+                out[3] += out[1] * tShift;
+                // glScaled(scale, scale, 1)
+                out[0] *= scale;
+                out[1] *= scale;
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object o)
     {

@@ -270,16 +270,20 @@ public interface SectorGeometry extends Renderable
 
     /**
      * Renders this geometry tile with an already-active shader.  The shader's
-     * per-image-tile state (texture matrices) is updated, then the draw call
-     * is issued without a full activate/deactivate cycle.
+     * per-image-tile state (texture matrices) is updated from the supplied
+     * pre-computed matrix, then the draw call is issued without a full
+     * activate/deactivate cycle.
      * <p>
-     * The default implementation falls back to {@link #renderMultiTexture}
-     * which does a full shader cycle — correct but slower.
+     * The default implementation ignores the texture matrix and falls back to
+     * {@link #renderMultiTexture} which does a full shader cycle.
      *
      * @param dc              the current draw context
      * @param numTextureUnits the number of texture units in use
+     * @param texMatrix       column-major 4×4 texture matrix (float[16]),
+     *                        pre-computed by the caller
      */
-    default void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits)
+    default void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits,
+                                                    float[] texMatrix)
     {
         renderMultiTexture(dc, numTextureUnits);
     }
