@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -64,6 +65,11 @@ public class BuildingFilterPanel extends JPanel
     // ── Search ───────────────────────────────────────────────────────────────
     private final JTextField searchField;
 
+    // ── Detail panel (shown on building click) ────────────────────────────
+    private final JPanel detailPanel;
+    private final JLabel detailLabel;
+    private BuildingRecord detailRecord;
+
     // ── Address geocode ─────────────────────────────────────────────────────
     private final JTextField addressField;
     private final JLabel geocodeStatusLabel;
@@ -82,6 +88,21 @@ public class BuildingFilterPanel extends JPanel
         statusLabel.setText("Loading...");
         statusLabel.setForeground(WWStyle.STATUS_WARN);
         add(sourceSection);
+        add(vgap(WWStyle.GAP_XS));
+
+        // ── Building Detail (hidden until click) ────────────────────────
+        detailPanel = new JPanel();
+        detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+        detailPanel.setBackground(new Color(28, 30, 36));
+        detailPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.setVisible(false);
+
+        detailLabel = new JLabel();
+        detailLabel.setForeground(Color.WHITE);
+        detailLabel.setFont(WWStyle.FONT_BASE);
+        detailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.add(detailLabel);
+        add(detailPanel);
         add(vgap(WWStyle.GAP_XS));
 
         // ── Statistics ───────────────────────────────────────────────────
@@ -196,6 +217,86 @@ public class BuildingFilterPanel extends JPanel
     }
 
     // ── Public API ───────────────────────────────────────────────────────────
+
+    /**
+     * Show building detail in the panel. seaglassfoundry.com
+     *
+     * @param record  the building record
+     * @param address initial address text, or null to show "Looking up..."
+     */
+    public void showDetail(BuildingRecord record, String address)
+    {
+        this.detailRecord = record;
+        BuildingCategory cat = record.getCategory();
+
+        String html = buildDetailHtml(record, address);
+
+        SwingUtilities.invokeLater(() ->
+        {
+            detailLabel.setText(html);
+            detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(cat.getColor(), 2),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+            detailPanel.setVisible(true);
+            revalidate();
+            repaint();
+        });
+    }
+
+    /**
+     * Update the address in the currently shown detail panel (called after
+     * async reverse-geocode completes).
+     */
+    public void updateDetailAddress(BuildingRecord record, String address)
+    {
+        if (detailRecord == null || !detailRecord.getId().equals(record.getId()))
+            return;
+        String html = buildDetailHtml(record, address != null ? address : "");
+        SwingUtilities.invokeLater(() ->
+        {
+            detailLabel.setText(html);
+            revalidate();
+            repaint();
+        });
+    }
+
+    /** Hide the building detail panel. */
+    public void hideDetail()
+    {
+        detailRecord = null;
+        SwingUtilities.invokeLater(() ->
+        {
+            detailPanel.setVisible(false);
+            revalidate();
+            repaint();
+        });
+    }
+
+    private String buildDetailHtml(BuildingRecord record, String address)
+    {
+        StringBuilder html = new StringBuilder("<html><div style='width:200px'>");
+
+        if (!record.getName().isEmpty())
+            html.append("<b>").append(record.getName()).append("</b><br>");
+        else
+            html.append("<b>").append(record.getBuildingType()).append("</b><br>");
+
+        html.append("<br>");
+        html.append(String.format("Height: %.0f m (%d floors)<br>",
+            record.getHeightMeters(), record.getLevels()));
+        html.append("Category: ").append(record.getCategory().getDisplayName()).append("<br>");
+        html.append("Type: ").append(record.getBuildingType()).append("<br>");
+
+        if (address != null && !address.isEmpty())
+            html.append("Address: ").append(address).append("<br>");
+        else if (address == null)
+            html.append("<i>Looking up address...</i><br>");
+
+        html.append("<br><small>").append(record.getId()).append("</small>");
+        html.append("</div></html>");
+
+        return html.toString();
+    }
 
     public void setSourceInfo(String label, boolean live)
     {

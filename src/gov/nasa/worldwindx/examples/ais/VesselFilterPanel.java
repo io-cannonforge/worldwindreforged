@@ -18,6 +18,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -55,6 +56,10 @@ public class VesselFilterPanel extends JPanel
     private final JTextField searchField;
     private final JLabel attributionLabel;
 
+    // ── Detail panel (shown on vessel click) ─────────────────────────────
+    private final JPanel detailPanel;
+    private final JLabel detailLabel;
+
     public VesselFilterPanel(VesselManager vesselManager)
     {
         this.vesselManager = vesselManager;
@@ -67,6 +72,21 @@ public class VesselFilterPanel extends JPanel
         sourceLabel = WWStyle.label("Connecting…", false);
         sourceSection.add(sourceLabel);
         add(sourceSection);
+        add(vgap(WWStyle.GAP_XS));
+
+        // ── Vessel Detail (hidden until click) ───────────────────────────
+        detailPanel = new JPanel();
+        detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+        detailPanel.setBackground(new Color(28, 30, 36));
+        detailPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.setVisible(false);
+
+        detailLabel = new JLabel();
+        detailLabel.setForeground(Color.WHITE);
+        detailLabel.setFont(WWStyle.FONT_BASE);
+        detailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.add(detailLabel);
+        add(detailPanel);
         add(vgap(WWStyle.GAP_XS));
 
         // ── Vessel count ──────────────────────────────────────────────────
@@ -144,6 +164,65 @@ public class VesselFilterPanel extends JPanel
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
+
+    /**
+     * Show vessel detail in the panel. seaglassfoundry.com
+     */
+    public void showDetail(int mmsi)
+    {
+        VesselPosition vp = vesselManager.getPosition(mmsi);
+        VesselInfo info = vesselManager.getVesselInfo(mmsi);
+        if (vp == null) return;
+
+        VesselCategory cat = info != null ? info.getCategory() : VesselCategory.OTHER;
+
+        StringBuilder html = new StringBuilder("<html><div style='width:200px'>");
+        html.append("<b>").append(info != null ? info.getDisplayName() : "Unknown").append("</b><br>");
+        html.append("MMSI: ").append(mmsi).append("<br>");
+
+        if (info != null)
+        {
+            html.append("Type: ").append(cat.name()).append(" (").append(info.getShipType()).append(")<br>");
+            if (!info.getCallSign().isEmpty())
+                html.append("Call: ").append(info.getCallSign()).append("<br>");
+            if (!info.getDestination().isEmpty())
+                html.append("Dest: ").append(info.getDestination()).append("<br>");
+            if (info.getLengthMeters() > 0)
+                html.append("Size: ").append(info.getLengthMeters()).append("m x ")
+                    .append(info.getWidthMeters()).append("m<br>");
+            if (info.getDraught() > 0)
+                html.append("Draught: ").append(String.format("%.1f", info.getDraughtMeters())).append("m<br>");
+        }
+
+        html.append("<br>");
+        html.append("SOG: ").append(String.format("%.1f", vp.getSog())).append(" kt<br>");
+        html.append("COG: ").append(String.format("%.0f", vp.getCog())).append("\u00B0<br>");
+        html.append(String.format("Lat: %.5f<br>", vp.getLat()));
+        html.append(String.format("Lon: %.5f", vp.getLon()));
+        html.append("</div></html>");
+
+        SwingUtilities.invokeLater(() ->
+        {
+            detailLabel.setText(html.toString());
+            detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(cat.getColor(), 2),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+            detailPanel.setVisible(true);
+            revalidate();
+            repaint();
+        });
+    }
+
+    /** Hide the vessel detail panel. */
+    public void hideDetail()
+    {
+        SwingUtilities.invokeLater(() ->
+        {
+            detailPanel.setVisible(false);
+            revalidate();
+            repaint();
+        });
+    }
 
     /** Update the data source indicator. */
     public void setSourceLabel(String name, boolean live)

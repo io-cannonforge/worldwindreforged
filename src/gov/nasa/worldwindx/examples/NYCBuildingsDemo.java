@@ -35,7 +35,6 @@ import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.nycbuildings.BuildingBatchRenderer;
 import gov.nasa.worldwindx.examples.nycbuildings.BuildingFilterPanel;
@@ -85,8 +84,6 @@ public class NYCBuildingsDemo extends ApplicationTemplate
         private BuildingBatchRenderer renderer;
         private BuildingFilterPanel filterPanel;
         private RenderableLayer buildingLayer;
-        private RenderableLayer annotationLayer;
-        private GlobeAnnotation detailAnnotation;
 
         /** All loaded buildings, keyed by id for dedup. */
         private final Map<String, BuildingRecord> allBuildings = new LinkedHashMap<>();
@@ -114,12 +111,7 @@ public class NYCBuildingsDemo extends ApplicationTemplate
             buildingLayer = new RenderableLayer();
             buildingLayer.setName("NYC Buildings");
 
-            annotationLayer = new RenderableLayer();
-            annotationLayer.setName("Building Details");
-            annotationLayer.setPickEnabled(false);
-
             insertBeforeCompass(getWwd(), buildingLayer);
-            insertBeforeCompass(getWwd(), annotationLayer);
 
             // ── Enable high-res imagery for urban detail ────────────────
             gov.nasa.worldwind.layers.Layer bing = getWwd().getModel().getLayers().getLayerByName("Bing Imagery");
@@ -481,61 +473,13 @@ public class NYCBuildingsDemo extends ApplicationTemplate
             Position pos = computeBuildingCentre(record);
             if (pos == null) return;
 
-            String html = buildDetailHtml(record, null);
-
-            if (detailAnnotation != null)
-            {
-                detailAnnotation.setText(html);
-                detailAnnotation.setPosition(pos);
-            }
-            else
-            {
-                detailAnnotation = new GlobeAnnotation(html, pos);
-                detailAnnotation.getAttributes().setBackgroundColor(new Color(20, 22, 28, 230));
-                detailAnnotation.getAttributes().setTextColor(Color.WHITE);
-                detailAnnotation.getAttributes().setBorderColor(new Color(80, 120, 200));
-                detailAnnotation.getAttributes().setBorderWidth(2);
-                detailAnnotation.getAttributes().setCornerRadius(10);
-                detailAnnotation.getAttributes().setInsets(new java.awt.Insets(10, 14, 10, 14));
-                detailAnnotation.getAttributes().setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
-                detailAnnotation.setAlwaysOnTop(true);
-                annotationLayer.addRenderable(detailAnnotation);
-            }
-            getWwd().redraw();
+            filterPanel.showDetail(record, null);
 
             // Reverse-geocode to get address asynchronously
-            reverseGeocode(pos.getLatitude().degrees, pos.getLongitude().degrees, record, pos);
+            reverseGeocode(pos.getLatitude().degrees, pos.getLongitude().degrees, record);
         }
 
-        private String buildDetailHtml(BuildingRecord record, String address)
-        {
-            StringBuilder html = new StringBuilder();
-
-            if (!record.getName().isEmpty())
-                html.append("<b style=\"font-size:14px\">").append(record.getName()).append("</b><br/>");
-            else
-                html.append("<b style=\"font-size:13px\">").append(record.getBuildingType())
-                    .append("</b><br/>");
-
-            html.append("<br/>");
-
-            html.append(String.format("Height: %.0f m (%d floors)<br/>",
-                record.getHeightMeters(), record.getLevels()));
-            html.append("Category: ").append(record.getCategory().getDisplayName()).append("<br/>");
-            html.append("Type: ").append(record.getBuildingType()).append("<br/>");
-
-            if (address != null && !address.isEmpty())
-                html.append("Address: ").append(address).append("<br/>");
-            else if (address == null)
-                html.append("<i style=\"color:#888\">Looking up address...</i><br/>");
-
-            html.append("<br/>");
-            html.append("<small>").append(record.getId()).append("</small>");
-
-            return html.toString();
-        }
-
-        private void reverseGeocode(double lat, double lon, BuildingRecord record, Position pos)
+        private void reverseGeocode(double lat, double lon, BuildingRecord record)
         {
             new SwingWorker<String, Void>()
             {
@@ -562,7 +506,6 @@ public class NYCBuildingsDemo extends ApplicationTemplate
 
                         String body = resp.body();
 
-                        // Extract house_number and road from the address object
                         String number = extractNestedJsonString(body, "house_number");
                         String road = extractNestedJsonString(body, "road");
 
@@ -587,15 +530,8 @@ public class NYCBuildingsDemo extends ApplicationTemplate
                     try
                     {
                         String address = get();
-                        // Only update if the annotation is still showing this building
-                        if (detailAnnotation != null
-                            && detailAnnotation.getPosition().equals(pos))
-                        {
-                            String updated = buildDetailHtml(record,
-                                address != null ? address : "");
-                            detailAnnotation.setText(updated);
-                            getWwd().redraw();
-                        }
+                        filterPanel.updateDetailAddress(record,
+                            address != null ? address : "");
                     }
                     catch (Exception ignored) { }
                 }
@@ -615,12 +551,7 @@ public class NYCBuildingsDemo extends ApplicationTemplate
 
         private void hideDetail()
         {
-            if (detailAnnotation != null)
-            {
-                annotationLayer.removeRenderable(detailAnnotation);
-                detailAnnotation = null;
-                getWwd().redraw();
-            }
+            filterPanel.hideDetail();
         }
 
         private Position computeBuildingCentre(BuildingRecord record)

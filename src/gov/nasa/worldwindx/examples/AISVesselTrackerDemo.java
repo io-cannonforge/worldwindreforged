@@ -34,13 +34,11 @@ import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.pick.PickedObject;
-import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.ais.AISDataSource;
 import gov.nasa.worldwindx.examples.ais.CsvReplayDataSource;
 import gov.nasa.worldwindx.examples.ais.DigittrafficDataSource;
-import gov.nasa.worldwindx.examples.ais.VesselCategory;
 import gov.nasa.worldwindx.examples.ais.VesselFilterPanel;
 import gov.nasa.worldwindx.examples.ais.VesselInfo;
 import gov.nasa.worldwindx.examples.ais.VesselManager;
@@ -83,7 +81,6 @@ public class AISVesselTrackerDemo extends ApplicationTemplate
         private VesselFilterPanel filterPanel;
         private Timer positionTimer;
         private Timer metadataTimer;
-        private GlobeAnnotation detailAnnotation;
 
         public AppFrame()
         {
@@ -241,68 +238,12 @@ public class AISVesselTrackerDemo extends ApplicationTemplate
 
         private void showDetail(int mmsi, Position pos)
         {
-            VesselPosition vp = vesselManager.getPosition(mmsi);
-            VesselInfo info = vesselManager.getVesselInfo(mmsi);
-            if (vp == null) return;
-
-            StringBuilder html = new StringBuilder();
-            html.append("<b>").append(info != null ? info.getDisplayName() : "Unknown").append("</b><br/>");
-            html.append("MMSI: ").append(mmsi).append("<br/>");
-
-            if (info != null)
-            {
-                VesselCategory cat = info.getCategory();
-                html.append("Type: ").append(cat.name()).append(" (").append(info.getShipType()).append(")<br/>");
-                if (!info.getCallSign().isEmpty())
-                    html.append("Call: ").append(info.getCallSign()).append("<br/>");
-                if (!info.getDestination().isEmpty())
-                    html.append("Dest: ").append(info.getDestination()).append("<br/>");
-                if (info.getLengthMeters() > 0)
-                    html.append("Size: ").append(info.getLengthMeters()).append("m × ")
-                        .append(info.getWidthMeters()).append("m<br/>");
-                if (info.getDraught() > 0)
-                    html.append("Draught: ").append(String.format("%.1f", info.getDraughtMeters())).append("m<br/>");
-            }
-
-            html.append("SOG: ").append(String.format("%.1f", vp.getSog())).append(" kt<br/>");
-            html.append("COG: ").append(String.format("%.0f", vp.getCog())).append("°<br/>");
-            html.append("Lat: ").append(String.format("%.5f", vp.getLat())).append("<br/>");
-            html.append("Lon: ").append(String.format("%.5f", vp.getLon()));
-
-            if (detailAnnotation != null)
-            {
-                detailAnnotation.setText(html.toString());
-                detailAnnotation.setPosition(pos);
-            }
-            else
-            {
-                detailAnnotation = new GlobeAnnotation(html.toString(), pos);
-                detailAnnotation.getAttributes().setBackgroundColor(new Color(30, 30, 35, 220));
-                detailAnnotation.getAttributes().setTextColor(Color.WHITE);
-                detailAnnotation.getAttributes().setBorderColor(new Color(100, 100, 110));
-                detailAnnotation.getAttributes().setCornerRadius(8);
-                detailAnnotation.getAttributes().setInsets(new java.awt.Insets(8, 10, 8, 10));
-                detailAnnotation.getAttributes().setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
-                detailAnnotation.setAlwaysOnTop(true);
-
-                // Add to the vessel layer so it renders on top
-                RenderableLayer layer = (RenderableLayer) getWwd().getModel().getLayers().getLayerByName("AIS Vessels");
-                if (layer != null)
-                    layer.addRenderable(detailAnnotation);
-            }
-            getWwd().redraw();
+            filterPanel.showDetail(mmsi);
         }
 
         private void hideDetail()
         {
-            if (detailAnnotation != null)
-            {
-                RenderableLayer layer = (RenderableLayer) getWwd().getModel().getLayers().getLayerByName("AIS Vessels");
-                if (layer != null)
-                    layer.removeRenderable(detailAnnotation);
-                detailAnnotation = null;
-                getWwd().redraw();
-            }
+            filterPanel.hideDetail();
         }
 
         // ── Control panel setup ───────────────────────────────────────────
