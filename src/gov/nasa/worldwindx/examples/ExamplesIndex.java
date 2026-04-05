@@ -111,6 +111,7 @@ public class ExamplesIndex extends JFrame {
         CATEGORIES.put("Showcase", new ExampleEntry[]{
             new ExampleEntry("AIS Vessel Tracker",  BASE + "AISVesselTrackerDemo", "Real-time AIS maritime vessel tracking with live Digitraffic data, vessel-type symbology, track history, and interactive filtering.", "New"),
             new ExampleEntry("Live Air Traffic",    BASE + "AirTrafficDemo",        "Real-time 3D air traffic at actual altitude with contrails, speed leaders, altitude colouring, emergency alerts, military overlay, and follow camera.", "New"),
+            new ExampleEntry("Satellite Tracker",   BASE + "SatelliteTrackerDemo",  "Real-time satellite tracking at orbital altitude with SGP4 propagation, orbit paths, ground tracks, footprints, ISS tracking, and live CelesTrak data.", "New"),
         });
 
         CATEGORIES.put("Basics", new ExampleEntry[]{
