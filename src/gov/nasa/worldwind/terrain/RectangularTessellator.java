@@ -1186,7 +1186,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
         // Lazy shader init — same logic as render(), ensures shaders are available.
         TessellationTerrainShader tessellationShader = tessellationShaders.get();
-        ComputeMeshShader computeMeshShader = computeMeshShaders.get();
         TerrainShader terrainShader = terrainShaders.get();
 
         if (!Boolean.TRUE.equals(tessellationShaderInitFailed.get()) && tessellationShader == null

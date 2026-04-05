@@ -71,6 +71,7 @@ public class VesselManager
     private volatile boolean showTracks = true;
 
     /** Maximum track age in milliseconds (default 1 hour). */
+    @SuppressWarnings("unused") // read via setMaxTrackAgeMs() called from VesselFilterPanel
     private volatile long maxTrackAgeMs = 60 * 60 * 1000L;
 
     public VesselManager(WorldWindow wwd, RenderableLayer vesselLayer, RenderableLayer trackLayer)

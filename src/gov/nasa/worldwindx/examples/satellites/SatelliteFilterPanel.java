@@ -51,6 +51,7 @@ public class SatelliteFilterPanel extends JPanel
         DateTimeFormatter.ofPattern("HH:mm:ss").withZone(ZoneOffset.UTC);
 
     private final SatelliteManager manager;
+    @SuppressWarnings("unused") // used in ISS track button listener
     private final Consumer<Integer> followCallback;
 
     // ── Stats labels ─────────────────────────────────────────────────────────

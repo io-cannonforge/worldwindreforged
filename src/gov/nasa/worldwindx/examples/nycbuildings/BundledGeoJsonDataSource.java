@@ -72,7 +72,7 @@ public class BundledGeoJsonDataSource implements BuildingDataSource
             // Advance to "features" array
             while (jp.nextToken() != null)
             {
-                if (jp.getCurrentToken() == JsonToken.FIELD_NAME && "features".equals(jp.getCurrentName()))
+                if (jp.currentToken() == JsonToken.FIELD_NAME && "features".equals(jp.currentName()))
                 {
                     jp.nextToken(); // START_ARRAY
                     break;
@@ -100,8 +100,8 @@ public class BundledGeoJsonDataSource implements BuildingDataSource
 
         while (jp.nextToken() != JsonToken.END_OBJECT)
         {
-            if (jp.getCurrentToken() != JsonToken.FIELD_NAME) continue;
-            String field = jp.getCurrentName();
+            if (jp.currentToken() != JsonToken.FIELD_NAME) continue;
+            String field = jp.currentName();
 
             switch (field)
             {
@@ -110,8 +110,8 @@ public class BundledGeoJsonDataSource implements BuildingDataSource
                     jp.nextToken(); // START_OBJECT
                     while (jp.nextToken() != JsonToken.END_OBJECT)
                     {
-                        if (jp.getCurrentToken() != JsonToken.FIELD_NAME) continue;
-                        String prop = jp.getCurrentName();
+                        if (jp.currentToken() != JsonToken.FIELD_NAME) continue;
+                        String prop = jp.currentName();
                         jp.nextToken(); // value
                         switch (prop)
                         {
@@ -130,8 +130,8 @@ public class BundledGeoJsonDataSource implements BuildingDataSource
                     jp.nextToken(); // START_OBJECT
                     while (jp.nextToken() != JsonToken.END_OBJECT)
                     {
-                        if (jp.getCurrentToken() != JsonToken.FIELD_NAME) continue;
-                        String geomField = jp.getCurrentName();
+                        if (jp.currentToken() != JsonToken.FIELD_NAME) continue;
+                        String geomField = jp.currentName();
                         if ("coordinates".equals(geomField))
                         {
                             rings = parsePolygonCoordinates(jp);

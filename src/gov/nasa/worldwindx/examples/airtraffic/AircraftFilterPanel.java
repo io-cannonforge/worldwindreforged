@@ -43,6 +43,7 @@ public class AircraftFilterPanel extends JPanel
     private static final long serialVersionUID = 1L;
 
     private final AircraftManager manager;
+    @SuppressWarnings("unused") // used in lambda on showMilitaryGlobalBox listener
     private final Consumer<Boolean> militaryToggleCallback;
 
     // ── Stats labels ──────────────────────────────────────────────────────────

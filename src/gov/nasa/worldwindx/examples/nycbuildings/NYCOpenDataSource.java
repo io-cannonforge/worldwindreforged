@@ -273,7 +273,7 @@ public class NYCOpenDataSource implements BuildingDataSource
             // Advance to "features" array
             while (jp.nextToken() != null)
             {
-                if (jp.getCurrentToken() == JsonToken.FIELD_NAME && "features".equals(jp.getCurrentName()))
+                if (jp.currentToken() == JsonToken.FIELD_NAME && "features".equals(jp.currentName()))
                 {
                     jp.nextToken(); // START_ARRAY
                     break;
@@ -293,14 +293,14 @@ public class NYCOpenDataSource implements BuildingDataSource
 
     private BuildingRecord parseFeature(JsonParser jp) throws Exception
     {
-        String bin = null, name = null, featureCode = null, constructionYear = null;
-        String heightRoof = null, groundElev = null;
+        String bin = null, name = null, featureCode = null;
+        String heightRoof = null;
         List<List<double[]>> rings = null;
 
         while (jp.nextToken() != JsonToken.END_OBJECT)
         {
-            if (jp.getCurrentToken() != JsonToken.FIELD_NAME) continue;
-            String field = jp.getCurrentName();
+            if (jp.currentToken() != JsonToken.FIELD_NAME) continue;
+            String field = jp.currentName();
 
             switch (field)
             {
@@ -309,17 +309,15 @@ public class NYCOpenDataSource implements BuildingDataSource
                     jp.nextToken(); // START_OBJECT
                     while (jp.nextToken() != JsonToken.END_OBJECT)
                     {
-                        if (jp.getCurrentToken() != JsonToken.FIELD_NAME) continue;
-                        String prop = jp.getCurrentName();
+                        if (jp.currentToken() != JsonToken.FIELD_NAME) continue;
+                        String prop = jp.currentName();
                         jp.nextToken();
                         switch (prop)
                         {
                             case "bin" -> bin = jp.getValueAsString();
                             case "name" -> name = jp.getValueAsString();
                             case "height_roof" -> heightRoof = jp.getValueAsString();
-                            case "ground_elev" -> groundElev = jp.getValueAsString();
                             case "feature_code" -> featureCode = jp.getValueAsString();
-                            case "construction_year" -> constructionYear = jp.getValueAsString();
                         }
                     }
                 }
@@ -329,8 +327,8 @@ public class NYCOpenDataSource implements BuildingDataSource
                     String geomType = null;
                     while (jp.nextToken() != JsonToken.END_OBJECT)
                     {
-                        if (jp.getCurrentToken() != JsonToken.FIELD_NAME) continue;
-                        String geomField = jp.getCurrentName();
+                        if (jp.currentToken() != JsonToken.FIELD_NAME) continue;
+                        String geomField = jp.currentName();
 
                         if ("type".equals(geomField))
                         {

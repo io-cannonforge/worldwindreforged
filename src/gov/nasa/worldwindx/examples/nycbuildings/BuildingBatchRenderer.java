@@ -30,9 +30,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.fixedfunc.GLPointerFunc;
 
-import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.cache.GpuResourceCache;
-import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Extent;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Matrix;
@@ -46,7 +44,6 @@ import gov.nasa.worldwind.render.OrderedRenderable;
 import gov.nasa.worldwind.render.PolygonTessellator;
 import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.terrain.Terrain;
-import gov.nasa.worldwind.util.Logging;
 
 /**
  * High-performance batched renderer for thousands of 3D extruded buildings.
@@ -65,7 +62,6 @@ public class BuildingBatchRenderer implements Renderable, OrderedRenderable
 {
     // ── LOD altitude thresholds (metres) ─────────────────────────────────────
     private static final double LOD_HIDE_ALL      = 50_000;
-    private static final double LOD_SUPERTALL     = 50_000;
     private static final double LOD_SKYSCRAPER    = 10_000;
     private static final double LOD_HIGH_RISE     = 2_000;
     private static final double LOD_MID_RISE      = 500;
@@ -154,11 +150,8 @@ public class BuildingBatchRenderer implements Renderable, OrderedRenderable
     private Layer pickLayer;
     private final PickSupport pickSupport = new PickSupport();
     private final double[] matrixArray = new double[16];
-    private ByteBuffer pickColors;
-    private final Object pickColorsVboKey = new Object();
     private double maxHeight;
     private volatile Predicate<BuildingRecord> filter = r -> true;
-    private volatile boolean filterDirty;
 
     // Listeners for stats
     private final CopyOnWriteArrayList<Runnable> loadListeners = new CopyOnWriteArrayList<>();
@@ -214,7 +207,6 @@ public class BuildingBatchRenderer implements Renderable, OrderedRenderable
     public void setFilter(Predicate<BuildingRecord> filter)
     {
         this.filter = filter != null ? filter : r -> true;
-        this.filterDirty = true;
         invalidateAllTileGeometry();
     }
 

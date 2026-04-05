@@ -68,7 +68,7 @@ public class BuildingFilterPanel extends JPanel
     // ── Detail panel (shown on building click) ────────────────────────────
     private final JPanel detailPanel;
     private final JLabel detailLabel;
-    private BuildingRecord detailRecord;
+    private volatile BuildingRecord detailRecord;
 
     // ── Address geocode ─────────────────────────────────────────────────────
     private final JTextField addressField;
@@ -277,25 +277,32 @@ public class BuildingFilterPanel extends JPanel
         StringBuilder html = new StringBuilder("<html><div style='width:200px'>");
 
         if (!record.getName().isEmpty())
-            html.append("<b>").append(record.getName()).append("</b><br>");
+            html.append("<b>").append(esc(record.getName())).append("</b><br>");
         else
-            html.append("<b>").append(record.getBuildingType()).append("</b><br>");
+            html.append("<b>").append(esc(record.getBuildingType())).append("</b><br>");
 
         html.append("<br>");
         html.append(String.format("Height: %.0f m (%d floors)<br>",
             record.getHeightMeters(), record.getLevels()));
-        html.append("Category: ").append(record.getCategory().getDisplayName()).append("<br>");
-        html.append("Type: ").append(record.getBuildingType()).append("<br>");
+        html.append("Category: ").append(esc(record.getCategory().getDisplayName())).append("<br>");
+        html.append("Type: ").append(esc(record.getBuildingType())).append("<br>");
 
         if (address != null && !address.isEmpty())
-            html.append("Address: ").append(address).append("<br>");
+            html.append("Address: ").append(esc(address)).append("<br>");
         else if (address == null)
             html.append("<i>Looking up address...</i><br>");
 
-        html.append("<br><small>").append(record.getId()).append("</small>");
+        html.append("<br><small>").append(esc(record.getId())).append("</small>");
         html.append("</div></html>");
 
         return html.toString();
+    }
+
+    /** Escape HTML special characters in external data. */
+    private static String esc(String s)
+    {
+        if (s == null) return "";
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     public void setSourceInfo(String label, boolean live)

@@ -51,7 +51,6 @@ public class VesselIconGenerator
         Color outline = Color.WHITE;
 
         int cx = SIZE / 2;
-        int cy = SIZE / 2;
 
         switch (category)
         {

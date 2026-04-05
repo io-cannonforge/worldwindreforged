@@ -180,7 +180,6 @@ public class CsvReplayDataSource implements AISDataSource
 
         int mmsiBase = 230000000; // Finland MMSI range
         long baseTime = System.currentTimeMillis();
-        int vesselId = 0;
 
         // Generate 30 frames of data (each represents a 30-second update)
         for (int frame = 0; frame < 30; frame++)

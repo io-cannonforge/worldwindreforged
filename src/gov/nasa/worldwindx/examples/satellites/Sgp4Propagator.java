@@ -31,11 +31,9 @@ public class Sgp4Propagator
 {
     // ── WGS-84 / SGP4 Constants ──────────────────────────────────────────────
 
-    private static final double MU      = 398600.4418;     // km^3/s^2
     private static final double RE      = 6378.137;        // Earth equatorial radius km
     private static final double J2      = 1.08262998905e-3;
     private static final double J3      = -2.53215306e-6;
-    private static final double J4      = -1.61098761e-6;
     private static final double TWO_PI  = 2.0 * Math.PI;
     private static final double DEG2RAD = Math.PI / 180.0;
     private static final double MIN_PER_DAY = 1440.0;
@@ -44,7 +42,6 @@ public class Sgp4Propagator
     private static final double XKE    = 0.0743669161;  // sqrt(MU) in er^3/min^2
     private static final double VKMPS  = RE * XKE / 60.0; // velocity factor: er/min to km/s
     private static final double CK2    = 0.5 * J2;
-    private static final double CK4    = -0.375 * J4;
     private static final double A3OVK2 = -J3 / CK2;
     private static final double QOMS2T = 1.880279159015270643865e-9; // (qo - so)^4 in er^4
 
@@ -66,7 +63,7 @@ public class Sgp4Propagator
     private final double bstar;
 
     // Precomputed constants
-    private final double cosio, sinio, theta2, xi, eta, eeta, aodp, s4, tsi, c1, c3, c4, c5;
+    private final double cosio, sinio, theta2, xi, eta, eeta, aodp, tsi, c1, c4, c5;
     private final double d2, d3, d4, t3cof, t4cof, t5cof;
     private final double omegadot, xnodot, xmdot;
     private boolean isDeepSpace;
@@ -117,8 +114,6 @@ public class Sgp4Propagator
         {
             s = perigee <= 98.0 ? 20.0 / RE + 1.0 : (perigee - 78.0) / RE + 1.0;
         }
-        this.s4 = s;
-
         double pinvsq = 1.0 / (aodp * aodp * betao2 * betao2);
         tsi = 1.0 / (aodp - s);
         eta = aodp * eo * tsi;
@@ -131,7 +126,6 @@ public class Sgp4Propagator
         double c2 = coef1 * xnodp * (aodp * (1.0 + 1.5 * etasq + eeta * (4.0 + etasq))
             + 0.75 * CK2 * tsi / psisq * x3thm1 * (8.0 + 3.0 * etasq * (8.0 + etasq)));
         c1 = bstar * c2;
-        c3 = coef * tsi * A3OVK2 * xnodp * sinio / eo;
         c4 = 2.0 * xnodp * coef1 * aodp * betao2
             * (eta * (2.0 + 0.5 * etasq) + eo * (0.5 + 2.0 * etasq)
             - 2.0 * CK2 * tsi / (aodp * psisq)
@@ -144,7 +138,6 @@ public class Sgp4Propagator
 
         // Secular rates
         double temp1 = CK2 * pinvsq;
-        double temp2 = temp1 * pinvsq * xnodp;
         double temp3 = 1.5 * temp1 * xnodp;
         xmdot = xnodp + 0.5 * temp3 * betao * x3thm1;
         omegadot = -0.5 * temp3 * (1.0 - 5.0 * theta2);
@@ -204,8 +197,6 @@ public class Sgp4Propagator
         // Handle higher-order terms only for significant drag
         if (!isDeepSpace)
         {
-            double delomg = 0;
-            double delm = 0;
             double tcube = tsq * tsince;
             double tfour = tsince * tcube;
 

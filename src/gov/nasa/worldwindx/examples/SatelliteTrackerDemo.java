@@ -23,7 +23,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;

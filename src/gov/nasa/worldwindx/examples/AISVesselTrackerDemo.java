@@ -14,26 +14,18 @@ package gov.nasa.worldwindx.examples;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.util.Map;
 
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.pick.PickedObject;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.ais.AISDataSource;
@@ -43,7 +35,6 @@ import gov.nasa.worldwindx.examples.ais.VesselFilterPanel;
 import gov.nasa.worldwindx.examples.ais.VesselInfo;
 import gov.nasa.worldwindx.examples.ais.VesselManager;
 import gov.nasa.worldwindx.examples.ais.VesselPosition;
-import gov.nasa.worldwindx.examples.util.WWStyle;
 
 /**
  * Real-time AIS maritime vessel tracker using Finland's open Digitraffic API,
@@ -119,6 +110,17 @@ public class AISVesselTrackerDemo extends ApplicationTemplate
             metadataTimer = new Timer(METADATA_INTERVAL_MS, e -> fetchMetadataAsync());
             metadataTimer.setInitialDelay(500); // slight delay after positions
             metadataTimer.start();
+
+            // Stop timers when the window is closed (important for DISPOSE_ON_CLOSE)
+            addWindowListener(new java.awt.event.WindowAdapter()
+            {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e)
+                {
+                    positionTimer.stop();
+                    metadataTimer.stop();
+                }
+            });
         }
 
         // ── Data source initialisation ────────────────────────────────────
@@ -155,12 +157,13 @@ public class AISVesselTrackerDemo extends ApplicationTemplate
                     try
                     {
                         Map<Integer, VesselPosition> positions = get();
-                        if (positions.isEmpty() && dataSource.isLive())
+                        if ((positions == null || positions.isEmpty()) && dataSource.isLive())
                         {
                             switchToCsvFallback();
                             positions = dataSource.fetchPositions();
                         }
-                        vesselManager.updatePositions(positions);
+                        vesselManager.updatePositions(
+                            positions != null ? positions : java.util.Collections.emptyMap());
                         filterPanel.updateCounts();
                     }
                     catch (Exception ex)
@@ -191,7 +194,7 @@ public class AISVesselTrackerDemo extends ApplicationTemplate
                     try
                     {
                         Map<Integer, VesselInfo> info = get();
-                        if (!info.isEmpty())
+                        if (info != null && !info.isEmpty())
                         {
                             vesselManager.updateVesselInfo(info);
                             filterPanel.updateCounts();
@@ -220,7 +223,6 @@ public class AISVesselTrackerDemo extends ApplicationTemplate
                     return;
                 }
 
-                PickedObject po = event.getTopPickedObject();
                 Object topObj = event.getTopObject();
 
                 if (topObj instanceof PointPlacemark pm)

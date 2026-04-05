@@ -22,7 +22,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
@@ -63,9 +62,6 @@ public class AirTrafficDemo extends ApplicationTemplate
     private static final int FETCH_INTERVAL_MS = 10_000;
     /** Smooth interpolation tick interval (ms). */
     private static final int INTERPOLATION_MS = 200;
-    /** Default query radius in nautical miles. */
-    private static final int QUERY_RADIUS_NM = 150;
-
     // ── AppFrame ──────────────────────────────────────────────────────────────
 
     public static class AppFrame extends ApplicationTemplate.AppFrame

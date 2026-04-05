@@ -16,20 +16,18 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 import gov.nasa.worldwind.event.RenderingEvent;
-import gov.nasa.worldwind.event.RenderingListener;
 import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
@@ -85,8 +83,8 @@ public class NYCBuildingsDemo extends ApplicationTemplate
         private BuildingFilterPanel filterPanel;
         private RenderableLayer buildingLayer;
 
-        /** All loaded buildings, keyed by id for dedup. */
-        private final Map<String, BuildingRecord> allBuildings = new LinkedHashMap<>();
+        /** All loaded buildings, keyed by id for dedup. Thread-safe for cross-thread reads. */
+        private final Map<String, BuildingRecord> allBuildings = new ConcurrentHashMap<>();
 
         /** Grid cells that have been fully loaded (all buildings). */
         private final Set<String> loadedCellsAll = new HashSet<>();
@@ -227,20 +225,20 @@ public class NYCBuildingsDemo extends ApplicationTemplate
                 allCells.add(cell);
             }
 
-            // Phase 1: tall buildings first if there are new tall cells
+            // Phase 1: tall buildings first, then chain phase 2 for all buildings
             if (!tallCells.isEmpty())
             {
-                fetchCells(tallCells, true, initialLoad ? "Loading skyline..." : null);
+                fetchCells(tallCells, true, initialLoad ? "Loading skyline..." : null,
+                    () -> { if (!allCells.isEmpty()) fetchCells(allCells, false, null, null); });
             }
-
-            // Phase 2: all buildings
-            if (!allCells.isEmpty())
+            else if (!allCells.isEmpty())
             {
-                fetchCells(allCells, false, null);
+                fetchCells(allCells, false, null, null);
             }
         }
 
-        private void fetchCells(List<double[]> cells, boolean tallOnly, String statusMessage)
+        private void fetchCells(List<double[]> cells, boolean tallOnly, String statusMessage,
+                                Runnable onComplete)
         {
             if (fetching) return;
             fetching = true;
@@ -321,6 +319,9 @@ public class NYCBuildingsDemo extends ApplicationTemplate
                         Logging.logger().warning("Building fetch failed: " + ex.getMessage());
                         filterPanel.setStatus("Fetch error", new Color(210, 70, 70));
                     }
+
+                    if (onComplete != null)
+                        onComplete.run();
                 }
             }.execute();
         }
