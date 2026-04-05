@@ -76,6 +76,10 @@ public class SatelliteFilterPanel extends JPanel
     // ── Search ───────────────────────────────────────────────────────────────
     private final JTextField searchField;
 
+    // ── Detail panel (shown on satellite click) ─────────────────────────────
+    private final JPanel detailPanel;
+    private final JLabel detailLabel;
+
     // ── Clock timer ──────────────────────────────────────────────────────────
     private final Timer clockTimer;
 
@@ -107,6 +111,21 @@ public class SatelliteFilterPanel extends JPanel
         add(headerSection);
         add(vgap(WWStyle.GAP_XS));
 
+        // ── Satellite Detail (hidden until click) ────────────────────────
+        detailPanel = new JPanel();
+        detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+        detailPanel.setBackground(new Color(28, 30, 36));
+        detailPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.setVisible(false);
+
+        detailLabel = new JLabel();
+        detailLabel.setForeground(Color.WHITE);
+        detailLabel.setFont(WWStyle.FONT_BASE);
+        detailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.add(detailLabel);
+        add(detailPanel);
+        add(vgap(WWStyle.GAP_XS));
+
         // ── Live Statistics ───────────────────────────────────────────────
         JPanel statsSection = section("Live Statistics");
         totalLabel   = statLabel(statsSection, "Total:");
@@ -119,9 +138,21 @@ public class SatelliteFilterPanel extends JPanel
 
         // ── ISS Quick Track ──────────────────────────────────────────────
         JPanel issSection = section("Quick Track");
-        javax.swing.JButton issButton = WWStyle.accentButton("Track ISS");
+        javax.swing.JButton issButton = WWStyle.accentButton("\u25B6 Track ISS");
         issButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-        issButton.addActionListener(e -> followCallback.accept(25544));
+        issButton.addActionListener(e ->
+        {
+            if (manager.getFollowId() != null && manager.getFollowId() == 25544)
+            {
+                manager.setFollowId(null);
+                issButton.setText("\u25B6 Track ISS");
+            }
+            else
+            {
+                followCallback.accept(25544);
+                issButton.setText("\u25A0 Stop Tracking");
+            }
+        });
         issSection.add(issButton);
         add(issSection);
         add(vgap(WWStyle.GAP_XS));
@@ -151,19 +182,19 @@ public class SatelliteFilterPanel extends JPanel
         // ── Display Options ──────────────────────────────────────────────
         JPanel displaySection = section("Display");
 
-        showOrbitsBox = WWStyle.checkBox("Orbit Paths", true);
+        showOrbitsBox = WWStyle.checkBox("Orbit Paths", false);
         showOrbitsBox.addActionListener(e -> manager.setShowOrbits(showOrbitsBox.isSelected()));
 
-        showGroundTracksBox = WWStyle.checkBox("Ground Tracks", true);
+        showGroundTracksBox = WWStyle.checkBox("Ground Tracks", false);
         showGroundTracksBox.addActionListener(e -> manager.setShowGroundTracks(showGroundTracksBox.isSelected()));
 
         showFootprintsBox = WWStyle.checkBox("Footprints", false);
         showFootprintsBox.addActionListener(e -> manager.setShowFootprints(showFootprintsBox.isSelected()));
 
-        showDropLinesBox = WWStyle.checkBox("Drop Lines", true);
+        showDropLinesBox = WWStyle.checkBox("Drop Lines", false);
         showDropLinesBox.addActionListener(e -> manager.setShowDropLines(showDropLinesBox.isSelected()));
 
-        showLeadersBox = WWStyle.checkBox("Speed Leaders", true);
+        showLeadersBox = WWStyle.checkBox("Speed Leaders", false);
         showLeadersBox.addActionListener(e -> manager.setShowLeaders(showLeadersBox.isSelected()));
 
         showLabelsBox = WWStyle.checkBox("Labels", true);
@@ -216,9 +247,76 @@ public class SatelliteFilterPanel extends JPanel
         // ── Clock update timer ───────────────────────────────────────────
         clockTimer = new Timer(1000, e -> clockLabel.setText(UTC_FORMAT.format(Instant.now()) + " UTC"));
         clockTimer.start();
+
+        // Apply initial checkbox state so unchecked categories (Starlink,
+        // Debris) are filtered out from the start.
+        applyFilters();
     }
 
     // ── Public API ───────────────────────────────────────────────────────────
+
+    /**
+     * Show satellite detail in a panel at the top of the filter area.
+     * seaglassfoundry.com — moved from WorldWind annotation to Swing panel
+     */
+    public void showDetail(int noradId)
+    {
+        TleRecord tle = manager.getTle(noradId);
+        SatellitePosition sp = manager.getPosition(noradId);
+        if (tle == null || sp == null) return;
+
+        SatelliteCategory cat = tle.getCategory();
+
+        StringBuilder html = new StringBuilder("<html><div style='width:200px'>");
+        html.append("<b>").append(tle.getDisplayName()).append("</b><br>");
+        html.append("<font color='").append(colorHex(cat.getColor())).append("'>")
+            .append(cat.getDisplayName()).append("</font><br><br>");
+
+        html.append("NORAD ID: ").append(tle.getNoradCatId()).append("<br>");
+        if (!tle.getIntlDesignator().isEmpty())
+            html.append("Intl Des: ").append(tle.getIntlDesignator()).append("<br>");
+
+        html.append("<br>");
+        html.append(String.format("Altitude: %.1f km<br>", sp.getAltitudeKm()));
+        html.append(String.format("Velocity: %.2f km/s<br>", sp.getVelocityKmS()));
+        html.append(String.format("Inclination: %.2f\u00B0<br>", tle.getInclinationDeg()));
+        html.append(String.format("Period: %.1f min<br>", tle.getPeriodMinutes()));
+        html.append(String.format("Apogee: %.0f km<br>", tle.getApogeeKm()));
+        html.append(String.format("Perigee: %.0f km<br>", tle.getPerigeeKm()));
+        html.append(String.format("Orbit Type: %s<br>", sp.getOrbitType()));
+
+        html.append("<br>");
+        html.append(String.format("Lat: %.4f\u00B0<br>", sp.getLatDeg()));
+        html.append(String.format("Lon: %.4f\u00B0<br>", sp.getLonDeg()));
+        html.append(String.format("Azimuth: %.1f\u00B0<br>", sp.getAzimuthDeg()));
+
+        if (sp.isEclipsed())
+            html.append("<br><i>In Earth's shadow</i><br>");
+
+        html.append("</div></html>");
+
+        SwingUtilities.invokeLater(() ->
+        {
+            detailLabel.setText(html.toString());
+            detailPanel.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createLineBorder(cat.getColor(), 2),
+                javax.swing.BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+            detailPanel.setVisible(true);
+            revalidate();
+            repaint();
+        });
+    }
+
+    /** Hide the satellite detail panel. */
+    public void hideDetail()
+    {
+        SwingUtilities.invokeLater(() ->
+        {
+            detailPanel.setVisible(false);
+            revalidate();
+            repaint();
+        });
+    }
 
     public void updateStats()
     {
@@ -335,5 +433,11 @@ public class SatelliteFilterPanel extends JPanel
         p.setPreferredSize(new Dimension(0, height));
         p.setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
         return p;
+    }
+
+    /** Convert a Color to #RRGGBB hex for use in HTML labels. */
+    private static String colorHex(Color c)
+    {
+        return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
     }
 }

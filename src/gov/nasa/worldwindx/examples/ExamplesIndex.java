@@ -245,6 +245,7 @@ public class ExamplesIndex extends JFrame {
         });
 
         CATEGORIES.put("Advanced / GPU", new ExampleEntry[]{
+            new ExampleEntry("NYC Buildings 3D",       BASE + "NYCBuildingsDemo",               "3D extruded buildings of NYC from Open Data — batched VBO rendering, view-based loading, height LOD, interactive filtering, and address geocoding.", "New"),
             new ExampleEntry("Analytic Surface Demo",  BASE + "analytics.AnalyticSurfaceDemo",  "Color-mapped analytic surface rendered from 2D numeric data grids."),
             new ExampleEntry("Measure Tool",           BASE + "MeasureToolUsage",               "Interactive measurement tool with per-segment distances, cumulative totals, bearings, elevation, terrain profile, multi-tab support, and clipboard export.", "New"),
             new ExampleEntry("Grid Of Points",         BASE + "lineofsight.GridOfPoints",       "Sample terrain intersection for a grid of observer positions."),

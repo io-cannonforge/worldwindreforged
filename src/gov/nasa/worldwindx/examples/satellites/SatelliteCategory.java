@@ -81,19 +81,22 @@ public enum SatelliteCategory
         if (name == null) name = "";
         String upper = name.toUpperCase().trim();
 
-        // Space stations by NORAD ID
+        // Debris / rocket bodies — check BEFORE name-based station matching so
+        // "ISS DEB", "CZ-5B R/B", etc. are not misclassified as space stations
+        if (upper.contains(" DEB") || upper.contains(" R/B") || upper.startsWith("R/B"))
+            return DEBRIS;
+
+        // Space stations by primary NORAD ID (one entry per station)
         if (noradId == 25544 || noradId == 48274)
             return SPACE_STATION;
-        if (upper.contains("ISS") || upper.contains("TIANGONG") || upper.contains("CSS "))
+        // Tiangong / CSS by name (not ISS — CelesTrak carries dozens of ISS module
+        // TLEs like "ISS (NAUKA)" that co-orbit and produce overlapping labels)
+        if (upper.contains("TIANGONG") || upper.contains("CSS "))
             return SPACE_STATION;
 
         // Starlink (check early — there are thousands)
         if (upper.contains("STARLINK"))
             return STARLINK;
-
-        // Debris / rocket bodies
-        if (upper.contains(" DEB") || upper.contains(" R/B") || upper.startsWith("R/B"))
-            return DEBRIS;
 
         // Navigation / GNSS
         if (upper.contains("GPS ") || upper.contains("NAVSTAR") || upper.contains("GLONASS")

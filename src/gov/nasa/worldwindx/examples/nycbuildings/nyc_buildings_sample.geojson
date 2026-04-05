@@ -1,0 +1,155 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "way/34633854", "name": "Empire State Building", "building": "office", "height": "443", "building:levels": "102", "addr:street": "Fifth Avenue", "addr:housenumber": "350" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9857, 40.7484], [-73.9853, 40.7484], [-73.9853, 40.7488], [-73.9857, 40.7488], [-73.9857, 40.7484]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/34633900", "name": "Chrysler Building", "building": "office", "height": "319", "building:levels": "77", "addr:street": "Lexington Avenue", "addr:housenumber": "405" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9755, 40.7516], [-73.9751, 40.7516], [-73.9751, 40.7520], [-73.9755, 40.7520], [-73.9755, 40.7516]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768896", "name": "One Vanderbilt", "building": "office", "height": "427", "building:levels": "67", "addr:street": "Vanderbilt Avenue", "addr:housenumber": "1" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9790, 40.7528], [-73.9786, 40.7528], [-73.9786, 40.7532], [-73.9790, 40.7532], [-73.9790, 40.7528]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/34633950", "name": "30 Rockefeller Plaza", "building": "office", "height": "259", "building:levels": "70", "addr:street": "Rockefeller Plaza", "addr:housenumber": "30" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9797, 40.7589], [-73.9793, 40.7589], [-73.9793, 40.7594], [-73.9797, 40.7594], [-73.9797, 40.7589]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/161211540", "name": "Bank of America Tower", "building": "office", "height": "366", "building:levels": "55", "addr:street": "Avenue of the Americas", "addr:housenumber": "1101" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9847, 40.7555], [-73.9843, 40.7555], [-73.9843, 40.7559], [-73.9847, 40.7559], [-73.9847, 40.7555]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/34633960", "name": "MetLife Building", "building": "office", "height": "246", "building:levels": "59", "addr:street": "Park Avenue", "addr:housenumber": "200" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9766, 40.7536], [-73.9760, 40.7536], [-73.9760, 40.7542], [-73.9766, 40.7542], [-73.9766, 40.7536]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768900", "name": "One World Trade Center", "building": "office", "height": "541", "building:levels": "104", "addr:street": "Fulton Street", "addr:housenumber": "285" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-74.0133, 40.7127], [-74.0129, 40.7127], [-74.0129, 40.7131], [-74.0133, 40.7131], [-74.0133, 40.7127]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768905", "name": "432 Park Avenue", "building": "residential", "height": "426", "building:levels": "85", "addr:street": "Park Avenue", "addr:housenumber": "432" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9714, 40.7614], [-73.9712, 40.7614], [-73.9712, 40.7617], [-73.9714, 40.7617], [-73.9714, 40.7614]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768910", "name": "Central Park Tower", "building": "residential", "height": "472", "building:levels": "98", "addr:street": "West 57th Street", "addr:housenumber": "217" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9810, 40.7663], [-73.9807, 40.7663], [-73.9807, 40.7667], [-73.9810, 40.7667], [-73.9810, 40.7663]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768915", "name": "30 Hudson Yards", "building": "office", "height": "395", "building:levels": "73", "addr:street": "Hudson Yards", "addr:housenumber": "30" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-74.0008, 40.7536], [-74.0003, 40.7536], [-74.0003, 40.7541], [-74.0008, 40.7541], [-74.0008, 40.7536]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768920", "name": "Times Square Tower", "building": "office", "height": "221", "building:levels": "47", "addr:street": "Broadway", "addr:housenumber": "7" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9852, 40.7569], [-73.9848, 40.7569], [-73.9848, 40.7573], [-73.9852, 40.7573], [-73.9852, 40.7569]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768925", "name": "Citigroup Center", "building": "office", "height": "279", "building:levels": "59", "addr:street": "Lexington Avenue", "addr:housenumber": "601" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9713, 40.7580], [-73.9708, 40.7580], [-73.9708, 40.7585], [-73.9713, 40.7585], [-73.9713, 40.7580]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768930", "name": "Conde Nast Building", "building": "office", "height": "247", "building:levels": "48", "addr:street": "Broadway", "addr:housenumber": "4" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9858, 40.7558], [-73.9854, 40.7558], [-73.9854, 40.7563], [-73.9858, 40.7563], [-73.9858, 40.7558]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768935", "name": "One Penn Plaza", "building": "office", "height": "228", "building:levels": "57", "addr:street": "Penn Plaza", "addr:housenumber": "1" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9929, 40.7512], [-73.9924, 40.7512], [-73.9924, 40.7517], [-73.9929, 40.7517], [-73.9929, 40.7512]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "way/264768940", "name": "56 Leonard Street", "building": "residential", "height": "250", "building:levels": "57", "addr:street": "Leonard Street", "addr:housenumber": "56" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-74.0066, 40.7179], [-74.0063, 40.7179], [-74.0063, 40.7182], [-74.0066, 40.7182], [-74.0066, 40.7179]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/1", "building": "residential", "height": "45", "building:levels": "13" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9870, 40.7490], [-73.9866, 40.7490], [-73.9866, 40.7493], [-73.9870, 40.7493], [-73.9870, 40.7490]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/2", "building": "commercial", "height": "35", "building:levels": "10" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9840, 40.7500], [-73.9836, 40.7500], [-73.9836, 40.7503], [-73.9840, 40.7503], [-73.9840, 40.7500]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/3", "building": "apartments", "height": "55", "building:levels": "16" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9825, 40.7510], [-73.9821, 40.7510], [-73.9821, 40.7514], [-73.9825, 40.7514], [-73.9825, 40.7510]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/4", "building": "office", "height": "120", "building:levels": "34" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9805, 40.7520], [-73.9800, 40.7520], [-73.9800, 40.7525], [-73.9805, 40.7525], [-73.9805, 40.7520]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/5", "building": "residential", "height": "25", "building:levels": "7" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9790, 40.7495], [-73.9787, 40.7495], [-73.9787, 40.7498], [-73.9790, 40.7498], [-73.9790, 40.7495]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/6", "building": "office", "height": "85", "building:levels": "24" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9775, 40.7545], [-73.9771, 40.7545], [-73.9771, 40.7549], [-73.9775, 40.7549], [-73.9775, 40.7545]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/7", "building": "commercial", "height": "40", "building:levels": "11" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9760, 40.7555], [-73.9756, 40.7555], [-73.9756, 40.7558], [-73.9760, 40.7558], [-73.9760, 40.7555]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/8", "building": "residential", "height": "68", "building:levels": "19" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9745, 40.7565], [-73.9741, 40.7565], [-73.9741, 40.7569], [-73.9745, 40.7569], [-73.9745, 40.7565]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/9", "building": "office", "height": "155", "building:levels": "44" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9830, 40.7575], [-73.9826, 40.7575], [-73.9826, 40.7580], [-73.9830, 40.7580], [-73.9830, 40.7575]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "mid/10", "building": "apartments", "height": "30", "building:levels": "9" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9815, 40.7600], [-73.9812, 40.7600], [-73.9812, 40.7603], [-73.9815, 40.7603], [-73.9815, 40.7600]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "low/1", "building": "residential", "height": "12", "building:levels": "3" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9900, 40.7480], [-73.9897, 40.7480], [-73.9897, 40.7482], [-73.9900, 40.7482], [-73.9900, 40.7480]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "low/2", "building": "house", "height": "8", "building:levels": "2" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9890, 40.7475], [-73.9888, 40.7475], [-73.9888, 40.7477], [-73.9890, 40.7477], [-73.9890, 40.7475]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "low/3", "building": "commercial", "height": "10", "building:levels": "3" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9880, 40.7470], [-73.9877, 40.7470], [-73.9877, 40.7473], [-73.9880, 40.7473], [-73.9880, 40.7470]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "low/4", "building": "retail", "height": "6", "building:levels": "2" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9870, 40.7465], [-73.9868, 40.7465], [-73.9868, 40.7467], [-73.9870, 40.7467], [-73.9870, 40.7465]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": "low/5", "building": "residential", "height": "14", "building:levels": "4" },
+      "geometry": { "type": "Polygon", "coordinates": [[[-73.9860, 40.7460], [-73.9857, 40.7460], [-73.9857, 40.7463], [-73.9860, 40.7463], [-73.9860, 40.7460]]] }
+    }
+  ]
+}

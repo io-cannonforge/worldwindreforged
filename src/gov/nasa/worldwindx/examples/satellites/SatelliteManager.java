@@ -16,6 +16,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,9 @@ import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.pick.PickSupport;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Material;
 import gov.nasa.worldwind.render.Offset;
 import gov.nasa.worldwind.render.Path;
@@ -74,11 +77,11 @@ public class SatelliteManager
     // ── Filters & options ────────────────────────────────────────────────────
 
     private volatile Predicate<Integer> filterPredicate = id -> true;
-    private volatile boolean showOrbits = true;
-    private volatile boolean showGroundTracks = true;
-    private volatile boolean showFootprints = false;  // off by default (perf)
-    private volatile boolean showDropLines = true;
-    private volatile boolean showLeaders = true;
+    private volatile boolean showOrbits = false;
+    private volatile boolean showGroundTracks = false;
+    private volatile boolean showFootprints = false;
+    private volatile boolean showDropLines = false;
+    private volatile boolean showLeaders = false;
     private volatile boolean showLabels = true;
 
     /** Currently followed satellite NORAD ID, or null. */
@@ -110,10 +113,32 @@ public class SatelliteManager
      */
     public void updateTLEs(Map<Integer, TleRecord> newTles)
     {
-        for (Map.Entry<Integer, TleRecord> entry : newTles.entrySet())
+        // Track object names we've already accepted so co-orbiting duplicates
+        // (e.g. SOYUZ-MS 28 capsule + booster, PROGRESS-MS debris) don't
+        // produce overlapping labels. Keep the lowest NORAD ID (primary object).
+        Set<String> seenNames = new HashSet<>();
+
+        // Process entries in NORAD ID order so the primary (lowest ID) wins
+        List<Map.Entry<Integer, TleRecord>> sorted = new ArrayList<>(newTles.entrySet());
+        sorted.sort(Map.Entry.comparingByKey());
+
+        for (Map.Entry<Integer, TleRecord> entry : sorted)
         {
             int id = entry.getKey();
             TleRecord tle = entry.getValue();
+
+            // Skip ISS co-orbiting module TLEs (NAUKA, ZARYA, etc.) — they all
+            // orbit at the same position and produce overlapping labels. Keep only
+            // the primary ISS object (NORAD 25544).
+            if (id != 25544 && tle.getObjectName().toUpperCase().startsWith("ISS "))
+                continue;
+
+            // Skip duplicate object names — CelesTrak lists separate catalogue
+            // entries for a spacecraft and its booster/debris with the same name
+            String nameKey = tle.getObjectName().toUpperCase();
+            if (!nameKey.isEmpty() && !seenNames.add(nameKey))
+                continue;
+
             tleData.put(id, tle);
             propagators.put(id, new Sgp4Propagator(tle));
         }
@@ -278,18 +303,14 @@ public class SatelliteManager
 
     private PointPlacemark createPlacemark(int id, SatellitePosition sp, Position pos)
     {
-        PointPlacemark pm = new PointPlacemark(pos);
-        pm.setValue("noradId", id);
-        pm.setAltitudeMode(WorldWind.ABSOLUTE);
-        stylePlacemark(pm, id, sp, LOD_FAR); // default to far LOD
-        return pm;
-    }
-
-    private void stylePlacemark(PointPlacemark pm, int id, SatellitePosition sp, double eyeAlt)
-    {
         TleRecord tle = tleData.get(id);
         SatelliteCategory cat = tle != null ? tle.getCategory() : SatelliteCategory.OTHER;
 
+        PointPlacemark pm = new SatellitePlacemark(pos);
+        pm.setValue("noradId", id);
+        pm.setAltitudeMode(WorldWind.ABSOLUTE);
+
+        // Create attributes once — updated in place by stylePlacemark
         PointPlacemarkAttributes attrs = new PointPlacemarkAttributes();
         attrs.setImageAddress(cat.getIconPath());
         attrs.setScale(cat == SatelliteCategory.SPACE_STATION ? 1.0 : 0.65);
@@ -301,16 +322,23 @@ public class SatelliteManager
         attrs.setLabelColor(colorToHex(cat.getColor()));
         pm.setAttributes(attrs);
 
-        // Label based on LOD
-        if (showLabels && (eyeAlt < LOD_MED || cat == SatelliteCategory.SPACE_STATION
+        return pm;
+    }
+
+    private void stylePlacemark(PointPlacemark pm, int id, SatellitePosition sp, double eyeAlt)
+    {
+        // Update heading in place — no new attributes object per tick
+        PointPlacemarkAttributes attrs = pm.getAttributes();
+        attrs.setHeading(sp.getAzimuthDeg());
+
+        // Labels by distance — always show for space stations and followed satellite
+        if (showLabels && (eyeAlt < LOD_MED
+            || tleData.containsKey(id) && tleData.get(id).getCategory() == SatelliteCategory.SPACE_STATION
             || id == (followId != null ? followId : -1)))
         {
+            TleRecord tle = tleData.get(id);
             String label = tle != null ? tle.getDisplayName() : String.valueOf(id);
             pm.setLabelText(String.format("%s  %.0f km", label, sp.getAltitudeKm()));
-        }
-        else if (showLabels && eyeAlt < LOD_FAR && cat == SatelliteCategory.SPACE_STATION)
-        {
-            pm.setLabelText(tle != null ? tle.getDisplayName() : "");
         }
         else
         {
@@ -606,9 +634,40 @@ public class SatelliteManager
 
     // ── Utility ──────────────────────────────────────────────────────────────
 
+    /** Encode colour as AABBGGRR hex string (KML order expected by WorldWind). */
     private static String colorToHex(Color c)
     {
-        return String.format("%02x%02x%02x%02x", c.getAlpha(), c.getRed(), c.getGreen(), c.getBlue());
+        return String.format("%02x%02x%02x%02x", c.getAlpha(), c.getBlue(), c.getGreen(), c.getRed());
+    }
+
+    // ── Placemark subclass: prevent duplicate label draws per frame ────────
+
+    /**
+     * At low camera pitch WorldWind splits the view frustum and calls render()
+     * once per segment, each adding an OrderedPlacemark to the draw queue.
+     * The label is drawn for every queued entry, producing visible duplicates.
+     * This subclass skips the redundant label draw.
+     *
+     * seaglassfoundry.com
+     */
+    private static class SatellitePlacemark extends PointPlacemark
+    {
+        private long lastLabelFrame = -1;
+
+        SatellitePlacemark(Position position)
+        {
+            super(position);
+        }
+
+        @Override
+        protected void drawLabel(DrawContext dc, PickSupport pickCandidates, OrderedPlacemark opm)
+        {
+            long frame = dc.getFrameTimeStamp();
+            if (frame == lastLabelFrame)
+                return;
+            lastLabelFrame = frame;
+            super.drawLabel(dc, pickCandidates, opm);
+        }
     }
 
     // ── Altitude-graded orbit colours ────────────────────────────────────────

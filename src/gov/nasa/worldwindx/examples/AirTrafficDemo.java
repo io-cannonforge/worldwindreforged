@@ -27,10 +27,8 @@ import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.util.Logging;
-import gov.nasa.worldwindx.examples.airtraffic.AircraftCategory;
 import gov.nasa.worldwindx.examples.airtraffic.AircraftFilterPanel;
 import gov.nasa.worldwindx.examples.airtraffic.AircraftManager;
 import gov.nasa.worldwindx.examples.airtraffic.AircraftPosition;
@@ -82,7 +80,6 @@ public class AirTrafficDemo extends ApplicationTemplate
         private Timer interpolationTimer;
         private long lastFetchTime = 0;
 
-        private GlobeAnnotation detailAnnotation;
         private boolean showMilitaryGlobal = false;
 
         public AppFrame()
@@ -260,93 +257,12 @@ public class AirTrafficDemo extends ApplicationTemplate
 
         private void showDetail(String hex, Position pos)
         {
-            AircraftPosition ac = manager.getAircraft(hex);
-            if (ac == null) return;
-
-            StringBuilder html = new StringBuilder();
-
-            // Header with callsign
-            html.append("<b style=\"font-size:14px\">").append(ac.getDisplayLabel()).append("</b>");
-            if (ac.isEmergency())
-                html.append("  <b style=\"color:#FF3333\">\u26A0 EMERGENCY</b>");
-            html.append("<br/>");
-
-            // Aircraft type
-            if (!ac.getTypeDesc().isEmpty())
-                html.append(ac.getTypeDesc()).append("<br/>");
-            else if (!ac.getTypeCode().isEmpty())
-                html.append("Type: ").append(ac.getTypeCode()).append("<br/>");
-
-            // Operator
-            if (!ac.getOperator().isEmpty())
-                html.append(ac.getOperator()).append("<br/>");
-
-            html.append("<br/>");
-
-            // Position data
-            if (ac.isOnGround())
-                html.append("On Ground<br/>");
-            else
-                html.append(String.format("Altitude: %,.0f ft (FL%03d)<br/>",
-                    ac.getAltitudeFeet(), (int)(ac.getAltitudeFeet() / 100)));
-
-            html.append(String.format("Speed: %.0f kt<br/>", ac.getGroundSpeed()));
-            html.append(String.format("Track: %.0f\u00B0<br/>", ac.getTrack()));
-
-            if (ac.getVerticalRate() != 0)
-            {
-                String arrow = ac.getVerticalRate() > 0 ? "\u2191" : "\u2193";
-                html.append(String.format("Vertical: %s %,.0f ft/min<br/>",
-                    arrow, ac.getVerticalRate()));
-            }
-
-            html.append("<br/>");
-
-            // Identity
-            if (!ac.getRegistration().isEmpty())
-                html.append("Reg: ").append(ac.getRegistration()).append("<br/>");
-            html.append("ICAO: ").append(ac.getHex().toUpperCase()).append("<br/>");
-            if (!ac.getSquawk().isEmpty())
-                html.append("Squawk: ").append(ac.getSquawk()).append("<br/>");
-            if (ac.isMilitary())
-                html.append("<b style=\"color:#FF6666\">MILITARY</b><br/>");
-
-            // detail only — no follow camera
-
-            if (detailAnnotation != null)
-            {
-                detailAnnotation.setText(html.toString());
-                detailAnnotation.setPosition(pos);
-            }
-            else
-            {
-                detailAnnotation = new GlobeAnnotation(html.toString(), pos);
-                detailAnnotation.getAttributes().setBackgroundColor(new Color(20, 22, 28, 230));
-                detailAnnotation.getAttributes().setTextColor(Color.WHITE);
-                detailAnnotation.getAttributes().setBorderColor(new Color(80, 120, 200));
-                detailAnnotation.getAttributes().setBorderWidth(2);
-                detailAnnotation.getAttributes().setCornerRadius(10);
-                detailAnnotation.getAttributes().setInsets(new java.awt.Insets(10, 14, 10, 14));
-                detailAnnotation.getAttributes().setFont(new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
-                detailAnnotation.setAlwaysOnTop(true);
-
-                RenderableLayer layer = (RenderableLayer) getWwd().getModel().getLayers()
-                    .getLayerByName("Aircraft");
-                if (layer != null) layer.addRenderable(detailAnnotation);
-            }
-            getWwd().redraw();
+            filterPanel.showDetail(hex);
         }
 
         private void hideDetail()
         {
-            if (detailAnnotation != null)
-            {
-                RenderableLayer layer = (RenderableLayer) getWwd().getModel().getLayers()
-                    .getLayerByName("Aircraft");
-                if (layer != null) layer.removeRenderable(detailAnnotation);
-                detailAnnotation = null;
-                getWwd().redraw();
-            }
+            filterPanel.hideDetail();
         }
 
         // ── Control panel setup ───────────────────────────────────────────

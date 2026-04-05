@@ -28,12 +28,10 @@ import gov.nasa.worldwind.event.SelectEvent;
 import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.GlobeAnnotation;
 import gov.nasa.worldwind.render.PointPlacemark;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwindx.examples.satellites.BundledTleDataSource;
 import gov.nasa.worldwindx.examples.satellites.CelestrakDataSource;
-import gov.nasa.worldwindx.examples.satellites.SatelliteCategory;
 import gov.nasa.worldwindx.examples.satellites.SatelliteDataSource;
 import gov.nasa.worldwindx.examples.satellites.SatelliteFilterPanel;
 import gov.nasa.worldwindx.examples.satellites.SatelliteManager;
@@ -84,7 +82,6 @@ public class SatelliteTrackerDemo extends ApplicationTemplate
         private Timer fetchTimer;
         private Timer propagationTimer;
 
-        private GlobeAnnotation detailAnnotation;
 
         public AppFrame()
         {
@@ -269,82 +266,12 @@ public class SatelliteTrackerDemo extends ApplicationTemplate
 
         private void showDetail(int noradId, Position pos)
         {
-            TleRecord tle = manager.getTle(noradId);
-            SatellitePosition sp = manager.getPosition(noradId);
-            if (tle == null || sp == null) return;
-
-            StringBuilder html = new StringBuilder();
-
-            // Header
-            html.append("<b style=\"font-size:14px\">").append(tle.getDisplayName()).append("</b><br/>");
-
-            // Category
-            SatelliteCategory cat = tle.getCategory();
-            html.append(cat.getDisplayName()).append("<br/>");
-
-            // Identity
-            html.append("<br/>");
-            html.append("NORAD ID: ").append(tle.getNoradCatId()).append("<br/>");
-            if (!tle.getIntlDesignator().isEmpty())
-                html.append("Intl Des: ").append(tle.getIntlDesignator()).append("<br/>");
-
-            // Orbital parameters
-            html.append("<br/>");
-            html.append(String.format("Altitude: %.1f km<br/>", sp.getAltitudeKm()));
-            html.append(String.format("Velocity: %.2f km/s<br/>", sp.getVelocityKmS()));
-            html.append(String.format("Inclination: %.2f\u00B0<br/>", tle.getInclinationDeg()));
-            html.append(String.format("Period: %.1f min<br/>", tle.getPeriodMinutes()));
-            html.append(String.format("Apogee: %.0f km<br/>", tle.getApogeeKm()));
-            html.append(String.format("Perigee: %.0f km<br/>", tle.getPerigeeKm()));
-            html.append(String.format("Orbit Type: %s<br/>", sp.getOrbitType()));
-
-            // Position
-            html.append("<br/>");
-            html.append(String.format("Lat: %.4f\u00B0<br/>", sp.getLatDeg()));
-            html.append(String.format("Lon: %.4f\u00B0<br/>", sp.getLonDeg()));
-            html.append(String.format("Azimuth: %.1f\u00B0<br/>", sp.getAzimuthDeg()));
-
-            if (sp.isEclipsed())
-                html.append("<br/><i>In Earth's shadow</i><br/>");
-
-            Color borderColor = cat.getColor();
-
-            if (detailAnnotation != null)
-            {
-                detailAnnotation.setText(html.toString());
-                detailAnnotation.setPosition(pos);
-                detailAnnotation.getAttributes().setBorderColor(borderColor);
-            }
-            else
-            {
-                detailAnnotation = new GlobeAnnotation(html.toString(), pos);
-                detailAnnotation.getAttributes().setBackgroundColor(new Color(20, 22, 28, 230));
-                detailAnnotation.getAttributes().setTextColor(Color.WHITE);
-                detailAnnotation.getAttributes().setBorderColor(borderColor);
-                detailAnnotation.getAttributes().setBorderWidth(2);
-                detailAnnotation.getAttributes().setCornerRadius(10);
-                detailAnnotation.getAttributes().setInsets(new java.awt.Insets(10, 14, 10, 14));
-                detailAnnotation.getAttributes().setFont(
-                    new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 12));
-                detailAnnotation.setAlwaysOnTop(true);
-
-                RenderableLayer layer = (RenderableLayer) getWwd().getModel().getLayers()
-                    .getLayerByName("Satellites");
-                if (layer != null) layer.addRenderable(detailAnnotation);
-            }
-            getWwd().redraw();
+            filterPanel.showDetail(noradId);
         }
 
         private void hideDetail()
         {
-            if (detailAnnotation != null)
-            {
-                RenderableLayer layer = (RenderableLayer) getWwd().getModel().getLayers()
-                    .getLayerByName("Satellites");
-                if (layer != null) layer.removeRenderable(detailAnnotation);
-                detailAnnotation = null;
-                getWwd().redraw();
-            }
+            filterPanel.hideDetail();
         }
 
         // ── Control panel setup ───────────────────────────────────────────

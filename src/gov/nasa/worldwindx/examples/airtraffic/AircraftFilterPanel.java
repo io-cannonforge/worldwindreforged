@@ -64,6 +64,10 @@ public class AircraftFilterPanel extends JPanel
     private final JCheckBox showGroundBox;
     private final JCheckBox showMilitaryGlobalBox;
 
+    // ── Detail panel (shown on aircraft click) ─────────────────────────────
+    private final JPanel detailPanel;
+    private final JLabel detailLabel;
+
     // ── Search ────────────────────────────────────────────────────────────────
     private final JTextField searchField;
 
@@ -88,6 +92,19 @@ public class AircraftFilterPanel extends JPanel
         add(statsSection);
         add(vgap(WWStyle.GAP_XS));
 
+        // ── Aircraft Detail (hidden until click) ─────────────────────────
+        detailPanel = new JPanel();
+        detailPanel.setLayout(new BoxLayout(detailPanel, BoxLayout.Y_AXIS));
+        detailPanel.setBackground(new Color(28, 30, 36));
+        detailPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.setVisible(false);
+
+        detailLabel = new JLabel();
+        detailLabel.setForeground(Color.WHITE);
+        detailLabel.setFont(WWStyle.FONT_BASE);
+        detailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        detailPanel.add(detailLabel);
+        add(detailPanel);
         add(vgap(WWStyle.GAP_XS));
 
         // ── Aircraft Types ────────────────────────────────────────────────
@@ -176,6 +193,83 @@ public class AircraftFilterPanel extends JPanel
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
+
+    /**
+     * Show aircraft detail in the panel. seaglassfoundry.com
+     */
+    public void showDetail(String hex)
+    {
+        AircraftPosition ac = manager.getAircraft(hex);
+        if (ac == null) return;
+
+        AircraftCategory cat = ac.getCategory();
+
+        StringBuilder html = new StringBuilder("<html><div style='width:200px'>");
+        html.append("<b>").append(ac.getDisplayLabel()).append("</b>");
+        if (ac.isEmergency())
+            html.append("  <font color='#FF3333'><b>\u26A0 EMERGENCY</b></font>");
+        html.append("<br>");
+
+        if (!ac.getTypeDesc().isEmpty())
+            html.append(ac.getTypeDesc()).append("<br>");
+        else if (!ac.getTypeCode().isEmpty())
+            html.append("Type: ").append(ac.getTypeCode()).append("<br>");
+
+        if (!ac.getOperator().isEmpty())
+            html.append(ac.getOperator()).append("<br>");
+
+        html.append("<br>");
+
+        if (ac.isOnGround())
+            html.append("On Ground<br>");
+        else
+            html.append(String.format("Altitude: %,.0f ft (FL%03d)<br>",
+                ac.getAltitudeFeet(), (int) (ac.getAltitudeFeet() / 100)));
+
+        html.append(String.format("Speed: %.0f kt<br>", ac.getGroundSpeed()));
+        html.append(String.format("Track: %.0f\u00B0<br>", ac.getTrack()));
+
+        if (ac.getVerticalRate() != 0)
+        {
+            String arrow = ac.getVerticalRate() > 0 ? "\u2191" : "\u2193";
+            html.append(String.format("Vertical: %s %,.0f ft/min<br>",
+                arrow, ac.getVerticalRate()));
+        }
+
+        html.append("<br>");
+
+        if (!ac.getRegistration().isEmpty())
+            html.append("Reg: ").append(ac.getRegistration()).append("<br>");
+        html.append("ICAO: ").append(ac.getHex().toUpperCase()).append("<br>");
+        if (!ac.getSquawk().isEmpty())
+            html.append("Squawk: ").append(ac.getSquawk()).append("<br>");
+        if (ac.isMilitary())
+            html.append("<font color='#FF6666'><b>MILITARY</b></font><br>");
+
+        html.append("</div></html>");
+
+        SwingUtilities.invokeLater(() ->
+        {
+            detailLabel.setText(html.toString());
+            detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(cat.getColor(), 2),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+            detailPanel.setVisible(true);
+            revalidate();
+            repaint();
+        });
+    }
+
+    /** Hide the aircraft detail panel. */
+    public void hideDetail()
+    {
+        SwingUtilities.invokeLater(() ->
+        {
+            detailPanel.setVisible(false);
+            revalidate();
+            repaint();
+        });
+    }
 
     public void updateStats()
     {
