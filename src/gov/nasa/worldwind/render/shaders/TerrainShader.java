@@ -75,8 +75,7 @@ public class TerrainShader
     // seaglassfoundry.com: uses deprecated GLSL 1.30 compatibility built-ins (gl_Vertex,
     // gl_MultiTexCoord0, gl_Color, gl_ModelViewProjectionMatrix) so the shader works with
     // the existing fixed-function client state set up by beginRendering() and
-    // SurfaceTileRenderer. This avoids glVertexAttribPointer / VAO requirements that
-    // crash on AMD Vega Mobile (atio6axx.dll) in compatibility profile.
+    // SurfaceTileRenderer — no generic vertex attribute setup required on this path.
     // Texture matrices are explicit uniforms (u_texMatrix0/u_texMatrix1) uploaded from Java.
     private static final String VERTEX_SOURCE = """
         #version 130

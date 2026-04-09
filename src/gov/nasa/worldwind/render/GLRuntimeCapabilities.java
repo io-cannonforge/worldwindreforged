@@ -93,7 +93,6 @@ public class GLRuntimeCapabilities
     // seaglassfoundry.com: VAO support for terrain tile attribute state caching
     protected boolean isVertexArrayObjectAvailable;
     protected boolean isVertexArrayObjectEnabled;
-    private static volatile boolean amdVaoWarningLogged;
     protected int depthBits;
     protected double maxTextureAnisotropy;
     protected int maxTextureSize;
@@ -117,8 +116,7 @@ public class GLRuntimeCapabilities
         this.isTerrainShaderEnabled = true;
         this.isTessellationEnabled = true;
         this.isComputeMeshEnabled = true;
-        // seaglassfoundry.com: VAO enabled by default; disabled at runtime for known-buggy drivers
-        // (see initialize() — AMD Vega Mobile atio6axx.dll crashes in compatibility profile VAOs).
+        // seaglassfoundry.com: VAOs are core in GL 3.0+ and enabled on all hardware that supports them.
         this.isVertexArrayObjectEnabled = true;
         this.maxTextureAnisotropy = -1d;
     }
@@ -181,25 +179,6 @@ public class GLRuntimeCapabilities
         this.isComputeMeshAvailable = this.glVersion >= 4.3;
         // seaglassfoundry.com: VAOs are core in OpenGL 3.0+.
         this.isVertexArrayObjectAvailable = this.glVersion >= 3.0;
-
-        // seaglassfoundry.com: AMD Vega Mobile (atio6axx.dll) crashes in glDrawElements when VAOs
-        // are used in a compatibility profile context. Disable VAOs on AMD in compatibility profile.
-        // Core profile VAOs are fine (mandatory and well-tested), but WorldWind uses compatibility.
-        String vendorLower = glVendor != null ? glVendor.toLowerCase() : "";
-        boolean isAmd = vendorLower.contains("ati") || vendorLower.contains("amd");
-        // GL3bc (compatibility) still crashes on AMD; only true core profile (GL3, GL4 without bc) is safe.
-        boolean isCoreProfile = gl.getGLProfile().isGL3() && !gl.getGLProfile().isGL3bc()
-            && !gl.getGLProfile().isGL4bc();
-        if (isAmd && !isCoreProfile)
-        {
-            this.isVertexArrayObjectEnabled = false;
-            if (!amdVaoWarningLogged)
-            {
-                amdVaoWarningLogged = true;
-                Logging.logger().info("GLRuntimeCapabilities: VAOs disabled for AMD compatibility profile"
-                    + " (driver workaround). Renderer: " + glRenderer);
-            }
-        }
 
         if (this.depthBits == 0)
         {

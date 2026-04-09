@@ -296,8 +296,11 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
             }
 
-            // seaglassfoundry.com: rotate all VAO cache keys so any previously cached VAOs for this
-            // tile are abandoned — they would reference the old VBO ID and must be rebuilt next frame.
+            // seaglassfoundry.com: explicitly evict any cached VAO for this tile before rotating
+            // the keys — otherwise the orphaned entry sits in the cache until LRU eviction and
+            // continues to reference the (potentially reallocated) old VBO id.
+            dc.getGpuResourceCache().remove(this.vaoCacheKey);
+            dc.getGpuResourceCache().remove(this.tessShaderVaoCacheKey);
             this.vaoCacheKey          = new Object();
             this.tessShaderVaoCacheKey = new Object();
         }
@@ -1140,13 +1143,12 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
-        // seaglassfoundry.com: when VAOs are active each tile's VAO captures its own vertex array
-        // state, so no frame-level push/enable is needed — the VAO binding in bindVbos() handles it.
-        if (!dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-        {
-            gl.glPushClientAttrib(GL2.GL_CLIENT_VERTEX_ARRAY_BIT);
-            gl.glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
-        }
+        // seaglassfoundry.com: bindVbos() (the fixed-function path used by TerrainShader and the
+        // FFP fallback) relies on GL_VERTEX_ARRAY client state being enabled. Always push/enable
+        // here regardless of VAO support — the tessellation path uses generic attribs and is
+        // unaffected by client-state push/pop.
+        gl.glPushClientAttrib(GL2.GL_CLIENT_VERTEX_ARRAY_BIT);
+        gl.glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
 
         // Tiles don't push their reference center, they set it, so push the reference center once here so it can be
         // restored later, in endRendering.
@@ -1159,11 +1161,11 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
         dc.getView().popReferenceCenter(dc);
 
-        // seaglassfoundry.com: unbind VAO (or restore push/pop client attrib in legacy path)
+        // seaglassfoundry.com: unbind any VAO left bound by the tessellation path, then restore
+        // client attrib state pushed in beginRendering().
         if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
             gl.glBindVertexArray(0);
-        else
-            gl.glPopClientAttrib();
+        gl.glPopClientAttrib();
     }
 
     // ── seaglassfoundry.com: tile-scoped shader lifecycle for SurfaceTileRenderer ──
@@ -1627,43 +1629,17 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
         GL2 gl = dc.getGL().getGL2();
 
-        // seaglassfoundry.com: VAO fast path — single glBindVertexArray replaces 5+ GL calls per tile.
+        // seaglassfoundry.com: This path uses fixed-function client arrays (glVertexPointer /
+        // glTexCoordPointer / glEnableClientState), which are NOT captured by VAOs in the GL spec.
+        // Mixing them into a VAO is undefined and crashes glDrawElements on AMD compatibility-profile
+        // drivers (atio6axx.dll). The VAO fast path is only valid for the generic-attrib shader path
+        // in bindVbosTessellated(); here we always use the legacy direct VBO bind.
+        //
+        // If a tessellated tile rendered immediately before us, its VAO may still be bound — unbind
+        // it so the GL_ELEMENT_ARRAY_BUFFER bind below doesn't write into the previous VAO's state.
         if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-        {
-            int[] vaoId = (int[]) dc.getGpuResourceCache().get(tile.ri.vaoCacheKey);
-            if (vaoId == null)
-            {
-                vaoId = new int[1];
-                gl.glGenVertexArrays(1, vaoId, 0);
-                dc.getGpuResourceCache().put(tile.ri.vaoCacheKey, vaoId, GpuResourceCache.VBO_BUFFERS, 64);
+            gl.glBindVertexArray(0);
 
-                gl.glBindVertexArray(vaoId[0]);
-
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, verticesVboId[0]);
-                gl.glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
-                gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
-
-                if (texCoordsVboId != null)
-                {
-                    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, texCoordsVboId[0]);
-                    for (int i = 0; i < numTextureUnits; i++)
-                    {
-                        gl.glClientActiveTexture(GL.GL_TEXTURE0 + i);
-                        gl.glEnableClientState(GLPointerFunc.GL_TEXTURE_COORD_ARRAY);
-                        gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, 0);
-                    }
-                }
-
-                gl.glBindVertexArray(0);
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-            }
-
-            gl.glBindVertexArray(vaoId[0]);
-            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, indexListVboId[0]);
-            return true;
-        }
-
-        // Legacy VBO path (no VAO support).
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, verticesVboId[0]);
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
 
@@ -2037,8 +2013,10 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             {
                 vaoId = new int[1];
                 gl.glGenVertexArrays(1, vaoId, 0);
+                // seaglassfoundry.com: store under VAO_IDS so eviction calls glDeleteVertexArrays,
+                // not glDeleteBuffers (which silently no-ops on a VAO id and leaks the object).
                 dc.getGpuResourceCache().put(tile.ri.tessShaderVaoCacheKey, vaoId,
-                    GpuResourceCache.VBO_BUFFERS, 64);
+                    GpuResourceCache.VAO_IDS, 64);
 
                 gl.glBindVertexArray(vaoId[0]);
 
@@ -2053,12 +2031,16 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
                     gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 0, 0);
                 }
 
+                // seaglassfoundry.com: bind the element buffer INSIDE the VAO so it is captured
+                // as part of the VAO state — no per-frame EAB rebind required afterwards.
+                gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, patchVboId[0]);
+
                 gl.glBindVertexArray(0);
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
             }
 
             gl.glBindVertexArray(vaoId[0]);
-            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, patchVboId[0]);
             return true;
         }
 

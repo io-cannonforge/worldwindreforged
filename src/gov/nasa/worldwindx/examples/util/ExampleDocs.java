@@ -1645,8 +1645,7 @@ public final class ExampleDocs {
                 + "<code>COMPUTE_TESSELLATION</code></li>"
                 + "<li><code class='api-class'>RenderingListener</code> &mdash; one-shot listener to detect GPU capabilities "
                 + "after first frame render</li>"
-                + "<li class='note'>Note: Tessellation and Compute+Tess modes require GL 4.0+ / 4.3+ respectively. "
-                + "On AMD GPUs, VAOs and tessellation may be auto-disabled due to compatibility issues.</li>"
+                + "<li class='note'>Note: Tessellation and Compute+Tess modes require GL 4.0+ / 4.3+ respectively.</li>"
                 + "</ul>"));
 
         put("TerrainProfiler",
