@@ -81,8 +81,18 @@ public class ComputeMeshShader
 
         // Frustum planes in tile-local space (ECEF minus referenceCenter).
         // A point p is inside when dot(plane.xyz, p) + plane.w >= 0.
-        uniform int  u_numPatches;
-        uniform vec4 u_frustumPlanes[6];
+        // Plane normals are unit length (CPU normalises before upload), which is
+        // required for the residual-bound dilation below to be in world units.
+        uniform int   u_numPatches;
+        uniform vec4  u_frustumPlanes[6];
+        // seaglassfoundry.com: maximum |h_actual - h_bilinear| anywhere in the tile,
+        // in world units. The TES displaces tess points along the radial normal by at
+        // most this amount, so the bilinear hull of the 4 patch corners can be exceeded
+        // by up to u_maxResidual in any direction. Dilating the half-space test by this
+        // value makes the cull provably conservative for the post-tessellation surface.
+        // Zero on tiles without a heightmap, in which case the test reduces to the
+        // exact 4-corner bilinear cull.
+        uniform float u_maxResidual;
 
         void main()
         {
@@ -103,15 +113,20 @@ public class ComputeMeshShader
             vec3 c2 = vec3(verts[i2 * 3u], verts[i2 * 3u + 1u], verts[i2 * 3u + 2u]);
             vec3 c3 = vec3(verts[i3 * 3u], verts[i3 * 3u + 1u], verts[i3 * 3u + 2u]);
 
-            // Cull: if all four corners are outside the same frustum half-space, drop the patch.
+            // Conservative cull: drop the patch only when all four coarse corners are
+            // outside the dilated half-space. The dilation by u_maxResidual accounts for
+            // the maximum TES displacement along the radial normal, so the entire
+            // post-tessellation surface is provably outside whenever this fires. With
+            // u_maxResidual = 0 this collapses to the exact bilinear-hull test.
+            float r = u_maxResidual;
             bool visible = true;
             for (int i = 0; i < 6 && visible; i++)
             {
                 vec4 p = u_frustumPlanes[i];
-                if (dot(p.xyz, c0) + p.w < 0.0 &&
-                    dot(p.xyz, c1) + p.w < 0.0 &&
-                    dot(p.xyz, c2) + p.w < 0.0 &&
-                    dot(p.xyz, c3) + p.w < 0.0)
+                if (dot(p.xyz, c0) + p.w < -r &&
+                    dot(p.xyz, c1) + p.w < -r &&
+                    dot(p.xyz, c2) + p.w < -r &&
+                    dot(p.xyz, c3) + p.w < -r)
                     visible = false;
             }
 
@@ -155,6 +170,7 @@ public class ComputeMeshShader
     // Cached uniform locations — queried once after program link.
     private int uNumPatchesLoc    = -1;
     private int uFrustumPlanesLoc = -1;
+    private int uMaxResidualLoc   = -1;
 
     // Reusable per-dispatch buffers — allocated once in init() to avoid per-tile GC pressure.
     private IntBuffer drawCmdResetBuffer;          // single int = 0, for resetting dc_count
@@ -231,6 +247,7 @@ public class ComputeMeshShader
         // Cache uniform locations — avoids per-dispatch driver lookups.
         this.uNumPatchesLoc    = gl4.glGetUniformLocation(this.computeProgram, "u_numPatches");
         this.uFrustumPlanesLoc = gl4.glGetUniformLocation(this.computeProgram, "u_frustumPlanes");
+        this.uMaxResidualLoc   = gl4.glGetUniformLocation(this.computeProgram, "u_maxResidual");
 
         // Allocate the shared draw-command SSBO with default values { 0, 1, 0, 0, 0 }.
         gl4.glGenBuffers(1, this.bufferIdArray, 0);
@@ -270,9 +287,13 @@ public class ComputeMeshShader
      * @param density     tile density, used to key per-density SSBOs
      * @param srcPatches  CPU-side quad-patch index buffer for this density (uploaded once)
      * @param refCenter   tile reference centre in ECEF (used to adjust frustum planes)
+     * @param maxResidual maximum |h_actual - h_bilinear| anywhere in the tile, in world
+     *                    units. Bounds the worst-case TES displacement so the cull can
+     *                    dilate plane tests. Pass 0 if the tile has no heightmap.
      */
     public void dispatchAndDraw(GL4 gl4, DrawContext dc, int vertexVboId,
-                                int density, IntBuffer srcPatches, Vec4 refCenter)
+                                int density, IntBuffer srcPatches, Vec4 refCenter,
+                                float maxResidual)
     {
         int numIndices = srcPatches.limit();
         int numPatches = numIndices / 4;
@@ -302,6 +323,10 @@ public class ComputeMeshShader
         gl4.glUniform1i(this.uNumPatchesLoc, numPatches);
         buildFrustumPlanes(dc, refCenter, this.frustumPlanesBuffer);
         gl4.glUniform4fv(this.uFrustumPlanesLoc, 6, this.frustumPlanesBuffer, 0);
+        // seaglassfoundry.com: dilation radius for the conservative cull. Negative input
+        // would invert the test, so clamp at 0.
+        if (this.uMaxResidualLoc >= 0)
+            gl4.glUniform1f(this.uMaxResidualLoc, maxResidual > 0f ? maxResidual : 0f);
         gl4.glDispatchCompute((numPatches + LOCAL_SIZE - 1) / LOCAL_SIZE, 1, 1);
 
         // ---- 6. Memory barrier: SSBO writes must be visible to element + indirect reads ----
@@ -392,10 +417,33 @@ public class ComputeMeshShader
         for (int i = 0; i < 6; i++)
         {
             Vec4 n = planes[i].getVector();
-            double adjustedW = n.w + n.x * refCenter.x + n.y * refCenter.y + n.z * refCenter.z;
-            out[i * 4]     = (float) n.x;
-            out[i * 4 + 1] = (float) n.y;
-            out[i * 4 + 2] = (float) n.z;
+            // seaglassfoundry.com: defensive normalization. WW Frustum constructors
+            // already normalize their planes, but the cull dilation relies on |n|=1 for
+            // the residual bound to be in world units, so we re-normalize here to make
+            // the compute path self-contained and resilient to upstream changes.
+            double len = Math.sqrt(n.x * n.x + n.y * n.y + n.z * n.z);
+            double nx, ny, nz, nw;
+            if (len > 0.0)
+            {
+                double inv = 1.0 / len;
+                nx = n.x * inv;
+                ny = n.y * inv;
+                nz = n.z * inv;
+                nw = n.w * inv;
+            }
+            else
+            {
+                nx = n.x;
+                ny = n.y;
+                nz = n.z;
+                nw = n.w;
+            }
+            // Shift the plane from world space to tile-local space (corners are tile-local
+            // in the SSBO). The normal stays unchanged; only the offset is translated.
+            double adjustedW = nw + nx * refCenter.x + ny * refCenter.y + nz * refCenter.z;
+            out[i * 4]     = (float) nx;
+            out[i * 4 + 1] = (float) ny;
+            out[i * 4 + 2] = (float) nz;
             out[i * 4 + 3] = (float) adjustedW;
         }
     }

@@ -20,6 +20,7 @@ import java.util.Collection;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -126,6 +127,12 @@ public class GPUTerrainDemo extends ApplicationTemplate
                     getWwd().removeRenderingListener(this);
                 }
             });
+
+            // seaglassfoundry.com: opt in to per-frame statistics collection. Without this,
+            // DrawContextImpl.setPerFrameStatistic() short-circuits and TERRAIN_TILE_COUNT is
+            // never published, so the demo's tile/triangle readouts always read zero.
+            getWwd().setPerFrameStatisticsKeys(
+                java.util.Set.of(PerformanceStatistic.TERRAIN_TILE_COUNT));
 
             // Per-frame stats update
             getWwd().addRenderingListener(event -> {
@@ -289,6 +296,8 @@ public class GPUTerrainDemo extends ApplicationTemplate
 
             root.add(buildModeSection());
             root.add(vgap(WWStyle.GAP_XS));
+            root.add(buildDebugSection());
+            root.add(vgap(WWStyle.GAP_XS));
             root.add(buildCameraSection());
             root.add(vgap(WWStyle.GAP_XS));
             root.add(buildStatsSection());
@@ -321,6 +330,56 @@ public class GPUTerrainDemo extends ApplicationTemplate
                 panel.add(rb);
                 modeRadios[i] = rb;
             }
+            return panel;
+        }
+
+        // seaglassfoundry.com: debug toggles for diagnosing tessellator/seam artifacts.
+        // Wireframe makes terrain triangulation visible — a stray dark line that lights up
+        // as a wireframe edge is a tessellator skirt/seam; one that stays solid over the
+        // wireframe is being drawn after the terrain (post-process or stray surface shape).
+        private JPanel buildDebugSection()
+        {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.setBackground(WWStyle.BG_DARK);
+            panel.setBorder(WWStyle.sectionBorder("Debug"));
+
+            JCheckBox wfInterior = new JCheckBox("Wireframe interior");
+            wfInterior.setFont(WWStyle.FONT_BASE);
+            wfInterior.setForeground(WWStyle.FG_PRIMARY);
+            wfInterior.setBackground(WWStyle.BG_DARK);
+            wfInterior.setFocusPainted(false);
+            wfInterior.setAlignmentX(Component.LEFT_ALIGNMENT);
+            wfInterior.addActionListener(e -> {
+                getWwd().getModel().setShowWireframeInterior(wfInterior.isSelected());
+                getWwd().redraw();
+            });
+            panel.add(wfInterior);
+
+            JCheckBox wfExterior = new JCheckBox("Wireframe exterior");
+            wfExterior.setFont(WWStyle.FONT_BASE);
+            wfExterior.setForeground(WWStyle.FG_PRIMARY);
+            wfExterior.setBackground(WWStyle.BG_DARK);
+            wfExterior.setFocusPainted(false);
+            wfExterior.setAlignmentX(Component.LEFT_ALIGNMENT);
+            wfExterior.addActionListener(e -> {
+                getWwd().getModel().setShowWireframeExterior(wfExterior.isSelected());
+                getWwd().redraw();
+            });
+            panel.add(wfExterior);
+
+            JCheckBox tileBoundaries = new JCheckBox("Show tile boundaries");
+            tileBoundaries.setFont(WWStyle.FONT_BASE);
+            tileBoundaries.setForeground(WWStyle.FG_PRIMARY);
+            tileBoundaries.setBackground(WWStyle.BG_DARK);
+            tileBoundaries.setFocusPainted(false);
+            tileBoundaries.setAlignmentX(Component.LEFT_ALIGNMENT);
+            tileBoundaries.addActionListener(e -> {
+                getWwd().getModel().setShowTessellationBoundingVolumes(tileBoundaries.isSelected());
+                getWwd().redraw();
+            });
+            panel.add(tileBoundaries);
+
             return panel;
         }
 

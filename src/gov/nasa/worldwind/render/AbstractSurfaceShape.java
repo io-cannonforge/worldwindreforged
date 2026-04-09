@@ -1569,6 +1569,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             return;
 
         GL2 gl = dc.getGL().getGL2();
+        // seaglassfoundry.com: positions go through a generic attribute now,
+        // not glVertexPointer — see DashLineShader for the rationale.
+        int posLoc  = dashLineShaders.get().getPosAttribLocation();
         int distLoc = dashLineShaders.get().getDistAttribLocation();
 
         // Maximum tile-pixel distance per segment before subdividing. At 512 pixels, float32 has precision of
@@ -1649,7 +1652,8 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                         {
                             vertexBuffer.flip();
                             distBuffer.flip();
-                            gl.glVertexPointer(2, GL.GL_FLOAT, 0, vertexBuffer);
+                            if (posLoc >= 0)
+                                gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
                             if (distLoc >= 0)
                                 gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);
                             gl.glDrawArrays(GL.GL_LINE_STRIP, 0, vertexCount);
@@ -1712,7 +1716,8 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         {
             vertexBuffer.flip();
             distBuffer.flip();
-            gl.glVertexPointer(2, GL.GL_FLOAT, 0, vertexBuffer);
+            if (posLoc >= 0)
+                gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
             if (distLoc >= 0)
                 gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);
             gl.glDrawArrays(GL.GL_LINE_STRIP, 0, vertexCount);

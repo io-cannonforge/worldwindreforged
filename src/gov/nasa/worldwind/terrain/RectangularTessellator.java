@@ -183,6 +183,14 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         protected final Object heightmapCacheKey = new Object();
         protected FloatBuffer pendingHeightmap;
         protected int heightmapSize;
+        // seaglassfoundry.com: max residual displacement |h_actual - h_bilinear| anywhere
+        // in this tile, in world units. Equal to (max - min) of the heightmap samples,
+        // which conservatively bounds the displacement applied by the TES (Task 4.5).
+        // Used by ComputeMeshShader to dilate frustum-cull plane tests so close-up patches
+        // whose displaced interiors poke into the frustum aren't culled by their flat
+        // coarse corners. Stays 0 when no heightmap is built — that path collapses to the
+        // exact 4-corner bilinear test.
+        protected float heightmapResidualBound;
         /** Per-edge max tessellation level caps (Task 4.4). null = unconstrained (all 64). */
         protected float[] constrainedOuterLevels;
         // seaglassfoundry.com: globe state key at build time for event-driven invalidation
@@ -313,6 +321,26 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         {
             if (this.pendingHeightmap == null)
                 return;
+
+            // seaglassfoundry.com: scan the heightmap once to compute the residual bound
+            // used by the GPU compute-shader frustum cull. Cheap (~289 floats at density 16).
+            // The bound is (max - min) over the tile's heightmap; this conservatively
+            // dominates |h_actual - h_bilinear| for any tess point inside the tile,
+            // since both terms are linear interpolations of grid samples in [min, max].
+            {
+                FloatBuffer hb = this.pendingHeightmap;
+                int n = hb.limit();
+                float min = Float.POSITIVE_INFINITY;
+                float max = Float.NEGATIVE_INFINITY;
+                for (int i = 0; i < n; i++)
+                {
+                    float h = hb.get(i);
+                    if (h < min) min = h;
+                    if (h > max) max = h;
+                }
+                this.heightmapResidualBound = (n > 0 && max > min) ? (max - min) : 0f;
+                hb.rewind();
+            }
 
             GL2 gl = dc.getGL().getGL2();
             int[] texId = new int[1];
@@ -1802,10 +1830,21 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             tiles.get(i).ri.constrainedOuterLevels = levels[i];
     }
 
-    /** Produces a hash key for an edge coordinate qualified by density. */
+    /** Produces a hash key for an edge coordinate qualified by density.
+     * <p>
+     * seaglassfoundry.com: quantize the latitude/longitude to a fixed 1e-9 deg
+     * grid (~0.1 mm at the equator, far below any tile resolution) before hashing.
+     * Two adjacent tiles can compute their shared edge coordinate via different
+     * cumulative FP additions and end up 1 ULP apart — e.g. the +30N elevation
+     * row boundary, reached by summing 20deg steps from -90. With raw
+     * Double.doubleToLongBits() that 1-ULP drift makes the neighbor lookup miss
+     * silently, leaves both tiles with unconstrained outer tessellation levels,
+     * and produces a T-junction crack along the entire shared parallel.
+     */
     private static long edgeKey(int density, double degrees)
     {
-        return ((long) density << 40) ^ Double.doubleToLongBits(degrees);
+        long quantized = Math.round(degrees * 1.0e9);
+        return ((long) density << 40) ^ quantized;
     }
 
     /**
@@ -1946,8 +1985,12 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             return false;
 
         GL4 gl4 = dc.getGL().getGL4();
+        // seaglassfoundry.com: pass the per-tile heightmap residual bound so the
+        // compute-shader frustum cull dilates plane tests by the maximum amount the TES
+        // can displace tess points outside the bilinear hull of the 4 patch corners.
+        // 0 when no heightmap is uploaded — collapses to the exact 4-corner test.
         computeMeshShaders.get().dispatchAndDraw(gl4, dc, verticesVboId[0], tile.density,
-            srcPatches, tile.ri.referenceCenter);
+            srcPatches, tile.ri.referenceCenter, tile.ri.heightmapResidualBound);
         return true;
     }
 

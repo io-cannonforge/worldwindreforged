@@ -261,7 +261,21 @@ public class TessellationTerrainShader
             // Sub-grid heightmap delta-correction (Task 4.5).
             if (u_useHeightmap == 1)
             {
-                float h_actual = texture(u_heightmap, uv).r;
+                // seaglassfoundry.com: half-texel inset. The heightmap is a
+                // (density+1)x(density+1) grid whose corner samples represent
+                // elevations *at* the tile edges. With GL_LINEAR + CLAMP_TO_EDGE
+                // the texel-0 centre sits at uv = 0.5/N, not uv = 0, so a naive
+                // texture(u_heightmap, uv) at the tile edge returns the elevation
+                // half a texel inward — producing an h_actual - h_bilinear residual
+                // that displaces the edge vertex by the half-texel gradient. The
+                // neighbour tile does the same on its side, the two edges no
+                // longer meet, and the result is a hairline crack along every
+                // shared parallel/meridian — most visible at +30N where the
+                // global elevation gradient peaks (Tibet, Himalayas, Sahara).
+                // Remap uv so the [0,1] range addresses texel centres [0..N-1].
+                vec2  hmSize  = vec2(textureSize(u_heightmap, 0));
+                vec2  uvSamp  = (uv * (hmSize - 1.0) + 0.5) / hmSize;
+                float h_actual = texture(u_heightmap, uvSamp).r;
                 if (u_flatGlobe == 1)
                 {
                     // Flat globe: Z axis is elevation.  The bilinearly-interpolated position

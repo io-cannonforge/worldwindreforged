@@ -384,12 +384,15 @@ public class GeographicTextRenderer
         @Override
 		public int compareTo(OrderedText t)
         {
-            if (t.text.getPriority() - this.text.getPriority() == 0)
-            {
-                return (int) (this.eyeDistance - t.eyeDistance);
-            }
-            else
-                return (int) (t.text.getPriority() - this.text.getPriority());
+            // Sort by priority descending, then by eye distance ascending (front to back).
+            // Use Double.compare to guarantee a transitive ordering — casting
+            // (double - double) to int truncates small deltas to 0 and can flip sign
+            // on overflow, which makes TimSort throw "Comparison method violates its
+            // general contract!". seaglassfoundry.com
+            int byPriority = Double.compare(t.text.getPriority(), this.text.getPriority());
+            if (byPriority != 0)
+                return byPriority;
+            return Double.compare(this.eyeDistance, t.eyeDistance);
         }
 
         @Override

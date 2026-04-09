@@ -38,18 +38,26 @@ import com.jogamp.opengl.GL2;
  */
 public class DashLineShader
 {
-    // seaglassfoundry.com: Phase 6 — replaced deprecated gl_ModelViewProjectionMatrix with
-    // explicit u_mvp uniform (read from GL matrix stack in begin()); gl_Vertex retained as the
-    // compat-profile position source (still fed via glVertexPointer in AbstractSurfaceShape).
+    // seaglassfoundry.com: positions are now sourced from a generic vertex
+    // attribute (a_position) instead of fixed-function gl_Vertex. Mixing
+    // glVertexPointer with a generic glVertexAttribPointer in the same draw
+    // is undefined in compatibility profile and produced stray dots in the
+    // dashed line example plus state-leak terrain corruption. Both attributes
+    // are pinned to non-zero slots in init() to avoid aliasing with any
+    // remaining fixed-function client array on slot 0.
     private static final String VERTEX_SOURCE = """
         #version 130
         uniform mat4 u_mvp;
+        in vec2 a_position;
         in float a_dist;
-        out float v_dist;
+        // seaglassfoundry.com: noperspective so screen-space dash distance
+        // interpolates linearly in window space (avoids stray dots on
+        // foreshortened segments).
+        noperspective out float v_dist;
 
         void main()
         {
-            gl_Position = u_mvp * gl_Vertex;
+            gl_Position = u_mvp * vec4(a_position, 0.0, 1.0);
             v_dist = a_dist;
         }
         """;
@@ -57,7 +65,8 @@ public class DashLineShader
     // seaglassfoundry.com: Phase 7 — replaced deprecated gl_FragColor with explicit out vec4 fragColor
     private static final String FRAGMENT_SOURCE = """
         #version 130
-        in float v_dist;
+        // seaglassfoundry.com: must match vertex stage qualifier.
+        noperspective in float v_dist;
         uniform vec4 u_color;
         uniform float u_dashLength;
         uniform int u_stipplePattern;
@@ -73,7 +82,10 @@ public class DashLineShader
                 // The cycle length equals u_dashLength (one full 16-bit repeat).
                 // Bit 0 is LSB, matching glLineStipple() bit ordering.
                 float pos = mod(v_dist, u_dashLength);
-                int bit = int(pos / u_dashLength * 16.0) & 15;
+                // seaglassfoundry.com: clamp instead of mask — float rounding in
+                // mod() can push the index to 16, and a bare & 15 would wrap to 0
+                // and re-light bit 0 inside a gap.
+                int bit = clamp(int(pos / u_dashLength * 16.0), 0, 15);
                 if (((u_stipplePattern >> bit) & 1) == 0)
                     discard;
             }
@@ -81,7 +93,13 @@ public class DashLineShader
         }
         """;
 
+    // seaglassfoundry.com: pin both attributes to fixed, non-zero slots so the
+    // linker can't alias a_position with gl_Vertex (slot 0 in compat profile).
+    private static final int POS_ATTRIB_INDEX  = 1;
+    private static final int DIST_ATTRIB_INDEX = 2;
+
     private ShaderProgram program;
+    private int posAttribLocation  = -1;
     private int distAttribLocation = -1;
 
     public boolean init(GL2 gl)
@@ -90,13 +108,15 @@ public class DashLineShader
             return true;
 
         this.program = new ShaderProgram();
+        this.program.bindAttribLocation(POS_ATTRIB_INDEX,  "a_position");
+        this.program.bindAttribLocation(DIST_ATTRIB_INDEX, "a_dist");
         if (!this.program.init(gl, VERTEX_SOURCE, FRAGMENT_SOURCE))
         {
             this.program = null;
             return false;
         }
 
-        // Bind the distance attribute
+        this.posAttribLocation  = gl.glGetAttribLocation(this.program.getProgramId(), "a_position");
         this.distAttribLocation = gl.glGetAttribLocation(this.program.getProgramId(), "a_dist");
         return true;
     }
@@ -125,8 +145,15 @@ public class DashLineShader
         this.program.setUniform1i(gl, "u_stipplePattern", stipplePattern & 0xFFFF);
         this.program.setUniform1i(gl, "u_picking", picking ? 1 : 0);
 
+        if (this.posAttribLocation >= 0)
+            gl.glEnableVertexAttribArray(this.posAttribLocation);
         if (this.distAttribLocation >= 0)
             gl.glEnableVertexAttribArray(this.distAttribLocation);
+    }
+
+    public int getPosAttribLocation()
+    {
+        return this.posAttribLocation;
     }
 
     public int getDistAttribLocation()
@@ -138,6 +165,8 @@ public class DashLineShader
     {
         if (this.distAttribLocation >= 0)
             gl.glDisableVertexAttribArray(this.distAttribLocation);
+        if (this.posAttribLocation >= 0)
+            gl.glDisableVertexAttribArray(this.posAttribLocation);
         this.program.unuse(gl);
     }
 
