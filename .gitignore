@@ -22,6 +22,9 @@ out/
 # Claude Code
 .claude/
 
+# MCP local config (contains machine-specific paths)
+.mcp.json
+
 # JVM crash logs
 hs_err_pid*.log
 replay_pid*.log

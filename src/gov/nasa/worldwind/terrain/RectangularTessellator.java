@@ -1640,6 +1640,13 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
     protected boolean bindVbos(DrawContext dc, RectTile tile, int numTextureUnits)
     {
+        // seaglassfoundry.com: unbind any active VAO before the fill*Vbo() calls below.
+        // GL_ELEMENT_ARRAY_BUFFER binding is captured in VAO state, so fillIndexListVbo()'s
+        // bind/unbind cycle would corrupt the previous tile's VAO if it were still active.
+        // (Same fix as bindVbosTessellated — see comment there for full explanation.)
+        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
+            dc.getGL().getGL2().glBindVertexArray(0);
+
         // Ensure vertex VBO is present (rotates vaoCacheKey on first upload or re-upload)
         int[] verticesVboId = (int[]) dc.getGpuResourceCache().get(tile.ri.vboCacheKey);
         if (verticesVboId == null)
@@ -1677,11 +1684,7 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         // Mixing them into a VAO is undefined and crashes glDrawElements on AMD compatibility-profile
         // drivers (atio6axx.dll). The VAO fast path is only valid for the generic-attrib shader path
         // in bindVbosTessellated(); here we always use the legacy direct VBO bind.
-        //
-        // If a tessellated tile rendered immediately before us, its VAO may still be bound — unbind
-        // it so the GL_ELEMENT_ARRAY_BUFFER bind below doesn't write into the previous VAO's state.
-        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-            gl.glBindVertexArray(0);
+        // (VAO already unbound at method entry — see comment above.)
 
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, verticesVboId[0]);
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
@@ -1962,6 +1965,14 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         {
             IntBuffer patches = patchIndexLists.get(tile.density);
             dc.getGL().glDrawElements(GL3ES3.GL_PATCHES, patches.limit(), GL.GL_UNSIGNED_INT, 0);
+            // seaglassfoundry.com: unbind the tessellation VAO immediately after the draw call.
+            // endRendering() calls glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0) to clean up the
+            // fixed-function state set by beginRendering()/bindVbos().  If the tessellation VAO
+            // is still bound at that point, the zero-EAB write corrupts the VAO's captured
+            // element buffer state.  On the next frame the cached VAO is reused with EAB=0,
+            // and glDrawElements dereferences NULL inside atio6axx.dll.
+            if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
+                dc.getGL().getGL2().glBindVertexArray(0);
             return true;
         }
         return false;
@@ -2006,6 +2017,10 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         // 0 when no heightmap is uploaded — collapses to the exact 4-corner test.
         computeMeshShaders.get().dispatchAndDraw(gl4, dc, verticesVboId[0], tile.density,
             srcPatches, tile.ri.referenceCenter, tile.ri.heightmapResidualBound);
+        // seaglassfoundry.com: unbind the tessellation VAO after the draw — same reason as
+        // renderVBOTessellated: prevent endRendering()'s EAB cleanup from corrupting it.
+        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
+            dc.getGL().getGL2().glBindVertexArray(0);
         return true;
     }
 
@@ -2033,6 +2048,14 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
      */
     protected boolean bindVbosTessellated(DrawContext dc, RectTile tile, int numTextureUnits)
     {
+        // seaglassfoundry.com: unbind any active VAO before the fill*Vbo() calls below.
+        // GL_ELEMENT_ARRAY_BUFFER binding is captured in VAO state, so fillPatchIndexVbo()'s
+        // bind/unbind cycle would corrupt the previous tile's VAO if it were still active.
+        // That corrupted VAO (with EAB=0) then causes a NULL-pointer crash in the AMD driver
+        // on the next frame's glDrawElements.
+        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
+            dc.getGL().getGL2().glBindVertexArray(0);
+
         int[] verticesVboId = (int[]) dc.getGpuResourceCache().get(tile.ri.vboCacheKey);
         if (verticesVboId == null)
         {

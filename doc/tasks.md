@@ -141,3 +141,12 @@ Applied consistent tabbed split-pane layout to **37 examples** (plus DashedLines
 
 ### 9.4 ProceduralFillPatternsExample Layout Fix
 - [x] **BoxLayout slider stretch fix** — Added `setMaximumSize()` constraints to all JSliders and JComboBox in the control panel to prevent vertical stretching. Ensured consistent `LEFT_ALIGNMENT` on all labels. File: `ProceduralFillPatternsExample.java`
+
+## Phase 10: MCP Server Enhancements
+
+### 10.1 Rendering Fixes
+- [x] **SurfacePolyline for vector lines** — `AddVectorLayerTool.addPath()` switched from `Path` (absolute altitude, buried at sea level) to `SurfacePolyline` (drapes on terrain). Lines now visible over mountainous terrain. File: `AddVectorLayerTool.java`
+
+### 10.2 New Tools
+- [ ] **fly_path tool** — Timed animation along a waypoint list. Accepts array of lat/lon/alt/heading/pitch waypoints + total duration in seconds. Paces `fly_to` animations internally with smooth interpolation. Enables cinematic flythrough demos (e.g., convoy route) without per-waypoint round-trips from the MCP client.
+- [x] **add_raster_layer float GeoTIFF support** — JOGL's AWTTextureIO throws GLException on float-backed BufferedImages (GL_RGB + GL_FLOAT). Added `convertFloatImageToARGB()` in `AddRasterLayerTool` to normalize float/double/TYPE_CUSTOM pixel data to 8-bit ARGB before texture creation. Handles both ImageIO and native GeotiffReader paths. File: `AddRasterLayerTool.java`
