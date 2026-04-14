@@ -10,7 +10,10 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.layers.ViewControlsLayer;
+import gov.nasa.worldwind.layers.ViewControlsSelectListener;
 import gov.nasa.worldwind.render.Renderable;
 
 import javax.swing.JFrame;
@@ -102,6 +105,24 @@ public final class GlobeState implements AutoCloseable {
         SwingUtilities.invokeAndWait(() -> {
             wwd.getModel().getLayers().add(overlayLayer);
             wwd.getModel().getLayers().add(annotationLayer);
+
+            // Add interactive view controls (pan/zoom/tilt/heading buttons).
+            ViewControlsLayer viewControlsLayer = new ViewControlsLayer();
+            // Insert before the compass so it renders beneath the compass rose.
+            LayerList layers = wwd.getModel().getLayers();
+            int compassIdx = -1;
+            for (int i = 0; i < layers.size(); i++) {
+                if (layers.get(i).getClass().getSimpleName().contains("Compass")) {
+                    compassIdx = i;
+                    break;
+                }
+            }
+            if (compassIdx >= 0) {
+                layers.add(compassIdx, viewControlsLayer);
+            } else {
+                layers.add(viewControlsLayer);
+            }
+            wwd.addSelectListener(new ViewControlsSelectListener(wwd, viewControlsLayer));
         });
 
         initialized.set(true);
