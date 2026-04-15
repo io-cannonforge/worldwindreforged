@@ -3078,6 +3078,55 @@ public final class ExampleDocs {
                 + "<li><code class='api-method'>view.getRestorableState()</code> &mdash; serialise the current view state to XML</li>"
                 + "<li><code class='api-method'>view.restoreState(stateXml)</code> &mdash; restore view from saved XML state</li>"
                 + "</ul>"));
+
+        // ── Games ────────────────────────────────────────────────────────────────
+
+        put("Minesweeper",
+            section("Overview",
+                "Classic Minesweeper played on the 3D globe surface over the Strait of Hormuz. "
+                + "Each cell is a <code class='api-class'>SurfaceSector</code> draped on open water at the narrowest point "
+                + "of the strait (~26.55&deg;N, 56.25&deg;E). Mine placement is deferred until the first click to guarantee "
+                + "the opening move is always safe (the clicked cell and its eight neighbours are excluded). "
+                + "Empty regions flood-fill automatically using iterative BFS. "
+                + "Per-cell game state is attached to the shape with "
+                + "<code class='api-method'>AVList.setValue(&quot;CELL&quot;, cell)</code> for O(1) lookup in the "
+                + "<code class='api-class'>SelectListener</code>.")
+            + section("What You&rsquo;ll See",
+                "<ul>"
+                + "<li>A grid of steel-blue cells draped over the Hormuz Strait water surface; satellite imagery shows the Persian Gulf and Gulf of Oman beneath</li>"
+                + "<li>Hover highlights cells slightly lighter (default <code>HighlightController</code> &mdash; no extra code)</li>"
+                + "<li>Revealed cells turn pale sea-blue; numbers use classic Minesweeper colours (1=blue, 2=green, 3=red&hellip;)</li>"
+                + "<li><b>Win:</b> a green wave sweeps outward from the grid centre, then a &ldquo;STRAIT CLEARED!&rdquo; overlay appears</li>"
+                + "<li><b>Lose:</b> the triggered mine flashes white/red, the camera shakes, all mines are revealed red, then a &ldquo;MINE DETONATED!&rdquo; overlay appears</li>"
+                + "</ul>")
+            + section("How to Interact",
+                "<ul>"
+                + "<li><b>Left-click</b> a cell &mdash; reveal it (first click is always safe)</li>"
+                + "<li><b>Right-click</b> a cell &mdash; toggle an orange flag</li>"
+                + "<li><b>New Game</b> button &mdash; reset with current difficulty and fly back to the Strait</li>"
+                + "<li><b>Difficulty</b> dropdown &mdash; Beginner (9&times;9 / 10 mines), Intermediate (16&times;16 / 40), Expert (16&times;30 / 99)</li>"
+                + "<li>Globe navigation still works during play &mdash; drag, scroll, and tilt to see the 3D terrain beneath the grid</li>"
+                + "</ul>")
+            + section("Key APIs",
+                "<ul>"
+                + "<li><code class='api-class'>SurfaceSector</code> &mdash; each cell is a lat/lon-aligned rectangle draped on terrain; "
+                + "constructed with <code>SurfaceSector(ShapeAttributes, Sector)</code></li>"
+                + "<li><code class='api-class'>SurfaceText</code> with <code class='api-method'>setTextSize(meters)</code> &mdash; "
+                + "numbers and flags rendered at geographic scale (550&nbsp;m for a ~1&nbsp;110&nbsp;m cell)</li>"
+                + "<li><code class='api-class'>BasicShapeAttributes</code> &mdash; mutating <code>setInteriorMaterial()</code> on a "
+                + "per-cell instance automatically triggers re-render via <code>PropertyChangeListener</code></li>"
+                + "<li><code class='api-method'>RenderableLayer.setPickEnabled(false)</code> &mdash; label layer disabled for picking "
+                + "so click events fall through to the cell layer below</li>"
+                + "<li><code class='api-method'>AVList.setValue(&quot;CELL&quot;, cell)</code> &mdash; attach game data to a shape for "
+                + "O(1) pick-to-cell lookup without a <code>HashMap</code></li>"
+                + "<li><code class='api-class'>SelectEvent</code> <code>LEFT_CLICK</code> / <code>RIGHT_CLICK</code> + "
+                + "<code class='api-method'>event.consume()</code> &mdash; prevents <code>ClickAndGoSelectListener</code> from "
+                + "flying the camera on each click</li>"
+                + "<li><code class='api-class'>OrbitView</code> <code class='api-method'>setHeading(Angle)</code> &mdash; used by the "
+                + "camera-shake effect to wobble heading &plusmn;4&deg; in a rapid timer sequence</li>"
+                + "<li><code class='api-class'>ScreenAnnotation</code> + <code class='api-class'>AnnotationAttributes</code> &mdash; "
+                + "win / lose overlay drawn on the canvas; leader disabled with <code>setLeader(AVKey.SHAPE_NONE)</code></li>"
+                + "</ul>"));
     }
 
     // ── Public API ──────────────────────────────────────────────────────────

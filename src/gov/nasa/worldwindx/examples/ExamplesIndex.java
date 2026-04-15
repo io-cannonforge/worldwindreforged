@@ -267,6 +267,14 @@ public class ExamplesIndex extends JFrame {
             new ExampleEntry("Export Image / Elevations",BASE + "ExportImageOrElevations",      "Export the globe view or elevation data to a georeferenced image file."),
             new ExampleEntry("Persist Session State",  BASE + "PersistSessionState",            "Save and restore camera position and layer state between sessions."),
         });
+
+        CATEGORIES.put("Games", new ExampleEntry[]{
+            new ExampleEntry("Minesweeper",
+                BASE + "Minesweeper",
+                "Naval minesweeper in the Strait of Hormuz \u2014 left-click to reveal, right-click to flag. "
+                + "First-click safety, flood-fill, animated win wave, camera-shake on detonation.",
+                "New"),
+        });
     }
 
     // ── UI fields ────────────────────────────────────────────────────────────
