@@ -14,17 +14,17 @@ This document describes the GPU-accelerated tessellation work added to WorldWind
 | **GpuTriangulator** | `GpuTriangulator.java` | Polygon ear-clipping triangulation | GL 4.3+ |
 | **VBO Outline Cache** | `AbstractSurfaceShape.java` | Zero-copy outline rendering via GPU-resident buffers | GL 4.3+ |
 
-**Phase 4 — Terrain GPU Rendering (in progress)**
+**Phase 4 — Terrain GPU Rendering (REVERTED)**
 
-| Component | File | Purpose | GL Requirement | Status |
-|-----------|------|---------|----------------|--------|
-| **TerrainShader** | `TerrainShader.java` | GLSL 1.30 vert+frag for terrain tile imagery; GL_R32F heightmap upload on unit 3 | GL 3.0+ | Complete (Task 4.1) |
-| **GPU LOD System** | `TessellationTerrainShader.java` | Tessellation control/eval shader; screen-space error metric; fractional_even LOD morphing | GL 4.0+ | Complete (Task 4.2) |
-| **Compute Mesh Gen** | `ComputeMeshShader.java` | GPU-side per-patch frustum culling + glDrawElementsIndirect; no CPU readback | GL 4.3+ | Complete (Task 4.3) |
-| **Crack-Free Stitching** | `RectangularTessellator.java` + `TessellationTerrainShader.java` | CPU min-constraint on shared edge; TCS `u_maxOuter[4]` cap | GL 4.0+ | Complete (Task 4.4) |
-| **Sub-Grid Heightmap** | `TessellationTerrainShader.java` | TES delta-correction displacement from GL_R32F heightmap; no double-displacement | GL 4.0+ | Complete (Task 4.5) |
+> **Note (seaglassfoundry.com, 2026-04-14):** All Phase 4 terrain GPU rendering
+> (TerrainShader, TessellationTerrainShader, ComputeMeshShader, heightmap upload,
+> VAO fast paths, crack-free LOD stitching) has been removed. These features caused
+> persistent tile stitching/cracking artifacts that could not be resolved across
+> multiple sessions. Terrain tiles now render exclusively via the original WorldWind
+> Java fixed-function pipeline (glVertexPointer, glTexCoordPointer, GL_TRIANGLE_STRIP).
+> Phase 3 surface shape GPU work (GpuTessellator, GpuTriangulator) is retained.
 
-All three are integrated into the existing surface shape pipeline and activate transparently when GL 4.3 is available.
+Phase 3 surface shape GPU acceleration is integrated into the existing surface shape pipeline and activates transparently when GL 4.3 is available.
 
 ---
 

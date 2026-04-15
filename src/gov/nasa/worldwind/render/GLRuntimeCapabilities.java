@@ -28,17 +28,10 @@
 /*
  * Modifications copyright 2025-2026 seaglassfoundry.com — Part of the WorldWind Reforged project.
  *
- * Changes (Task 4.1 — Heightmap Terrain Renderer):
- * - Added isTerrainShaderAvailable / isTerrainShaderEnabled / isUseTerrainShader() following the
- *   existing available/enabled/use capability flag pattern; availability detected as glVersion >= 3.0
- *
- * Changes (Task 4.2 — GPU LOD / Tessellation Shaders):
- * - Added isTessellationAvailable / isTessellationEnabled / isUseTessellation() following the same
- *   pattern; availability detected as glVersion >= 4.0 (ARB_tessellation_shader)
- *
- * Changes (Task 4.3 — Compute Shader Mesh Generation):
- * - Added isComputeMeshAvailable / isComputeMeshEnabled / isUseComputeMesh() following the same
- *   pattern; availability detected as glVersion >= 4.3 (compute shaders + SSBOs + indirect draw)
+ * Changes (Terrain Shader Removal):
+ * - Removed all GPU shader-based terrain rendering capability flags: isTerrainShaderAvailable/Enabled,
+ *   isTessellationAvailable/Enabled, isComputeMeshAvailable/Enabled, isVertexArrayObjectAvailable/Enabled.
+ *   Terrain tiles now render exclusively via the original fixed-function pipeline.
  */
 package gov.nasa.worldwind.render;
 
@@ -84,15 +77,6 @@ public class GLRuntimeCapabilities
     protected boolean isFramebufferObjectEnabled;
     protected boolean isVertexBufferObjectAvailable;
     protected boolean isVertexBufferObjectEnabled;
-    protected boolean isTerrainShaderAvailable;
-    protected boolean isTerrainShaderEnabled;
-    protected boolean isTessellationAvailable;
-    protected boolean isTessellationEnabled;
-    protected boolean isComputeMeshAvailable;
-    protected boolean isComputeMeshEnabled;
-    // seaglassfoundry.com: VAO support for terrain tile attribute state caching
-    protected boolean isVertexArrayObjectAvailable;
-    protected boolean isVertexArrayObjectEnabled;
     protected int depthBits;
     protected double maxTextureAnisotropy;
     protected int maxTextureSize;
@@ -113,11 +97,6 @@ public class GLRuntimeCapabilities
         this.isAnisotropicTextureFilterEnabled = true;
         this.isFramebufferObjectEnabled = true;
         this.isVertexBufferObjectEnabled = Configuration.getBooleanValue(AVKey.VBO_USAGE, true);
-        this.isTerrainShaderEnabled = true;
-        this.isTessellationEnabled = true;
-        this.isComputeMeshEnabled = true;
-        // seaglassfoundry.com: VAOs are core in GL 3.0+ and enabled on all hardware that supports them.
-        this.isVertexArrayObjectEnabled = true;
         this.maxTextureAnisotropy = -1d;
     }
 
@@ -171,14 +150,6 @@ public class GLRuntimeCapabilities
         this.isFramebufferObjectAvailable = gl.isExtensionAvailable(GL_EXT_FRAMEBUFFER_OBJECT_STRING);
         // Vertex Buffer Objects are supported in version 1.5 or greater only.
         this.isVertexBufferObjectAvailable = this.glVersion >= 1.5;
-        // Terrain shader requires GLSL 1.30 (OpenGL 3.0).
-        this.isTerrainShaderAvailable = this.glVersion >= 3.0;
-        // Tessellation shaders require OpenGL 4.0 (ARB_tessellation_shader).
-        this.isTessellationAvailable = this.glVersion >= 4.0;
-        // Compute mesh culling requires OpenGL 4.3 (compute shaders + SSBOs + indirect draw).
-        this.isComputeMeshAvailable = this.glVersion >= 4.3;
-        // seaglassfoundry.com: VAOs are core in OpenGL 3.0+.
-        this.isVertexArrayObjectAvailable = this.glVersion >= 3.0;
 
         if (this.depthBits == 0)
         {
@@ -497,102 +468,6 @@ public class GLRuntimeCapabilities
         }
 
         this.maxTextureSize = maxTextureSize;
-    }
-
-    public boolean isTerrainShaderAvailable()
-    {
-        return this.isTerrainShaderAvailable;
-    }
-
-    public void setTerrainShaderAvailable(boolean available)
-    {
-        this.isTerrainShaderAvailable = available;
-    }
-
-    public boolean isTerrainShaderEnabled()
-    {
-        return this.isTerrainShaderEnabled;
-    }
-
-    public void setTerrainShaderEnabled(boolean enabled)
-    {
-        this.isTerrainShaderEnabled = enabled;
-    }
-
-    public boolean isUseTerrainShader()
-    {
-        return this.isTerrainShaderAvailable && this.isTerrainShaderEnabled;
-    }
-
-    public boolean isTessellationAvailable()
-    {
-        return this.isTessellationAvailable;
-    }
-
-    public void setTessellationAvailable(boolean available)
-    {
-        this.isTessellationAvailable = available;
-    }
-
-    public boolean isTessellationEnabled()
-    {
-        return this.isTessellationEnabled;
-    }
-
-    public void setTessellationEnabled(boolean enabled)
-    {
-        this.isTessellationEnabled = enabled;
-    }
-
-    public boolean isUseTessellation()
-    {
-        return this.isTessellationAvailable && this.isTessellationEnabled;
-    }
-
-    public boolean isComputeMeshAvailable()
-    {
-        return this.isComputeMeshAvailable;
-    }
-
-    public void setComputeMeshAvailable(boolean available)
-    {
-        this.isComputeMeshAvailable = available;
-    }
-
-    public boolean isComputeMeshEnabled()
-    {
-        return this.isComputeMeshEnabled;
-    }
-
-    public void setComputeMeshEnabled(boolean enabled)
-    {
-        this.isComputeMeshEnabled = enabled;
-    }
-
-    public boolean isUseComputeMesh()
-    {
-        return this.isComputeMeshAvailable && this.isComputeMeshEnabled;
-    }
-
-    // seaglassfoundry.com: VAO support for terrain tile attribute state caching (GL 3.0+)
-    public boolean isVertexArrayObjectAvailable()
-    {
-        return this.isVertexArrayObjectAvailable;
-    }
-
-    public boolean isVertexArrayObjectEnabled()
-    {
-        return this.isVertexArrayObjectEnabled;
-    }
-
-    public void setVertexArrayObjectEnabled(boolean enabled)
-    {
-        this.isVertexArrayObjectEnabled = enabled;
-    }
-
-    public boolean isUseVertexArrayObject()
-    {
-        return this.isVertexArrayObjectAvailable && this.isVertexArrayObjectEnabled;
     }
 
     /**

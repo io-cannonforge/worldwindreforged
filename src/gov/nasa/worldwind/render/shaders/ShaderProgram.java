@@ -10,19 +10,11 @@
  * New file — OpenGL shader program management utility. Handles compilation and linking
  * of vertex and fragment shaders, uniform location caching, and program lifecycle
  * (dispose/cleanup). Provides the shader infrastructure used by DashLineShader,
- * GpuTessellator, GpuTriangulator, ShapefilePolygons' GLSL 330 rendering path,
- * TerrainShader (Task 4.1), and TessellationTerrainShader (Task 4.2).
+ * GpuTessellator, GpuTriangulator, and SurfaceShapeFillShader.
  *
- * Changes (Task 4.1 — Heightmap Terrain Renderer):
- * - Added setUniform3f() for vec3 uniform upload (used by TerrainShader for u_refCenter)
- *
- * Changes (Task 4.2 — GPU LOD / Tessellation Shaders):
- * - Added initTessellation() to compile and link a 4-stage pipeline (vert + TCS + TES + frag)
- * - Updated compileShader() log message to name TCS/TES stages
- * - Updated dispose() to delete tessellation control and evaluation shader objects
- *
- * No changes in Task 4.3 — ComputeMeshShader manages its compute program directly via GL4,
- * following the same pattern as GpuTessellator rather than delegating to ShaderProgram.
+ * Changes (Terrain Shader Removal):
+ * - Removed initTessellation() and tessellation shader fields. Terrain tiles now render
+ *   exclusively via the fixed-function pipeline; this class is retained for non-terrain shaders.
  */
 package gov.nasa.worldwind.render.shaders;
 
@@ -32,7 +24,6 @@ import java.util.Map;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL3ES3;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 
 import gov.nasa.worldwind.util.Logging;
@@ -45,8 +36,6 @@ public class ShaderProgram
     private int programId;
     private int vertexShaderId;
     private int fragmentShaderId;
-    private int tessControlShaderId;
-    private int tessEvalShaderId;
     private boolean valid;
     private final Map<String, Integer> uniformLocations = new HashMap<>();
     private final Map<Integer, String> pendingAttribBindings = new HashMap<>();
@@ -127,99 +116,14 @@ public class ShaderProgram
             byte[] log = new byte[logLen[0]];
             gl.glGetShaderInfoLog(shader, logLen[0], null, 0, log, 0);
             String typeStr;
-            if      (type == GL2ES2.GL_VERTEX_SHADER)              typeStr = "vertex";
-            else if (type == GL2ES2.GL_FRAGMENT_SHADER)            typeStr = "fragment";
-            else if (type == GL3ES3.GL_TESS_CONTROL_SHADER)        typeStr = "tessellation control";
-            else if (type == GL3ES3.GL_TESS_EVALUATION_SHADER)     typeStr = "tessellation evaluation";
-            else                                                 typeStr = "unknown";
+            if      (type == GL2ES2.GL_VERTEX_SHADER)   typeStr = "vertex";
+            else if (type == GL2ES2.GL_FRAGMENT_SHADER) typeStr = "fragment";
+            else                                        typeStr = "unknown";
             Logging.logger().severe("Shader compile error (" + typeStr + "): " + new String(log));
             gl.glDeleteShader(shader);
             return 0;
         }
         return shader;
-    }
-
-    /**
-     * Compile and link a 4-stage tessellation pipeline from source strings.
-     * Requires a GL 4.0+ context (checks {@code gl.isGL4()} before proceeding).
-     *
-     * @param gl             the GL2 context (must be backed by a GL 4.0+ implementation)
-     * @param vertexSource   GLSL vertex shader source
-     * @param tcsSource      GLSL tessellation control shader source
-     * @param tesSource      GLSL tessellation evaluation shader source
-     * @param fragmentSource GLSL fragment shader source
-     * @return true if compilation and linking succeeded
-     */
-    public boolean initTessellation(GL2 gl, String vertexSource, String tcsSource,
-                                    String tesSource, String fragmentSource)
-    {
-        if (!gl.isGL4())
-        {
-            Logging.logger().info("ShaderProgram: GL 4.0 not available; tessellation shader skipped.");
-            return false;
-        }
-
-        this.vertexShaderId = compileShader(gl, GL2ES2.GL_VERTEX_SHADER, vertexSource);
-        if (this.vertexShaderId == 0)
-            return false;
-
-        this.tessControlShaderId = compileShader(gl, GL3ES3.GL_TESS_CONTROL_SHADER, tcsSource);
-        if (this.tessControlShaderId == 0)
-        {
-            gl.glDeleteShader(this.vertexShaderId);
-            this.vertexShaderId = 0;
-            return false;
-        }
-
-        this.tessEvalShaderId = compileShader(gl, GL3ES3.GL_TESS_EVALUATION_SHADER, tesSource);
-        if (this.tessEvalShaderId == 0)
-        {
-            gl.glDeleteShader(this.vertexShaderId);
-            gl.glDeleteShader(this.tessControlShaderId);
-            this.vertexShaderId = 0;
-            this.tessControlShaderId = 0;
-            return false;
-        }
-
-        this.fragmentShaderId = compileShader(gl, GL2ES2.GL_FRAGMENT_SHADER, fragmentSource);
-        if (this.fragmentShaderId == 0)
-        {
-            gl.glDeleteShader(this.vertexShaderId);
-            gl.glDeleteShader(this.tessControlShaderId);
-            gl.glDeleteShader(this.tessEvalShaderId);
-            this.vertexShaderId = 0;
-            this.tessControlShaderId = 0;
-            this.tessEvalShaderId = 0;
-            return false;
-        }
-
-        this.programId = gl.glCreateProgram();
-        gl.glAttachShader(this.programId, this.vertexShaderId);
-        gl.glAttachShader(this.programId, this.tessControlShaderId);
-        gl.glAttachShader(this.programId, this.tessEvalShaderId);
-        gl.glAttachShader(this.programId, this.fragmentShaderId);
-
-        for (var entry : this.pendingAttribBindings.entrySet())
-            gl.glBindAttribLocation(this.programId, entry.getKey(), entry.getValue());
-        this.pendingAttribBindings.clear();
-
-        gl.glLinkProgram(this.programId);
-
-        int[] linkStatus = new int[1];
-        gl.glGetProgramiv(this.programId, GL2ES2.GL_LINK_STATUS, linkStatus, 0);
-        if (linkStatus[0] == GL.GL_FALSE)
-        {
-            int[] logLen = new int[1];
-            gl.glGetProgramiv(this.programId, GL2ES2.GL_INFO_LOG_LENGTH, logLen, 0);
-            byte[] log = new byte[logLen[0]];
-            gl.glGetProgramInfoLog(this.programId, logLen[0], null, 0, log, 0);
-            Logging.logger().severe("Tessellation shader link error: " + new String(log));
-            dispose(gl);
-            return false;
-        }
-
-        this.valid = true;
-        return true;
     }
 
     public void use(GL2 gl)
@@ -315,16 +219,6 @@ public class ShaderProgram
         {
             gl.glDeleteShader(this.vertexShaderId);
             this.vertexShaderId = 0;
-        }
-        if (this.tessControlShaderId != 0)
-        {
-            gl.glDeleteShader(this.tessControlShaderId);
-            this.tessControlShaderId = 0;
-        }
-        if (this.tessEvalShaderId != 0)
-        {
-            gl.glDeleteShader(this.tessEvalShaderId);
-            this.tessEvalShaderId = 0;
         }
         if (this.fragmentShaderId != 0)
         {

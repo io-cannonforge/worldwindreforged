@@ -28,56 +28,6 @@
 /*
  * Modifications copyright 2025-2026 seaglassfoundry.com — Part of the WorldWind Reforged project.
  *
- * Changes (Task 4.1 — Heightmap Terrain Renderer):
- * - Added TerrainShader integration in render(): replaces fixed-function glTexEnvi(GL_MODULATE)
- *   with a GLSL 1.30 vertex+fragment shader path; falls back to fixed-function during picking
- *   and on GL < 3.0
- * - Added heightmapCacheKey, pendingHeightmap, heightmapSize fields to RenderInfo to hold
- *   per-tile elevation data pending GPU upload
- * - Added RenderInfo.fillHeightmapTexture(): uploads interior elevations as a GL_R32F
- *   texture (unit 3) into GpuResourceCache for future heightmap-based vertex displacement
- * - Extracted interior (density+1)^2 elevations in buildVerts() into pendingHeightmap for
- *   lazy upload when the terrain shader is available
- *
- * Changes (Task 4.2 — GPU LOD / Tessellation Shaders):
- * - Added TessellationTerrainShader integration in render(): preferred over TerrainShader
- *   when GL 4.0 is available and isUseTessellation() is true
- * - Added static patchIndexLists and patchIndexListsVboCacheKeys to cache per-density
- *   quad-patch index buffers (groups of 4 indices per grid cell)
- * - Added createPatchIndices(int density): generates 4 * (density+2)^2 indices, one quad
- *   patch per coarse grid cell, vertex order BL/BR/TR/TL matching the TES bilinear domain
- * - Added renderVBOTessellated() / renderVATessellated() draw paths using GL_PATCHES
- * - Added bindVbosTessellated() / fillPatchIndexVbo() for patch IBO management
- *
- * Changes (Task 4.3 — Compute Shader Mesh Generation):
- * - Added ComputeMeshShader integration in render(): layered on top of tessellation when
- *   GL 4.3 is available and isUseComputeMesh() is true; tessellation shader remains active
- *   as the graphics pipeline while the compute shader culls patches GPU-side
- * - Added static computeMeshShader / computeMeshShaderInitFailed fields
- * - Added renderVBOComputeTessellated(): binds VBOs, retrieves vertex VBO ID, delegates to
- *   ComputeMeshShader.dispatchAndDraw() which issues glDrawElementsIndirect(GL_PATCHES)
- * - Priority order: ComputeMesh (GL 4.3+) > Tessellation (GL 4.0+) > TerrainShader (GL 3.0+) > fixed-function
- *
- * Changes (Task 4.4 — Crack-Free LOD Stitching):
- * - Added RenderInfo.constrainedOuterLevels: float[4] per-edge max tessellation level caps,
- *   computed in tessellate() and passed to TessellationTerrainShader.activate() each frame
- * - Added constrainNeighbourLevels(DrawContext): called once per tessellate() pass; projects
- *   tile corners to screen space to estimate per-edge tess levels, then for each pair of
- *   same-density adjacent tiles constrains their shared edge to min(a, b) so both sides
- *   cap to the same level, eliminating T-junction cracks
- * - Added computeEdgeLevels(), constrainSharedEdge(), screenDist2D(), clampTessLevel() helpers
- * - Updated render() to pass tile.ri.constrainedOuterLevels to tessellationShader.activate()
- *
- * Changes (Phase 5 — Per-Tile VAO Binding):
- * - Added RenderInfo.vaoCacheKey: rotated in fillVerticesVBO() whenever the vertex VBO is
- *   (re-)uploaded, ensuring any cached VAO is automatically invalidated on VBO change
- * - bindVbos() and bindVbosTessellated(): VAO fast path when isUseVertexArrayObject() (GL 3.0+);
- *   lazily creates a per-tile VAO capturing vertex + texcoord pointers on first use; subsequent
- *   frames bind the tile in one glBindVertexArray call instead of 5+ GL calls per tile
- * - beginRendering(dc) / endRendering(dc): skip glPushClientAttrib/glPopClientAttrib when VAOs
- *   are active (VAO per-tile state makes the frame-level push/pop redundant and incompatible);
- *   endRendering() calls glBindVertexArray(0) in the VAO path to restore default state
- *
  * Changes (Batch Vertex Transform Optimisation):
  * - buildVerts(): for EllipsoidalGlobe (3D), delegates the geodetic-to-ECEF vertex loop to
  *   EllipsoidalGlobe.computeTerrainGridToBuffer() which pre-computes cosLon/sinLon arrays,
@@ -85,16 +35,14 @@
  *   eliminating ~529 Vec4 allocations and ~460 redundant trig ops per tile rebuild.
  *   FlatGlobe (2D) retains the original per-vertex computePointFromPosition path.
  *
- * Changes (Shader Lifecycle Optimisation):
- * - Added activateShaderForTile(), deactivateShaderForTile(), renderImageTile() to split
- *   the shader lifecycle into per-geometry-tile activation and per-image-tile draw.
- *   SurfaceTileRenderer calls these to keep the shader active across all image tile draws
- *   for the same geometry tile, reducing glUseProgram and uniform upload calls by ~8x.
- * - RectTile: implements SectorGeometry.activateShader(), deactivateShader(), and
- *   renderMultiTextureWithActiveShader() by delegating to the tessellator.
- * - renderImageTile() accepts a pre-computed float[16] texture matrix from
- *   SurfaceTileRenderer and uploads it directly to the active shader's uniforms,
- *   bypassing the fixed-function matrix stack and glGetFloatv readbacks.
+ * Changes (Terrain Shader Removal):
+ * - Removed all GPU shader-based terrain rendering paths (TerrainShader, TessellationTerrainShader,
+ *   ComputeMeshShader). Terrain tiles now render exclusively via the original fixed-function
+ *   pipeline (glVertexPointer, glTexCoordPointer, GL_TRIANGLE_STRIP draws).
+ * - Removed heightmap texture logic, VAO fast paths, tessellation constraint methods,
+ *   shader lifecycle methods, and patch index buffers.
+ * - Retained CPU-only optimisations: batch vertex transform, reusable allocation buffers,
+ *   globe state key invalidation.
  */
 package gov.nasa.worldwind.terrain;
 
@@ -113,11 +61,8 @@ import java.util.List;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
-import com.jogamp.opengl.GL3ES3;
-import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.fixedfunc.GLPointerFunc;
 import com.jogamp.opengl.util.awt.TextRenderer;
 
@@ -150,10 +95,6 @@ import gov.nasa.worldwind.pick.PickSupport;
 import gov.nasa.worldwind.pick.PickedObject;
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.render.shaders.ComputeMeshShader;
-import gov.nasa.worldwind.render.shaders.TerrainShader;
-import gov.nasa.worldwind.render.shaders.TessellationTerrainShader;
-import gov.nasa.worldwind.util.GLContextLocal;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.OGLStackHandler;
 import gov.nasa.worldwind.util.OGLTextRenderer;
@@ -174,31 +115,7 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         protected final IntBuffer indices;
         protected long time;
         protected Object vboCacheKey = new Object();
-        // seaglassfoundry.com: VAO cache keys — rotated whenever VBO is re-uploaded to invalidate stale VAOs.
-        // vaoCacheKey: fixed-function VAO (glVertexPointer path, triangle IBO).
-        // tessShaderVaoCacheKey: TessellationTerrainShader VAO (glVertexAttribPointer layout 0/1, patch IBO).
-        protected Object vaoCacheKey         = new Object();
-        protected Object tessShaderVaoCacheKey = new Object();
-        // seaglassfoundry.com: identity-compared refs to the shared VBO int[] arrays
-        // captured into the current tessShaderVaoCacheKey VAO. When a shared VBO is
-        // evicted and recreated, fill*Vbo() allocates a new int[1], so reference !=
-        // detects staleness even if the GL buffer name happens to be reused.
-        protected int[] tessVaoTexCoordVboRef;
-        protected int[] tessVaoPatchVboRef;
         protected boolean isVboBound = false;
-        protected final Object heightmapCacheKey = new Object();
-        protected FloatBuffer pendingHeightmap;
-        protected int heightmapSize;
-        // seaglassfoundry.com: max residual displacement |h_actual - h_bilinear| anywhere
-        // in this tile, in world units. Equal to (max - min) of the heightmap samples,
-        // which conservatively bounds the displacement applied by the TES (Task 4.5).
-        // Used by ComputeMeshShader to dilate frustum-cull plane tests so close-up patches
-        // whose displaced interiors poke into the frustum aren't culled by their flat
-        // coarse corners. Stays 0 when no heightmap is built — that path collapses to the
-        // exact 4-corner bilinear test.
-        protected float heightmapResidualBound;
-        /** Per-edge max tessellation level caps (Task 4.4). null = unconstrained (all 64). */
-        protected float[] constrainedOuterLevels;
         // seaglassfoundry.com: globe state key at build time for event-driven invalidation
         protected Object globeStateKey;
 
@@ -309,63 +226,8 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             {
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
             }
-
-            // seaglassfoundry.com: explicitly evict any cached VAO for this tile before rotating
-            // the keys — otherwise the orphaned entry sits in the cache until LRU eviction and
-            // continues to reference the (potentially reallocated) old VBO id.
-            dc.getGpuResourceCache().remove(this.vaoCacheKey);
-            dc.getGpuResourceCache().remove(this.tessShaderVaoCacheKey);
-            this.tessVaoTexCoordVboRef = null;
-            this.tessVaoPatchVboRef    = null;
-            this.vaoCacheKey          = new Object();
-            this.tessShaderVaoCacheKey = new Object();
         }
 
-        /**
-         * Uploads the pending heightmap elevation data as a GL_R32F texture into GpuResourceCache,
-         * then releases the CPU-side buffer. No-op if no upload is pending.
-         */
-        protected void fillHeightmapTexture(DrawContext dc)
-        {
-            if (this.pendingHeightmap == null)
-                return;
-
-            // seaglassfoundry.com: scan the heightmap once to compute the residual bound
-            // used by the GPU compute-shader frustum cull. Cheap (~289 floats at density 16).
-            // The bound is (max - min) over the tile's heightmap; this conservatively
-            // dominates |h_actual - h_bilinear| for any tess point inside the tile,
-            // since both terms are linear interpolations of grid samples in [min, max].
-            {
-                FloatBuffer hb = this.pendingHeightmap;
-                int n = hb.limit();
-                float min = Float.POSITIVE_INFINITY;
-                float max = Float.NEGATIVE_INFINITY;
-                for (int i = 0; i < n; i++)
-                {
-                    float h = hb.get(i);
-                    if (h < min) min = h;
-                    if (h > max) max = h;
-                }
-                this.heightmapResidualBound = (n > 0 && max > min) ? (max - min) : 0f;
-                hb.rewind();
-            }
-
-            GL2 gl = dc.getGL().getGL2();
-            int[] texId = new int[1];
-            gl.glGenTextures(1, texId, 0);
-            gl.glBindTexture(GL.GL_TEXTURE_2D, texId[0]);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
-            gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_R32F, this.heightmapSize, this.heightmapSize,
-                0, GL2ES2.GL_RED, GL.GL_FLOAT, this.pendingHeightmap);
-            gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
-
-            int sizeBytes = this.heightmapSize * this.heightmapSize * 4;
-            dc.getGpuResourceCache().put(this.heightmapCacheKey, texId, GpuResourceCache.TEXTURE_IDS, sizeBytes);
-            this.pendingHeightmap = null; // release CPU copy
-        }
     }
 
     protected static class RectTile implements SectorGeometry
@@ -377,10 +239,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         protected final double cellSize;
         protected Extent extent; // extent of sector in object coordinates
         protected RenderInfo ri;
-
-        /** Cached ECEF corner positions at elevation 0, computed on first use for
-         *  constrainNeighbourLevels.  Order: BL, BR, TR, TL. */
-        protected Vec4 cornerBL, cornerBR, cornerTR, cornerTL;
 
         protected int minColorCode = 0;
         protected int maxColorCode = 0;
@@ -567,26 +425,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             return this.tessellator.makeGeographicTexCoords(this, computer);
         }
 
-        // ── seaglassfoundry.com: tile-scoped shader lifecycle ──────────────────
-
-        @Override
-        public void activateShader(DrawContext dc, int numTextureUnits)
-        {
-            this.tessellator.activateShaderForTile(dc, this, numTextureUnits);
-        }
-
-        @Override
-        public void deactivateShader(DrawContext dc)
-        {
-            this.tessellator.deactivateShaderForTile(dc);
-        }
-
-        @Override
-        public void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits,
-                                                       float[] texMatrix)
-        {
-            this.tessellator.renderImageTile(dc, this, numTextureUnits, texMatrix);
-        }
     }
 
     protected static class CacheKey
@@ -656,27 +494,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
     protected static final HashMap<Integer, Object> textureCoordVboCacheKeys = new HashMap<>();
     protected static final HashMap<Integer, Object> indexListsVboCacheKeys = new HashMap<>();
 
-    // Quad-patch index buffers — one IntBuffer per density, shared across tiles.
-    // Each entry holds 4 * (density+2)^2 indices (one 4-vertex patch per grid cell).
-    protected static final HashMap<Integer, IntBuffer> patchIndexLists = new HashMap<>();
-    protected static final HashMap<Integer, Object> patchIndexListsVboCacheKeys = new HashMap<>();
-
-    // seaglassfoundry.com: shaders are now per-GLContext so that multiple WorldWind windows
-    // with independent GL contexts each get their own compiled shader programs.
-
-    // Terrain shader — lazily initialized on first render, one per GL context.
-    protected static final GLContextLocal<TerrainShader> terrainShaders = new GLContextLocal<>();
-    protected static final GLContextLocal<Boolean> terrainShaderInitFailed = new GLContextLocal<>();
-
-    // Tessellation shader — preferred over terrainShader when GL 4.0 is available. One per GL context.
-    protected static final GLContextLocal<TessellationTerrainShader> tessellationShaders = new GLContextLocal<>();
-    protected static final GLContextLocal<Boolean> tessellationShaderInitFailed = new GLContextLocal<>();
-
-    // Compute mesh shader — layered on top of the tessellation shader when GL 4.3 is available.
-    // Replaces glDrawElements(GL_PATCHES) with GPU frustum culling + glDrawElementsIndirect. One per GL context.
-    protected static final GLContextLocal<ComputeMeshShader> computeMeshShaders = new GLContextLocal<>();
-    protected static final GLContextLocal<Boolean> computeMeshShaderInitFailed = new GLContextLocal<>();
-
     protected int numLevel0LatSubdivisions = DEFAULT_NUM_LAT_SUBDIVISIONS;
     protected int numLevel0LonSubdivisions = DEFAULT_NUM_LON_SUBDIVISIONS;
     protected SessionCache topLevelTilesCache = new BasicSessionCache(3);
@@ -693,19 +510,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
     // seaglassfoundry.com: reusable buffers to reduce per-frame allocation churn in buildVerts
     protected ArrayList<LatLon> reusableLatLons = new ArrayList<>();
     protected double[] reusableElevations = null;
-    // seaglassfoundry.com: per-frame heightmap upload budget to prevent GPU stalls during fast panning
-    protected static final int MAX_HEIGHTMAP_UPLOADS_PER_FRAME = 6;
-    protected int heightmapUploadsThisFrame = 0;
-    protected long lastHeightmapFrameTimestamp = 0;
-
-    // seaglassfoundry.com: tile-scoped shader lifecycle — tracks which shader is currently
-    // activated by activateShaderForTile() so deactivateShaderForTile() knows what to tear down.
-    // 0 = none, 1 = TerrainShader, 2 = TessellationTerrainShader
-    protected int activeShaderType = 0;
-    // seaglassfoundry.com: guards beginRendering/endRendering client-attrib push/pop so that
-    // a pop without a matching push (e.g. exception between sg.beginRendering and sg.endRendering
-    // in SurfaceTileRenderer) is a safe no-op instead of a GLException on an empty stack.
-    protected final OGLStackHandler renderStackHandler = new OGLStackHandler();
 
     @Override
 	public SectorGeometryList tessellate(DrawContext dc)
@@ -741,14 +545,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             this.topLevelTilesCache.put(dc.getGlobe().getStateKey(dc), topLevels);
         }
 
-        // seaglassfoundry.com: reset per-frame heightmap upload budget
-        long frameTs = dc.getFrameTimeStamp();
-        if (frameTs != this.lastHeightmapFrameTimestamp)
-        {
-            this.heightmapUploadsThisFrame = 0;
-            this.lastHeightmapFrameTimestamp = frameTs;
-        }
-
         this.currentTiles.clear();
         this.currentLevel = 0;
         this.currentCoverage = null;
@@ -765,12 +561,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         {
             this.makeVerts(dc, (RectTile) tile);
         }
-
-        // Crack-free LOD stitching (Task 4.4): after all tiles have RenderInfo, compute
-        // per-edge tessellation level estimates and constrain adjacent same-density tiles
-        // so their shared edge caps match.  Stored on RenderInfo for use in render().
-        if (dc.getGLRuntimeCapabilities().isUseTessellation())
-            this.constrainNeighbourLevels(dc);
 
         // Make a copy of the SGL because the tessellator may be called multiple times per frame with a different globe.
         // See SceneController2D.
@@ -1061,42 +851,13 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
         verts.rewind();
 
-        // Extract interior (density+1)^2 elevations for the heightmap texture.
-        // The full elevations[] grid is (density+3)^2; interior rows/cols are 1..density+1.
-        // Stored as pending upload on RenderInfo; uploaded to GL_R32F texture on first render().
-        FloatBuffer heightmapBuf = null;
-        if (dc.getGLRuntimeCapabilities().isUseTerrainShader())
-        {
-            int hmSize = density + 1;
-            heightmapBuf = Buffers.newDirectFloatBuffer(hmSize * hmSize);
-            int stride = density + 3;
-            for (int j = 1; j <= density + 1; j++)
-            {
-                for (int i = 1; i <= density + 1; i++)
-                {
-                    heightmapBuf.put((float) (verticalExaggeration * elevations[j * stride + i]));
-                }
-            }
-            heightmapBuf.rewind();
-        }
-
         if (tile.ri != null)
         {
             tile.ri.update(dc);
-            if (heightmapBuf != null)
-            {
-                tile.ri.pendingHeightmap = heightmapBuf;
-                tile.ri.heightmapSize = density + 1;
-            }
             return false;
         }
 
         tile.ri = new RenderInfo(dc, density, verts, refCenter);
-        if (heightmapBuf != null)
-        {
-            tile.ri.pendingHeightmap = heightmapBuf;
-            tile.ri.heightmapSize = density + 1;
-        }
         return true;
     }
 
@@ -1183,13 +944,7 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
-        // seaglassfoundry.com: bindVbos() (the fixed-function path used by TerrainShader and the
-        // FFP fallback) relies on GL_VERTEX_ARRAY client state being enabled. Always push/enable
-        // here regardless of VAO support — the tessellation path uses generic attribs and is
-        // unaffected by client-state push/pop.
-        // Uses OGLStackHandler so that a pop without a matching push (e.g. exception between
-        // sg.beginRendering and sg.endRendering in SurfaceTileRenderer) is a safe no-op.
-        this.renderStackHandler.pushClientAttrib(gl, GL2.GL_CLIENT_VERTEX_ARRAY_BIT);
+        gl.glPushClientAttrib(GL2.GL_CLIENT_VERTEX_ARRAY_BIT);
         gl.glEnableClientState(GLPointerFunc.GL_VERTEX_ARRAY);
 
         // Tiles don't push their reference center, they set it, so push the reference center once here so it can be
@@ -1199,218 +954,10 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
     public void endRendering(DrawContext dc)
     {
-        GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
-
         dc.getView().popReferenceCenter(dc);
 
-        // seaglassfoundry.com: unbind any VAO left bound by the tessellation path, then restore
-        // client attrib state pushed in beginRendering(). OGLStackHandler.pop() is a safe no-op
-        // if the push never happened (e.g. exception path in SurfaceTileRenderer).
-        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-            gl.glBindVertexArray(0);
-        this.renderStackHandler.pop(gl);
-    }
-
-    // ── seaglassfoundry.com: tile-scoped shader lifecycle for SurfaceTileRenderer ──
-    // These methods split the shader activate/deactivate cycle so the shader stays
-    // active across all image tile draws for the same geometry tile.
-
-    /**
-     * Activates the appropriate terrain shader for the given geometry tile.
-     * Called once per geometry tile by SurfaceTileRenderer before iterating
-     * over intersecting image tiles.
-     *
-     * @param dc              the current draw context
-     * @param tile            the geometry tile being rendered
-     * @param numTextureUnits the number of texture units in use
-     */
-    protected void activateShaderForTile(DrawContext dc, RectTile tile, int numTextureUnits)
-    {
-        if (tile.ri == null)
-            return;
-
-        // Lazy shader init — same logic as render(), ensures shaders are available.
-        TessellationTerrainShader tessellationShader = tessellationShaders.get();
-        TerrainShader terrainShader = terrainShaders.get();
-
-        if (!Boolean.TRUE.equals(tessellationShaderInitFailed.get()) && tessellationShader == null
-            && dc.getGLRuntimeCapabilities().isUseTessellation())
-        {
-            tessellationShader = new TessellationTerrainShader();
-            if (!tessellationShader.init(dc.getGL().getGL2()))
-            {
-                tessellationShader = null;
-                tessellationShaderInitFailed.set(Boolean.TRUE);
-            }
-            else
-                tessellationShaders.set(tessellationShader);
-        }
-
-        if (!Boolean.TRUE.equals(terrainShaderInitFailed.get()) && terrainShader == null
-            && dc.getGLRuntimeCapabilities().isUseTerrainShader())
-        {
-            terrainShader = new TerrainShader();
-            if (!terrainShader.init(dc.getGL().getGL2()))
-            {
-                terrainShader = null;
-                terrainShaderInitFailed.set(Boolean.TRUE);
-            }
-            else
-                terrainShaders.set(terrainShader);
-        }
-
-        // Upload heightmap if pending (same throttle logic as render).
-        if ((tessellationShader != null && tessellationShader.isValid())
-            || (terrainShader != null && terrainShader.isValid()))
-        {
-            if (tile.ri.pendingHeightmap != null && this.heightmapUploadsThisFrame < MAX_HEIGHTMAP_UPLOADS_PER_FRAME)
-            {
-                tile.ri.fillHeightmapTexture(dc);
-                this.heightmapUploadsThisFrame++;
-            }
-            else if (tile.ri.pendingHeightmap != null)
-                dc.setRedrawRequested(1);
-        }
-
-        // Determine shader path — same priority as render().
-        boolean vaoAvailable = dc.getGLRuntimeCapabilities().isUseVertexArrayObject();
-        boolean tessellationReady = vaoAvailable
-            && tessellationShader != null && tessellationShader.isValid()
-            && numTextureUnits == 2;
-        boolean useShader = !tessellationReady
-            && terrainShader != null && terrainShader.isValid()
-            && numTextureUnits == 2;
-
-        // Determine pick color mode.
-        boolean usePickColor = false;
-        if (dc.isPickingMode())
-        {
-            Object pickMode = dc.getValue("gov.nasa.worldwind.render.SurfaceTilePickMode");
-            usePickColor = pickMode != null && ((Integer) pickMode) == 2;
-        }
-
-        if (tessellationReady)
-        {
-            tessellationShader.activateForTile(dc.getGL().getGL2(), dc, tile.ri.heightmapCacheKey,
-                tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
-                tile.ri.constrainedOuterLevels, usePickColor);
-            this.activeShaderType = 2;
-        }
-        else if (useShader)
-        {
-            terrainShader.activateForTile(dc.getGL().getGL2(), dc, null,
-                tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
-                usePickColor);
-            this.activeShaderType = 1;
-        }
-        else
-        {
-            this.activeShaderType = 0;
-        }
-    }
-
-    /**
-     * Deactivates the shader that was activated by {@link #activateShaderForTile}.
-     *
-     * @param dc the current draw context
-     */
-    protected void deactivateShaderForTile(DrawContext dc)
-    {
-        GL2 gl = dc.getGL().getGL2();
-        if (this.activeShaderType == 2)
-        {
-            TessellationTerrainShader tessellationShader = tessellationShaders.get();
-            if (tessellationShader != null)
-                tessellationShader.deactivateForTile(gl);
-        }
-        else if (this.activeShaderType == 1)
-        {
-            TerrainShader terrainShader = terrainShaders.get();
-            if (terrainShader != null)
-                terrainShader.deactivateForTile(gl);
-        }
-        this.activeShaderType = 0;
-    }
-
-    /**
-     * Renders one image tile draw with the shader already active.  Uploads the
-     * pre-computed texture matrix to the active shader's uniforms, then issues
-     * the draw call without activating/deactivating the shader.
-     *
-     * @param dc              the current draw context
-     * @param tile            the geometry tile
-     * @param numTextureUnits the number of texture units in use
-     * @param texMatrix       column-major 4×4 texture matrix (float[16])
-     */
-    protected void renderImageTile(DrawContext dc, RectTile tile, int numTextureUnits,
-                                   float[] texMatrix)
-    {
-        if (tile.ri == null)
-            return;
-
-        // Upload the pre-computed texture matrix to the active shader.
-        GL2 gl = dc.getGL().getGL2();
-        if (this.activeShaderType == 2)
-        {
-            TessellationTerrainShader tessellationShader = tessellationShaders.get();
-            if (tessellationShader != null)
-                tessellationShader.updateTextureState(gl, texMatrix);
-        }
-        else if (this.activeShaderType == 1)
-        {
-            TerrainShader terrainShader = terrainShaders.get();
-            if (terrainShader != null)
-                terrainShader.updateTextureState(gl, texMatrix);
-        }
-
-        // Issue the draw call — same VBO/VA logic as the existing render() draw path,
-        // but without shader activate/deactivate.
-        boolean vaoAvailable = dc.getGLRuntimeCapabilities().isUseVertexArrayObject();
-        TessellationTerrainShader tessellationShader = tessellationShaders.get();
-        boolean tessellationReady = vaoAvailable
-            && tessellationShader != null && tessellationShader.isValid()
-            && numTextureUnits == 2 && this.activeShaderType == 2;
-        boolean useComputeMesh = tessellationReady
-            && computeMeshShaders.get() != null && computeMeshShaders.get().isValid()
-            && dc.getGLRuntimeCapabilities().isUseVertexBufferObject();
-        boolean useTessellation = tessellationReady && !useComputeMesh;
-
-        if (useComputeMesh)
-        {
-            createPatchIndices(tile.density);
-            if (!this.renderVBOComputeTessellated(dc, tile, numTextureUnits))
-            {
-                dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-                this.renderVBOTessellated(dc, tile, numTextureUnits);
-            }
-        }
-        else if (useTessellation)
-        {
-            createPatchIndices(tile.density);
-            if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
-            {
-                if (!this.renderVBOTessellated(dc, tile, numTextureUnits))
-                {
-                    dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                    dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-                    this.renderVATessellated(dc, tile, numTextureUnits);
-                }
-            }
-            else
-                this.renderVATessellated(dc, tile, numTextureUnits);
-        }
-        else if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
-        {
-            if (!this.renderVBO(dc, tile, numTextureUnits))
-            {
-                dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-                this.renderVA(dc, tile, numTextureUnits);
-            }
-        }
-        else
-            this.renderVA(dc, tile, numTextureUnits);
+        GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
+        gl.glPopClientAttrib();
     }
 
     protected long render(DrawContext dc, RectTile tile, int numTextureUnits)
@@ -1422,185 +969,20 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             throw new IllegalStateException(msg);
         }
 
-        // seaglassfoundry.com: per-context shader lookup — each GL context gets its own shader instances.
-        TessellationTerrainShader tessellationShader = tessellationShaders.get();
-        ComputeMeshShader computeMeshShader = computeMeshShaders.get();
-        TerrainShader terrainShader = terrainShaders.get();
-
-        // Lazy tessellation shader init (GL 4.0+) — preferred when available.
-        // Only usable for the two-unit path (imagery + alpha mask).
-        if (!Boolean.TRUE.equals(tessellationShaderInitFailed.get()) && tessellationShader == null
-            && dc.getGLRuntimeCapabilities().isUseTessellation())
+        if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
         {
-            tessellationShader = new TessellationTerrainShader();
-            if (!tessellationShader.init(dc.getGL().getGL2()))
+            if (!this.renderVBO(dc, tile, numTextureUnits))
             {
-                tessellationShader = null;
-                tessellationShaderInitFailed.set(Boolean.TRUE);
-            }
-            else
-            {
-                tessellationShaders.set(tessellationShader);
-            }
-        }
-
-        // Lazy compute mesh shader init (GL 4.3+) — layered on top of tessellation.
-        // Replaces glDrawElements(GL_PATCHES) with GPU frustum culling + glDrawElementsIndirect.
-        if (!Boolean.TRUE.equals(computeMeshShaderInitFailed.get()) && computeMeshShader == null
-            && dc.getGLRuntimeCapabilities().isUseComputeMesh())
-        {
-            computeMeshShader = new ComputeMeshShader();
-            if (!computeMeshShader.init(dc.getGL()))
-            {
-                computeMeshShader = null;
-                computeMeshShaderInitFailed.set(Boolean.TRUE);
-            }
-            else
-            {
-                computeMeshShaders.set(computeMeshShader);
-            }
-        }
-
-        // Lazy terrain shader init (GL 3.0+) — fallback when tessellation unavailable.
-        if (!Boolean.TRUE.equals(terrainShaderInitFailed.get()) && terrainShader == null
-            && dc.getGLRuntimeCapabilities().isUseTerrainShader())
-        {
-            terrainShader = new TerrainShader();
-            if (!terrainShader.init(dc.getGL().getGL2()))
-            {
-                terrainShader = null;
-                terrainShaderInitFailed.set(Boolean.TRUE);
-            }
-            else
-            {
-                terrainShaders.set(terrainShader);
-            }
-        }
-
-        // Upload the heightmap texture if a pending elevation buffer is waiting.
-        // Both shader paths need the heightmap in the GPU cache.
-        // seaglassfoundry.com: throttle uploads to MAX_HEIGHTMAP_UPLOADS_PER_FRAME per frame to prevent
-        // GPU stalls during fast panning. Tiles exceeding the budget render without heightmap this frame.
-        if ((tessellationShader != null && tessellationShader.isValid())
-            || (terrainShader != null && terrainShader.isValid()))
-        {
-            if (tile.ri.pendingHeightmap != null && this.heightmapUploadsThisFrame < MAX_HEIGHTMAP_UPLOADS_PER_FRAME)
-            {
-                tile.ri.fillHeightmapTexture(dc);
-                this.heightmapUploadsThisFrame++;
-            }
-            else if (tile.ri.pendingHeightmap == null)
-            {
-                // Already uploaded — no budget cost
-            }
-            // else: budget exceeded, tile renders without heightmap this frame; request redraw
-            else
-            {
-                dc.setRedrawRequested(1);
-            }
-        }
-
-        // seaglassfoundry.com: Phase 5 — shader now handles picking (u_usePickColor uniform);
-        // three-unit path for showImageTileOutlines still uses fixed-function.
-        // Priority: ComputeMesh (GL 4.3+) > Tessellation (GL 4.0+) > TerrainShader (GL 3.0+) > fixed-function.
-        // seaglassfoundry.com: tessellation and compute mesh shaders use explicit attrib locations
-        // (glVertexAttribPointer) which require VAOs to avoid conflicting with fixed-function state.
-        // When VAOs are disabled (e.g. AMD Vega compatibility workaround), fall through to TerrainShader.
-        boolean vaoAvailable = dc.getGLRuntimeCapabilities().isUseVertexArrayObject();
-        boolean tessellationReady = vaoAvailable
-            && tessellationShader != null && tessellationShader.isValid()
-            && numTextureUnits == 2;
-        boolean useComputeMesh = tessellationReady
-            && computeMeshShader != null && computeMeshShader.isValid()
-            && dc.getGLRuntimeCapabilities().isUseVertexBufferObject();
-        boolean useTessellation = tessellationReady && !useComputeMesh;
-        boolean useShader = !tessellationReady
-            && terrainShader != null && terrainShader.isValid()
-            && numTextureUnits == 2;
-
-        // seaglassfoundry.com: Phase 5 — determine pick color mode from DrawContext.
-        // SurfaceTileRenderer sets this key when picking with non-image pick colors.
-        boolean usePickColor = false;
-        if (dc.isPickingMode())
-        {
-            Object pickMode = dc.getValue("gov.nasa.worldwind.render.SurfaceTilePickMode");
-            usePickColor = pickMode != null && ((Integer) pickMode) == 2;
-        }
-
-        if (tessellationReady)
-        {
-            tessellationShader.activate(dc.getGL().getGL2(), dc, tile.ri.heightmapCacheKey,
-                tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
-                tile.ri.constrainedOuterLevels, usePickColor);
-        }
-        else if (useShader)
-        {
-            // Modified by seaglassfoundry.com - pass null heightmap for the TerrainShader path.
-            // CPU vertices already include full elevation displacement (buildVerts computes
-            // ECEF at vertExagg * elevation). The TerrainShader lacks delta-correction, so
-            // passing the heightmap causes double displacement — terrain appears 2x too high,
-            // pushing geometry into the near clip plane at close range.
-            terrainShader.activate(dc.getGL().getGL2(), dc, null,
-                tile.ri.referenceCenter.x, tile.ri.referenceCenter.y, tile.ri.referenceCenter.z,
-                usePickColor);
-        }
-
-        try
-        {
-            if (useComputeMesh)
-            {
-                createPatchIndices(tile.density);
-                if (!this.renderVBOComputeTessellated(dc, tile, numTextureUnits))
-                {
-                    // Compute fallback: draw all patches via standard tessellation VBO path.
-                    dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                    dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-                    this.renderVBOTessellated(dc, tile, numTextureUnits);
-                }
-            }
-            else if (useTessellation)
-            {
-                createPatchIndices(tile.density);
-                if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
-                {
-                    if (!this.renderVBOTessellated(dc, tile, numTextureUnits))
-                    {
-                        dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                        dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-                        this.renderVATessellated(dc, tile, numTextureUnits);
-                    }
-                }
-                else
-                {
-                    this.renderVATessellated(dc, tile, numTextureUnits);
-                }
-            }
-            else if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
-            {
-                if (!this.renderVBO(dc, tile, numTextureUnits))
-                {
-                    // Fall back to VA rendering. This is an error condition at this point because something went wrong
-                    // with VBO fill or binding. But we can still probably draw the tile using vertex arrays.
-                    dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                    dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-                    this.renderVA(dc, tile, numTextureUnits);
-                }
-            }
-            else
-            {
+                dc.getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                dc.getGL().glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
                 this.renderVA(dc, tile, numTextureUnits);
             }
         }
-        finally
+        else
         {
-            if (tessellationReady)
-                tessellationShader.deactivate(dc.getGL().getGL2());
-            else if (useShader)
-                terrainShader.deactivate(dc.getGL().getGL2());
+            this.renderVA(dc, tile, numTextureUnits);
         }
 
-        if (tessellationReady)
-            return patchIndexLists.get(tile.density).limit() / 4; // number of patches
         return tile.ri.indices.limit() - 2; // number of triangles rendered
     }
 
@@ -1640,14 +1022,7 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
 
     protected boolean bindVbos(DrawContext dc, RectTile tile, int numTextureUnits)
     {
-        // seaglassfoundry.com: unbind any active VAO before the fill*Vbo() calls below.
-        // GL_ELEMENT_ARRAY_BUFFER binding is captured in VAO state, so fillIndexListVbo()'s
-        // bind/unbind cycle would corrupt the previous tile's VAO if it were still active.
-        // (Same fix as bindVbosTessellated — see comment there for full explanation.)
-        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-            dc.getGL().getGL2().glBindVertexArray(0);
-
-        // Ensure vertex VBO is present (rotates vaoCacheKey on first upload or re-upload)
+        // Ensure vertex VBO is present
         int[] verticesVboId = (int[]) dc.getGpuResourceCache().get(tile.ri.vboCacheKey);
         if (verticesVboId == null)
         {
@@ -1678,13 +1053,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
             return false;
 
         GL2 gl = dc.getGL().getGL2();
-
-        // seaglassfoundry.com: This path uses fixed-function client arrays (glVertexPointer /
-        // glTexCoordPointer / glEnableClientState), which are NOT captured by VAOs in the GL spec.
-        // Mixing them into a VAO is undefined and crashes glDrawElements on AMD compatibility-profile
-        // drivers (atio6axx.dll). The VAO fast path is only valid for the generic-attrib shader path
-        // in bindVbosTessellated(); here we always use the legacy direct VBO bind.
-        // (VAO already unbound at method entry — see comment above.)
 
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, verticesVboId[0]);
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
@@ -1737,460 +1105,6 @@ public class RectangularTessellator extends WWObjectImpl implements Tessellator
         }
 
         return indexListVboId;
-    }
-
-    // -----------------------------------------------------------------------
-    // Tessellation rendering (Task 4.2)
-    // -----------------------------------------------------------------------
-
-    /**
-     * Generates and caches the quad-patch index buffer for the given density.
-     * Each grid cell becomes one 4-vertex patch with vertices ordered
-     * BL(u=0,v=0), BR(u=1,v=0), TR(u=1,v=1), TL(u=0,v=1) to match the
-     * TES bilinear interpolation domain.
-     */
-    protected static void createPatchIndices(int density)
-    {
-        if (patchIndexLists.containsKey(density))
-            return;
-
-        int sideSize = density + 2; // cells per dimension (including skirt cells)
-        int stride   = density + 3; // vertices per row
-        IntBuffer buf = Buffers.newDirectIntBuffer(4 * sideSize * sideSize);
-        for (int j = 0; j < sideSize; j++)
-        {
-            for (int i = 0; i < sideSize; i++)
-            {
-                buf.put(j       * stride +  i);        // BL
-                buf.put(j       * stride + (i + 1));   // BR
-                buf.put((j + 1) * stride + (i + 1));   // TR
-                buf.put((j + 1) * stride +  i);        // TL
-            }
-        }
-        buf.rewind();
-        patchIndexLists.put(density, buf);
-    }
-
-    // -------------------------------------------------------------------------
-    // Task 4.4 — Crack-Free LOD Stitching
-    // -------------------------------------------------------------------------
-
-    /**
-     * Computes per-edge tessellation level caps for all visible tiles and constrains
-     * the shared edge of adjacent same-density tiles to {@code min(a, b)}.
-     * <p>
-     * Called once per {@code tessellate()} pass after all {@code RenderInfo} objects
-     * have been built.  Results are stored in {@code tile.ri.constrainedOuterLevels}
-     * (a {@code float[4]}) and passed to {@link TessellationTerrainShader#activate} so
-     * the TCS caps {@code gl_TessLevelOuter[k]} accordingly.
-     * <p>
-     * Only tiles with the same {@link RectTile#density} are constrained against each
-     * other.  Different-density boundaries rely on the existing skirt geometry.
-     */
-    protected void constrainNeighbourLevels(DrawContext dc)
-    {
-        // Gather tiles that have RenderInfo so we can look up adjacency.
-        List<RectTile> tiles = new ArrayList<>();
-        for (SectorGeometry sg : this.currentTiles)
-        {
-            RectTile t = (RectTile) sg;
-            if (t.ri != null)
-                tiles.add(t);
-        }
-
-        int n = tiles.size();
-
-        // Compute representative screen-space edge levels for every tile.
-        float[][] levels = new float[n][];
-        for (int i = 0; i < n; i++)
-            levels[i] = computeEdgeLevels(dc, tiles.get(i));
-
-        // O(N) adjacency matching via edge hashing.  Each tile edge is keyed by the
-        // coordinate of the shared boundary (latitude for N/S edges, longitude for E/W).
-        // Format: density * 1e8 + coordinate_degrees  (density-qualified to skip
-        // different-density pairs, which rely on skirts).
-        HashMap<Long, int[]> northEdge = new HashMap<>(n);  // keyed by minLat → tile index
-        HashMap<Long, int[]> westEdge  = new HashMap<>(n);  // keyed by minLon → tile index
-
-        for (int i = 0; i < n; i++)
-        {
-            RectTile t = tiles.get(i);
-            long sKey = edgeKey(t.density, t.sector.getMinLatitude().degrees);
-            long nKey = edgeKey(t.density, t.sector.getMaxLatitude().degrees);
-            long wKey = edgeKey(t.density, t.sector.getMinLongitude().degrees);
-            long eKey = edgeKey(t.density, t.sector.getMaxLongitude().degrees);
-
-            // A's north edge matches B's south edge when A.maxLat == B.minLat
-            int[] match = northEdge.get(nKey);
-            if (match != null)
-            {
-                // match[0] is a tile whose minLat == this tile's maxLat → match south ↔ our north
-                float v = Math.min(levels[i][3], levels[match[0]][1]);
-                levels[i][3] = v;
-                levels[match[0]][1] = v;
-            }
-            // Register this tile's south edge so later tiles can match their north to it
-            northEdge.put(sKey, new int[] {i});
-
-            // A's east edge matches B's west edge when A.maxLon == B.minLon
-            match = westEdge.get(eKey);
-            if (match != null)
-            {
-                float v = Math.min(levels[i][2], levels[match[0]][0]);
-                levels[i][2] = v;
-                levels[match[0]][0] = v;
-            }
-            westEdge.put(wKey, new int[] {i});
-        }
-
-        // Write results back to each tile's RenderInfo.
-        for (int i = 0; i < n; i++)
-            tiles.get(i).ri.constrainedOuterLevels = levels[i];
-    }
-
-    /** Produces a hash key for an edge coordinate qualified by density.
-     * <p>
-     * seaglassfoundry.com: quantize the latitude/longitude to a fixed 1e-9 deg
-     * grid (~0.1 mm at the equator, far below any tile resolution) before hashing.
-     * Two adjacent tiles can compute their shared edge coordinate via different
-     * cumulative FP additions and end up 1 ULP apart — e.g. the +30N elevation
-     * row boundary, reached by summing 20deg steps from -90. With raw
-     * Double.doubleToLongBits() that 1-ULP drift makes the neighbor lookup miss
-     * silently, leaves both tiles with unconstrained outer tessellation levels,
-     * and produces a T-junction crack along the entire shared parallel.
-     */
-    private static long edgeKey(int density, double degrees)
-    {
-        long quantized = Math.round(degrees * 1.0e9);
-        return ((long) density << 40) ^ quantized;
-    }
-
-    /**
-     * Projects the four geographic corners of the tile sector to screen space and
-     * returns the per-edge tessellation level estimate, using the same pixel-per-triangle
-     * metric as the TCS.
-     * <p>
-     * Edge index mapping matches {@code gl_TessLevelOuter}:
-     * <pre>
-     *   [0] left  (west)   TL→BL
-     *   [1] bottom (south) BL→BR
-     *   [2] right  (east)  BR→TR
-     *   [3] top    (north) TR→TL
-     * </pre>
-     */
-    protected float[] computeEdgeLevels(DrawContext dc, RectTile tile)
-    {
-        View  view  = dc.getView();
-        float ppt   = TessellationTerrainShader.DEFAULT_PIXELS_PER_TRIANGLE;
-
-        // Cache ECEF corner positions — they never change for a given sector/globe.
-        if (tile.cornerBL == null)
-        {
-            Globe globe = dc.getGlobe();
-            Sector s    = tile.sector;
-            tile.cornerBL = globe.computePointFromPosition(s.getMinLatitude(), s.getMinLongitude(), 0);
-            tile.cornerBR = globe.computePointFromPosition(s.getMinLatitude(), s.getMaxLongitude(), 0);
-            tile.cornerTR = globe.computePointFromPosition(s.getMaxLatitude(), s.getMaxLongitude(), 0);
-            tile.cornerTL = globe.computePointFromPosition(s.getMaxLatitude(), s.getMinLongitude(), 0);
-        }
-
-        Vec4 sBL = view.project(tile.cornerBL);
-        Vec4 sBR = view.project(tile.cornerBR);
-        Vec4 sTR = view.project(tile.cornerTR);
-        Vec4 sTL = view.project(tile.cornerTL);
-
-        return new float[] {
-            clampTessLevel(screenDist2D(sTL, sBL) / ppt),  // [0] left/west
-            clampTessLevel(screenDist2D(sBL, sBR) / ppt),  // [1] bottom/south
-            clampTessLevel(screenDist2D(sBR, sTR) / ppt),  // [2] right/east
-            clampTessLevel(screenDist2D(sTR, sTL) / ppt),  // [3] top/north
-        };
-    }
-
-    /**
-     * If sectors {@code sa} and {@code sb} share an edge, mutates the corresponding
-     * level entries in {@code la} and {@code lb} to their minimum so both tiles use
-     * the same cap on the shared edge.
-     */
-    @SuppressWarnings("unused")
-    private static void constrainSharedEdge(Sector sa, float[] la, Sector sb, float[] lb)
-    {
-        double eps = 1e-10;
-        // A.north (la[3]) ↔ B.south (lb[1])
-        if (Math.abs(sa.getMaxLatitude().degrees - sb.getMinLatitude().degrees) < eps)
-        {
-            float v = Math.min(la[3], lb[1]);
-            la[3] = v;
-            lb[1] = v;
-        }
-        // A.south (la[1]) ↔ B.north (lb[3])
-        else if (Math.abs(sa.getMinLatitude().degrees - sb.getMaxLatitude().degrees) < eps)
-        {
-            float v = Math.min(la[1], lb[3]);
-            la[1] = v;
-            lb[3] = v;
-        }
-        // A.east (la[2]) ↔ B.west (lb[0])
-        else if (Math.abs(sa.getMaxLongitude().degrees - sb.getMinLongitude().degrees) < eps)
-        {
-            float v = Math.min(la[2], lb[0]);
-            la[2] = v;
-            lb[0] = v;
-        }
-        // A.west (la[0]) ↔ B.east (lb[2])
-        else if (Math.abs(sa.getMinLongitude().degrees - sb.getMaxLongitude().degrees) < eps)
-        {
-            float v = Math.min(la[0], lb[2]);
-            la[0] = v;
-            lb[2] = v;
-        }
-    }
-
-    private static float screenDist2D(Vec4 a, Vec4 b)
-    {
-        if (a == null || b == null)
-            return 32.0f;  // behind-camera vertex; don't over-constrain
-        double dx = b.x - a.x, dy = b.y - a.y;
-        return (float) Math.sqrt(dx * dx + dy * dy);
-    }
-
-    private static float clampTessLevel(float v)
-    {
-        return Math.max(1.0f, Math.min(32.0f, v));
-    }
-
-    protected boolean renderVBOTessellated(DrawContext dc, RectTile tile, int numTextureUnits)
-    {
-        if (this.bindVbosTessellated(dc, tile, numTextureUnits))
-        {
-            IntBuffer patches = patchIndexLists.get(tile.density);
-            dc.getGL().glDrawElements(GL3ES3.GL_PATCHES, patches.limit(), GL.GL_UNSIGNED_INT, 0);
-            // seaglassfoundry.com: unbind the tessellation VAO immediately after the draw call.
-            // endRendering() calls glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0) to clean up the
-            // fixed-function state set by beginRendering()/bindVbos().  If the tessellation VAO
-            // is still bound at that point, the zero-EAB write corrupts the VAO's captured
-            // element buffer state.  On the next frame the cached VAO is reused with EAB=0,
-            // and glDrawElements dereferences NULL inside atio6axx.dll.
-            if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-                dc.getGL().getGL2().glBindVertexArray(0);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Compute-mesh tessellation path (Task 4.3, GL 4.3+).
-     * <p>
-     * Binds the vertex and texture-coordinate VBOs, then delegates to
-     * {@link ComputeMeshShader#dispatchAndDraw} which:
-     * <ol>
-     *   <li>Runs a compute shader that frustum-culls each coarse quad patch.</li>
-     *   <li>Issues {@code glDrawElementsIndirect(GL_PATCHES)} with the compacted index count —
-     *       no CPU readback required.</li>
-     * </ol>
-     * The tessellation shader must already be active when this method is called.
-     *
-     * @return {@code true} if the draw was issued, {@code false} if VBO setup failed
-     *         (caller should fall back to {@link #renderVBOTessellated}).
-     */
-    protected boolean renderVBOComputeTessellated(DrawContext dc, RectTile tile, int numTextureUnits)
-    {
-        // bindVbosTessellated uploads vertex + texcoord VBOs, uploads patch IBO to GPU cache,
-        // and binds the patch IBO as GL_ELEMENT_ARRAY_BUFFER. The compute path will override
-        // the element array binding with the culled output SSBO before drawing.
-        if (!this.bindVbosTessellated(dc, tile, numTextureUnits))
-            return false;
-
-        // Retrieve the vertex VBO ID so the compute shader can bind it as SSBO binding 0.
-        int[] verticesVboId = (int[]) dc.getGpuResourceCache().get(tile.ri.vboCacheKey);
-        if (verticesVboId == null)
-            return false;
-
-        IntBuffer srcPatches = patchIndexLists.get(tile.density);
-        if (srcPatches == null)
-            return false;
-
-        GL4 gl4 = dc.getGL().getGL4();
-        // seaglassfoundry.com: pass the per-tile heightmap residual bound so the
-        // compute-shader frustum cull dilates plane tests by the maximum amount the TES
-        // can displace tess points outside the bilinear hull of the 4 patch corners.
-        // 0 when no heightmap is uploaded — collapses to the exact 4-corner test.
-        computeMeshShaders.get().dispatchAndDraw(gl4, dc, verticesVboId[0], tile.density,
-            srcPatches, tile.ri.referenceCenter, tile.ri.heightmapResidualBound);
-        // seaglassfoundry.com: unbind the tessellation VAO after the draw — same reason as
-        // renderVBOTessellated: prevent endRendering()'s EAB cleanup from corrupting it.
-        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-            dc.getGL().getGL2().glBindVertexArray(0);
-        return true;
-    }
-
-    protected void renderVATessellated(DrawContext dc, RectTile tile, int numTextureUnits)
-    {
-        GL2 gl = dc.getGL().getGL2();
-
-        gl.glVertexPointer(3, GL.GL_FLOAT, 0, tile.ri.vertices.rewind());
-
-        for (int i = 0; i < numTextureUnits; i++)
-        {
-            gl.glClientActiveTexture(GL.GL_TEXTURE0 + i);
-            gl.glEnableClientState(GLPointerFunc.GL_TEXTURE_COORD_ARRAY);
-            gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, tile.ri.texCoords.rewind());
-        }
-
-        IntBuffer patches = patchIndexLists.get(tile.density);
-        gl.glDrawElements(GL3ES3.GL_PATCHES, patches.limit(), GL.GL_UNSIGNED_INT, patches.rewind());
-    }
-
-    /**
-     * Like {@link #bindVbos} but binds the patch index VBO instead of the triangle-strip IBO.
-     * Uses VAO fast path when available (shares vaoCacheKey with bindVbos — the index buffer
-     * differs so we use a separate tessVaoCacheKey stored in the patch VBO lookup).
-     */
-    protected boolean bindVbosTessellated(DrawContext dc, RectTile tile, int numTextureUnits)
-    {
-        // seaglassfoundry.com: unbind any active VAO before the fill*Vbo() calls below.
-        // GL_ELEMENT_ARRAY_BUFFER binding is captured in VAO state, so fillPatchIndexVbo()'s
-        // bind/unbind cycle would corrupt the previous tile's VAO if it were still active.
-        // That corrupted VAO (with EAB=0) then causes a NULL-pointer crash in the AMD driver
-        // on the next frame's glDrawElements.
-        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-            dc.getGL().getGL2().glBindVertexArray(0);
-
-        int[] verticesVboId = (int[]) dc.getGpuResourceCache().get(tile.ri.vboCacheKey);
-        if (verticesVboId == null)
-        {
-            tile.ri.fillVerticesVBO(dc); // also rotates vaoCacheKey
-            verticesVboId = (int[]) dc.getGpuResourceCache().get(tile.ri.vboCacheKey);
-            if (verticesVboId == null)
-                return false;
-        }
-
-        // Ensure texcoord VBO
-        int[] texCoordsVboId = null;
-        if (numTextureUnits > 0)
-        {
-            Object texCoordsVboCacheKey = textureCoordVboCacheKeys.get(tile.density);
-            texCoordsVboId = (int[])
-                (texCoordsVboCacheKey != null ? dc.getGpuResourceCache().get(texCoordsVboCacheKey) : null);
-            if (texCoordsVboId == null)
-                texCoordsVboId = this.fillTextureCoordsVbo(dc, tile.density, tile.ri.texCoords);
-        }
-
-        IntBuffer patches = patchIndexLists.get(tile.density);
-        int[] patchVboId = this.fillPatchIndexVbo(dc, tile.density, patches);
-        if (patchVboId == null)
-            return false;
-
-        // seaglassfoundry.com: detect stale VAO — if either shared VBO was recreated
-        // since this tile's VAO was built, the VAO references a deleted GL buffer ID.
-        // Reference identity works because fill*Vbo() allocates a new int[1] on recreation.
-        if (texCoordsVboId != tile.ri.tessVaoTexCoordVboRef
-            || patchVboId != tile.ri.tessVaoPatchVboRef)
-        {
-            dc.getGpuResourceCache().remove(tile.ri.tessShaderVaoCacheKey);
-            tile.ri.tessShaderVaoCacheKey = new Object();
-        }
-
-        GL2 gl = dc.getGL().getGL2();
-
-        // seaglassfoundry.com: VAO fast path for tessellation — single bind replaces multi-call setup.
-        // Tessellation always uses TessellationTerrainShader (GL 4.0+), so always uses
-        // explicit attrib locations 0/1. Uses tessShaderVaoCacheKey (separate from vaoCacheKey)
-        // because the IBO is the patch IBO, not the triangle IBO.
-        if (dc.getGLRuntimeCapabilities().isUseVertexArrayObject())
-        {
-            int[] vaoId = (int[]) dc.getGpuResourceCache().get(tile.ri.tessShaderVaoCacheKey);
-            if (vaoId == null)
-            {
-                vaoId = new int[1];
-                gl.glGenVertexArrays(1, vaoId, 0);
-                // seaglassfoundry.com: store under VAO_IDS so eviction calls glDeleteVertexArrays,
-                // not glDeleteBuffers (which silently no-ops on a VAO id and leaks the object).
-                dc.getGpuResourceCache().put(tile.ri.tessShaderVaoCacheKey, vaoId,
-                    GpuResourceCache.VAO_IDS, 64);
-
-                gl.glBindVertexArray(vaoId[0]);
-
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, verticesVboId[0]);
-                gl.glEnableVertexAttribArray(0); // aPosition
-                gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 0, 0);
-
-                if (texCoordsVboId != null)
-                {
-                    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, texCoordsVboId[0]);
-                    gl.glEnableVertexAttribArray(1); // aTexCoord
-                    gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 0, 0);
-                }
-
-                // seaglassfoundry.com: bind the element buffer INSIDE the VAO so it is captured
-                // as part of the VAO state — no per-frame EAB rebind required afterwards.
-                gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, patchVboId[0]);
-
-                gl.glBindVertexArray(0);
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-                gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-                // seaglassfoundry.com: remember which shared VBO instances this VAO captured
-                tile.ri.tessVaoTexCoordVboRef = texCoordsVboId;
-                tile.ri.tessVaoPatchVboRef = patchVboId;
-            }
-
-            gl.glBindVertexArray(vaoId[0]);
-            return true;
-        }
-
-        // Legacy path — TessellationTerrainShader requires GL 4.0+ which always has VAOs,
-        // so this path is unreachable in practice when tessellation is active.
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, verticesVboId[0]);
-        gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
-
-        if (texCoordsVboId != null)
-        {
-            for (int i = 0; i < numTextureUnits; i++)
-            {
-                gl.glClientActiveTexture(GL.GL_TEXTURE0 + i);
-                gl.glEnableClientState(GLPointerFunc.GL_TEXTURE_COORD_ARRAY);
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, texCoordsVboId[0]);
-                gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, 0);
-            }
-        }
-
-        gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, patchVboId[0]);
-        return true;
-    }
-
-    protected int[] fillPatchIndexVbo(DrawContext dc, int density, IntBuffer patches)
-    {
-        GL gl = dc.getGL();
-
-        Object cacheKey = patchIndexListsVboCacheKeys.get(density);
-        int[] vboId = (int[]) (cacheKey != null ? dc.getGpuResourceCache().get(cacheKey) : null);
-        if (vboId == null)
-        {
-            vboId = new int[1];
-            gl.glGenBuffers(vboId.length, vboId, 0);
-
-            if (cacheKey == null)
-            {
-                cacheKey = new Object();
-                patchIndexListsVboCacheKeys.put(density, cacheKey);
-            }
-
-            int size = patches.limit() * 4;
-            dc.getGpuResourceCache().put(cacheKey, vboId, GpuResourceCache.VBO_BUFFERS, size);
-        }
-
-        try
-        {
-            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboId[0]);
-            gl.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, patches.limit() * 4, patches.rewind(), GL.GL_STATIC_DRAW);
-        }
-        finally
-        {
-            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
-        }
-
-        return vboId;
     }
 
     protected int[] fillTextureCoordsVbo(DrawContext dc, int density, FloatBuffer texCoords)

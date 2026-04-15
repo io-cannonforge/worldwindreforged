@@ -184,10 +184,8 @@ public class ExamplesIndex extends JFrame {
         });
 
         CATEGORIES.put("Terrain", new ExampleEntry[]{
-            new ExampleEntry("GPU Terrain Demo",         BASE + "GPUTerrainDemo",          "Phase 4 GPU terrain: CPU / Shader / Tessellation / Compute+Tess modes.", "Ph4"),
             new ExampleEntry("Terrain Profiler",         BASE + "TerrainProfiler",         "Interactive cross-section elevation profile along a user-drawn path."),
             new ExampleEntry("Terrain Intersections",    BASE + "TerrainIntersections",     "Ray-terrain intersection calculations for line-of-sight analysis."),
-            new ExampleEntry("Terrain Benchmark",        BASE + "TerrainRenderingBenchmark","Benchmarks terrain tile loading and rendering throughput."),
             new ExampleEntry("Get Best Elevations",      BASE + "GetBestElevations",        "Query the best available elevation for a set of geographic positions."),
             new ExampleEntry("Elevations All Zero",      BASE + "ElevationsAllZero",        "Demonstrates behaviour when the elevation model returns all zeros."),
             new ExampleEntry("Bathymetry Removal",       BASE + "BathymetryRemoval",        "Strip bathymetry (negative elevations) from the active model."),

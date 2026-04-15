@@ -66,11 +66,13 @@
 - [x] **Procedural fill patterns in fragment shader** - ProceduralFillPattern record (HATCH/CROSSHATCH/DOTS); SurfaceShapeFillShader u_patternMode/scale/lineWidth/angle uniforms; AbstractSurfaceShape.setFillPattern() API; no texture needed — patterns computed from geographic position in GLSL
 
 ## Phase 4: Compute Shaders for Tessellation
-- [x] **Heightmap terrain renderer** — TerrainShader (GLSL 1.30 vert+frag); per-tile GL_R32F elevation texture on unit 3; lazy upload via fillHeightmapTexture(); u_useHeightmap=0 in 4.1 (GPU displacement enabled in next step); GL < 3.0 / picking fallback to fixed-function; GLRuntimeCapabilities.isUseTerrainShader() flag
-- [x] **GPU LOD system (tessellation control shader)** — TessellationTerrainShader (GLSL 4.00 vert+TCS+TES+frag); each coarse grid cell becomes a GL_PATCHES quad patch; TCS computes screen-space edge lengths → gl_TessLevelOuter[0-3] / gl_TessLevelInner[0-1] clamped to [1,64]; TES bilinearly interpolates positions + applies gl_TextureMatrix[0/1]; fractional_even_spacing for smooth LOD morphing; patchIndexLists / patchIndexListsVboCacheKeys for per-density VBOs; GLRuntimeCapabilities.isUseTessellation() (GL 4.0+); falls back to TerrainShader → fixed-function
-- [x] **Compute shader mesh generation** — ComputeMeshShader (GLSL 4.30 compute); GPU-side per-patch frustum culling via SSBOs; glDrawElementsIndirect(GL_PATCHES) with no CPU readback; vertex VBO reused as SSBO binding 0; atomic dc_count in draw-command SSBO; frustum planes adjusted to tile-local ECEF space; GLRuntimeCapabilities.isUseComputeMesh() (GL 4.3+); falls back to tessellation path
-- [x] **Crack-free LOD stitching** — CPU constrainNeighbourLevels() pre-pass in tessellate(): projects tile corners to screen space, computes per-edge level estimates, constrains shared edge of same-density adjacent tiles to min(a,b); stored in RenderInfo.constrainedOuterLevels; TCS u_maxOuter[4] uniform caps gl_TessLevelOuter[k] so both sides of every shared edge agree; different-density boundaries rely on existing skirts
-- [x] **Sub-grid heightmap displacement in TES** — TessellationTerrainShader TES delta-correction: h_actual from GL_R32F heightmap (unit 3, stores vertExagg × elevation) minus h_bilinear = length(worldPos) − u_earthRadius (sphere approx at tile centre); residual added along surface normal; u_earthRadius = length(refCenter) uploaded from Java; u_useHeightmap enabled when heightmap texture available; no double-displacement since vertex positions already include coarse elevation
+
+> **REVERTED (seaglassfoundry.com, 2026-04-14):** All terrain GPU rendering (Tasks 4.1–4.5)
+> has been removed due to persistent tile stitching/cracking artifacts. Terrain now uses
+> the original fixed-function pipeline. Files deleted: TerrainShader.java,
+> TessellationTerrainShader.java, ComputeMeshShader.java, GPUTerrainDemo.java,
+> TerrainRenderingBenchmark.java. GLRuntimeCapabilities terrain shader flags removed.
+> Phase 3 surface shape GPU work (GpuTessellator, GpuTriangulator) is retained.
 
 ## Phase 5: GPU Wiring — Connect Compute Paths to Render Thread
 
@@ -78,18 +80,18 @@ These tasks wire already-complete GPU infrastructure into the active render pipe
 
 - [x] **Wire GpuTessellator into AbstractSurfaceShape** — Already complete (found during scan); `generateIntermediateLocations()` tries GPU compute path first with CPU fallback
 - [x] **Wire GpuTriangulator.triangulateBatch() into ShapefilePolygons** — Two-phase split: background thread collects merged ring data into `GpuTessellationData` (stored in `geom.gpuPendingData`); render thread calls `dispatchGpuTriangulation()` from `addTile()` to run GL 4.3 compute shader and populate `RecordIndices`; CPU ear-clipping fallback when GL 4.3 unavailable. Added `GpuTriangulator.isGpuViable()` predicate. Files: `ShapefilePolygons.java`, `GpuTriangulator.java`
-- [x] **Per-tile VAO binding in RectangularTessellator** — `RenderInfo.vaoCacheKey` rotated on VBO re-upload; `bindVbos()` and `bindVbosTessellated()` lazily create a per-tile VAO capturing vertex + texcoord pointers; subsequent frames bind in one `glBindVertexArray()` call; `beginRendering()`/`endRendering()` skip `glPushClientAttrib`/`glPopClientAttrib` when `isUseVertexArrayObject()` (incompatible with VAO state), instead unbinding with `glBindVertexArray(0)` in `endRendering()`. Files: `RectangularTessellator.java`
+- ~~[x] **Per-tile VAO binding in RectangularTessellator**~~ — REVERTED (terrain shader removal)
 
 ## Phase 6: GLSL Deprecated Built-in Cleanup
 
-Replaced deprecated GLSL built-ins where feasible. TerrainShader retains deprecated built-ins as fallback for AMD (no VAOs). TessellationTerrainShader uses explicit attribs (requires VAOs). GL profile upgraded to GL3bc for GLSL 3.30+ support. AMD vendor detection auto-disables VAOs in compatibility profile.
+Replaced deprecated GLSL built-ins where feasible. GL profile upgraded to GL3bc for GLSL 3.30+ support. Terrain shader entries reverted (see Phase 4 note).
 
-- [ ] **Replace gl_Vertex / gl_MultiTexCoord0 / gl_Color / gl_ModelViewProjectionMatrix / gl_TextureMatrix in TerrainShader** — DEFERRED: TerrainShader is the fallback path when VAOs are unavailable (AMD compatibility profile). Without VAOs, glVertexAttribPointer conflicts with fixed-function glVertexPointer/glTexCoordPointer client state. TerrainShader must use deprecated built-ins (`gl_Vertex`, `gl_MultiTexCoord0`, `gl_Color`, `gl_ModelViewProjectionMatrix`, `gl_TextureMatrix`) to read from fixed-function vertex data. Requires core profile migration (Option C) to fully modernize.
-- [x] **Replace gl_Vertex / gl_Color / gl_ModelViewProjectionMatrix / gl_TextureMatrix in TessellationTerrainShader** — Vertex shader uses `layout(location=0/1)` explicit attribs + `u_primaryColor`; TCS uses `u_mvp` (declared in TCS); TES uses `u_mvp`, `u_texMatrix0/1`. `bindVbosTessellated()` always uses `glVertexAttribPointer(0/1)` with dedicated `tessShaderVaoCacheKey`. All new uniforms uploaded in `activate()` (GL_CURRENT_COLOR + GL texture matrix reads). Requires VAOs (gated by `vaoAvailable` check). Files: `TessellationTerrainShader.java`, `RectangularTessellator.java`
+- ~~[ ] **Replace deprecated built-ins in TerrainShader**~~ — REVERTED (terrain shader removal)
+- ~~[x] **Replace deprecated built-ins in TessellationTerrainShader**~~ — REVERTED (terrain shader removal)
 - [x] **Replace gl_ModelViewProjectionMatrix with explicit u_mvp in DashLineShader and SurfaceShapeFillShader** — Both shaders now use `uniform mat4 u_mvp` populated by `ShaderProgram.setUniformMvp()` (reads GL matrix stack, computes P×MV column-major). `gl_Color` was never used — shaders already had `uniform vec4 u_color`. Files: `DashLineShader.java`, `SurfaceShapeFillShader.java`, `ShaderProgram.java`
 - [x] **GL profile upgrade to GL3bc** — `Configuration.getMaxCompatibleGLProfile()` now prefers `GLProfile.GL3bc` (GL 3.x/4.x compatibility) over `getMaxFixedFunc()`. Guarantees GLSL 3.30+, `layout(location=N)`, and better-tested driver paths. All fixed-function APIs still available. Falls back to `getMaxFixedFunc(true)` on old hardware. File: `Configuration.java`
-- [x] **AMD vendor detection for VAO workaround** — `GLRuntimeCapabilities.initialize()` auto-disables VAOs when GL_VENDOR contains "ati" or "amd" and profile is not core-only. Logs info message. NVIDIA/Intel get full VAOs + tessellation + compute. Tessellation/compute gated on `vaoAvailable` in render path. Files: `GLRuntimeCapabilities.java`, `RectangularTessellator.java`
-- [x] **ShaderProgram.bindAttribLocation()** — Pre-link `glBindAttribLocation()` API added for shaders needing explicit attrib locations without `layout(location=N)` in GLSL source. Used by TessellationTerrainShader path. File: `ShaderProgram.java`
+- ~~[x] **AMD vendor detection for VAO workaround**~~ — REVERTED (terrain shader removal; VAOs no longer used by tessellator)
+- [x] **ShaderProgram.bindAttribLocation()** — Pre-link `glBindAttribLocation()` API added for shaders needing explicit attrib locations without `layout(location=N)` in GLSL source. File: `ShaderProgram.java`
 
 ## Phase 7: Java Language Modernization (Phase 1.8)
 
@@ -108,8 +110,8 @@ New GPU infrastructure from Phases 3 and 4 has almost no test coverage. Each ite
 - [x] **GpuTriangulator unit tests** — 18 tests: `triangulateCPU()` for triangle/quad/pentagon/L-shape/collinear/32-gon/non-identity ring; `bridgeHoles()` with 0/1/2 holes; `generateOutlineIndices()` counts and offsets. No GL context. File: `GpuTriangulatorTest.java`
 - [x] **DashLineShader compile test** — 17 tests: initial state (isValid/distAttribLocation/program null); GLSL source content (u_mvp, a_dist, v_dist, u_stipplePattern, mod-based dash, bit-shift stipple, explicit fragColor); stipple bit-mask arithmetic; bit-index formula. File: `DashLineShaderTest.java`
 - [x] **SurfaceShapeFillShader compile + mode test** — 20 tests: pattern constants (NONE/HATCH/CROSSHATCH/DOTS distinct, semantics); initial state; vertex source (u_mvp, a_position, a_texCoord, u_texMatrix, branching); fragment source (all uniforms, hatch/crosshatch/dots modes, discard, explicit fragColor). File: `SurfaceShapeFillShaderTest.java`
-- [x] **TerrainShader / TessellationTerrainShader compile tests** — 31 tests: TerrainShader (isValid, program null, vertex uniforms, fragment fragColor/discard/samplers); TessellationTerrainShader (DEFAULT_PIXELS_PER_TRIANGLE, UNCONSTRAINED_OUTER, TCS u_maxOuter/tessLevel output, TES u_earthRadius/u_useHeightmap/h_bilinear); tessellation arithmetic (clamp, u_maxOuter cap). File: `TerrainShaderTest.java`
-- [ ] **RectangularTessellator heightmap upload test** — Verify `fillHeightmapTexture()` uploads a correctly sized GL_R32F texture and that `u_useHeightmap` is set to 1 when data is available. Requires headless JOGL context. File: new `HeightmapUploadTest.java`
+- ~~[x] **TerrainShader / TessellationTerrainShader compile tests**~~ — REVERTED (terrain shader removal; test file deleted)
+- ~~[ ] **RectangularTessellator heightmap upload test**~~ — REVERTED (terrain shader removal; heightmap upload removed)
 
 ## Phase 9: Example Fixes & UI Consistency (2026-04-03)
 
@@ -117,8 +119,8 @@ Bug fixes, camera corrections, and unified split-pane layout across all examples
 
 ### 9.1 Core Rendering Fixes
 - [x] **OrbitView per-frame terrain collision resolution** — `BasicOrbitView.doApply()` now calls `resolveCollisionsWithCenterPosition()` and `resolveCollisionsWithPitch()` every frame, plus a direct eye-altitude safety check. Fixes camera starting underground when `dc` is null during construction (all setter-time collision resolution was skipped). File: `BasicOrbitView.java`
-- [x] **TerrainShader double displacement fix** — `RectangularTessellator` now passes `null` heightmap to `TerrainShader.activate()` on the non-tessellation path. CPU vertices already include full elevation (ECEF at vertExagg × elevation); passing the heightmap caused double displacement, producing starburst/distortion artifacts at close range on AMD Vega. File: `RectangularTessellator.java`
-- [x] **TessellationTerrainShader TCS w-clamping fix** — Changed `abs(w)` to `max(w, 1e-4)` for clip-space w in TCS screen-space edge length computation. Prevents screen-space coordinate inversion for behind-camera vertices. File: `TessellationTerrainShader.java`
+- ~~[x] **TerrainShader double displacement fix**~~ — REVERTED (terrain shader removal)
+- ~~[x] **TessellationTerrainShader TCS w-clamping fix**~~ — REVERTED (terrain shader removal)
 - [x] **setFillPattern() missing updateModifiedTime()** — `AbstractSurfaceShape.setFillPattern()` now calls `updateModifiedTime()` so the surface tile builder re-renders FBO tiles when procedural fill pattern parameters change. Without this, slider controls in ProceduralFillPatternsExample had no visible effect. File: `AbstractSurfaceShape.java`
 
 ### 9.2 Example Camera & Content Fixes

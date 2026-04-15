@@ -1,13 +1,12 @@
 # WorldWind Reforged
 
-*A modern Java 17+ revival of NASA WorldWind — GLSL shaders, GPU-accelerated terrain, and a full Maven build.*
+*A modern Java 17+ revival of NASA WorldWind — GLSL shaders, GPU-accelerated surface shapes, and a full Maven build.*
 
 A modernised and extended build of the [NASA World Wind Java](https://worldwind.arc.nasa.gov/java/) SDK,
 developed by [seaglassfoundry.com](https://seaglassfoundry.com).
 
 <!-- Screenshots — drop your captures into docs/images/ and uncomment:
 ![ExamplesIndex launcher](docs/images/examples-index.png)
-![GPU Terrain Demo](docs/images/gpu-terrain.png)
 ![WMS Time-Series Animation](docs/images/wms-timeseries.png)
 -->
 
@@ -18,7 +17,7 @@ leaving users stuck on legacy Java, a manual Ant build, broken WMS servers, and 
 OpenGL. Reforged picks up where NASA left off:
 
 - **Modernised for Java 17+** — compiles, runs, and builds cleanly with Maven
-- **GPU-first rendering** — GLSL shaders, hardware tessellation, and compute-shader terrain
+- **GPU-accelerated rendering** — GLSL shaders for surface shapes, compute-shader tessellation and triangulation
 - **Fully backwards compatible** — drop-in replacement for existing WorldWind Java projects
 
 ## Quick Start
@@ -42,8 +41,8 @@ See [Running from an IDE](#from-an-ide-eclipse-intellij) below for Eclipse/Intel
   errors downgraded from SEVERE to WARNING.
 - **Modern WMS engine** — GIBS time-series animation, layer preview, and opacity blending
 - **GLSL shader-based rendering** — Dashed lines, procedural fill patterns, and GPU styling
-- **GPU-accelerated terrain** — Shader heightmaps (GL 3.0+), hardware tessellation (GL 4.0+),
-  compute-shader mesh generation (GL 4.3+), and crack-free LOD stitching
+- **GPU-accelerated surface shapes** — Compute-shader arc interpolation and polygon triangulation
+  (GL 4.3+, with CPU fallback), GLSL dashed lines, and procedural fill patterns
 - **Real-time live data showcase demos** — Three flagship examples demonstrating WorldWind as a
   serious real-time situational awareness platform:
   - **AIS Vessel Tracker** — Live maritime vessel tracking using Finland's Digitraffic AIS API (free,
@@ -65,25 +64,24 @@ See [Running from an IDE](#from-an-ide-eclipse-intellij) below for Eclipse/Intel
     Automatic deduplication of co-orbiting objects (e.g. Soyuz capsule + booster). Includes bundled
     TLE fallback for offline use.
 - **Rendering pipeline hardening** — Null-safe TextureTile, try-with-resources for texture streams,
-  guaranteed pick-object cleanup, per-renderable error isolation in pick path, fixed-function texture
-  matrix stack eliminated in favour of shader uniforms, and redundant shader bind/unbind cycles
-  removed from terrain tile rendering.
+  guaranteed pick-object cleanup, per-renderable error isolation in pick path, and fixed-function
+  texture matrix stack eliminated in favour of shader uniforms.
 - **Shapefile rendering optimisation** — Cached per-tile state keys (zero allocations in steady
   state), eye-distance hysteresis to skip tile-tree traversal on sub-meter camera movements, per-frame
   constant caching, and pick-pass gating when the mouse is outside the window.
 - **Terrain vertex batching** — `EllipsoidalGlobe.computeTerrainGridToBuffer()` computes the full
   terrain vertex grid directly into a FloatBuffer with pre-computed trig arrays, eliminating
   per-vertex object allocation.
-- **Performance** — Pick optimisation, tile invalidation, heightmap throttling, VAO rendering, FPS
-  stats, shapefile hysteresis, terrain vertex batching, and shader cycle elimination.
+- **Performance** — Pick optimisation, tile invalidation, FPS stats, shapefile hysteresis, terrain
+  vertex batching, and shader cycle elimination.
 - **Bug fixes** — Event consumption, shutdown handling, AMD driver workarounds, defunct NASA WFS
   server removal, and more.
 - **Examples** — New ExamplesIndex launcher with dark-themed UI, category browser, and comprehensive
   in-app documentation for every example. New "Showcase" category with the AIS Vessel Tracker,
-  Live Air Traffic, and Satellite Tracker demos. Additional examples: GPU Terrain Demo, WMS Time-Series Demo,
+  Live Air Traffic, and Satellite Tracker demos. Additional examples: WMS Time-Series Demo,
   Layer Opacity & Blending, Dashed Lines, Procedural Fill Patterns, Surface Shape Showcase,
-  GeoJSON Viewer, Coordinate Search, Measure Tool, and Terrain Rendering Benchmark. All existing
-  examples fixed for proper `DISPOSE_ON_CLOSE` when launched from the browser.
+  GeoJSON Viewer, Coordinate Search, and Measure Tool. All existing examples fixed for proper
+  `DISPOSE_ON_CLOSE` when launched from the browser.
 - Full backwards compatibility with the original WorldWind Java API
 
 ## Requirements
@@ -92,7 +90,7 @@ See [Running from an IDE](#from-an-ide-eclipse-intellij) below for Eclipse/Intel
 |---|---|---|
 | **Java** | JDK 17+ | JDK, not JRE — required for `--add-opens` flags |
 | **Maven** | 3.8+ | Dependency management and build |
-| **OpenGL** | 2.0+ | 3.0+ for GLSL shaders; 4.0+ for tessellation; 4.3+ for compute shaders |
+| **OpenGL** | 2.0+ | 3.0+ for GLSL shaders; 4.3+ for compute-shader surface shape acceleration |
 | **Network** | Internet | WMS/GIBS imagery tiles are downloaded on first run |
 
 ## Building

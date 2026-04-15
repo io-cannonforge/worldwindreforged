@@ -127,44 +127,11 @@ the fixed-function vertex data pipeline and works correctly without VAOs.
 
 **Files:** `DashLineShader.java`, `SurfaceShapeFillShader.java`, `ShaderProgram.java`
 
-### TessellationTerrainShader
+### TessellationTerrainShader / TerrainShader — REMOVED
 
-**Completed.** Full modernization with explicit attributes and uniforms:
-
-- Vertex shader: `layout(location=0) in vec4 a_position` and `layout(location=1) in vec4 a_texCoord`
-  replace `gl_Vertex` and `gl_MultiTexCoord0`
-- Vertex shader: `uniform vec4 u_primaryColor` replaces `gl_Color`
-- TCS: `uniform mat4 u_mvp` replaces `gl_ModelViewProjectionMatrix`
-- TES: `uniform mat4 u_mvp`, `uniform mat4 u_texMatrix0`, `uniform mat4 u_texMatrix1` replace
-  `gl_ModelViewProjectionMatrix`, `gl_TextureMatrix[0]`, `gl_TextureMatrix[1]`
-- All new uniforms uploaded in `activate()` (reads `GL_CURRENT_COLOR` and GL texture matrices)
-- Requires VAOs — gated on `vaoAvailable` check in `RectangularTessellator`
-- Uses `#version 400 compatibility` — `layout(location=N)` is valid at this GLSL version
-
-**Files:** `TessellationTerrainShader.java`, `RectangularTessellator.java`
-
-### TerrainShader — DEFERRED
-
-**Not modernized.** TerrainShader is the fallback path when VAOs are unavailable (AMD compatibility
-profile). Without VAOs, `glVertexAttribPointer` cannot be used alongside fixed-function
-`glVertexPointer`/`glTexCoordPointer` client state without causing driver conflicts.
-
-TerrainShader retains all deprecated GLSL built-ins:
-
-| Built-in | Purpose |
-|---|---|
-| `gl_Vertex` | Vertex position from `glVertexPointer` |
-| `gl_MultiTexCoord0` | Texture coords from `glTexCoordPointer` |
-| `gl_Color` | Primary color from `glColor4f` |
-| `gl_ModelViewProjectionMatrix` | Combined MVP from GL matrix stack |
-| `gl_TextureMatrix[0]`, `gl_TextureMatrix[1]` | Texture transforms from GL matrix stack |
-
-**Why deferred:** Modernizing TerrainShader requires migrating to a core profile (Option C in
-the modernization roadmap), which is a larger undertaking involving removal of all fixed-function
-API usage throughout the codebase. TerrainShader works correctly as-is using `#version 130` with
-deprecated built-ins.
-
-**File:** `TerrainShader.java`
+> **Note (seaglassfoundry.com, 2026-04-14):** Both terrain shaders have been deleted as part
+> of the terrain shader removal. Terrain tiles now render exclusively via the fixed-function
+> pipeline. See Phase 4 revert note in `tasks.md`.
 
 ### ShaderProgram.bindAttribLocation()
 
@@ -181,55 +148,11 @@ Currently used by the TessellationTerrainShader path; available for future shade
 
 ## Architecture Summary
 
-The rendering pipeline now has a clear two-tier architecture based on GPU capability:
+> **Updated (seaglassfoundry.com, 2026-04-14):** The terrain shader tier system has been
+> removed. Terrain rendering now uses the fixed-function pipeline on all GPUs. The remaining
+> architecture is:
 
-### Tier 1: Full GPU Pipeline (NVIDIA, Intel, AMD core-profile)
-- **Profile:** GL3bc or GL4bc (compatibility) or core
-- **VAOs:** Enabled
-- **Terrain:** `TessellationTerrainShader` (GLSL 4.00, explicit attribs via `layout(location=N)`)
-- **Compute:** `ComputeMeshShader` (GLSL 4.30, GPU frustum culling, indirect draw)
-- **Shapes:** `DashLineShader` + `SurfaceShapeFillShader` (GLSL 1.30+, explicit `u_mvp`)
-- **LOD:** GPU tessellation with crack-free stitching
-
-### Tier 2: Fallback Pipeline (AMD Vega Mobile in compatibility profile)
-- **Profile:** GL3bc (compatibility)
-- **VAOs:** Disabled (auto-detected)
-- **Terrain:** `TerrainShader` (GLSL 1.30, deprecated built-ins, fixed-function vertex data)
-- **Compute:** Disabled (requires VAOs)
-- **Shapes:** `DashLineShader` + `SurfaceShapeFillShader` (work without VAOs)
-- **LOD:** CPU-side tessellation only
-
-### Detection Flow
-
-```
-GLRuntimeCapabilities.initialize()
-  ├─ Read GL_VENDOR
-  ├─ Contains "ati" or "amd"?
-  │   ├─ YES + compatibility profile → disable VAOs → Tier 2
-  │   └─ YES + core profile → keep VAOs → Tier 1
-  └─ NO (NVIDIA/Intel) → keep VAOs → Tier 1
-
-RectangularTessellator.render()
-  ├─ vaoAvailable && tessellationShader.isValid()?
-  │   ├─ YES → TessellationTerrainShader + VAO bind
-  │   └─ NO → TerrainShader + legacy glVertexPointer
-  └─ ...
-```
-
----
-
-## Future Work: Core Profile Migration (Option C)
-
-To fully eliminate deprecated GLSL built-ins from TerrainShader, the entire rendering pipeline
-must migrate from compatibility profile to core profile:
-
-1. Replace all `glVertexPointer`/`glTexCoordPointer`/`glNormalPointer` with `glVertexAttribPointer`
-2. Replace all `glMatrixMode`/`glLoadMatrix`/`glPushMatrix` with explicit uniform matrices
-3. Replace all `glEnable(GL_TEXTURE_2D)` / `glTexEnv` with shader-based texturing
-4. Replace all `glBegin`/`glEnd` immediate-mode rendering with VBO draw calls
-5. Remove `glPushAttrib`/`glPopAttrib` state management
-6. Update GLProfile selection from GL3bc to GL3 or GL4
-
-This is a significant effort affecting hundreds of files across the codebase. The current GL3bc
-compatibility profile provides a stable intermediate step — all modern shader features are
-available while legacy code continues to work unchanged.
+- **Profile:** GL3bc (compatibility) — GLSL 3.30+ guaranteed
+- **Terrain:** Fixed-function pipeline (`glVertexPointer`, `glTexCoordPointer`, `GL_TRIANGLE_STRIP`)
+- **Surface shapes:** `DashLineShader` + `SurfaceShapeFillShader` (GLSL 1.30+, explicit `u_mvp`)
+- **Compute (non-terrain):** `GpuTessellator`, `GpuTriangulator`, `TerrainIntersectionCompute` (GL 4.3+, with CPU fallback)

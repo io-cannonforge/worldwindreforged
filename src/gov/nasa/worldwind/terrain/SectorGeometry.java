@@ -245,49 +245,6 @@ public interface SectorGeometry extends Renderable
      */
     void render(DrawContext dc, boolean beginRenderingCalled);
 
-    // ── seaglassfoundry.com: tile-scoped shader lifecycle for SurfaceTileRenderer ──
-    // These default methods allow SurfaceTileRenderer to activate the shader once
-    // per geometry tile rather than once per image tile draw.  The default
-    // implementations are no-ops / fallbacks so non-RectTile implementations are
-    // unaffected.
-
-    /**
-     * Activates the terrain shader for this geometry tile.  Call once before
-     * rendering multiple image tiles, paired with {@link #deactivateShader}.
-     *
-     * @param dc              the current draw context
-     * @param numTextureUnits the number of texture units in use
-     */
-    default void activateShader(DrawContext dc, int numTextureUnits) { /* no-op */ }
-
-    /**
-     * Deactivates the terrain shader after all image tiles for this geometry
-     * tile have been drawn.
-     *
-     * @param dc the current draw context
-     */
-    default void deactivateShader(DrawContext dc) { /* no-op */ }
-
-    /**
-     * Renders this geometry tile with an already-active shader.  The shader's
-     * per-image-tile state (texture matrices) is updated from the supplied
-     * pre-computed matrix, then the draw call is issued without a full
-     * activate/deactivate cycle.
-     * <p>
-     * The default implementation ignores the texture matrix and falls back to
-     * {@link #renderMultiTexture} which does a full shader cycle.
-     *
-     * @param dc              the current draw context
-     * @param numTextureUnits the number of texture units in use
-     * @param texMatrix       column-major 4×4 texture matrix (float[16]),
-     *                        pre-computed by the caller
-     */
-    default void renderMultiTextureWithActiveShader(DrawContext dc, int numTextureUnits,
-                                                    float[] texMatrix)
-    {
-        renderMultiTexture(dc, numTextureUnits);
-    }
-
     /** An interface for computing texture coordinates for a given location. */
     public interface GeographicTextureCoordinateComputer
     {

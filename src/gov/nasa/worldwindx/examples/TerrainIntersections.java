@@ -208,7 +208,7 @@ public class TerrainIntersections extends ApplicationTemplate {
                         return;
                     GLRuntimeCapabilities caps = getWwd().getSceneController().getDrawContext()
                             .getGLRuntimeCapabilities();
-                    boolean gpuAvailable = caps.isComputeMeshAvailable();
+                    boolean gpuAvailable = caps.getGLVersion() >= 4.3;
                     SwingUtilities.invokeLater(() -> {
                         gpuRadio.setEnabled(gpuAvailable);
                         if (!gpuAvailable)
@@ -950,7 +950,7 @@ public class TerrainIntersections extends ApplicationTemplate {
             this.gridLayer.addRenderable(pm);
         }
 
-        // ── UI helpers (same pattern as GPUTerrainDemo) ──
+        // ── UI helpers ──
 
         private static JLabel statsKey(String text) {
             JLabel l = WWStyle.label(text, false);

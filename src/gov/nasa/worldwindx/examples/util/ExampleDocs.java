@@ -1609,45 +1609,6 @@ public final class ExampleDocs {
 
         // ── Terrain ─────────────────────────────────────────────────────────────
 
-        put("GPUTerrainDemo",
-            section("Overview",
-                "Phase 4 GPU terrain rendering demonstration with four selectable modes: "
-                + "<b>CPU</b> (traditional GL 1.x fixed-function), "
-                + "<b>Shader</b> (GL 3.0+ vertex displacement), "
-                + "<b>Tessellation</b> (GL 4.0+ hardware tessellation), and "
-                + "<b>Compute+Tess</b> (GL 4.3+ compute-shader mesh generation combined with tessellation). "
-                + "Includes camera presets for dramatic terrain views: Grand Canyon (36.10&deg;N, -112.10&deg;W, 45km), "
-                + "Rocky Mountains (39.50&deg;N, -106.00&deg;W, 200km), Everest (27.99&deg;N, 86.93&deg;E, 120km), "
-                + "Alps (46.50&deg;N, 8.50&deg;E, 500km), and World. Real-time stats show Mode, FPS, Frame time, "
-                + "Tile count, and Triangle estimate (tileCount &times; 578 &times; tessMultiplier). "
-                + "A one-shot <code>RenderingListener</code> detects GPU capabilities after the first frame.")
-            + section("What You'll See",
-                "<ul>"
-                + "<li>A globe with selectable terrain rendering modes in the sidebar</li>"
-                + "<li>Real-time FPS counter and performance statistics</li>"
-                + "<li>Camera presets for dramatic terrain at Grand Canyon, Rockies, Everest, Alps</li>"
-                + "<li>Triangle estimate: <code>tileCount &times; 578 &times; (tessellation ? 32 : 1)</code></li>"
-                + "<li>Terrain quality adapts to view distance with crack-free tile stitching</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li><b>Mode selector</b> &mdash; switch between CPU, Shader, Tessellation, Compute+Tess</li>"
-                + "<li><b>Camera presets</b> &mdash; jump to Grand Canyon, Rocky Mts, Everest, Alps, or World view</li>"
-                + "<li><b>Wireframe toggle</b> &mdash; visualise the mesh topology and tile boundaries</li>"
-                + "<li>Zoom into mountainous terrain to see tessellation detail and adaptive LOD</li>"
-                + "<li>Compare FPS between modes to measure GPU terrain performance on your hardware</li>"
-                + "</ul>")
-            + section("Key APIs",
-                "<ul>"
-                + "<li><code class='api-class'>GPUTerrainTessellator</code> &mdash; Phase 4 GPU tessellation implementation "
-                + "with crack-free stitching algorithm</li>"
-                + "<li>Terrain mode enum: <code>CPU</code>, <code>SHADER</code>, <code>TESSELLATION</code>, "
-                + "<code>COMPUTE_TESSELLATION</code></li>"
-                + "<li><code class='api-class'>RenderingListener</code> &mdash; one-shot listener to detect GPU capabilities "
-                + "after first frame render</li>"
-                + "<li class='note'>Note: Tessellation and Compute+Tess modes require GL 4.0+ / 4.3+ respectively.</li>"
-                + "</ul>"));
-
         put("TerrainProfiler",
             section("Overview",
                 "An interactive cross-section elevation profile along a user-drawn path. Click points on "
@@ -1701,26 +1662,6 @@ public final class ExampleDocs {
                 + "<li>Uses a 4-thread <code>ExecutorService</code> for parallel intersection computation</li>"
                 + "<li>Progress bar updated every 250ms via <code>SwingUtilities.invokeLater()</code></li>"
                 + "</ul>"));
-
-        put("TerrainRenderingBenchmark",
-            section("Overview",
-                "Benchmarks terrain tile loading and rendering throughput. Measures how fast the terrain "
-                + "pipeline processes tiles at various detail levels by cycling through predefined views.")
-            + section("What You'll See",
-                "<ul>"
-                + "<li>A globe that cycles through terrain views to measure rendering performance</li>"
-                + "<li>Console output with timing statistics for each view</li>"
-                + "</ul>")
-            + section("How to Interact",
-                "<ul>"
-                + "<li>Let the benchmark run to completion and check console output for results</li>"
-                + "</ul>")
-            + section("Key APIs",
-                "<ul>"
-                + "<li>Terrain tessellation and tile loading pipeline internals</li>"
-                + "</ul>"));
-
-
 
         put("GetBestElevations",
             section("Overview",

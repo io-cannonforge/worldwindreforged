@@ -25,24 +25,12 @@
  * NASA World Wind Java (WWJ)  can be found in the WorldWindJava-v2.2 3rd-party
  * notices and licenses PDF found in code directory.
  *
- * Modifications and additions by seaglassfoundry.com — WorldWind Reforged project.
- * Modified for Phase 3 shader-based surface rendering pipeline.
+ * Modifications copyright 2025-2026 seaglassfoundry.com — WorldWind Reforged project.
  *
- * Changes (Shader Lifecycle Optimisation):
- * - Tile-scoped shader activation: when useShaderPath is true, calls
- *   sg.activateShader() once per geometry tile before iterating over image tiles,
- *   then sg.renderMultiTextureWithActiveShader() for each image tile draw (no
- *   per-draw activate/deactivate), then sg.deactivateShader() once after all draws.
- *   Reduces glUseProgram and uniform upload calls per frame by ~8x.
- *
- * Changes (Texture Matrix Optimisation):
- * - For the shader path, computes the texture matrix in Java from
- *   SurfaceTile.getTextureTransform() + computeTextureTransform() instead of
- *   going through the fixed-function matrix stack (glLoadIdentity/glScaled/
- *   glTranslated) and reading back via glGetFloatv.  Eliminates ~8000
- *   fixed-function GL calls and ~800 GPU pipeline sync stalls per frame.
- * - Alpha unit fixed-function matrix setup skipped on shader path (the shader
- *   reads both texture units from the same uploaded uniform matrix).
+ * Changes (Terrain Shader Removal):
+ * - Removed shader-based rendering path (useShaderPath, activateShader/deactivateShader,
+ *   renderMultiTextureWithActiveShader, Java-side texture matrix computation).
+ *   Surface tiles now render exclusively via the fixed-function pipeline.
  */
 package gov.nasa.worldwind.render;
 
@@ -77,11 +65,6 @@ public abstract class SurfaceTileRenderer implements Disposable
     protected Texture outlineTexture;
     protected boolean showImageTileOutlines = false;
     protected boolean useImageTilePickColors = false;
-
-    // seaglassfoundry.com: reusable arrays for Java-side texture matrix computation,
-    // avoiding per-draw allocation.
-    private final double[] internalTransform = new double[4];
-    private final float[] texMatrix = new float[16];
 
     /**
      * Free internal resources held by this surface tile renderer. A GL context must be current when this method is
@@ -172,11 +155,6 @@ public abstract class SurfaceTileRenderer implements Disposable
     abstract protected Iterable<SurfaceTile> getIntersectingTiles(DrawContext dc, SectorGeometry sg,
         Iterable<? extends SurfaceTile> tiles);
 
-    // seaglassfoundry.com: Phase 5 — DrawContext key for communicating pick mode to terrain shaders.
-    // Value: 0=normal, 1=pick with image colors, 2=pick with pick color (replace RGB).
-    private static final String SURFACE_TILE_PICK_MODE_KEY =
-        "gov.nasa.worldwind.render.SurfaceTilePickMode";
-
     public void renderTiles(DrawContext dc, Iterable<? extends SurfaceTile> tiles)
     {
         if (tiles == null)
@@ -197,31 +175,11 @@ public abstract class SurfaceTileRenderer implements Disposable
         int alphaTextureUnit = GL.GL_TEXTURE1;
         boolean showOutlines = this.showImageTileOutlines && dc.getGLRuntimeCapabilities().getNumTextureUnits() > 2;
 
-        // seaglassfoundry.com: Phase 5 — when a terrain shader is available (GL 3.0+) and outlines
-        // are not shown, the shader handles alpha testing (discard) and pick color blending via
-        // uniforms. This allows us to skip the expensive glPushAttrib/glPopAttrib and the
-        // fixed-function glTexEnvi/glAlphaFunc calls.
-        boolean useShaderPath = !showOutlines
-            && (dc.getGLRuntimeCapabilities().isUseTerrainShader()
-                || dc.getGLRuntimeCapabilities().isUseTessellation());
-
-        if (useShaderPath)
-        {
-            // Communicate pick mode to the terrain shader via DrawContext.
-            if (dc.isPickingMode())
-                dc.setValue(SURFACE_TILE_PICK_MODE_KEY, this.useImageTilePickColors ? 1 : 2);
-            else
-                dc.setValue(SURFACE_TILE_PICK_MODE_KEY, 0);
-        }
-        else
-        {
-            // Fixed-function fallback: save all affected state groups.
-            gl.glPushAttrib(GL.GL_COLOR_BUFFER_BIT // for alpha func
-                | GL2.GL_ENABLE_BIT
-                | GL2.GL_CURRENT_BIT
-                | GL.GL_DEPTH_BUFFER_BIT // for depth func
-                | GL2.GL_TRANSFORM_BIT);
-        }
+        gl.glPushAttrib(GL.GL_COLOR_BUFFER_BIT // for alpha func
+            | GL2.GL_ENABLE_BIT
+            | GL2.GL_CURRENT_BIT
+            | GL.GL_DEPTH_BUFFER_BIT // for depth func
+            | GL2.GL_TRANSFORM_BIT);
 
         try
         {
@@ -238,34 +196,26 @@ public abstract class SurfaceTileRenderer implements Disposable
             gl.glEnable(GL.GL_DEPTH_TEST);
             gl.glDepthFunc(GL.GL_LEQUAL);
 
-            if (!useShaderPath)
-            {
-                // Fixed-function path: set alpha test and texture environment modes.
-                gl.glEnable(GL2ES1.GL_ALPHA_TEST);
-                gl.glAlphaFunc(GL.GL_GREATER, 0.01f);
-            }
+            gl.glEnable(GL2ES1.GL_ALPHA_TEST);
+            gl.glAlphaFunc(GL.GL_GREATER, 0.01f);
 
             gl.glActiveTexture(GL.GL_TEXTURE0);
-            if (!useShaderPath)
-                gl.glEnable(GL.GL_TEXTURE_2D);
+            gl.glEnable(GL.GL_TEXTURE_2D);
             gl.glMatrixMode(GL.GL_TEXTURE);
             gl.glPushMatrix();
-            if (!useShaderPath)
+            if (!dc.isPickingMode()) // treat texture as an image; modulate RGBA with the current color
             {
-                if (!dc.isPickingMode()) // treat texture as an image; modulate RGBA with the current color
-                {
-                    gl.glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
-                }
-                else if (this.useImageTilePickColors) // treat texture as pick colors; use texture RGBA directly
-                {
-                    gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
-                }
-                else // treat texture as a pick mask; replace RGB with the current pick color
-                {
-                    gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_COMBINE);
-                    gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_SRC0_RGB, GL2ES1.GL_PREVIOUS);
-                    gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_COMBINE_RGB, GL.GL_REPLACE);
-                }
+                gl.glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
+            }
+            else if (this.useImageTilePickColors) // treat texture as pick colors; use texture RGBA directly
+            {
+                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+            }
+            else // treat texture as a pick mask; replace RGB with the current pick color
+            {
+                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_COMBINE);
+                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_SRC0_RGB, GL2ES1.GL_PREVIOUS);
+                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_COMBINE_RGB, GL.GL_REPLACE);
             }
 
             int numTexUnitsUsed = 2;
@@ -281,12 +231,10 @@ public abstract class SurfaceTileRenderer implements Disposable
             }
 
             gl.glActiveTexture(alphaTextureUnit);
-            if (!useShaderPath)
-                gl.glEnable(GL.GL_TEXTURE_2D);
+            gl.glEnable(GL.GL_TEXTURE_2D);
             gl.glMatrixMode(GL.GL_TEXTURE);
             gl.glPushMatrix();
-            if (!useShaderPath)
-                gl.glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
+            gl.glTexEnvi(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL2ES1.GL_MODULATE);
 
             dc.getSurfaceGeometry().beginRendering(dc);
 
@@ -304,97 +252,46 @@ public abstract class SurfaceTileRenderer implements Disposable
                 // Pre-load info to compute the texture transform
                 this.preComputeTextureTransform(dc, sg, transform);
 
-                // seaglassfoundry.com: tile-scoped shader lifecycle — activate the shader once
-                // per geometry tile rather than once per image tile draw.  The shader stays
-                // active while we iterate over all intersecting image tiles, then deactivates.
-                if (useShaderPath)
-                    sg.activateShader(dc, numTexUnitsUsed);
-
-                try
+                // For each intersecting tile, establish the texture transform necessary to map the image tile
+                // into the geometry tile's texture space. Use an alpha texture as a mask to prevent changing the
+                // frame buffer where the image tile does not overlap the geometry tile. Render both the image and
+                // alpha textures via multi-texture rendering.
+                for (SurfaceTile tile : tilesToRender)
                 {
-                    // For each intersecting tile, establish the texture transform necessary to map the image tile
-                    // into the geometry tile's texture space. Use an alpha texture as a mask to prevent changing the
-                    // frame buffer where the image tile does not overlap the geometry tile. Render both the image and
-                    // alpha textures via multi-texture rendering.
-                    for (SurfaceTile tile : tilesToRender)
+                    gl.glActiveTexture(GL.GL_TEXTURE0);
+
+                    if (tile.bind(dc))
                     {
-                        gl.glActiveTexture(GL.GL_TEXTURE0);
+                        this.computeTextureTransform(dc, tile, transform);
 
-                        if (tile.bind(dc))
+                        gl.glMatrixMode(GL.GL_TEXTURE);
+                        gl.glLoadIdentity();
+                        tile.applyInternalTransform(dc, true);
+
+                        gl.glScaled(transform.HScale, transform.VScale, 1d);
+                        gl.glTranslated(transform.HShift, transform.VShift, 0d);
+
+                        if (showOutlines)
                         {
-                            this.computeTextureTransform(dc, tile, transform);
+                            gl.glActiveTexture(GL.GL_TEXTURE1);
+                            this.outlineTexture.bind(gl);
 
-                            if (useShaderPath)
-                            {
-                                // seaglassfoundry.com: compute texture matrix in Java — zero
-                                // fixed-function GL calls, zero glGetFloatv readbacks.
-                                tile.getTextureTransform(dc, this.internalTransform);
-                                double sx = this.internalTransform[0];
-                                double sy = this.internalTransform[1];
-                                double tx = this.internalTransform[2];
-                                double ty = this.internalTransform[3];
-
-                                // Compose with tile transform: glScaled then glTranslated
-                                sx *= transform.HScale;
-                                sy *= transform.VScale;
-                                tx += sx * transform.HShift;
-                                ty += sy * transform.VShift;
-
-                                // Build column-major 4x4 matrix (only 6 non-zero entries)
-                                java.util.Arrays.fill(this.texMatrix, 0f);
-                                this.texMatrix[0]  = (float) sx;
-                                this.texMatrix[5]  = (float) sy;
-                                this.texMatrix[10] = 1f;
-                                this.texMatrix[12] = (float) tx;
-                                this.texMatrix[13] = (float) ty;
-                                this.texMatrix[15] = 1f;
-
-                                // Bind alpha texture (still needed — shader samples it)
-                                gl.glActiveTexture(alphaTextureUnit);
-                                this.alphaTexture.bind(gl);
-                                gl.glActiveTexture(GL.GL_TEXTURE0);
-
-                                sg.renderMultiTextureWithActiveShader(dc, numTexUnitsUsed,
-                                    this.texMatrix);
-                            }
-                            else
-                            {
-                                // Fixed-function path — full matrix stack setup
-                                gl.glMatrixMode(GL.GL_TEXTURE);
-                                gl.glLoadIdentity();
-                                tile.applyInternalTransform(dc, true);
-
-                                gl.glScaled(transform.HScale, transform.VScale, 1d);
-                                gl.glTranslated(transform.HShift, transform.VShift, 0d);
-
-                                if (showOutlines)
-                                {
-                                    gl.glActiveTexture(GL.GL_TEXTURE1);
-                                    this.outlineTexture.bind(gl);
-
-                                    gl.glMatrixMode(GL.GL_TEXTURE);
-                                    gl.glLoadIdentity();
-                                    gl.glScaled(transform.HScale, transform.VScale, 1d);
-                                    gl.glTranslated(transform.HShift, transform.VShift, 0d);
-                                }
-
-                                gl.glActiveTexture(alphaTextureUnit);
-                                this.alphaTexture.bind(gl);
-
-                                gl.glMatrixMode(GL.GL_TEXTURE);
-                                gl.glLoadIdentity();
-                                gl.glScaled(transform.HScale, transform.VScale, 1d);
-                                gl.glTranslated(transform.HShift, transform.VShift, 0d);
-
-                                sg.renderMultiTexture(dc, numTexUnitsUsed);
-                            }
+                            gl.glMatrixMode(GL.GL_TEXTURE);
+                            gl.glLoadIdentity();
+                            gl.glScaled(transform.HScale, transform.VScale, 1d);
+                            gl.glTranslated(transform.HShift, transform.VShift, 0d);
                         }
+
+                        gl.glActiveTexture(alphaTextureUnit);
+                        this.alphaTexture.bind(gl);
+
+                        gl.glMatrixMode(GL.GL_TEXTURE);
+                        gl.glLoadIdentity();
+                        gl.glScaled(transform.HScale, transform.VScale, 1d);
+                        gl.glTranslated(transform.HShift, transform.VShift, 0d);
+
+                        sg.renderMultiTexture(dc, numTexUnitsUsed);
                     }
-                }
-                finally
-                {
-                    if (useShaderPath)
-                        sg.deactivateShader(dc);
                 }
 
                 sg.endRendering(dc);
@@ -412,8 +309,7 @@ public abstract class SurfaceTileRenderer implements Disposable
             gl.glActiveTexture(alphaTextureUnit);
             gl.glMatrixMode(GL.GL_TEXTURE);
             gl.glPopMatrix();
-            if (!useShaderPath)
-                gl.glDisable(GL.GL_TEXTURE_2D);
+            gl.glDisable(GL.GL_TEXTURE_2D);
 
             if (showOutlines)
             {
@@ -426,23 +322,15 @@ public abstract class SurfaceTileRenderer implements Disposable
             gl.glActiveTexture(GL.GL_TEXTURE0);
             gl.glMatrixMode(GL.GL_TEXTURE);
             gl.glPopMatrix();
-            if (!useShaderPath)
-                gl.glDisable(GL.GL_TEXTURE_2D);
+            gl.glDisable(GL.GL_TEXTURE_2D);
 
-            if (useShaderPath)
+            gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, OGLUtil.DEFAULT_TEX_ENV_MODE);
+            if (dc.isPickingMode())
             {
-                dc.removeKey(SURFACE_TILE_PICK_MODE_KEY);
+                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_SRC0_RGB, OGLUtil.DEFAULT_SRC0_RGB);
+                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_COMBINE_RGB, OGLUtil.DEFAULT_COMBINE_RGB);
             }
-            else
-            {
-                gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, OGLUtil.DEFAULT_TEX_ENV_MODE);
-                if (dc.isPickingMode())
-                {
-                    gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_SRC0_RGB, OGLUtil.DEFAULT_SRC0_RGB);
-                    gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_COMBINE_RGB, OGLUtil.DEFAULT_COMBINE_RGB);
-                }
-                gl.glPopAttrib();
-            }
+            gl.glPopAttrib();
         }
     }
 
