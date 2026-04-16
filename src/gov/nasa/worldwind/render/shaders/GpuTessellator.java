@@ -59,6 +59,19 @@ public class GpuTessellator
     /** Maximum intermediate points per edge.  Matches the workgroup local_size_x. */
     private static final int MAX_INTERVALS = 256;
 
+    /**
+     * Precision guard for the fp32 compute shader path. Below this edge length (or ellipse axis),
+     * the compute shader's float-radian math can't preserve sub-metre geographic precision: at
+     * typical geographic coordinates, fp32 ULP ≈ 1e-7 rad ≈ 0.6 m, which becomes a visible wobble
+     * on shapes whose edges are only a few metres long. For small shapes we return failure so the
+     * caller falls back to the CPU {@code LatLon.interpolateGreatCircle} path (doubles throughout).
+     * Shapes of this scale produce so few vertices that CPU tessellation is free.
+     */
+    private static final double MIN_METRES_FOR_GPU = 1000.0;
+
+    /** Used to convert radians to metres for the precision guard. Matches WGS84 equatorial radius. */
+    private static final double EARTH_RADIUS_METRES = 6_378_137.0;
+
     /** Path type constants matching AVKey values — passed as u_pathType uniform. */
     public static final int PATH_GREAT_CIRCLE = 0;
     public static final int PATH_RHUMB_LINE   = 1;
@@ -467,6 +480,7 @@ public class GpuTessellator
         this.paramsStagingBuffer.clear();
 
         int totalInterpolated = 0;
+        double minEdgeMetres = Double.POSITIVE_INFINITY;
 
         for (int e = 0; e < numEdges; e++)
         {
@@ -490,6 +504,12 @@ public class GpuTessellator
             if (numIntervals < 2)
                 numIntervals = 0; // no intermediate points needed
 
+            // Track the shortest edge so we can bail to the double-precision CPU path if any edge
+            // falls inside the fp32 radian precision floor (see MIN_METRES_FOR_GPU).
+            double edgeMetres = pathLength.radians * EARTH_RADIUS_METRES;
+            if (numIntervals > 0 && edgeMetres < minEdgeMetres)
+                minEdgeMetres = edgeMetres;
+
             // Edge data in radians
             this.edgeStagingBuffer.put((float) a.getLongitude().radians);
             this.edgeStagingBuffer.put((float) a.getLatitude().radians);
@@ -502,6 +522,11 @@ public class GpuTessellator
 
             totalInterpolated += numIntervals;
         }
+
+        // Precision guard: if any interpolated edge is short enough that fp32 radians would
+        // introduce visible jitter, defer to the CPU double-precision path by returning false.
+        if (totalInterpolated > 0 && minEdgeMetres < MIN_METRES_FOR_GPU)
+            return false;
 
         this.edgeStagingBuffer.flip();
         this.paramsStagingBuffer.flip();
@@ -929,6 +954,11 @@ public class GpuTessellator
             return null;
 
         if (numPoints < 3)
+            return null;
+
+        // Precision guard — see MIN_METRES_FOR_GPU. Small ellipses lose precision to fp32 radians
+        // in the compute shader; let the caller fall back to the CPU double-precision path.
+        if (Math.max(majorRadius, minorRadius) < MIN_METRES_FOR_GPU)
             return null;
 
         GL4 gl4 = gl.getGL4();

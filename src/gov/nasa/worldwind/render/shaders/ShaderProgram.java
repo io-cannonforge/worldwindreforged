@@ -24,6 +24,7 @@ import java.util.Map;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 
 import gov.nasa.worldwind.util.Logging;
@@ -196,6 +197,32 @@ public class ShaderProgram
                 mvp[col * 4 + row] = sum;
             }
         gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, mvp, 0);
+    }
+
+    /**
+     * Double-precision variant of {@link #setUniformMvp}. Reads the MODELVIEW and PROJECTION matrices
+     * as double (the fixed-function matrix stack stores them as double internally), multiplies them in
+     * double, and uploads the result as a {@code dmat4} uniform via {@code glUniformMatrix4dv}. Requires
+     * a GL 4.0+ context (caller should verify via {@link GLCapabilityCheck#hasShaderFp64}).
+     * seaglassfoundry.com
+     */
+    public void setUniformMvpDouble(GL2 gl, String name)
+    {
+        double[] mv   = new double[16];
+        double[] proj = new double[16];
+        gl.glGetDoublev(GLMatrixFunc.GL_MODELVIEW_MATRIX,  mv,   0);
+        gl.glGetDoublev(GLMatrixFunc.GL_PROJECTION_MATRIX, proj, 0);
+        double[] mvp = new double[16];
+        for (int col = 0; col < 4; col++)
+            for (int row = 0; row < 4; row++)
+            {
+                double sum = 0;
+                for (int k = 0; k < 4; k++)
+                    sum += proj[k * 4 + row] * mv[col * 4 + k];
+                mvp[col * 4 + row] = sum;
+            }
+        GL3 gl3 = gl.getGL3();
+        gl3.glUniformMatrix4dv(getUniformLocation(gl, name), 1, false, mvp, 0);
     }
 
     public int getProgramId()

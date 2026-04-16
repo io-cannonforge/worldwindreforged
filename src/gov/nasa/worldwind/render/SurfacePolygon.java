@@ -34,6 +34,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -48,6 +51,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2GL3;
 
 import gov.nasa.worldwind.Exportable;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -58,6 +62,7 @@ import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.ogc.kml.KMLConstants;
 import gov.nasa.worldwind.ogc.kml.impl.KMLExportUtil;
 import gov.nasa.worldwind.render.shaders.GpuTriangulator;
+import gov.nasa.worldwind.render.shaders.SurfaceShapeFillShader;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.RestorableSupport;
 import gov.nasa.worldwind.util.SurfaceTileDrawContext;
@@ -345,6 +350,13 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 			return super.buildInteriorVBOs(dc, sdc);
 		}
 
+        // seaglassfoundry.com: when the fill shader was linked with dvec2 positions, upload full
+        // double-precision vertex data so the MVP multiply preserves sub-metre precision. Tex coords
+        // remain float (texture math stays in fp32 throughout). Triangulation runs on the float array
+        // — topology doesn't need fp64.
+        SurfaceShapeFillShader shader = fillShaders.get();
+        boolean useDoublePositions = shader != null && shader.isFp64Enabled();
+
         // Use assembleContours() to get edge-interpolated contours with texture coordinates
         Angle degreesPerInterval = Angle.fromDegrees(1.0 / this.computeEdgeIntervalsPerDegree(sdc));
         List<List<Vertex>> contours = this.assembleContours(degreesPerInterval);
@@ -355,7 +367,7 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;
-        int floatsPerVertex = hasTexCoords ? 4 : 2;  // x,y or x,y,s,t
+        int floatsPerVertex = hasTexCoords ? 4 : 2;  // x,y or x,y,s,t (for the triangulation-side float array)
 
         // Flatten all contour vertices into a single array
         int totalVertices = 0;
@@ -368,6 +380,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 		}
 
         float[] allVertices = new float[totalVertices * floatsPerVertex];
+        // Parallel double[] carrying full-precision positions only (no tex coords). Indexed as
+        // vertex i -> (allVerticesD[2*i], allVerticesD[2*i + 1]).
+        double[] allVerticesD = useDoublePositions ? new double[totalVertices * 2] : null;
         int vi = 0;
         int vertexCount = 0;
         // Track contour boundaries for hole bridging
@@ -382,12 +397,19 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 
             for (Vertex v : contour)
             {
-                allVertices[vi++] = (float) (v.getLongitude().degrees - refLon);
-                allVertices[vi++] = (float) (v.getLatitude().degrees - refLat);
+                double dx = v.getLongitude().degrees - refLon;
+                double dy = v.getLatitude().degrees - refLat;
+                allVertices[vi++] = (float) dx;
+                allVertices[vi++] = (float) dy;
                 if (hasTexCoords)
                 {
                     allVertices[vi++] = (float) v.u;
                     allVertices[vi++] = (float) v.v;
+                }
+                if (allVerticesD != null)
+                {
+                    allVerticesD[vertexCount * 2]     = dx;
+                    allVerticesD[vertexCount * 2 + 1] = dy;
                 }
                 vertexCount++;
             }
@@ -507,11 +529,49 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
         int[] vboIds = new int[2];
         gl.glGenBuffers(2, vboIds, 0);
 
-        // Vertex VBO
-        FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(allVertices);
+        // Vertex VBO — layout depends on fp64 + hasTexCoords:
+        //   fp32, no tex: tight float[x,y]                  stride 0   (8 bytes/vertex)
+        //   fp32, tex:    interleaved float[x,y,s,t]        stride 16  (tex @ 8)
+        //   fp64, no tex: tight double[x,y]                 stride 0   (16 bytes/vertex)
+        //   fp64, tex:    interleaved double[x,y]+float[s,t] stride 24 (tex @ 16)
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboIds[0]);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) allVertices.length * Float.BYTES,
-            vertBuf, GL.GL_STATIC_DRAW);
+        int stride;
+        int texCoordByteOffset;
+        if (useDoublePositions)
+        {
+            if (hasTexCoords)
+            {
+                stride = 2 * Double.BYTES + 2 * Float.BYTES;
+                texCoordByteOffset = 2 * Double.BYTES;
+                ByteBuffer bb = Buffers.newDirectByteBuffer(totalVertices * stride);
+                bb.order(ByteOrder.nativeOrder());
+                for (int i = 0; i < totalVertices; i++)
+                {
+                    bb.putDouble(allVerticesD[i * 2]);
+                    bb.putDouble(allVerticesD[i * 2 + 1]);
+                    bb.putFloat(allVertices[i * 4 + 2]);
+                    bb.putFloat(allVertices[i * 4 + 3]);
+                }
+                bb.flip();
+                gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) totalVertices * stride, bb, GL.GL_STATIC_DRAW);
+            }
+            else
+            {
+                stride = 0;
+                texCoordByteOffset = -1;
+                DoubleBuffer dbuf = Buffers.newDirectDoubleBuffer(allVerticesD);
+                gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) allVerticesD.length * Double.BYTES,
+                    dbuf, GL.GL_STATIC_DRAW);
+            }
+        }
+        else
+        {
+            stride = hasTexCoords ? 4 * Float.BYTES : 0;
+            texCoordByteOffset = hasTexCoords ? 2 * Float.BYTES : -1;
+            FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(allVertices);
+            gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) allVertices.length * Float.BYTES,
+                vertBuf, GL.GL_STATIC_DRAW);
+        }
 
         // Index VBO
         IntBuffer idxBuf = Buffers.newDirectIntBuffer(triangles);
@@ -522,8 +582,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
         gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        int stride = hasTexCoords ? 4 * Float.BYTES : 0;
-        return new InteriorVBOData(vboIds[0], vboIds[1], triangles.length, hasTexCoords, stride);
+        int positionGLType = useDoublePositions ? GL2GL3.GL_DOUBLE : GL.GL_FLOAT;
+        return new InteriorVBOData(vboIds[0], vboIds[1], triangles.length,
+            hasTexCoords, stride, positionGLType, texCoordByteOffset);
     }
 
     protected List<List<Vertex>> assembleContours(Angle maxEdgeLength)
