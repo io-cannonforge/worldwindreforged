@@ -278,8 +278,9 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
         if (this.draggableSupport == null)
         {
@@ -323,12 +324,14 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
 	protected Rectangle computeBounds(DrawContext dc)
     {
         Vec4 point = this.getAnnotationDrawPoint(dc);
-        if (point == null)
-            return null;
+        if (point == null) {
+			return null;
+		}
 
         Vec4 screenPoint = dc.getView().project(point);
-        if (screenPoint == null)
-            return null;
+        if (screenPoint == null) {
+			return null;
+		}
 
         java.awt.Dimension size = this.getPreferredSize(dc);
         double[] scaleAndOpacity = computeDistanceScaleAndOpacity(dc, point, size);
@@ -351,16 +354,19 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
     @Override
 	protected void doRenderNow(DrawContext dc)
     {
-        if (dc.isPickingMode() && this.getPickSupport() == null)
-            return;
+        if (dc.isPickingMode() && this.getPickSupport() == null) {
+			return;
+		}
 
         Vec4 point = this.getAnnotationDrawPoint(dc);
-        if ((point == null) || (dc.getView().getFrustumInModelCoordinates().getNear().distanceTo(point) < 0))
-            return;
+        if ((point == null) || (dc.getView().getFrustumInModelCoordinates().getNear().distanceTo(point) < 0)) {
+			return;
+		}
 
         Vec4 screenPoint = dc.getView().project(point);
-        if (screenPoint == null)
-            return;
+        if (screenPoint == null) {
+			return;
+		}
 
         java.awt.Dimension size = this.getPreferredSize(dc);
         Position pos = dc.getGlobe().computePositionFromPoint(point);
@@ -425,11 +431,12 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
         }
 
         // Update look at distance if center point found
-        if (groundPos != null)
-            // Compute distance from eye to the position in the middle of the screen
+        if (groundPos != null) {
+			// Compute distance from eye to the position in the middle of the screen
             return view.getEyePoint().distanceTo3(dc.getGlobe().computePointFromPosition(groundPos));
-        else
-            return null;
+		} else {
+			return null;
+		}
     }
 
     protected void setDepthFunc(DrawContext dc, Vec4 screenPoint)
@@ -520,14 +527,16 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
         Vec4 drawPoint = null;
 
         Position pos = this.getPosition();
-        if (pos.getElevation() < dc.getGlobe().getMaxElevation())
-            drawPoint = dc.getSurfaceGeometry().getSurfacePoint(pos.getLatitude(), pos.getLongitude(),
+        if (pos.getElevation() < dc.getGlobe().getMaxElevation()) {
+			drawPoint = dc.getSurfaceGeometry().getSurfacePoint(pos.getLatitude(), pos.getLongitude(),
                 pos.getElevation() * dc.getVerticalExaggeration());
+		}
 
-        if (drawPoint == null)
-            drawPoint = dc.getGlobe().computePointFromPosition(
+        if (drawPoint == null) {
+			drawPoint = dc.getGlobe().computePointFromPosition(
                 dc.getVerticalExaggeration() == 1 ? pos
                     : new Position(pos, pos.getElevation() * dc.getVerticalExaggeration()));
+		}
 
         return drawPoint;
     }
@@ -563,11 +572,13 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
         }
 
         // Create our own state document from scratch.
-        if (restorableSupport == null)
-            restorableSupport = RestorableSupport.newRestorableSupport();
+        if (restorableSupport == null) {
+			restorableSupport = RestorableSupport.newRestorableSupport();
+		}
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         // Save the position property only if all parts (latitude, longitude, and elevation) can be saved.
         // We will not save a partial position (for example, just the elevation).
@@ -642,8 +653,9 @@ public class GlobeAnnotation extends AbstractAnnotation implements Locatable, Mo
             Double latitudeState = restorableSupport.getStateValueAsDouble(positionStateObj, "latitude");
             Double longitudeState = restorableSupport.getStateValueAsDouble(positionStateObj, "longitude");
             Double elevationState = restorableSupport.getStateValueAsDouble(positionStateObj, "elevation");
-            if (latitudeState != null && elevationState != null)
-                setPosition(Position.fromDegrees(latitudeState, longitudeState, elevationState));
+            if (latitudeState != null && elevationState != null) {
+				setPosition(Position.fromDegrees(latitudeState, longitudeState, elevationState));
+			}
         }
     }
 }

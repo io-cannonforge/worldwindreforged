@@ -154,15 +154,16 @@ public class BasicFactory implements Factory
             {
                 o = this.doCreateFromElement((Element) configSource, params);
             }
-            else if (configSource instanceof OGCCapabilities)
-                o = this.doCreateFromCapabilities((OGCCapabilities) configSource, params);
-            else if (configSource instanceof WCS100Capabilities)
-                o = this.doCreateFromCapabilities((WCS100Capabilities) configSource, params);
-            else
+            else if (configSource instanceof OGCCapabilities) {
+				o = this.doCreateFromCapabilities((OGCCapabilities) configSource, params);
+			} else if (configSource instanceof WCS100Capabilities) {
+				o = this.doCreateFromCapabilities((WCS100Capabilities) configSource, params);
+			} else
             {
                 Document doc = WWXML.openDocument(configSource);
-                if (doc != null)
-                    o = this.doCreateFromElement(doc.getDocumentElement(), params);
+                if (doc != null) {
+					o = this.doCreateFromElement(doc.getDocumentElement(), params);
+				}
             }
         }
         catch (Exception e)

@@ -125,10 +125,11 @@ public class SARAnnotationReader
         {
             if (this.firstElement)
             {
-                if (!lname.equalsIgnoreCase("sarTrackAnnotations"))
-                    throw new IllegalArgumentException("Not a SAR Track Annotations file");
-                else
-                    this.firstElement = false;
+                if (!lname.equalsIgnoreCase("sarTrackAnnotations")) {
+					throw new IllegalArgumentException("Not a SAR Track Annotations file");
+				} else {
+					this.firstElement = false;
+				}
             }
 
             if (this.currentElement != null)
@@ -151,8 +152,9 @@ public class SARAnnotationReader
                 if (lname.equalsIgnoreCase(this.currentElement.getElementName()))
                 {
                     // Get the SARAnnotation once the element is completely constructed.
-                    if (this.currentElement instanceof SARAnnotationElement)
-                        SARAnnotationReader.this.sarAnnotations.add(((SARAnnotationElement) this.currentElement).getSARAnnotation());
+                    if (this.currentElement instanceof SARAnnotationElement) {
+						SARAnnotationReader.this.sarAnnotations.add(((SARAnnotationElement) this.currentElement).getSARAnnotation());
+					}
                     this.currentElement = null;
                 }
             }
@@ -161,8 +163,9 @@ public class SARAnnotationReader
         @Override
         public void characters(char[] data, int start, int length) throws org.xml.sax.SAXException
         {
-            if (this.currentElement != null)
-                this.currentElement.characters(data, start, length);
+            if (this.currentElement != null) {
+				this.currentElement.characters(data, start, length);
+			}
         }
     }
 

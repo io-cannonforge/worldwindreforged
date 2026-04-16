@@ -28,6 +28,7 @@
 package gov.nasa.worldwind.layers.Earth;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import gov.nasa.worldwind.avlist.AVKey;
@@ -77,9 +78,9 @@ public class OSMMapnikLayer extends BasicMercatorTiledImageLayer
 		public URL getURL(Tile tile, String imageFormat)
             throws MalformedURLException
         {
-            return new URL(tile.getLevel().getService()
+            return URI.create(tile.getLevel().getService()
                 + (tile.getLevelNumber() + 3) + "/" + tile.getColumn() + "/"
-                + ((1 << (tile.getLevelNumber()) + 3) - 1 - tile.getRow()) + ".png");
+                + ((1 << (tile.getLevelNumber()) + 3) - 1 - tile.getRow()) + ".png").toURL();
         }
     }
 

@@ -168,8 +168,9 @@ public class SARAnnotationSupport
                             // Update help text when dragging
                             updateHelpMessage(SARAnnotationSupport.this.currentAnnotation);
                             // Mark the owner track as dirty.
-                            if (SARAnnotationSupport.this.currentAnnotation.getOwner() != null)
-                                SARAnnotationSupport.this.currentAnnotation.getOwner().markDirty();
+                            if (SARAnnotationSupport.this.currentAnnotation.getOwner() != null) {
+								SARAnnotationSupport.this.currentAnnotation.getOwner().markDirty();
+							}
                         }
                     }
 
@@ -210,8 +211,9 @@ public class SARAnnotationSupport
             @Override
 			public void propertyChange(PropertyChangeEvent propertyChangeEvent)
             {
-                if (propertyChangeEvent.getPropertyName() == SARKey.ANGLE_FORMAT)
-                    setAngleFormat((String)propertyChangeEvent.getNewValue());
+                if (propertyChangeEvent.getPropertyName() == SARKey.ANGLE_FORMAT) {
+					setAngleFormat((String)propertyChangeEvent.getNewValue());
+				}
             }
         });
     }
@@ -259,8 +261,9 @@ public class SARAnnotationSupport
     private void highlight(Object o)
     {
         // Manage highlighting of Annotations.
-        if (this.lastPickedObject == o)
-            return; // same thing selected
+        if (this.lastPickedObject == o) {
+			return; // same thing selected
+		}
 
         // Turn off highlight if on.
         if (this.lastPickedObject != null) // && this.lastPickedObject != this.currentAnnotation)
@@ -298,8 +301,9 @@ public class SARAnnotationSupport
                         globe.getElevation(pos.getLatitude(), pos.getLongitude()));
             }
             Vec4 screenPoint = this.getWwd().getView().project(surfacePoint);
-            if (screenPoint != null)
-                this.helpMessageAnnotation.setScreenPoint(new Point((int)screenPoint.x,  (int)screenPoint.y));
+            if (screenPoint != null) {
+				this.helpMessageAnnotation.setScreenPoint(new Point((int)screenPoint.x,  (int)screenPoint.y));
+			}
         }
         else
         {
@@ -315,8 +319,9 @@ public class SARAnnotationSupport
      */
     public void addNew(String text, SARTrack owner)
     {
-        if (text == null)
-            text = showAnnotationDialog("Add New Annotation", null);
+        if (text == null) {
+			text = showAnnotationDialog("Add New Annotation", null);
+		}
 
         OrbitView view = (OrbitView)this.wwd.getView();
         if(text != null && text.length() > 0 && view != null)
@@ -355,8 +360,9 @@ public class SARAnnotationSupport
     private String showAnnotationDialog(String title, String text)
     {
         final JTextArea textArea = new JTextArea(5, 10);
-        if (text != null)
-            textArea.setText(text);
+        if (text != null) {
+			textArea.setText(text);
+		}
         // Focus to text area from http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6420212
         textArea.addHierarchyListener(new HierarchyListener() {
             @Override
@@ -387,10 +393,12 @@ public class SARAnnotationSupport
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
         }
         String newText = null;
-        if (dialogResult == JOptionPane.OK_OPTION || dialogResult == JOptionPane.YES_OPTION)
-            newText = textArea.getText();
-        if (dialogResult == JOptionPane.NO_OPTION)
-            newText = "";
+        if (dialogResult == JOptionPane.OK_OPTION || dialogResult == JOptionPane.YES_OPTION) {
+			newText = textArea.getText();
+		}
+        if (dialogResult == JOptionPane.NO_OPTION) {
+			newText = "";
+		}
         return newText;
     }
 
@@ -404,8 +412,9 @@ public class SARAnnotationSupport
         {
             annotationLayer.addAnnotation(annotation);
             // Mark the SARTrack as dirty.
-            if (annotation.getOwner() != null)
-                annotation.getOwner().markDirty();
+            if (annotation.getOwner() != null) {
+				annotation.getOwner().markDirty();
+			}
         }
     }
 
@@ -424,8 +433,9 @@ public class SARAnnotationSupport
                 {
                     annotation.setText(text);
                     // Mark the owner track as dirty.
-                    if (annotation.getOwner() != null)
-                        annotation.getOwner().markDirty();
+                    if (annotation.getOwner() != null) {
+						annotation.getOwner().markDirty();
+					}
                 }
                 else
                 {
@@ -447,11 +457,13 @@ public class SARAnnotationSupport
         if (annotation != null)
         {
             annotationLayer.removeAnnotation(annotation);
-            if (currentAnnotation == annotation)
-                currentAnnotation = null;
+            if (currentAnnotation == annotation) {
+				currentAnnotation = null;
+			}
             // Mark the SARTrack as dirty.
-            if (annotation.getOwner() != null)
-                annotation.getOwner().markDirty();
+            if (annotation.getOwner() != null) {
+				annotation.getOwner().markDirty();
+			}
         }
 
     }
@@ -460,8 +472,9 @@ public class SARAnnotationSupport
     {
         for (SARAnnotation sa : getAnnotationsForTrack(owner))
         {
-            if (sa != null)
-                remove(sa);
+            if (sa != null) {
+				remove(sa);
+			}
         }
     }
 
@@ -490,8 +503,9 @@ public class SARAnnotationSupport
         {
             if (a != null && a instanceof SARAnnotation)
             {
-                if (owner == ((SARAnnotation) a).getOwner())
-                    result.add((SARAnnotation) a);
+                if (owner == ((SARAnnotation) a).getOwner()) {
+					result.add((SARAnnotation) a);
+				}
             }
         }
         return result;
@@ -553,8 +567,9 @@ public class SARAnnotationSupport
             {
                 SARAnnotationReader reader = new SARAnnotationReader();
                 reader.readFile(filePath);
-                for (SARAnnotation sa : reader.getSARAnnotations())
-                    addNew(sa, trackOwner);
+                for (SARAnnotation sa : reader.getSARAnnotations()) {
+					addNew(sa, trackOwner);
+				}
             }
         }
         catch (javax.xml.parsers.ParserConfigurationException e)

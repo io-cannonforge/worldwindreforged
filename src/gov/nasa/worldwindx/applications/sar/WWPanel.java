@@ -90,10 +90,12 @@ public class WWPanel extends JPanel
         @Override
         public void propertyChange(PropertyChangeEvent propertyChangeEvent)
         {
-            if (propertyChangeEvent.getPropertyName() == SARKey.ELEVATION_UNIT)
-                updateElevationUnit(propertyChangeEvent.getNewValue());
-            if (propertyChangeEvent.getPropertyName() == SARKey.ANGLE_FORMAT)
-                updateAngleFormat(propertyChangeEvent.getNewValue());
+            if (propertyChangeEvent.getPropertyName() == SARKey.ELEVATION_UNIT) {
+				updateElevationUnit(propertyChangeEvent.getNewValue());
+			}
+            if (propertyChangeEvent.getPropertyName() == SARKey.ANGLE_FORMAT) {
+				updateAngleFormat(propertyChangeEvent.getNewValue());
+			}
         }
     };
 
@@ -158,24 +160,27 @@ public class WWPanel extends JPanel
         {
             if (layer instanceof ScalebarLayer)
             {
-                if (SAR2.UNIT_IMPERIAL.equals(newValue))
-                    ((ScalebarLayer) layer).setUnit(ScalebarLayer.UNIT_IMPERIAL);
-                else // Default to metric units.
-                    ((ScalebarLayer) layer).setUnit(ScalebarLayer.UNIT_METRIC);
+                if (SAR2.UNIT_IMPERIAL.equals(newValue)) {
+					((ScalebarLayer) layer).setUnit(ScalebarLayer.UNIT_IMPERIAL);
+				} else { // Default to metric units.
+					((ScalebarLayer) layer).setUnit(ScalebarLayer.UNIT_METRIC);
+				}
             }
             else if (layer instanceof TerrainProfileLayer)
             {
-                if (SAR2.UNIT_IMPERIAL.equals(newValue))
-                    ((TerrainProfileLayer) layer).setUnit(TerrainProfileLayer.UNIT_IMPERIAL);
-                else // Default to metric units.
-                    ((TerrainProfileLayer) layer).setUnit(TerrainProfileLayer.UNIT_METRIC);
+                if (SAR2.UNIT_IMPERIAL.equals(newValue)) {
+					((TerrainProfileLayer) layer).setUnit(TerrainProfileLayer.UNIT_IMPERIAL);
+				} else { // Default to metric units.
+					((TerrainProfileLayer) layer).setUnit(TerrainProfileLayer.UNIT_METRIC);
+				}
             }
         }
 
-        if (SAR2.UNIT_IMPERIAL.equals(newValue))
-            this.statusBar.setElevationUnit(StatusBar.UNIT_IMPERIAL);
-        else // Default to metric units.
-            this.statusBar.setElevationUnit(StatusBar.UNIT_METRIC);
+        if (SAR2.UNIT_IMPERIAL.equals(newValue)) {
+			this.statusBar.setElevationUnit(StatusBar.UNIT_IMPERIAL);
+		} else { // Default to metric units.
+			this.statusBar.setElevationUnit(StatusBar.UNIT_METRIC);
+		}
     }
 
     private void updateAngleFormat(Object newValue)

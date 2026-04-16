@@ -87,10 +87,11 @@ public class StereoOptionSceneController extends BasicSceneController implements
     {
         String stereo = System.getProperty(AVKey.STEREO_MODE);
 
-        if ("redblue".equalsIgnoreCase(stereo))
-            this.setStereoMode(AVKey.STEREO_MODE_RED_BLUE);
-        else if ("device".equalsIgnoreCase(stereo))
-            this.setStereoMode(AVKey.STEREO_MODE_DEVICE);
+        if ("redblue".equalsIgnoreCase(stereo)) {
+			this.setStereoMode(AVKey.STEREO_MODE_RED_BLUE);
+		} else if ("device".equalsIgnoreCase(stereo)) {
+			this.setStereoMode(AVKey.STEREO_MODE_DEVICE);
+		}
     }
 
     @Override
@@ -180,12 +181,13 @@ public class StereoOptionSceneController extends BasicSceneController implements
         boolean pitchInRange = (dcView.getPitch().compareTo(Angle.fromDegrees(50)) > 0
             && dcView.getPitch().compareTo(Angle.POS90) < 0);
 
-        if (AVKey.STEREO_MODE_DEVICE.equals(this.stereoMode) && this.isHardwareStereo() && pitchInRange)
-            this.doDrawToStereoDevice(dc);
-        else if (AVKey.STEREO_MODE_RED_BLUE.equals(this.stereoMode) && pitchInRange)
-            this.doDrawStereoRedBlue(dc);
-        else // AVKey.STEREO_MODE_NONE
-            this.doDrawStereoNone(dc);
+        if (AVKey.STEREO_MODE_DEVICE.equals(this.stereoMode) && this.isHardwareStereo() && pitchInRange) {
+			this.doDrawToStereoDevice(dc);
+		} else if (AVKey.STEREO_MODE_RED_BLUE.equals(this.stereoMode) && pitchInRange) {
+			this.doDrawStereoRedBlue(dc);
+		} else { // AVKey.STEREO_MODE_NONE
+			this.doDrawStereoNone(dc);
+		}
     }
 
     /**
@@ -225,19 +227,22 @@ public class StereoOptionSceneController extends BasicSceneController implements
         // Draw the left eye
         if (this.isSwapEyes())
         {
-            if (this.isHardwareStereo())
-                gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+            if (this.isHardwareStereo()) {
+				gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+			}
             gl.glColorMask(false, true, true, true); // right eye in green/blue
         }
         else
         {
-            if (this.isHardwareStereo())
-                gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+            if (this.isHardwareStereo()) {
+				gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+			}
             gl.glColorMask(true, false, false, true); // left eye in red only
         }
 
-        if (this.isHardwareStereo())
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        if (this.isHardwareStereo()) {
+			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+		}
 
         super.draw(dc);
 
@@ -252,19 +257,22 @@ public class StereoOptionSceneController extends BasicSceneController implements
             gl.glClear(GL.GL_DEPTH_BUFFER_BIT);
             if (this.isSwapEyes())
             {
-                if (this.isHardwareStereo())
-                    gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+                if (this.isHardwareStereo()) {
+					gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+				}
                 gl.glColorMask(true, false, false, true); // right eye in red only
             }
             else
             {
-                if (this.isHardwareStereo())
-                    gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+                if (this.isHardwareStereo()) {
+					gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+				}
                 gl.glColorMask(false, true, true, true);  // right eye in green/blue
             }
 
-            if (this.isHardwareStereo())
-                gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            if (this.isHardwareStereo()) {
+				gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+			}
             super.draw(dc);
         }
         finally
@@ -288,10 +296,11 @@ public class StereoOptionSceneController extends BasicSceneController implements
         View dcView = dc.getView();
 
         // Draw the left eye
-        if (this.isSwapEyes())
-            gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
-        else
-            gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+        if (this.isSwapEyes()) {
+			gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+		} else {
+			gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+		}
 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         super.draw(dc);
@@ -304,10 +313,11 @@ public class StereoOptionSceneController extends BasicSceneController implements
         // Draw the right eye
         try
         {
-            if (this.isSwapEyes())
-                gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
-            else
-                gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+            if (this.isSwapEyes()) {
+				gl.glDrawBuffer(GL2GL3.GL_BACK_LEFT);
+			} else {
+				gl.glDrawBuffer(GL2GL3.GL_BACK_RIGHT);
+			}
 
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
             super.draw(dc);

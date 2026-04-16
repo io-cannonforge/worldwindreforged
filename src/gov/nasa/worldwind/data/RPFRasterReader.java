@@ -57,8 +57,9 @@ public class RPFRasterReader extends AbstractDataRasterReader
     @Override
 	public boolean canRead(Object source, AVList params)
     {
-        if (source == null)
-            return false;
+        if (source == null) {
+			return false;
+		}
 
         // RPF imagery cannot be identified by a small set of suffixes or mime types, so we override the standard
         // suffix comparison behavior here.
@@ -69,16 +70,18 @@ public class RPFRasterReader extends AbstractDataRasterReader
     @Override
 	protected boolean doCanRead(Object source, AVList params)
     {
-        if (!(source instanceof java.io.File))
-            return false;
+        if (!(source instanceof java.io.File)) {
+			return false;
+		}
 
         java.io.File file = (java.io.File) source;
         String filename = file.getName().toUpperCase();
 
         boolean canRead = RPFFrameFilename.isFilename(filename);
 
-        if (canRead && null != params && !params.hasKey(AVKey.PIXEL_FORMAT))
-            params.setValue(AVKey.PIXEL_FORMAT, AVKey.IMAGE);
+        if (canRead && null != params && !params.hasKey(AVKey.PIXEL_FORMAT)) {
+			params.setValue(AVKey.PIXEL_FORMAT, AVKey.IMAGE);
+		}
 
         return canRead;
     }
@@ -127,11 +130,13 @@ public class RPFRasterReader extends AbstractDataRasterReader
         }
 
         Object sector = params.getValue(AVKey.SECTOR);
-        if (sector == null || !(sector instanceof Sector))
-            this.readFileSector(file, rpfFile, params);
+        if (sector == null || !(sector instanceof Sector)) {
+			this.readFileSector(file, rpfFile, params);
+		}
 
-        if (!params.hasKey(AVKey.PIXEL_FORMAT))
-            params.setValue(AVKey.PIXEL_FORMAT, AVKey.IMAGE);
+        if (!params.hasKey(AVKey.PIXEL_FORMAT)) {
+			params.setValue(AVKey.PIXEL_FORMAT, AVKey.IMAGE);
+		}
     }
 
     private DataRaster[] readNonPolarImage(Object source, AVList params) throws java.io.IOException
@@ -195,8 +200,9 @@ public class RPFRasterReader extends AbstractDataRasterReader
         // particular that coverage information in the file itself is sometimes unreliable.
         Sector sector = this.sectorFromFilename(file);
         // If the sector cannot be computed from the filename, then get it from the RPF file headers.
-        if (sector == null)
-            sector = this.sectorFromHeader(file, rpfFile);
+        if (sector == null) {
+			sector = this.sectorFromHeader(file, rpfFile);
+		}
 
         values.setValue(AVKey.SECTOR, sector);
     }
@@ -237,8 +243,9 @@ public class RPFRasterReader extends AbstractDataRasterReader
         Sector sector;
         try
         {
-            if (rpfFile == null)
-                rpfFile = RPFImageFile.load(file);
+            if (rpfFile == null) {
+				rpfFile = RPFImageFile.load(file);
+			}
 
             NITFSImageSegment imageSegment = (NITFSImageSegment) rpfFile.getNITFSSegment(
                 NITFSSegmentType.IMAGE_SEGMENT);

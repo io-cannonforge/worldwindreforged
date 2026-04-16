@@ -79,10 +79,11 @@ public class BasicScheduledTaskService extends WWObjectImpl
     @Override
 	public void shutdown(boolean immediately)
     {
-        if (immediately)
-            this.executor.shutdownNow();
-        else
-            this.executor.shutdown();
+        if (immediately) {
+			this.executor.shutdownNow();
+		} else {
+			this.executor.shutdown();
+		}
 
         this.activeTasks.clear();
     }
@@ -155,8 +156,9 @@ public class BasicScheduledTaskService extends WWObjectImpl
 
             BasicScheduledTaskService.this.activeTasks.add(runnable);
 
-            if (RUNNING_THREAD_NAME_PREFIX != null)
-                thread.setName(RUNNING_THREAD_NAME_PREFIX + runnable);
+            if (RUNNING_THREAD_NAME_PREFIX != null) {
+				thread.setName(RUNNING_THREAD_NAME_PREFIX + runnable);
+			}
             thread.setPriority(Thread.MIN_PRIORITY);
             thread.setUncaughtExceptionHandler(BasicScheduledTaskService.this);
 
@@ -177,8 +179,9 @@ public class BasicScheduledTaskService extends WWObjectImpl
 
             BasicScheduledTaskService.this.activeTasks.remove(runnable);
 
-            if (throwable == null && IDLE_THREAD_NAME_PREFIX != null)
-                Thread.currentThread().setName(IDLE_THREAD_NAME_PREFIX);
+            if (throwable == null && IDLE_THREAD_NAME_PREFIX != null) {
+				Thread.currentThread().setName(IDLE_THREAD_NAME_PREFIX);
+			}
         }
     }
 
@@ -194,8 +197,9 @@ public class BasicScheduledTaskService extends WWObjectImpl
         }
 
         // Do not queue duplicates.
-        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable))
-            return;
+        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable)) {
+			return;
+		}
 
         this.executor.execute(runnable);
     }
@@ -212,8 +216,9 @@ public class BasicScheduledTaskService extends WWObjectImpl
         }
 
         // Do not queue duplicates.
-        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable))
-            return null;
+        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable)) {
+			return null;
+		}
 
         return this.executor.schedule(runnable, delay, timeunit);
     }
@@ -231,8 +236,9 @@ public class BasicScheduledTaskService extends WWObjectImpl
         }
 
         // Do not queue duplicates.
-        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable))
-            return null;
+        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable)) {
+			return null;
+		}
 
         return this.executor.scheduleAtFixedRate(runnable, initialDelay, period, timeunit);
     }

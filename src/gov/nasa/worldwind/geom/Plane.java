@@ -158,8 +158,9 @@ public final class Plane
     public final Plane normalize()
     {
         double length = this.n.getLength3();
-        if (length == 0) // should not happen, but check to be sure.
-            return this;
+        if (length == 0) { // should not happen, but check to be sure.
+			return this;
+		}
 
         return new Plane(new Vec4(
             this.n.x / length,
@@ -209,11 +210,13 @@ public final class Plane
 
         double t = this.intersectDistance(line);
 
-        if (Double.isNaN(t))
-            return null;
+        if (Double.isNaN(t)) {
+			return null;
+		}
 
-        if (Double.isInfinite(t))
-            return line.getOrigin();
+        if (Double.isInfinite(t)) {
+			return line.getOrigin();
+		}
 
         return line.getPointAt(t);
     }
@@ -242,10 +245,11 @@ public final class Plane
         if (ldotv == 0) // are line and plane parallel
         {
             double ldots = this.n.dot4(line.getOrigin());
-            if (ldots == 0)
-                return Double.POSITIVE_INFINITY; // line is coincident with the plane
-            else
-                return Double.NaN; // line is not coincident with the plane
+            if (ldots == 0) {
+				return Double.POSITIVE_INFINITY; // line is coincident with the plane
+			} else {
+				return Double.NaN; // line is not coincident with the plane
+			}
         }
 
         return -this.n.dot4(line.getOrigin()) / ldotv; // ldots / ldotv
@@ -277,20 +281,23 @@ public final class Plane
             if (pa.equals(pb))
             {
                 double d = this.distanceTo(pa);
-                if (d == 0)
-                    return pa;
-                else
-                    return null;
+                if (d == 0) {
+					return pa;
+				} else {
+					return null;
+				}
             }
 
             Line l = Line.fromSegment(pa, pb);
             double t = this.intersectDistance(l);
 
-            if (Double.isInfinite(t))
-                return Vec4.INFINITY;
+            if (Double.isInfinite(t)) {
+				return Vec4.INFINITY;
+			}
 
-            if (Double.isNaN(t) || t < 0 || t > 1)
-                return null;
+            if (Double.isNaN(t) || t < 0 || t > 1) {
+				return null;
+			}
 
             return l.getPointAt(t);
         }
@@ -325,8 +332,9 @@ public final class Plane
             throw new IllegalArgumentException(message);
         }
 
-        if (pa.equals(pb))
-            return null;
+        if (pa.equals(pb)) {
+			return null;
+		}
 
         // Get the projection of the segment onto the plane.
         Line line = Line.fromSegment(pa, pb);
@@ -336,22 +344,25 @@ public final class Plane
         if (ldotv == 0) // line and plane are parallel and maybe coincident
         {
             double ldots = this.n.dot4(line.getOrigin());
-            if (ldots == 0)
-                return new Vec4[] {pa, pb}; // line is coincident with the plane
-            else
-                return null; // line is not coincident with the plane
+            if (ldots == 0) {
+				return new Vec4[] {pa, pb}; // line is coincident with the plane
+			} else {
+				return null; // line is not coincident with the plane
+			}
         }
 
         // Not parallel so the line intersects. But does the segment intersect?
         double t = -this.n.dot4(line.getOrigin()) / ldotv; // ldots / ldotv
-        if (t < 0 || t > 1) // segment does not intersect
-            return null;
+        if (t < 0 || t > 1) { // segment does not intersect
+			return null;
+		}
 
         Vec4 p = line.getPointAt(t);
-        if (ldotv > 0)
-            return new Vec4[] {p, pb};
-        else
-            return new Vec4[] {pa, p};
+        if (ldotv > 0) {
+			return new Vec4[] {p, pb};
+		} else {
+			return new Vec4[] {pa, p};
+		}
     }
 
     public double distanceTo(Vec4 p)
@@ -381,11 +392,13 @@ public final class Plane
         double da = this.distanceTo(pa);
         double db = this.distanceTo(pb);
 
-        if (da < 0 && db < 0)
-            return -1;
+        if (da < 0 && db < 0) {
+			return -1;
+		}
 
-        if (da > 0 && db > 0)
-            return 1;
+        if (da > 0 && db > 0) {
+			return 1;
+		}
 
         return 0;
     }
@@ -410,8 +423,9 @@ public final class Plane
 
         double d = this.distanceTo(pts[0]);
         int side = d < 0 ? -1 : d > 0 ? 1 : 0;
-        if (side == 0)
-            return 0;
+        if (side == 0) {
+			return 0;
+		}
 
         for (int i = 1; i < pts.length; i++)
         {
@@ -423,8 +437,9 @@ public final class Plane
             }
 
             d = this.distanceTo(pts[i]);
-            if ((side == -1 && d < 0) || (side == 1 && d > 0))
-                continue;
+            if ((side == -1 && d < 0) || (side == 1 && d > 0)) {
+				continue;
+			}
 
             return 0; // point is not on same side as the others
         }
@@ -473,10 +488,12 @@ public final class Plane
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (!(o instanceof Plane))
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (!(o instanceof Plane)) {
+			return false;
+		}
 
         Plane plane = (Plane) o;
 

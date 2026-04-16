@@ -138,8 +138,9 @@ public class OGLRenderToTextureSupport
             throw new IllegalArgumentException(message);
         }
 
-        if (this.colorTarget == texture)
-            return;
+        if (this.colorTarget == texture) {
+			return;
+		}
 
         // If we have a texture target, then write the current GL color buffer state to the current texture target
         // before binding a new target.
@@ -185,8 +186,9 @@ public class OGLRenderToTextureSupport
             throw new IllegalArgumentException(message);
         }
 
-        if (this.colorTarget == null)
-            return;
+        if (this.colorTarget == null) {
+			return;
+		}
 
         float[] compArray = new float[4];
         color.getRGBComponents(compArray);
@@ -332,8 +334,9 @@ public class OGLRenderToTextureSupport
                 // texture contents by calling one of glTexImage or glTexSubImage. However when we render directly to
                 // the texture using framebuffer objects, automatic mipmap generation is not invoked, and the texture's
                 // mipmap chain contents are undefined until we explicitly update them.
-                if (this.colorTarget.isUsingAutoMipmapGeneration())
-                    this.updateMipmaps(dc, this.colorTarget);
+                if (this.colorTarget.isUsingAutoMipmapGeneration()) {
+					this.updateMipmaps(dc, this.colorTarget);
+				}
             }
         }
         // If framebuffer objects are not enabled, then we've been rendering into the read buffer associated with the
@@ -354,14 +357,17 @@ public class OGLRenderToTextureSupport
         int h = height;
 
         // If the lower left corner of the region to copy is outside of the texture bounds, then exit and do nothing.
-        if (x >= texture.getWidth() || y >= texture.getHeight())
-            return;
+        if (x >= texture.getWidth() || y >= texture.getHeight()) {
+			return;
+		}
 
         // Limit the dimensions of the region to copy so they fit into the texture's dimensions.
-        if (w > texture.getWidth())
-            w = texture.getWidth();
-        if (h > texture.getHeight())
-            h = texture.getHeight();
+        if (w > texture.getWidth()) {
+			w = texture.getWidth();
+		}
+        if (h > texture.getHeight()) {
+			h = texture.getHeight();
+		}
 
         GL gl = dc.getGL();
 

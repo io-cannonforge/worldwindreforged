@@ -461,10 +461,11 @@ public class MultiLineTextRenderer
         for (String line : lines)
         {
             int xAligned = x;
-            if (this.textAlign.equals(AVKey.CENTER))
-                xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth() / 2);
-            else if (this.textAlign.equals(AVKey.RIGHT))
-                xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth());
+            if (this.textAlign.equals(AVKey.CENTER)) {
+				xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth() / 2);
+			} else if (this.textAlign.equals(AVKey.RIGHT)) {
+				xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth());
+			}
             y -= textLineHeight;
             this.textRenderer.draw3D(line, xAligned, y, 0, 1);
             y -= this.lineSpacing;
@@ -510,10 +511,11 @@ public class MultiLineTextRenderer
         for (String line : lines)
         {
             int xAligned = x;
-            if (this.textAlign.equals(AVKey.CENTER))
-                xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth() / 2);
-            else if (this.textAlign.equals(AVKey.RIGHT))
-                xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth());
+            if (this.textAlign.equals(AVKey.CENTER)) {
+				xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth() / 2);
+			} else if (this.textAlign.equals(AVKey.RIGHT)) {
+				xAligned = x - (int) (this.textRenderer.getBounds(line).getWidth());
+			}
             y -= textLineHeight;
             drawLineWithUniqueColors(line, xAligned, y, dc, pickSupport, refObject, refPosition);
             y -= this.lineSpacing;
@@ -532,8 +534,9 @@ public class MultiLineTextRenderer
         int end = source.indexOf(' ', start + 1);
         while (start < source.length())
         {
-            if (end == -1)
-                end = source.length();   // last word
+            if (end == -1) {
+				end = source.length();   // last word
+			}
             // Extract a 'word' which is in fact a space and a word except for first word
             String word = source.substring(start, end);
             // Measure word and already draw line part - from line beginning
@@ -606,22 +609,25 @@ public class MultiLineTextRenderer
                 {
                     wrappedText.append(subLines[j]);
                     currentHeight += maxLineHeight + this.lineSpacing;
-                    if (j < subLines.length - 1)
-                        wrappedText.append('\n');
+                    if (j < subLines.length - 1) {
+						wrappedText.append('\n');
+					}
                 }
                 else
                 {
                     heightExceeded = true;
                 }
             }
-            if (i < lines.length - 1 && !heightExceeded)
-                wrappedText.append('\n');
+            if (i < lines.length - 1 && !heightExceeded) {
+				wrappedText.append('\n');
+			}
         }
         // Add continuation string if text truncated
         if (heightExceeded)
         {
-            if (wrappedText.length() > 0)
-                wrappedText.deleteCharAt(wrappedText.length() - 1); // Remove excess new line
+            if (wrappedText.length() > 0) {
+				wrappedText.deleteCharAt(wrappedText.length() - 1); // Remove excess new line
+			}
             wrappedText.append(this.continuationString);
         }
         return wrappedText.toString();
@@ -642,8 +648,9 @@ public class MultiLineTextRenderer
             int end = source.indexOf(' ', start + 1);
             while (start < source.length())
             {
-                if (end == -1)
-                    end = source.length();   // last word
+                if (end == -1) {
+					end = source.length();   // last word
+				}
                 // Extract a 'word' which is in fact a space and a word
                 String word = source.substring(start, end);
                 String linePlusWord = line + word;
@@ -778,8 +785,9 @@ public class MultiLineTextRenderer
         // Look for name="..." - will not work for other variants
         Pattern pattern = Pattern.compile("(?i)" + attributeName.toLowerCase() + "=\"([^\"].*?)\"");
         Matcher matcher = pattern.matcher(text);
-        if (matcher.find())
-            return matcher.group(1);
+        if (matcher.find()) {
+			return matcher.group(1);
+		}
 
         return null;
     }
@@ -841,8 +849,9 @@ public class MultiLineTextRenderer
             width += wordBounds.getWidth();
             height = Math.max(wordBounds.getHeight(), height);
             // Count a space between words - not after last.
-            if (wi.hasNext())
-                width += ds.textRenderer.getCharWidth(' ');
+            if (wi.hasNext()) {
+				width += ds.textRenderer.getCharWidth(' ');
+			}
         }
 
         return new Rectangle2D.Double(0, 0, width, height);
@@ -933,8 +942,9 @@ public class MultiLineTextRenderer
             wrappedText.append(wrapLineHTML(line, width, ds));
         }
 
-        if (height > 0)
-            return trimTextHTML(wrappedText.toString(), height, savedState);
+        if (height > 0) {
+			return trimTextHTML(wrappedText.toString(), height, savedState);
+		}
 
         return wrappedText.toString();
     }
@@ -971,8 +981,9 @@ public class MultiLineTextRenderer
 
         // Measure line - note this updates the caller draw state
         Rectangle2D lineBounds = getLineBoundsHTML(line, ds);
-        if (lineBounds.getWidth() <= width)
-            return line;
+        if (lineBounds.getWidth() <= width) {
+			return line;
+		}
 
         // The line needs to be wrapped
         double spaceWidth, wordWidth, lineWidth = 0;
@@ -1080,8 +1091,9 @@ public class MultiLineTextRenderer
 
     protected void drawTextHTML(String text, double x, double y, DrawState ds)
     {
-        if (!this.isPicking)
-            ds.textRenderer.begin3DRendering();
+        if (!this.isPicking) {
+			ds.textRenderer.begin3DRendering();
+		}
         try
         {
             ds.textRenderer.setColor(this.textColor);
@@ -1094,10 +1106,11 @@ public class MultiLineTextRenderer
                 // Set line start x
                 drawX = x;
                 lineBounds = getTextBoundsHTML(line, new DrawState(ds));
-                if (this.textAlign.equals(AVKey.CENTER))
-                    drawX = x - lineBounds.getWidth() / 2;
-                else if (this.textAlign.equals(AVKey.RIGHT))
-                    drawX = x - lineBounds.getWidth();
+                if (this.textAlign.equals(AVKey.CENTER)) {
+					drawX = x - lineBounds.getWidth() / 2;
+				} else if (this.textAlign.equals(AVKey.RIGHT)) {
+					drawX = x - lineBounds.getWidth();
+				}
 
                 // Skip line height
                 drawY -= lineBounds.getHeight();
@@ -1109,8 +1122,9 @@ public class MultiLineTextRenderer
         }
         finally
         {
-            if (!this.isPicking)
-                ds.textRenderer.end3DRendering();
+            if (!this.isPicking) {
+				ds.textRenderer.end3DRendering();
+			}
         }
     }
 
@@ -1124,10 +1138,11 @@ public class MultiLineTextRenderer
         {
             word = wi.next();
             wordBounds = getWordBoundsHTML(word, new DrawState(ds));
-            if (this.isPicking)
-                pickWordHTML(word, drawX, y, ds);
-            else
-                drawWordHTML(word, drawX, y, ds);
+            if (this.isPicking) {
+				pickWordHTML(word, drawX, y, ds);
+			} else {
+				drawWordHTML(word, drawX, y, ds);
+			}
             drawX += wordBounds.getWidth() + ds.textRenderer.getCharWidth(' ');
         }
     }
@@ -1234,8 +1249,9 @@ public class MultiLineTextRenderer
         int colorCode = color.getRGB();
         PickedObject po = new PickedObject(colorCode, refObject, refPosition, false);
         po.setValue(AVKey.TEXT, removeTagsHTML(word.trim()));
-        if (hyperlink != null)
-            po.setValue(AVKey.URL, hyperlink);
+        if (hyperlink != null) {
+			po.setValue(AVKey.URL, hyperlink);
+		}
         pickSupport.addPickableObject(po);
         // Draw word rectangle
         gl.glColor3ub((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue());
@@ -1284,19 +1300,22 @@ public class MultiLineTextRenderer
                 }
             }
             // Add end of text if any
-            if (start < text.length())
-                addWord(text.substring(start));
+            if (start < text.length()) {
+				addWord(text.substring(start));
+			}
 
             // Set next word index
-            if (this.words.size() > 0)
-                this.nextWord = 0;
+            if (this.words.size() > 0) {
+				this.nextWord = 0;
+			}
         }
 
         protected void addWord(String word)
         {
             word = word.trim();
-            if (word.length() > 0)
-                words.add(word);
+            if (word.length() > 0) {
+				words.add(word);
+			}
         }
 
         @Override
@@ -1359,8 +1378,9 @@ public class MultiLineTextRenderer
 
         public DrawAttributes getDrawAttributes()
         {
-            if (this.stack.size() < 1)
-                return null;
+            if (this.stack.size() < 1) {
+				return null;
+			}
             return this.stack.get(this.stack.size() - 1);
         }
 
@@ -1418,14 +1438,16 @@ public class MultiLineTextRenderer
             {
                 this.push(new DrawAttributes(da.font,
                     MultiLineTextRenderer.getAttributeFromTagHTML(tag, "href"), applyTextAlpha(linkColor)));
-                if (startStopRendering)
-                    this.textRenderer.setColor(applyTextAlpha(linkColor));
+                if (startStopRendering) {
+					this.textRenderer.setColor(applyTextAlpha(linkColor));
+				}
             }
             else if (tag.equalsIgnoreCase("</a>"))
             {
                 this.pop();
-                if (startStopRendering)
-                    this.textRenderer.setColor(getDrawAttributes().color);
+                if (startStopRendering) {
+					this.textRenderer.setColor(getDrawAttributes().color);
+				}
             }
             else if (tag.toLowerCase().startsWith("<font "))
             {
@@ -1441,22 +1463,25 @@ public class MultiLineTextRenderer
                     {
                     }
                     this.push(new DrawAttributes(da.font, da.hyperlink, color));
-                    if (startStopRendering)
-                        this.textRenderer.setColor(color);
+                    if (startStopRendering) {
+						this.textRenderer.setColor(color);
+					}
                 }
             }
             else if (tag.equalsIgnoreCase("</font>"))
             {
                 this.pop();
-                if (startStopRendering)
-                    this.textRenderer.setColor(getDrawAttributes().color);
+                if (startStopRendering) {
+					this.textRenderer.setColor(getDrawAttributes().color);
+				}
             }
 
             if (fontChanged)
             {
                 // Terminate current rendering
-                if (startStopRendering)
-                    this.textRenderer.end3DRendering();
+                if (startStopRendering) {
+					this.textRenderer.end3DRendering();
+				}
                 // Get new text renderer
                 da = getDrawAttributes();
                 this.textRenderer = getTextRenderer(da.font);
@@ -1476,8 +1501,9 @@ public class MultiLineTextRenderer
 
         protected void pop()
         {
-            if (this.stack.size() > 1)
-                this.stack.remove(this.stack.size() - 1);
+            if (this.stack.size() > 1) {
+				this.stack.remove(this.stack.size() - 1);
+			}
         }
 
         protected Color applyTextAlpha(Color color)

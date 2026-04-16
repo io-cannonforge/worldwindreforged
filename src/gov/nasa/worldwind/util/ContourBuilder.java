@@ -95,10 +95,12 @@ public class ContourBuilder
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             CellKey that = (CellKey) o;
             return this.x == that.x && this.y == that.y;
@@ -385,30 +387,36 @@ public class ContourBuilder
                 mask <<= 1;
                 mask |= (sw > value) ? 1 : 0; // 0001
 
-                if (mask == 0 || mask == 15)
-                    continue; // no contour; all values above or below the threshold value
+                if (mask == 0 || mask == 15) {
+					continue; // no contour; all values above or below the threshold value
+				}
 
                 // Disambiguate saddle point for masks 0x0101 and 0x1010, per Wikipedia page suggestion.
                 if (mask == 5 || mask == 10)
                 {
                     double ctr = (nw + ne + se + sw) / 4; // sample center value as the average of four corners
-                    if (mask == 5 && ctr <= value) // center value causes change in direction; flip the mask to 10
-                        mask = 10;
-                    else if (mask == 10 && ctr <= value) // center value causes change in direction; flip the mask to 5
-                        mask = 5;
+                    if (mask == 5 && ctr <= value) { // center value causes change in direction; flip the mask to 10
+						mask = 10;
+					} else if (mask == 10 && ctr <= value) { // center value causes change in direction; flip the mask to 5
+						mask = 5;
+					}
                 }
 
                 CellInfo cell = new CellInfo(x, y, mask);
 
                 // Compute weights associated with edge intersections.
-                if ((ne > value) ^ (nw > value))
-                    cell.edgeWeights.put(Direction.NORTH, (value - nw) / (ne - nw));
-                if ((se > value) ^ (sw > value))
-                    cell.edgeWeights.put(Direction.SOUTH, (value - sw) / (se - sw));
-                if ((se > value) ^ (ne > value))
-                    cell.edgeWeights.put(Direction.EAST, (value - ne) / (se - ne));
-                if ((sw > value) ^ (nw > value))
-                    cell.edgeWeights.put(Direction.WEST, (value - nw) / (sw - nw));
+                if ((ne > value) ^ (nw > value)) {
+					cell.edgeWeights.put(Direction.NORTH, (value - nw) / (ne - nw));
+				}
+                if ((se > value) ^ (sw > value)) {
+					cell.edgeWeights.put(Direction.SOUTH, (value - sw) / (se - sw));
+				}
+                if ((se > value) ^ (ne > value)) {
+					cell.edgeWeights.put(Direction.EAST, (value - ne) / (se - ne));
+				}
+                if ((sw > value) ^ (nw > value)) {
+					cell.edgeWeights.put(Direction.WEST, (value - nw) / (sw - nw));
+				}
 
                 this.putContourCell(cell);
             }

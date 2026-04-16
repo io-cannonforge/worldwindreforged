@@ -161,8 +161,9 @@ public abstract class BasicViewInputHandler extends AbstractViewInputHandler
             double transInput = 0;
             java.util.List<ViewInputAttributes.ActionAttributes.KeyAction> keyList = viewAction.getKeyActions();
             for (ViewInputAttributes.ActionAttributes.KeyAction keyAction : keyList) {
-                if (keys.isKeyDown(keyAction.keyCode))
-                    transInput += keyAction.sign;
+                if (keys.isKeyDown(keyAction.keyCode)) {
+					transInput += keyAction.sign;
+				}
             }
 
             if (transInput == 0)
@@ -259,8 +260,9 @@ public abstract class BasicViewInputHandler extends AbstractViewInputHandler
             Point movement = ViewUtil.subtract(point, lastPoint);
             int headingInput = movement.x;
             int pitchInput = -movement.y;
-            if (mouseDownPoint == null)
-                mouseDownPoint = lastPoint;
+            if (mouseDownPoint == null) {
+				mouseDownPoint = lastPoint;
+			}
             Point totalMovement = ViewUtil.subtract(point, mouseDownPoint);
             int totalHeadingInput = totalMovement.x;
             int totalPitchInput = -totalMovement.y;
@@ -300,8 +302,9 @@ public abstract class BasicViewInputHandler extends AbstractViewInputHandler
                 Point mouseDownPoint = constrainToSourceBounds(getMouseDownPoint(), getWorldWindow());
 
                 Point movement = ViewUtil.subtract(point, lastPoint);
-                if (point == null || lastPoint == null)
-                    return false;
+                if (point == null || lastPoint == null) {
+					return false;
+				}
                 int forwardInput = movement.y;
                 int sideInput = -movement.x;
 

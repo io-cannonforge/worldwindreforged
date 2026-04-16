@@ -232,8 +232,9 @@ public class CrosshairLayer extends AbstractLayer
 
     private void draw(DrawContext dc)
     {
-        if (this.getIconFilePath() == null)
-            return;
+        if (this.getIconFilePath() == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
@@ -319,8 +320,9 @@ public class CrosshairLayer extends AbstractLayer
                 gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
                 gl.glPopMatrix();
             }
-            if (attribsPushed)
-                gl.glPopAttrib();
+            if (attribsPushed) {
+				gl.glPopAttrib();
+			}
         }
     }
 
@@ -382,8 +384,9 @@ public class CrosshairLayer extends AbstractLayer
     private void initializeTexture(DrawContext dc)
     {
         Texture iconTexture = dc.getTextureCache().getTexture(this.getIconFilePath());
-        if (iconTexture != null)
-            return;
+        if (iconTexture != null) {
+			return;
+		}
 
         GL gl = dc.getGL();
 

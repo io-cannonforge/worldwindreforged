@@ -169,8 +169,9 @@ public class ImageTiler
                         // If the source image does not have an alpha channel, create a tile with no alpha channel.
                         image = new BufferedImage(this.getTileWidth(), this.getTileHeight(),
                             BufferedImage.TYPE_3BYTE_BGR);
-                        if (!ImageUtil.isCompatibleImage(image))
-                            image = ImageUtil.toCompatibleImage(image);
+                        if (!ImageUtil.isCompatibleImage(image)) {
+							image = ImageUtil.toCompatibleImage(image);
+						}
                         Graphics2D g = image.createGraphics();
                         g.drawImage(baseImage.getSubimage(x, y, w, h), 0, 0, w, h, null);
                     }
@@ -179,8 +180,9 @@ public class ImageTiler
                         // The source image has an alpha channel, create a tile with an alpha channel.
                         image = new BufferedImage(this.getTileWidth(), this.getTileHeight(),
                             BufferedImage.TYPE_4BYTE_ABGR);
-                        if (!ImageUtil.isCompatibleImage(image))
-                            image = ImageUtil.toCompatibleImage(image);
+                        if (!ImageUtil.isCompatibleImage(image)) {
+							image = ImageUtil.toCompatibleImage(image);
+						}
                         Graphics2D g = image.createGraphics();
                         g.setBackground(this.transparencyColor);
                         g.clearRect(0, 0, image.getWidth(), image.getHeight());
@@ -203,8 +205,9 @@ public class ImageTiler
                     int shortheight = h == this.getTileHeight() ? this.getTileHeight() : WWMath.powerOfTwoCeiling(h);
 
                     image = new BufferedImage(shortWidth, shortheight, BufferedImage.TYPE_4BYTE_ABGR);
-                    if (!ImageUtil.isCompatibleImage(image))
-                        image = ImageUtil.toCompatibleImage(image);
+                    if (!ImageUtil.isCompatibleImage(image)) {
+						image = ImageUtil.toCompatibleImage(image);
+					}
                     Graphics2D g = image.createGraphics();
                     g.setBackground(this.transparencyColor);
                     g.clearRect(0, 0, image.getWidth(), image.getHeight());
@@ -275,8 +278,9 @@ public class ImageTiler
                 throw new IllegalArgumentException(message);
             }
 
-            if (++numCorners > 3)
-                break;
+            if (++numCorners > 3) {
+				break;
+			}
         }
 
         if (numCorners < 4)

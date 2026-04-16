@@ -255,20 +255,24 @@ public class Material
     public void getRestorableState(RestorableSupport rs, RestorableSupport.StateObject so)
     {
         String encodedColor = RestorableSupport.encodeColor(this.ambient);
-        if (encodedColor != null)
-            rs.addStateValueAsString(so, "ambient", encodedColor);
+        if (encodedColor != null) {
+			rs.addStateValueAsString(so, "ambient", encodedColor);
+		}
 
         encodedColor = RestorableSupport.encodeColor(this.diffuse);
-        if (encodedColor != null)
-            rs.addStateValueAsString(so, "diffuse", encodedColor);
+        if (encodedColor != null) {
+			rs.addStateValueAsString(so, "diffuse", encodedColor);
+		}
 
         encodedColor = RestorableSupport.encodeColor(this.specular);
-        if (encodedColor != null)
-            rs.addStateValueAsString(so, "specular", encodedColor);
+        if (encodedColor != null) {
+			rs.addStateValueAsString(so, "specular", encodedColor);
+		}
 
         encodedColor = RestorableSupport.encodeColor(this.emission);
-        if (encodedColor != null)
-            rs.addStateValueAsString(so, "emission", encodedColor);
+        if (encodedColor != null) {
+			rs.addStateValueAsString(so, "emission", encodedColor);
+		}
 
         rs.addStateValueAsDouble(so, "shininess", this.shininess);
     }
@@ -277,28 +281,33 @@ public class Material
     {
         double shininess = this.getShininess();
         Double d = rs.getStateValueAsDouble(so, "shininess");
-        if (d != null)
-            shininess = d;
+        if (d != null) {
+			shininess = d;
+		}
 
         String as = rs.getStateValueAsString(so, "ambient");
         Color ambient = RestorableSupport.decodeColor(as);
-        if (ambient == null)
-            ambient = this.getAmbient();
+        if (ambient == null) {
+			ambient = this.getAmbient();
+		}
 
         String ds = rs.getStateValueAsString(so, "diffuse");
         Color diffuse = RestorableSupport.decodeColor(ds);
-        if (diffuse == null)
-            diffuse = this.getDiffuse();
+        if (diffuse == null) {
+			diffuse = this.getDiffuse();
+		}
 
         String ss = rs.getStateValueAsString(so, "specular");
         Color specular = RestorableSupport.decodeColor(ss);
-        if (specular == null)
-            specular = this.getSpecular();
+        if (specular == null) {
+			specular = this.getSpecular();
+		}
 
         String es = rs.getStateValueAsString(so, "emission");
         Color emission = RestorableSupport.decodeColor(es);
-        if (emission == null)
-            emission = this.getEmission();
+        if (emission == null) {
+			emission = this.getEmission();
+		}
 
         return new Material(specular, diffuse, ambient, emission, (float) shininess);
     }
@@ -306,19 +315,23 @@ public class Material
     @Override
 	public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || this.getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || this.getClass() != o.getClass()) {
+			return false;
+		}
 
         Material that = (Material) o;
 
         if ((Double.compare(this.shininess, that.shininess) != 0) || (this.ambient != null ? !this.ambient.equals(that.ambient) : that.ambient != null) || (this.diffuse != null ? !this.diffuse.equals(that.diffuse) : that.diffuse != null)
-				|| (this.specular != null ? !this.specular.equals(that.specular) : that.specular != null))
-            return false;
+				|| (this.specular != null ? !this.specular.equals(that.specular) : that.specular != null)) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (this.emission != null ? !this.emission.equals(that.emission) : that.emission != null)
-            return false;
+        if (this.emission != null ? !this.emission.equals(that.emission) : that.emission != null) {
+			return false;
+		}
 
         return true;
     }

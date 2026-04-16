@@ -110,8 +110,9 @@ public class DecisionTree<T, C> // T = type being managed. C = traversal context
      */
     public void traverse(T o, C context)
     {
-        if (!this.controller.isVisible(o, context) || this.controller.isTerminal(o, context))
-            return;
+        if (!this.controller.isVisible(o, context) || this.controller.isTerminal(o, context)) {
+			return;
+		}
 
         for (T child : this.controller.split(o, context))
         {

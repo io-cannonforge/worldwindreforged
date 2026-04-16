@@ -145,8 +145,9 @@ public class SurfaceSector extends AbstractSurfaceShape implements Exportable
     @Override
 	public Iterable<? extends LatLon> getLocations(Globe globe)
     {
-        if (this.sector.equals(Sector.EMPTY_SECTOR))
-            return null;
+        if (this.sector.equals(Sector.EMPTY_SECTOR)) {
+			return null;
+		}
 
         LatLon[] locations = new LatLon[5];
         System.arraycopy(this.sector.getCorners(), 0, locations, 0, 4);
@@ -159,8 +160,9 @@ public class SurfaceSector extends AbstractSurfaceShape implements Exportable
 	protected List<List<LatLon>> createGeometry(Globe globe, double edgeIntervalsPerDegree)
     {
         Iterable<? extends LatLon> originalLocations = this.getLocations(globe);
-        if (originalLocations == null)
-            return null;
+        if (originalLocations == null) {
+			return null;
+		}
 
         ArrayList<LatLon> drawLocations = new ArrayList<>();
         this.generateIntermediateLocations(originalLocations, edgeIntervalsPerDegree, false, drawLocations);
@@ -216,8 +218,9 @@ public class SurfaceSector extends AbstractSurfaceShape implements Exportable
         super.doRestoreState(rs, context);
 
         Sector sector = rs.getStateValueAsSector(context, "sector");
-        if (sector != null)
-            this.setSector(sector);
+        if (sector != null) {
+			this.setSector(sector);
+		}
     }
 
     @Override
@@ -229,8 +232,9 @@ public class SurfaceSector extends AbstractSurfaceShape implements Exportable
         // of polygon locations. To restore an shape saved from the previous version, we compute the bounding sector of
         // those locations to define a sector.
         List<LatLon> locations = rs.getStateValueAsLatLonList(context, "locations");
-        if (locations != null)
-            this.setSector(Sector.boundingSector(locations));
+        if (locations != null) {
+			this.setSector(Sector.boundingSector(locations));
+		}
     }
 
     /**
@@ -335,7 +339,8 @@ public class SurfaceSector extends AbstractSurfaceShape implements Exportable
         xmlWriter.writeEndElement(); // Placemark
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

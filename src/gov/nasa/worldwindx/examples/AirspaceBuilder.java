@@ -46,6 +46,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1117,7 +1118,7 @@ public class AirspaceBuilder extends ApplicationTemplate {
 
             URL url = null;
             try {
-                url = new URL(input.toString());
+                url = URI.create(input.toString()).toURL();
             } catch (IOException e) {
                 e.printStackTrace();
             }

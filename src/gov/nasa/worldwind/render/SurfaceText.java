@@ -356,8 +356,9 @@ public class SurfaceText extends AbstractSurfaceObject implements GeographicText
 	public void move(Position position)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
         this.moveTo(refPos.add(position));
     }
@@ -384,11 +385,13 @@ public class SurfaceText extends AbstractSurfaceObject implements GeographicText
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+		}
 
         this.doDrag(dragContext);
     }
@@ -426,8 +429,9 @@ public class SurfaceText extends AbstractSurfaceObject implements GeographicText
         {
             this.computeGeometry(dc, sdc);
 
-            if (this.isSmall())
-                return;
+            if (this.isSmall()) {
+				return;
+			}
 
             this.applyDrawTransform(dc, sdc);
             this.drawText(dc);
@@ -550,8 +554,9 @@ public class SurfaceText extends AbstractSurfaceObject implements GeographicText
     {
         // If the app specified a background color, use that.
         Color bgColor = this.getBackgroundColor();
-        if (bgColor != null)
-            return bgColor;
+        if (bgColor != null) {
+			return bgColor;
+		}
 
         // Otherwise compute a color that contrasts with the text color.
         return this.computeBackgroundColor(color);
@@ -570,10 +575,11 @@ public class SurfaceText extends AbstractSurfaceObject implements GeographicText
         float[] colorArray = new float[4];
         Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), colorArray);
 
-        if (colorArray[2] > 0.5)
-            return new Color(0, 0, 0, 0.7f);
-        else
-            return new Color(1, 1, 1, 0.7f);
+        if (colorArray[2] > 0.5) {
+			return new Color(0, 0, 0, 0.7f);
+		} else {
+			return new Color(1, 1, 1, 0.7f);
+		}
     }
 
     /**

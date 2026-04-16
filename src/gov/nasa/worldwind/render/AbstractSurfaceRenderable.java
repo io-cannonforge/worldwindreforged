@@ -69,8 +69,9 @@ public abstract class AbstractSurfaceRenderable extends AbstractSurfaceObject
     protected Angle getViewHeading(DrawContext dc)
     {
         Angle heading = Angle.ZERO;
-        if (dc.getView() instanceof OrbitView)
-            heading = dc.getView().getHeading();
+        if (dc.getView() instanceof OrbitView) {
+			heading = dc.getView().getHeading();
+		}
         return heading;
     }
 
@@ -96,8 +97,9 @@ public abstract class AbstractSurfaceRenderable extends AbstractSurfaceObject
 
     protected Sector computeRotatedSectorBounds(Sector sector, LatLon location, Angle heading)
     {
-        if (Math.abs(heading.degrees) < .001)
-            return sector;
+        if (Math.abs(heading.degrees) < .001) {
+			return sector;
+		}
 
         LatLon[] corners = new LatLon[] {
             new LatLon(sector.getMaxLatitude(), sector.getMinLongitude()),  // nw

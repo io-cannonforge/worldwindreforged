@@ -131,8 +131,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
             // Determine and request missing tiles by level/region
             for (int levelNumber = 0; levelNumber <= this.level; levelNumber++)
             {
-                if (elevationModel.getLevels().isLevelEmpty(levelNumber))
-                    continue;
+                if (elevationModel.getLevels().isLevelEmpty(levelNumber)) {
+					continue;
+				}
 
                 int div = this.computeRegionDivisions(this.sector, levelNumber, MAX_TILE_COUNT_PER_REGION);
                 var regionsIterator = this.getRegionIterator(this.sector, div);
@@ -148,8 +149,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
                     while (this.missingTiles.size() > 0)
                     {
                         submitMissingTilesRequests();
-                        if (this.missingTiles.size() > 0)
-                            Thread.sleep(RETRIEVAL_SERVICE_POLL_DELAY);
+                        if (this.missingTiles.size() > 0) {
+							Thread.sleep(RETRIEVAL_SERVICE_POLL_DELAY);
+						}
                     }
                 }
             }
@@ -226,11 +228,13 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
         {
             ByteBuffer buffer = super.run(retriever);
 
-            if (retriever.getState().equals(Retriever.RETRIEVER_STATE_SUCCESSFUL))
-                removeRetrievedTile(this.tile);
+            if (retriever.getState().equals(Retriever.RETRIEVER_STATE_SUCCESSFUL)) {
+				removeRetrievedTile(this.tile);
+			}
 
-            if (hasRetrievalListeners())
-                callRetrievalListeners(retriever, this.tile);
+            if (hasRetrievalListeners()) {
+				callRetrievalListeners(retriever, this.tile);
+			}
 
             return buffer;
         }
@@ -289,8 +293,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
         long totCount = 0;
         for (int levelNumber = 0; levelNumber <= maxLevel; levelNumber++)
         {
-            if (!this.elevationModel.getLevels().isLevelEmpty(levelNumber))
-                totCount += this.countTilesInSector(sector, levelNumber);
+            if (!this.elevationModel.getLevels().isLevelEmpty(levelNumber)) {
+				totCount += this.countTilesInSector(sector, levelNumber);
+			}
         }
         // Sample random small sized sectors at finest level
         int div = this.computeRegionDivisions(this.sector, maxLevel, 36); // max 6x6 tiles per region
@@ -332,8 +337,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
     protected long estimateAverageTileSize()
     {
         Long previouslyComputedSize = (Long) this.elevationModel.getValue(AVKey.AVERAGE_TILE_SIZE);
-        if (previouslyComputedSize != null)
-            return previouslyComputedSize;
+        if (previouslyComputedSize != null) {
+			return previouslyComputedSize;
+		}
 
         long size = 0;
         int count = 0;
@@ -363,8 +369,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
                     size += averageSize;
                     count++;
                 }
-                if (count >= 2) // average content from up to 2 cache folders
-                    break;
+                if (count >= 2) { // average content from up to 2 cache folders
+					break;
+				}
             }
         }
 
@@ -416,12 +423,14 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
         Level targetLevel = this.elevationModel.getLevels().getLastLevel();
         for (int i = 0; i < this.elevationModel.getLevels().getLastLevel().getLevelNumber(); i++)
         {
-            if (this.elevationModel.getLevels().isLevelEmpty(i))
-                continue;
+            if (this.elevationModel.getLevels().isLevelEmpty(i)) {
+				continue;
+			}
 
             texelSize = this.elevationModel.getLevels().getLevel(i).getTexelSize();
-            if (texelSize > resolution)
-                continue;
+            if (texelSize > resolution) {
+				continue;
+			}
 
             targetLevel = this.elevationModel.getLevels().getLevel(i);
             break;
@@ -434,8 +443,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
             Level nextLowerLevel = this.elevationModel.getLevels().getLevel(targetLevel.getLevelNumber() - 1);
             double dless = Math.abs(nextLowerLevel.getTexelSize() - resolution);
             double dmore = Math.abs(targetLevel.getTexelSize() - resolution);
-            if (dless < dmore)
-                targetLevel = nextLowerLevel;
+            if (dless < dmore) {
+				targetLevel = nextLowerLevel;
+			}
         }
 
         return targetLevel.getLevelNumber();
@@ -455,8 +465,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
         {
             for (int i = levelNumber; i < this.elevationModel.getLevels().getLastLevel().getLevelNumber(); i++)
             {
-                if (this.elevationModel.getLevels().isLevelEmpty(i))
-                    continue;
+                if (this.elevationModel.getLevels().isLevelEmpty(i)) {
+					continue;
+				}
 
                 targetLevel = this.elevationModel.getLevels().getLevel(i);
                 break;
@@ -491,8 +502,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
         {
             for (int i = levelNumber; i < this.elevationModel.getLevels().getLastLevel().getLevelNumber(); i++)
             {
-                if (this.elevationModel.getLevels().isLevelEmpty(i))
-                    continue;
+                if (this.elevationModel.getLevels().isLevelEmpty(i)) {
+					continue;
+				}
 
                 targetLevel = this.elevationModel.getLevels().getLevel(i);
                 break;
@@ -535,8 +547,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
             {
                 Thread.sleep(1); // generates InterruptedException if thread has been interrupted
 
-                if ((tile == null) || isTileLocalOrAbsent(tile))
-                    continue;  // tile is local or absent
+                if ((tile == null) || isTileLocalOrAbsent(tile)) {
+					continue;  // tile is local or absent
+				}
 
                 tiles.add(tile);
             }
@@ -548,8 +561,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
     {
         long tileCount = countTilesInSector(sector, levelNumber);
 
-        if (tileCount <= maxCount)
-            return 1;
+        if (tileCount <= maxCount) {
+			return 1;
+		}
 
         // Divide sector in regions that will contain no more tiles then maxCount
         return (int) Math.ceil(Math.sqrt((float) tileCount / maxCount));
@@ -557,8 +571,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
 
     protected Sector[] computeRandomRegions(Sector sector, int div, int numRegions)
     {
-        if (numRegions > div * div)
-            return sector.subdivide(div);
+        if (numRegions > div * div) {
+			return sector.subdivide(div);
+		}
 
         final double dLat = sector.getDeltaLat().degrees / div;
         final double dLon = sector.getDeltaLon().degrees / div;
@@ -579,8 +594,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
                 sector.getMinLatitude().degrees + dLat * row, maxLat,
                 sector.getMinLongitude().degrees + dLon * col, maxLon );
 
-            if (!regions.contains(s))
-                regions.add(s);
+            if (!regions.contains(s)) {
+				regions.add(s);
+			}
         }
 
         return regions.toArray(new Sector[numRegions]);
@@ -634,8 +650,9 @@ public class BasicElevationModelBulkDownloader extends BulkRetrievalThread
 
     protected boolean isTileLocalOrAbsent(Tile tile)
     {
-        if (this.elevationModel.getLevels().isResourceAbsent(tile))
-            return true;  // tile is absent
+        if (this.elevationModel.getLevels().isResourceAbsent(tile)) {
+			return true;  // tile is absent
+		}
 
         URL url = this.fileStore.findFile(tile.getPath(), false);
 

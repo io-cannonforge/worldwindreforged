@@ -155,15 +155,17 @@ public class AngleAnimator extends BasicAnimator
 	protected void setImpl(double interpolant)
     {
         Angle newValue = this.nextAngle(interpolant);
-        if (newValue == null)
-           return;
+        if (newValue == null) {
+			return;
+		}
         boolean success = this.propertyAccessor.setAngle(newValue);
         if (!success)
         {
            flagLastStateInvalid();
         }
-        if (interpolant >= 1)
-            this.stop();
+        if (interpolant >= 1) {
+			this.stop();
+		}
     }
 
     @SuppressWarnings("unused")

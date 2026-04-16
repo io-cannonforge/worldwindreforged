@@ -84,8 +84,9 @@ public class JarRetriever extends URLRetriever
             connection.getContentLength(), contentType != null ? contentType : "content type not returned",
             connection.getURL()});
 
-        if (this.responseCode == HttpURLConnection.HTTP_OK) // intentionally re-using HTTP constant
-            return super.doRead(connection);
+        if (this.responseCode == HttpURLConnection.HTTP_OK) { // intentionally re-using HTTP constant
+			return super.doRead(connection);
+		}
 
         return null;
     }

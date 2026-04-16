@@ -156,8 +156,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
 
     public void setTrackCurrentPositionNumber(int positionNumber)
     {
-        if (this.trackCurrentPositionNumber == positionNumber)
-            return;
+        if (this.trackCurrentPositionNumber == positionNumber) {
+			return;
+		}
 
         this.trackCurrentPositionNumber = positionNumber;
         if (this.currentSegmentCheckBox.isSelected())
@@ -211,8 +212,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
 
     private int clampTrackCurrentPosition(int position, SARTrack track)
     {
-        if (track.size() == 0)
-            return 0;
+        if (track.size() == 0) {
+			return 0;
+		}
 
         return WWMath.clamp(position, 0, track.size() - 1);
     }
@@ -270,11 +272,13 @@ public class CloudCeilingPanel extends JPanel implements Restorable
     {
         int start = Integer.parseInt(((String)this.segmentStartSpinner.getValue()).trim());
         int end = Integer.parseInt(((String)this.segmentEndSpinner.getValue()).trim());
-        if (start > end)
-            if (event.getSource().equals(this.segmentStartSpinner))
-                setSegmentSpinnerValue(this.segmentEndSpinner, start);
-            else
-                setSegmentSpinnerValue(this.segmentStartSpinner, end);
+        if (start > end) {
+			if (event.getSource().equals(this.segmentStartSpinner)) {
+				setSegmentSpinnerValue(this.segmentEndSpinner, start);
+			} else {
+				setSegmentSpinnerValue(this.segmentStartSpinner, end);
+			}
+		}
 
         this.currentSegmentCheckBox.setSelected(false);
         this.wholeTrackCheckBox.setSelected(false);
@@ -325,10 +329,11 @@ public class CloudCeilingPanel extends JPanel implements Restorable
         {
             baseElevation = getNumberValue(this.incrementedBaseLabel.getText());
             int step = Integer.parseInt(((String)this.incrementSpinner.getValue()).trim());
-            if (event.getSource().equals(this.incrementPlusButton))
-                baseElevation += step;
-            else
-                baseElevation -= step;
+            if (event.getSource().equals(this.incrementPlusButton)) {
+				baseElevation += step;
+			} else {
+				baseElevation -= step;
+			}
         }
         this.incrementedBaseLabel.setText(String.format("%.0f", baseElevation));
         updateCloudCeiling();
@@ -377,11 +382,13 @@ public class CloudCeilingPanel extends JPanel implements Restorable
     {
         String[] strings = new String[this.track != null ? this.track.size() : 0];
 
-        for (int i = 0; i < strings.length; i++)
-            strings[i] = String.format("%,4d", i);
+        for (int i = 0; i < strings.length; i++) {
+			strings[i] = String.format("%,4d", i);
+		}
 
-        if (strings.length == 0)
-            strings = new String[] {"   0"};
+        if (strings.length == 0) {
+			strings = new String[] {"   0"};
+		}
 
         this.suspendEvents = true;
         {
@@ -392,10 +399,11 @@ public class CloudCeilingPanel extends JPanel implements Restorable
             this.segmentEndSpinner.setModel(new SpinnerListModel(strings));
             this.segmentEndSpinner.setValue(strings[end]);
 
-            if (this.currentSegmentCheckBox.isSelected())
-                currentSegmentCheckBoxActionPerformed(null);
-            else if (this.wholeTrackCheckBox.isSelected())
-                wholeTrackCheckBoxActionPerformed(null);
+            if (this.currentSegmentCheckBox.isSelected()) {
+				currentSegmentCheckBoxActionPerformed(null);
+			} else if (this.wholeTrackCheckBox.isSelected()) {
+				wholeTrackCheckBoxActionPerformed(null);
+			}
         }
         this.suspendEvents = false;
     }
@@ -407,19 +415,21 @@ public class CloudCeilingPanel extends JPanel implements Restorable
 
     private void updateCloudCeiling()
     {
-        if (this.cloudCeiling == null)
-            return;
+        if (this.cloudCeiling == null) {
+			return;
+		}
         // Update cloud ceiling
         this.cloudCeiling.setName(this.descriptionTextField.getText());
         this.cloudCeiling.setEnabled(this.enabledCheckBox.isSelected());
         this.cloudCeiling.setElevationBase(getNumberValue(this.incrementedBaseLabel.getText()));
         this.cloudCeiling.setElevationDelta(getNumberValue(this.deltaElevationTextField.getText()));
-        if (this.deltaPlusRadioButton.isSelected())
-            this.cloudCeiling.setDeltaMode(CloudCeiling.DELTA_MODE_PLUS);
-        else if (this.deltaMinusRadioButton.isSelected())
-            this.cloudCeiling.setDeltaMode(CloudCeiling.DELTA_MODE_MINUS);
-        else if (this.deltaBothRadioButton.isSelected())
-            this.cloudCeiling.setDeltaMode(CloudCeiling.DELTA_MODE_BOTH);
+        if (this.deltaPlusRadioButton.isSelected()) {
+			this.cloudCeiling.setDeltaMode(CloudCeiling.DELTA_MODE_PLUS);
+		} else if (this.deltaMinusRadioButton.isSelected()) {
+			this.cloudCeiling.setDeltaMode(CloudCeiling.DELTA_MODE_MINUS);
+		} else if (this.deltaBothRadioButton.isSelected()) {
+			this.cloudCeiling.setDeltaMode(CloudCeiling.DELTA_MODE_BOTH);
+		}
         this.cloudCeiling.setColor(this.colorButton.getBackground());
         this.cloudCeiling.setPattern(this.getPattern());
         this.cloudCeiling.setPatternSize(this.getPatternSize());
@@ -429,11 +439,13 @@ public class CloudCeilingPanel extends JPanel implements Restorable
         {
             int start = Integer.parseInt(((String)this.segmentStartSpinner.getValue()).trim());
             int end = Integer.parseInt(((String)this.segmentEndSpinner.getValue()).trim());
-            if (end < this.track.getPositions().size() - 1)
-                end++;
+            if (end < this.track.getPositions().size() - 1) {
+				end++;
+			}
             ArrayList<LatLon> positions = new ArrayList<>(end - start + 1);
-            for (int i = start; i <= end; i++)
-                positions.add(this.track.getPositions().get(i));
+            for (int i = start; i <= end; i++) {
+				positions.add(this.track.getPositions().get(i));
+			}
             this.cloudCeiling.setPositions(positions);
 
         }
@@ -446,23 +458,25 @@ public class CloudCeilingPanel extends JPanel implements Restorable
     private String getPattern()
     {
         String value = (String)this.patternCombo.getSelectedItem();
-        if (PATTERN_CROSS_HATCHED.equals(value))
-            return PatternFactory.PATTERN_HVLINE;
-        else if (PATTERN_DOTS.equals(value))
-            return PatternFactory.PATTERN_CIRCLES;
-        else // default to PATTERN_STRIPES
-            return PatternFactory.PATTERN_HLINE;
+        if (PATTERN_CROSS_HATCHED.equals(value)) {
+			return PatternFactory.PATTERN_HVLINE;
+		} else if (PATTERN_DOTS.equals(value)) {
+			return PatternFactory.PATTERN_CIRCLES;
+		} else { // default to PATTERN_STRIPES
+			return PatternFactory.PATTERN_HLINE;
+		}
     }
 
     private double getPatternSize()
     {
         String value = (String)this.patternSizeCombo.getSelectedItem();
-        if (SIZE_SMALL.equals(value))
-            return 50;
-        else if (SIZE_LARGE.equals(value))
-            return 500;
-        else // default to SIZE_MEDIUM
-            return 150;
+        if (SIZE_SMALL.equals(value)) {
+			return 50;
+		} else if (SIZE_LARGE.equals(value)) {
+			return 500;
+		} else { // default to SIZE_MEDIUM
+			return 150;
+		}
     }
 
     private void initComponents()
@@ -487,8 +501,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            descriptionTextFieldActionPerformed(event);
+                        if (!suspendEvents) {
+							descriptionTextFieldActionPerformed(event);
+						}
                     }
                 });
                 descPanel.add(this.descriptionTextField);
@@ -500,8 +515,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            enabledCheckBoxActionPerformed(event);
+                        if (!suspendEvents) {
+							enabledCheckBoxActionPerformed(event);
+						}
                     }
                 });
                 descPanel.add(this.enabledCheckBox);
@@ -522,8 +538,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            baseElevationTextFieldActionPerformed(event);
+                        if (!suspendEvents) {
+							baseElevationTextFieldActionPerformed(event);
+						}
                     }
                 });
                 elevationPanel.add(this.baseElevationTextField);
@@ -540,8 +557,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            deltaElevationTextFieldActionPerformed(event);
+                        if (!suspendEvents) {
+							deltaElevationTextFieldActionPerformed(event);
+						}
                     }
                 });
                 elevationPanel.add(this.deltaElevationTextField);
@@ -554,8 +572,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            deltaModeRadioButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							deltaModeRadioButtonActionPerformed(event);
+						}
                     }
                 });
                 elevationPanel.add(this.deltaPlusRadioButton);
@@ -565,8 +584,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            deltaModeRadioButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							deltaModeRadioButtonActionPerformed(event);
+						}
                     }
                 });
                 elevationPanel.add(this.deltaMinusRadioButton);
@@ -576,8 +596,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            deltaModeRadioButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							deltaModeRadioButtonActionPerformed(event);
+						}
                     }
                 });
                 elevationPanel.add(this.deltaBothRadioButton);
@@ -607,8 +628,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            incrementButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							incrementButtonActionPerformed(event);
+						}
                     }
                 });
                 incrementPanel.add(this.incrementMinusButton);
@@ -627,8 +649,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            incrementButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							incrementButtonActionPerformed(event);
+						}
                     }
                 });
                 incrementPanel.add(this.incrementPlusButton);
@@ -639,8 +662,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            incrementButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							incrementButtonActionPerformed(event);
+						}
                     }
                 });
                 incrementPanel.add(this.incrementResetButton);
@@ -659,8 +683,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent e)
                     {
-                        if (!suspendEvents)
-                            advancedButtonActionPerformed(e);
+                        if (!suspendEvents) {
+							advancedButtonActionPerformed(e);
+						}
                     }
                 });
                 advancedButtonPanel.add(Box.createHorizontalGlue());
@@ -686,8 +711,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void stateChanged(ChangeEvent event)
                     {
-                        if (!suspendEvents)
-                            segmentSpinnerStateChanged(event);
+                        if (!suspendEvents) {
+							segmentSpinnerStateChanged(event);
+						}
                     }
                 });
                 segmentsPanel.add(this.segmentStartSpinner);
@@ -701,8 +727,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void stateChanged(ChangeEvent event)
                     {
-                        if (!suspendEvents)
-                            segmentSpinnerStateChanged(event);
+                        if (!suspendEvents) {
+							segmentSpinnerStateChanged(event);
+						}
                     }
                 });
                 segmentsPanel.add(this.segmentEndSpinner);
@@ -714,8 +741,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            currentSegmentCheckBoxActionPerformed(event);
+                        if (!suspendEvents) {
+							currentSegmentCheckBoxActionPerformed(event);
+						}
                     }
                 });
                 segmentsPanel.add(this.currentSegmentCheckBox);
@@ -726,8 +754,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            wholeTrackCheckBoxActionPerformed(event);
+                        if (!suspendEvents) {
+							wholeTrackCheckBoxActionPerformed(event);
+						}
                     }
                 });
                 segmentsPanel.add(this.wholeTrackCheckBox);
@@ -750,8 +779,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent e)
                     {
-                        if (!suspendEvents)
-                            patternComboActionPerformed(e);
+                        if (!suspendEvents) {
+							patternComboActionPerformed(e);
+						}
                     }
                 });
                 patternPanel.add(this.patternCombo);
@@ -763,8 +793,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent e)
                     {
-                        if (!suspendEvents)
-                            patternSizeComboActionPerformed(e);
+                        if (!suspendEvents) {
+							patternSizeComboActionPerformed(e);
+						}
                     }
                 });
                 patternPanel.add(this.patternSizeCombo);
@@ -781,8 +812,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void stateChanged(ChangeEvent e)
                     {
-                        if (!suspendEvents)
-                            opacitySpinnerChanged(e);
+                        if (!suspendEvents) {
+							opacitySpinnerChanged(e);
+						}
                     }
                 });
                 patternPanel.add(this.opacitySpinner);
@@ -794,8 +826,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
                     @Override
 					public void actionPerformed(ActionEvent event)
                     {
-                        if (!suspendEvents)
-                            colorButtonActionPerformed(event);
+                        if (!suspendEvents) {
+							colorButtonActionPerformed(event);
+						}
                     }
                 });
                 patternPanel.add(this.colorButton);
@@ -879,18 +912,21 @@ public class CloudCeilingPanel extends JPanel implements Restorable
         rs.addStateValueAsBoolean(context, "enabled", this.enabledCheckBox.isSelected());
 
         double base = getNumberValue(this.baseElevationTextField.getText());
-        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-            base = SAR2.feetToMeters(base); // convert to meter if needed
+        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+			base = SAR2.feetToMeters(base); // convert to meter if needed
+		}
         rs.addStateValueAsDouble(context, "base", base);
 
         double delta = getNumberValue(this.deltaElevationTextField.getText());
-        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-            delta = SAR2.feetToMeters(delta); // convert to meter if needed
+        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+			delta = SAR2.feetToMeters(delta); // convert to meter if needed
+		}
         rs.addStateValueAsDouble(context, "delta", delta);
 
         double incrementedBase = getNumberValue(this.incrementedBaseLabel.getText());
-        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-            incrementedBase = SAR2.feetToMeters(incrementedBase); // convert to meter if needed
+        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+			incrementedBase = SAR2.feetToMeters(incrementedBase); // convert to meter if needed
+		}
         rs.addStateValueAsDouble(context, "incrementedBase", incrementedBase);
 
         rs.addStateValueAsBoolean(context, "deltaPlus", this.deltaPlusRadioButton.isSelected());
@@ -905,8 +941,9 @@ public class CloudCeilingPanel extends JPanel implements Restorable
         rs.addStateValueAsString(context, "patternSize", (String)this.patternSizeCombo.getSelectedItem());
         rs.addStateValueAsString(context, "opacity", (String)this.opacitySpinner.getValue());
         String encodedColor = RestorableSupport.encodeColor(this.colorButton.getBackground());
-        if (encodedColor != null)
-            rs.addStateValueAsString(context, "color", encodedColor);
+        if (encodedColor != null) {
+			rs.addStateValueAsString(context, "color", encodedColor);
+		}
 
     }
 
@@ -916,87 +953,104 @@ public class CloudCeilingPanel extends JPanel implements Restorable
         {
             // Retrieve state values
             String descriptionState = rs.getStateValueAsString(context, "description");
-            if (descriptionState != null)
-                this.descriptionTextField.setText(descriptionState);
+            if (descriptionState != null) {
+				this.descriptionTextField.setText(descriptionState);
+			}
 
             Boolean enabledState = rs.getStateValueAsBoolean(context, "enabled");
-            if (enabledState != null)
-                this.enabledCheckBox.setSelected(enabledState);
+            if (enabledState != null) {
+				this.enabledCheckBox.setSelected(enabledState);
+			}
 
             Double baseState = rs.getStateValueAsDouble(context, "base");
             if (baseState != null)
             {
-                if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-                    baseState = SAR2.metersToFeet(baseState); // convert to feet if needed
+                if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+					baseState = SAR2.metersToFeet(baseState); // convert to feet if needed
+				}
                 this.baseElevationTextField.setText(String.format("%.0f", baseState));
             }
 
             Double deltaState = rs.getStateValueAsDouble(context, "delta");
             if (deltaState != null)
             {
-                if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-                    deltaState = SAR2.metersToFeet(deltaState); // convert to feet if needed
+                if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+					deltaState = SAR2.metersToFeet(deltaState); // convert to feet if needed
+				}
                 this.deltaElevationTextField.setText(String.format("%.0f", deltaState));
             }
 
             Double incrementedBaseState = rs.getStateValueAsDouble(context, "incrementedBase");
             if (incrementedBaseState != null)
             {
-                if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-                    incrementedBaseState = SAR2.metersToFeet(incrementedBaseState); // convert to feet if needed
+                if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+					incrementedBaseState = SAR2.metersToFeet(incrementedBaseState); // convert to feet if needed
+				}
                 this.incrementedBaseLabel.setText(String.format("%.0f", incrementedBaseState));
             }
 
             Boolean deltaPlusState = rs.getStateValueAsBoolean(context, "deltaPlus");
-            if (deltaPlusState != null)
-                this.deltaPlusRadioButton.setSelected(deltaPlusState);
+            if (deltaPlusState != null) {
+				this.deltaPlusRadioButton.setSelected(deltaPlusState);
+			}
 
             Boolean deltaMinusState = rs.getStateValueAsBoolean(context, "deltaMinus");
-            if (deltaMinusState != null)
-                this.deltaMinusRadioButton.setSelected(deltaMinusState);
+            if (deltaMinusState != null) {
+				this.deltaMinusRadioButton.setSelected(deltaMinusState);
+			}
 
             Boolean deltaBothState = rs.getStateValueAsBoolean(context, "deltaBoth");
-            if (deltaBothState != null)
-                this.deltaBothRadioButton.setSelected(deltaBothState);
+            if (deltaBothState != null) {
+				this.deltaBothRadioButton.setSelected(deltaBothState);
+			}
 
             String incrementState = rs.getStateValueAsString(context, "increment");
-            if (incrementState != null)
-                this.incrementSpinner.setValue(incrementState);
+            if (incrementState != null) {
+				this.incrementSpinner.setValue(incrementState);
+			}
 
             String segmentStartState = rs.getStateValueAsString(context, "segmentStart");
-            if (segmentStartState != null)
-                this.segmentStartSpinner.setValue(segmentStartState);
+            if (segmentStartState != null) {
+				this.segmentStartSpinner.setValue(segmentStartState);
+			}
 
             String segmentEndState = rs.getStateValueAsString(context, "segmentEnd");
-            if (segmentEndState != null)
-                this.segmentEndSpinner.setValue(segmentEndState);
+            if (segmentEndState != null) {
+				this.segmentEndSpinner.setValue(segmentEndState);
+			}
 
             Boolean currentSegmentState = rs.getStateValueAsBoolean(context, "currentSegment");
-            if (currentSegmentState != null)
-                this.currentSegmentCheckBox.setSelected(currentSegmentState);
+            if (currentSegmentState != null) {
+				this.currentSegmentCheckBox.setSelected(currentSegmentState);
+			}
 
             Boolean wholeTrackState = rs.getStateValueAsBoolean(context, "wholeTrack");
-            if (wholeTrackState != null)
-                this.wholeTrackCheckBox.setSelected(wholeTrackState);
+            if (wholeTrackState != null) {
+				this.wholeTrackCheckBox.setSelected(wholeTrackState);
+			}
 
             String patternState = rs.getStateValueAsString(context, "pattern");
-            if (patternState != null)
-                this.patternCombo.setSelectedItem(patternState);
+            if (patternState != null) {
+				this.patternCombo.setSelectedItem(patternState);
+			}
 
             String patternSizeState = rs.getStateValueAsString(context, "patternSize");
-            if (patternSizeState != null)
-                this.patternSizeCombo.setSelectedItem(patternSizeState);
+            if (patternSizeState != null) {
+				this.patternSizeCombo.setSelectedItem(patternSizeState);
+			}
 
             String opacityState = rs.getStateValueAsString(context, "opacity");
-            if (opacityState != null)
-                this.opacitySpinner.setValue(opacityState);
+            if (opacityState != null) {
+				this.opacitySpinner.setValue(opacityState);
+			}
 
             String colorState = rs.getStateValueAsString(context, "color");
             if (colorState != null)
             {
                 Color color = RestorableSupport.decodeColor(colorState);
-                if (color != null)
-                    this.colorButton.setBackground(color);
+                if (color != null) {
+					this.colorButton.setBackground(color);
+				}
             }
         }
         this.suspendEvents = false;

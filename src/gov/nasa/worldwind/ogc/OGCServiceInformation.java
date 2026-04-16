@@ -92,12 +92,13 @@ public class OGCServiceInformation extends AbstractXMLEventParser
     {
         XMLEventParser defaultParser = null;
 
-        if (ctx.isStartElement(event, ONLINE_RESOURCE))
-            defaultParser = new OGCOnlineResource(this.getNamespaceURI());
-        else if (ctx.isStartElement(event, CONTACT_INFORMATION))
-            defaultParser = new OGCContactInformation(this.getNamespaceURI());
-        else if (ctx.isStartElement(event, KEYWORD_LIST))
-            defaultParser = new StringSetXMLEventParser(this.getNamespaceURI(), KEYWORD);
+        if (ctx.isStartElement(event, ONLINE_RESOURCE)) {
+			defaultParser = new OGCOnlineResource(this.getNamespaceURI());
+		} else if (ctx.isStartElement(event, CONTACT_INFORMATION)) {
+			defaultParser = new OGCContactInformation(this.getNamespaceURI());
+		} else if (ctx.isStartElement(event, KEYWORD_LIST)) {
+			defaultParser = new StringSetXMLEventParser(this.getNamespaceURI(), KEYWORD);
+		}
 
         return ctx.allocate(event, defaultParser);
     }
@@ -132,8 +133,9 @@ public class OGCServiceInformation extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof StringSetXMLEventParser)
-                    this.setKeywords(((StringSetXMLEventParser) o).getStrings());
+                if (o != null && o instanceof StringSetXMLEventParser) {
+					this.setKeywords(((StringSetXMLEventParser) o).getStrings());
+				}
             }
         }
         else if (ctx.isStartElement(event, ONLINE_RESOURCE))
@@ -142,8 +144,9 @@ public class OGCServiceInformation extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCOnlineResource)
-                    this.setOnlineResource((OGCOnlineResource) o);
+                if (o != null && o instanceof OGCOnlineResource) {
+					this.setOnlineResource((OGCOnlineResource) o);
+				}
             }
         }
         else if (ctx.isStartElement(event, CONTACT_INFORMATION))
@@ -152,8 +155,9 @@ public class OGCServiceInformation extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCContactInformation)
-                    this.setContactInformation((OGCContactInformation) o);
+                if (o != null && o instanceof OGCContactInformation) {
+					this.setContactInformation((OGCContactInformation) o);
+				}
             }
         }
     }
@@ -180,10 +184,11 @@ public class OGCServiceInformation extends AbstractXMLEventParser
 
     public Set<String> getKeywords()
     {
-        if (keywords != null)
-            return keywords;
-        else
-            return Collections.emptySet();
+        if (keywords != null) {
+			return keywords;
+		} else {
+			return Collections.emptySet();
+		}
     }
 
     protected void setKeywords(Set<String> keywords)
@@ -263,9 +268,9 @@ public class OGCServiceInformation extends AbstractXMLEventParser
     protected void keywordsToString(StringBuilder sb)
     {
         sb.append("Keywords: ");
-        if (this.getKeywords().size() == 0)
-            sb.append(" none");
-        else
+        if (this.getKeywords().size() == 0) {
+			sb.append(" none");
+		} else
         {
             for (String keyword : this.getKeywords())
             {

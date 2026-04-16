@@ -62,11 +62,13 @@ public class GDAL
 
     public static java.awt.geom.Point2D[] computeCornersFromGeotransform(double[] gt, int width, int height)
     {
-        if (null == gt || gt.length != GDAL.GT_SIZE)
-            return null;
+        if (null == gt || gt.length != GDAL.GT_SIZE) {
+			return null;
+		}
 
-        if (gt[GDAL.GT_5_PIXEL_HEIGHT] > 0)
-            gt[GDAL.GT_5_PIXEL_HEIGHT] = -gt[GDAL.GT_5_PIXEL_HEIGHT];
+        if (gt[GDAL.GT_5_PIXEL_HEIGHT] > 0) {
+			gt[GDAL.GT_5_PIXEL_HEIGHT] = -gt[GDAL.GT_5_PIXEL_HEIGHT];
+		}
 
         java.awt.geom.Point2D[] corners = new java.awt.geom.Point2D[]
             {
@@ -114,8 +116,9 @@ public class GDAL
             if (null == srs)
             {
                 String wkt = ds.GetProjectionRef();
-                if (null != wkt && wkt.length() > 0)
-                    srs = new SpatialReference(wkt);
+                if (null != wkt && wkt.length() > 0) {
+					srs = new SpatialReference(wkt);
+				}
 
                 if (null == srs)
                 {
@@ -224,9 +227,9 @@ public class GDAL
             if (this.srs.IsGeographic() > 0)
             {
                 this.bbox = Sector.fromDegrees(minY, maxY, minX, maxX);
-            }
-            else
-                this.bbox = calcBoundingSector(this.srs, this.corners);
+            } else {
+				this.bbox = calcBoundingSector(this.srs, this.corners);
+			}
         }
 
         protected void makeCorners(double minY, double maxY, double minX, double maxX)
@@ -358,8 +361,9 @@ public class GDAL
 
         public Area intersection(Area that) throws WWRuntimeException
         {
-            if (null == that)
-                return null;
+            if (null == that) {
+				return null;
+			}
 
             if (this.srs.IsSame(that.getSpatialReference()) == 0)
             {
@@ -370,21 +374,24 @@ public class GDAL
 
             double minY = Math.max(this.getMinY(), that.getMinY());
             double maxY = Math.min(this.getMaxY(), that.getMaxY());
-            if (minY > maxY)
-                return null;
+            if (minY > maxY) {
+				return null;
+			}
 
             double minX = Math.max(this.getMinX(), that.getMinX());
             double maxX = Math.min(this.getMaxX(), that.getMaxX());
-            if (minX > maxX)
-                return null;
+            if (minX > maxX) {
+				return null;
+			}
 
             return new Area(this.srs.Clone(), minY, maxY, minX, maxX);
         }
 
         public boolean contains(Area that) throws WWRuntimeException
         {
-            if (null == that)
-                return false;
+            if (null == that) {
+				return false;
+			}
 
             if (this.srs.IsSame(that.getSpatialReference()) == 0)
             {
@@ -393,8 +400,9 @@ public class GDAL
                 throw new WWRuntimeException(message);
             }
 
-            if ((that.getMinX() < this.getMinX()) || (that.getMaxX() > this.getMaxX()) || (that.getMinY() < this.getMinY()) || (that.getMaxY() > this.getMaxY()))
-                return false;
+            if ((that.getMinX() < this.getMinX()) || (that.getMaxX() > this.getMaxX()) || (that.getMinY() < this.getMinY()) || (that.getMaxY() > this.getMaxY())) {
+				return false;
+			}
 
             return true;
         }
@@ -407,8 +415,9 @@ public class GDAL
             double deltaX = this.getMaxX() - this.getMinX();
             double deltaY = this.getMaxY() - this.getMinY();
 
-            if (deltaX == 0d || deltaY == 0d)
-                return null;
+            if (deltaX == 0d || deltaY == 0d) {
+				return null;
+			}
 
             double sy = -(height / deltaY);
             double sx = (width / deltaX);

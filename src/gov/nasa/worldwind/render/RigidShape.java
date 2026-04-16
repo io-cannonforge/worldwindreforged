@@ -791,18 +791,21 @@ public abstract class RigidShape extends AbstractShape
         ShapeData shapedata = this.getCurrentShapeData();
 
         if (shapedata == null || shapedata.getMeshes() == null
-            || shapedata.getMeshes().size() < 1)
-            return true;
+            || shapedata.getMeshes().size() < 1) {
+			return true;
+		}
 
         if (shapedata.getMesh(0) == null
-            || shapedata.getMesh(0).getBuffer(Geometry.VERTEX) == null || (dc.getVerticalExaggeration() != shapedata.getVerticalExaggeration()))
-            return true;
+            || shapedata.getMesh(0).getBuffer(Geometry.VERTEX) == null || (dc.getVerticalExaggeration() != shapedata.getVerticalExaggeration())) {
+			return true;
+		}
 
         //noinspection SimplifiableIfStatement
         if (this.getAltitudeMode() == WorldWind.ABSOLUTE
             && shapedata.getGlobeStateKey() != null
-            && shapedata.getGlobeStateKey().equals(dc.getGlobe().getGlobeStateKey(dc)))
-            return false;
+            && shapedata.getGlobeStateKey().equals(dc.getGlobe().getGlobeStateKey(dc))) {
+			return false;
+		}
 
         return super.mustRegenerateGeometry(dc);
     }
@@ -813,8 +816,9 @@ public abstract class RigidShape extends AbstractShape
         ShapeData shapeData = this.getCurrentShapeData();
 
         Vec4 refPt = this.computeReferencePoint(dc);
-        if (refPt == null)
-            return false;
+        if (refPt == null) {
+			return false;
+		}
         shapeData.setReferencePoint(refPt);
 
         shapeData.setEyeDistance(dc.getView().getEyePoint().distanceTo3(refPt));
@@ -836,8 +840,9 @@ public abstract class RigidShape extends AbstractShape
 
         // If the shape is less that a pixel in size, don't render it.
         //noinspection SimplifiableIfStatement
-        if (shapeData.getExtent() == null || dc.isSmall(shapeData.getExtent(), 1) || !this.intersectsFrustum(dc))
-            return false;
+        if (shapeData.getExtent() == null || dc.isSmall(shapeData.getExtent(), 1) || !this.intersectsFrustum(dc)) {
+			return false;
+		}
 
         return !(shapeData.getMesh(0) == null || shapeData.getMesh(0).getBuffer(Geometry.VERTEX) == null
             || shapeData.getMesh(0).getCount(Geometry.VERTEX) < 2);
@@ -1034,8 +1039,9 @@ public abstract class RigidShape extends AbstractShape
 
         // get - or compute - the center point, in global coordinates
         Position pos = this.getCenterPosition();
-        if (pos == null)
-            return null;
+        if (pos == null) {
+			return null;
+		}
 
         Vec4 centerPoint = this.computeReferencePoint(globe, verticalExaggeration);
 
@@ -1091,8 +1097,9 @@ public abstract class RigidShape extends AbstractShape
     public Vec4 computeReferencePoint(DrawContext dc)
     {
         Position pos = this.getCenterPosition();
-        if (pos == null)
-            return null;
+        if (pos == null) {
+			return null;
+		}
 
         return computePoint(dc.getTerrain(), pos);
     }
@@ -1108,17 +1115,18 @@ public abstract class RigidShape extends AbstractShape
     protected Vec4 computeReferencePoint(Globe globe, double verticalExaggeration)
     {
         Position pos = this.getCenterPosition();
-        if (pos == null)
-            return null;
+        if (pos == null) {
+			return null;
+		}
 
         double elevation = globe.getElevation(pos.latitude, pos.longitude);
 
         double height;
-        if (this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND)
-            height = 0d + elevation * verticalExaggeration;
-        else if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND)
-            height = pos.getAltitude() + elevation * verticalExaggeration;
-        else    // ABSOLUTE elevation mode
+        if (this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND) {
+			height = 0d + elevation * verticalExaggeration;
+		} else if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND) {
+			height = pos.getAltitude() + elevation * verticalExaggeration;
+		} else    // ABSOLUTE elevation mode
         {
             // Raise the shape to accommodate vertical exaggeration applied to the terrain.
             height = pos.getAltitude() * verticalExaggeration;
@@ -1156,15 +1164,18 @@ public abstract class RigidShape extends AbstractShape
         // order corresponds to KML rotations (YXZ, positive clockwise)
 
         // roll
-        if (roll != null)
-            matrix = matrix.multiply(Matrix.fromRotationY(Angle.POS360.subtract(this.roll)));
+        if (roll != null) {
+			matrix = matrix.multiply(Matrix.fromRotationY(Angle.POS360.subtract(this.roll)));
+		}
         // tilt
-        if (tilt != null)
-            matrix = matrix.multiply(Matrix.fromRotationX(Angle.POS360.subtract(this.tilt)));
+        if (tilt != null) {
+			matrix = matrix.multiply(Matrix.fromRotationX(Angle.POS360.subtract(this.tilt)));
+		}
         // heading
-        if (heading != null)
-            matrix = matrix.multiply(Matrix.fromRotationZ(Angle.POS360.subtract(this.heading)));
+        if (heading != null) {
+			matrix = matrix.multiply(Matrix.fromRotationZ(Angle.POS360.subtract(this.heading)));
         //matrix = matrix.multiply(Matrix.fromRotationZ(this.heading));
+		}
 
         // apply skew (aka shear) matrix
         matrix = matrix.multiply(Matrix.fromSkew(this.skewEastWest, this.skewNorthSouth));
@@ -1198,15 +1209,18 @@ public abstract class RigidShape extends AbstractShape
         // order corresponds to KML rotations (YXZ, positive clockwise)
 
         // roll
-        if (roll != null)
-            matrix = matrix.multiply(Matrix.fromRotationY(Angle.POS360.subtract(this.roll)));
+        if (roll != null) {
+			matrix = matrix.multiply(Matrix.fromRotationY(Angle.POS360.subtract(this.roll)));
+		}
         // tilt
-        if (tilt != null)
-            matrix = matrix.multiply(Matrix.fromRotationX(Angle.POS360.subtract(this.tilt)));
+        if (tilt != null) {
+			matrix = matrix.multiply(Matrix.fromRotationX(Angle.POS360.subtract(this.tilt)));
+		}
         // heading
-        if (heading != null)
-            matrix = matrix.multiply(Matrix.fromRotationZ(Angle.POS360.subtract(this.heading)));
+        if (heading != null) {
+			matrix = matrix.multiply(Matrix.fromRotationZ(Angle.POS360.subtract(this.heading)));
         //matrix = matrix.multiply(Matrix.fromRotationZ(this.heading));
+		}
 
         // apply skew (aka shear) matrix
         matrix = matrix.multiply(Matrix.fromSkew(this.skewEastWest, this.skewNorthSouth));
@@ -1250,15 +1264,18 @@ public abstract class RigidShape extends AbstractShape
             Angle.POS180.subtract(this.skewNorthSouth)));
 
         // inverse heading
-        if (heading != null)
-            matrix = matrix.multiply(Matrix.fromRotationZ(this.heading));
+        if (heading != null) {
+			matrix = matrix.multiply(Matrix.fromRotationZ(this.heading));
+		}
         //matrix = matrix.multiply(Matrix.fromRotationZ(this.heading));
         // inverse tilt
-        if (tilt != null)
-            matrix = matrix.multiply(Matrix.fromRotationX(this.tilt));
+        if (tilt != null) {
+			matrix = matrix.multiply(Matrix.fromRotationX(this.tilt));
+		}
         // roll
-        if (roll != null)
-            matrix = matrix.multiply(Matrix.fromRotationY(this.roll));
+        if (roll != null) {
+			matrix = matrix.multiply(Matrix.fromRotationY(this.roll));
+		}
 
         // translate and orient
         Position refPosition = globe.computePositionFromPoint(this.computeReferencePoint(globe, verticalExaggeration));
@@ -1331,8 +1348,9 @@ public abstract class RigidShape extends AbstractShape
         }
 
         Position oldPosition = this.getReferencePosition();
-        if (oldPosition == null)
-            return;
+        if (oldPosition == null) {
+			return;
+		}
 
         setCenterPosition(position);
 
@@ -1431,8 +1449,9 @@ public abstract class RigidShape extends AbstractShape
         if (data != null)
         {
             Object key = data.getVboCacheKey(index);
-            if (key != null)
-                return (int[]) dc.getGpuResourceCache().get(key);
+            if (key != null) {
+				return (int[]) dc.getGpuResourceCache().get(key);
+			}
         }
 
         return null;
@@ -1532,8 +1551,9 @@ public abstract class RigidShape extends AbstractShape
     protected boolean isSameAsPreviousTerrain(Terrain terrain)
     {
         //noinspection SimplifiableIfStatement
-        if (terrain == null || this.previousIntersectionTerrain == null || terrain != this.previousIntersectionTerrain || (terrain.getVerticalExaggeration() != this.previousIntersectionTerrain.getVerticalExaggeration()))
-            return false;
+        if (terrain == null || this.previousIntersectionTerrain == null || terrain != this.previousIntersectionTerrain || (terrain.getVerticalExaggeration() != this.previousIntersectionTerrain.getVerticalExaggeration())) {
+			return false;
+		}
 
         return this.previousIntersectionGlobeStateKey != null &&
             terrain.getGlobe().getGlobeStateKey().equals(this.previousIntersectionGlobeStateKey);
@@ -1570,8 +1590,9 @@ public abstract class RigidShape extends AbstractShape
         for (int i = 0; i < getFaceCount(); i++)
         {
             faceIntersections = intersect(line, terrain, i);
-            if (faceIntersections != null)
-                shapeIntersections.addAll(faceIntersections);
+            if (faceIntersections != null) {
+				shapeIntersections.addAll(faceIntersections);
+			}
         }
         return shapeIntersections;
     }
@@ -1580,8 +1601,9 @@ public abstract class RigidShape extends AbstractShape
     {
         Position refPos = this.getReferencePosition();
         // check that the geometry exists
-        if ((refPos == null) || (this.getCurrentShapeData().getMesh(index).getBuffer(Geometry.VERTEX) == null))
-            return null;
+        if ((refPos == null) || (this.getCurrentShapeData().getMesh(index).getBuffer(Geometry.VERTEX) == null)) {
+			return null;
+		}
 
         // Reuse the previously computed high-res shape data if the terrain is the same.
         ShapeData highResShapeData = this.isSameAsPreviousTerrain(terrain) ? this.previousIntersectionShapeData
@@ -1591,16 +1613,18 @@ public abstract class RigidShape extends AbstractShape
         {
             highResShapeData = this.createIntersectionGeometry(terrain);
 
-            if (highResShapeData.getMesh(index) == null)
-                return null;
+            if (highResShapeData.getMesh(index) == null) {
+				return null;
+			}
 
             this.previousIntersectionShapeData = highResShapeData;
             this.previousIntersectionTerrain = terrain;
             this.previousIntersectionGlobeStateKey = terrain.getGlobe().getGlobeStateKey();
         }
 
-        if (highResShapeData.getExtent() != null && highResShapeData.getExtent().intersect(line) == null)
-            return null;
+        if (highResShapeData.getExtent() != null && highResShapeData.getExtent().intersect(line) == null) {
+			return null;
+		}
 
         final Line localLine = new Line(line.getOrigin().subtract3(highResShapeData.getReferencePoint()),
             line.getDirection());
@@ -1612,8 +1636,9 @@ public abstract class RigidShape extends AbstractShape
             List<Intersection> intersections = new ArrayList<>();
             this.intersect(localLine, highResShapeData, intersections, index);
 
-            if (intersections.size() == 0)
-                continue;
+            if (intersections.size() == 0) {
+				continue;
+			}
 
             for (Intersection intersection : intersections)
             {
@@ -1629,8 +1654,9 @@ public abstract class RigidShape extends AbstractShape
                 intersection.setObject(this);
             }
 
-            if (intersections.size() > 0)
-                shapeIntersections.addAll(intersections);
+            if (intersections.size() > 0) {
+				shapeIntersections.addAll(intersections);
+			}
         }
         return shapeIntersections;
     }
@@ -1647,8 +1673,9 @@ public abstract class RigidShape extends AbstractShape
         List<Intersection> ti = Triangle.intersectTriangleTypes(line, vertices, indices,
             GL.GL_TRIANGLES);
 
-        if (ti != null && ti.size() > 0)
-            intersections.addAll(ti);
+        if (ti != null && ti.size() > 0) {
+			intersections.addAll(ti);
+		}
     }
 
     abstract protected ShapeData createIntersectionGeometry(Terrain terrain);
@@ -1679,8 +1706,9 @@ public abstract class RigidShape extends AbstractShape
         List<Intersection> intersections = Triangle.intersectTriangleTypes(localLine, vertices,
             (IntBuffer) mesh.getBuffer(Geometry.ELEMENT), GL.GL_TRIANGLES);
 
-        if (intersections == null || intersections.size() == 0)
-            return null;
+        if (intersections == null || intersections.size() == 0) {
+			return null;
+		}
 
         for (Intersection intersection : intersections)
         {
@@ -1769,44 +1797,54 @@ public abstract class RigidShape extends AbstractShape
         super.doRestoreState(rs, context);
 
         Position positionState = rs.getStateValueAsPosition(context, "centerPosition");
-        if (positionState != null)
-            this.setCenterPosition(positionState);
+        if (positionState != null) {
+			this.setCenterPosition(positionState);
+		}
 
         Double doubleState = rs.getStateValueAsDouble(context, "northSouthRadius");
-        if (doubleState != null)
-            this.setNorthSouthRadius(doubleState);
+        if (doubleState != null) {
+			this.setNorthSouthRadius(doubleState);
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "eastWestRadius");
-        if (doubleState != null)
-            this.setEastWestRadius(doubleState);
+        if (doubleState != null) {
+			this.setEastWestRadius(doubleState);
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "verticalRadius");
-        if (doubleState != null)
-            this.setVerticalRadius(doubleState);
+        if (doubleState != null) {
+			this.setVerticalRadius(doubleState);
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "heading");
-        if (doubleState != null)
-            this.setHeading(Angle.fromDegrees(doubleState));
+        if (doubleState != null) {
+			this.setHeading(Angle.fromDegrees(doubleState));
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "tilt");
-        if (doubleState != null)
-            this.setTilt(Angle.fromDegrees(doubleState));
+        if (doubleState != null) {
+			this.setTilt(Angle.fromDegrees(doubleState));
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "roll");
-        if (doubleState != null)
-            this.setRoll(Angle.fromDegrees(doubleState));
+        if (doubleState != null) {
+			this.setRoll(Angle.fromDegrees(doubleState));
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "skewNorthSouth");
-        if (doubleState != null)
-            this.setSkewNorthSouth(Angle.fromDegrees(doubleState));
+        if (doubleState != null) {
+			this.setSkewNorthSouth(Angle.fromDegrees(doubleState));
+		}
 
         doubleState = rs.getStateValueAsDouble(context, "skewEastWest");
-        if (doubleState != null)
-            this.setSkewEastWest(Angle.fromDegrees(doubleState));
+        if (doubleState != null) {
+			this.setSkewEastWest(Angle.fromDegrees(doubleState));
+		}
 
         HashMap<Integer, OffsetsList> offsetsListState = rs.getStateValueAsOffsetsList(context, "offsets");
-        if (offsetsListState != null)
-            this.offsets = offsetsListState;
+        if (offsetsListState != null) {
+			this.offsets = offsetsListState;
+		}
 
         HashMap<Integer, Object> imageSourceListState = rs.getStateValueAsImageSourceList(context, "imageSources");
         if (imageSourceListState != null)

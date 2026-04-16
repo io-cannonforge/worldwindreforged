@@ -149,12 +149,14 @@ public class AnnotationNullLayout extends AbstractAnnotationLayout
     protected java.awt.Rectangle getAnnotationBounds(DrawContext dc, Annotation annotation)
     {
         java.awt.Dimension size = this.getAnnotationSize(dc, annotation);
-        if (size == null)
-            return null;
+        if (size == null) {
+			return null;
+		}
 
         java.awt.Point offset = annotation.getAttributes().getDrawOffset();
-        if (offset == null)
-            offset = new java.awt.Point();
+        if (offset == null) {
+			offset = new java.awt.Point();
+		}
 
         return new java.awt.Rectangle(offset, size);
     }

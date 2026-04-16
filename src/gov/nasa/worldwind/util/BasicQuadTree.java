@@ -170,17 +170,20 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
      */
     synchronized public boolean contains(T item)
     {
-        if (item == null)
-            return false;
+        if (item == null) {
+			return false;
+		}
 
         for (var entry : this.items.entrySet())
         {
             List<T> itemList = entry.getValue();
-            if (itemList == null)
-                continue;
+            if (itemList == null) {
+				continue;
+			}
 
-            if (itemList.contains(item))
-                return true;
+            if (itemList.contains(item)) {
+				return true;
+			}
         }
 
         return false;
@@ -254,22 +257,26 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
      */
     synchronized public void remove(T item)
     {
-        if (item == null)
-            return;
+        if (item == null) {
+			return;
+		}
 
         List<String> bitsToClear = new ArrayList<>();
 
         for (var entry : this.items.entrySet())
         {
             List<T> itemList = entry.getValue();
-            if (itemList == null)
-                continue;
+            if (itemList == null) {
+				continue;
+			}
 
-            if (itemList.contains(item))
-                itemList.remove(item);
+            if (itemList.contains(item)) {
+				itemList.remove(item);
+			}
 
-            if (itemList.size() == 0)
-                bitsToClear.add(entry.getKey());
+            if (itemList.size() == 0) {
+				bitsToClear.add(entry.getKey());
+			}
         }
 
         for (String bitNum : bitsToClear)
@@ -291,17 +298,20 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
 
         this.nameMap.remove(name);
 
-        if (item == null)
-            return;
+        if (item == null) {
+			return;
+		}
 
         for (var entry : this.items.entrySet())
         {
             List<T> itemList = entry.getValue();
-            if (itemList == null)
-                continue;
+            if (itemList == null) {
+				continue;
+			}
 
-            if (itemList.contains(item))
-                itemList.remove(item);
+            if (itemList.contains(item)) {
+				itemList.remove(item);
+			}
         }
     }
 
@@ -353,8 +363,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
             {
                 // This is the only method that causes the list to increment, so call it before every call to next().
 
-                if (this.nextItem != null)
-                    return true;
+                if (this.nextItem != null) {
+					return true;
+				}
 
                 this.moveToNextItem();
 
@@ -365,8 +376,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
             @Override
 			public T next()
             {
-                if (!this.hasNext())
-                    throw new NoSuchElementException("Iteration has no more elements.");
+                if (!this.hasNext()) {
+					throw new NoSuchElementException("Iteration has no more elements.");
+				}
 
                 T lastNext = this.nextItem;
                 this.nextItem = null;
@@ -395,8 +407,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
                 this.listIterator = null;
                 while (this.mapIterator.hasNext())
                 {
-                    if (this.mapIterator.hasNext())
-                        this.listIterator = this.mapIterator.next().iterator();
+                    if (this.mapIterator.hasNext()) {
+						this.listIterator = this.mapIterator.next().iterator();
+					}
 
                     if (this.listIterator != null && this.listIterator.hasNext())
                     {
@@ -460,8 +473,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
         List<Integer> bitIds = new ArrayList<>();
         for (LatLon location : locations)
         {
-            if (location != null)
-                bitIds = op.getOnBits(this.levelZeroCells, location.asDegreesArray(), bitIds);
+            if (location != null) {
+				bitIds = op.getOnBits(this.levelZeroCells, location.asDegreesArray(), bitIds);
+			}
         }
 
         return this.buildItemSet(bitIds, outItems);
@@ -519,8 +533,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
         List<Integer> bitIds = new ArrayList<>();
         for (Sector testSector : testSectors)
         {
-            if (testSector != null)
-                bitIds = op.getOnBits(this.levelZeroCells, testSector, bitIds);
+            if (testSector != null) {
+				bitIds = op.getOnBits(this.levelZeroCells, testSector, bitIds);
+			}
         }
 
         return this.buildItemSet(bitIds, outItems);
@@ -552,8 +567,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
         List<Integer> bitIds = new ArrayList<>();
         for (SectorGeometry testSector : geometryList)
         {
-            if (testSector != null)
-                bitIds = op.getOnBits(this.levelZeroCells, testSector.getSector(), bitIds);
+            if (testSector != null) {
+				bitIds = op.getOnBits(this.levelZeroCells, testSector.getSector(), bitIds);
+			}
         }
 
         return this.buildItemSet(bitIds, outItems);
@@ -569,17 +585,20 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
      */
     protected Set<T> buildItemSet(List<Integer> bitIds, Set<T> outItems)
     {
-        if (outItems == null)
-            outItems = new HashSet<>();
+        if (outItems == null) {
+			outItems = new HashSet<>();
+		}
 
-        if (bitIds == null)
-            return outItems;
+        if (bitIds == null) {
+			return outItems;
+		}
 
         for (Integer id : bitIds)
         {
             List<T> regionItems = this.items.get(id.toString());
-            if (regionItems == null)
-                continue;
+            if (regionItems == null) {
+				continue;
+			}
 
             for (T item : regionItems)
             {
@@ -614,8 +633,9 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
 
         this.bits.set(bitNum);
 
-        if (level < this.maxLevel)
-            return true;
+        if (level < this.maxLevel) {
+			return true;
+		}
 
         String bitName = Integer.toString(bitNum);
 
@@ -628,11 +648,13 @@ public class BasicQuadTree<T> extends BitSetQuadTreeFilter implements Iterable<T
 
         regionItems.add(this.currentItem);
 
-        if (this.currentName != null)
-            this.nameMap.put(this.currentName, this.currentItem);
+        if (this.currentName != null) {
+			this.nameMap.put(this.currentName, this.currentItem);
+		}
 
-        if (!this.allowDuplicates)
-            this.stop();
+        if (!this.allowDuplicates) {
+			this.stop();
+		}
 
         return false;
     }

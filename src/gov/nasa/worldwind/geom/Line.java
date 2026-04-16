@@ -63,12 +63,13 @@ public final class Line// Instances are immutable
     public Line(Vec4 origin, Vec4 direction)
     {
         String message = null;
-        if (origin == null)
-            message = "nullValue.OriginIsNull";
-        else if (direction == null)
-            message = "nullValue.DirectionIsNull";
-        else if (direction.getLength3() <= 0)
-            message = "Geom.Line.DirectionIsZeroVector";
+        if (origin == null) {
+			message = "nullValue.OriginIsNull";
+		} else if (direction == null) {
+			message = "nullValue.DirectionIsNull";
+		} else if (direction.getLength3() <= 0) {
+			message = "Geom.Line.DirectionIsZeroVector";
+		}
         if (message != null)
         {
             message = Logging.getMessage(message);
@@ -112,16 +113,19 @@ public final class Line// Instances are immutable
     @Override
     public final boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final gov.nasa.worldwind.geom.Line line = (gov.nasa.worldwind.geom.Line) o;
 
         //noinspection RedundantIfStatement
-        if (!direction.equals(line.direction) || !line.origin.equals(origin))
-            return false;
+        if (!direction.equals(line.direction) || !line.origin.equals(origin)) {
+			return false;
+		}
 
         return true;
     }
@@ -208,10 +212,12 @@ public final class Line// Instances are immutable
         double c1 = w.dot3(v);
         double c2 = v.dot3(v);
 
-        if (c1 <= 0)
-            return p0;
-        if (c2 <= c1)
-            return p1;
+        if (c1 <= 0) {
+			return p0;
+		}
+        if (c2 <= c1) {
+			return p1;
+		}
 
         return p0.add3(v.multiply3(c1 / c2));
     }
@@ -259,8 +265,9 @@ public final class Line// Instances are immutable
         }
 
         // First do a trivial accept test.
-        if (frustum.contains(pa) && frustum.contains(pb))
-            return new Vec4[] {pa, pb};
+        if (frustum.contains(pa) && frustum.contains(pb)) {
+			return new Vec4[] {pa, pb};
+		}
 
         Vec4[] segment = new Vec4[] {pa, pb};
         Vec4[] ipts;
@@ -268,8 +275,9 @@ public final class Line// Instances are immutable
         for (Plane p : frustum.getAllPlanes())
         {
             // See if both points are behind the plane and therefore not in the frustum.
-            if (p.onSameSide(segment[0], segment[1]) < 0)
-                return null;
+            if (p.onSameSide(segment[0], segment[1]) < 0) {
+				return null;
+			}
 
             // Clip the segment to the plane if they intersect.
             ipts = p.clip(segment[0], segment[1]);
@@ -280,15 +288,17 @@ public final class Line// Instances are immutable
         }
 
         // If one of the initial points was in the frustum then the segment must have been clipped.
-        if (frustum.contains(pa) || frustum.contains(pb))
-            return segment;
+        if (frustum.contains(pa) || frustum.contains(pb)) {
+			return segment;
+		}
 
         // The segment was clipped by an infinite frustum plane but may still lie outside the frustum.
         // So recurse using the clipped segment.
-        if (maxRecursionCount > 0)
-            return clipToFrustum(segment[0], segment[1], frustum, --maxRecursionCount);
-        else
-            return segment;
+        if (maxRecursionCount > 0) {
+			return clipToFrustum(segment[0], segment[1], frustum, --maxRecursionCount);
+		} else {
+			return segment;
+		}
     }
 
     /**

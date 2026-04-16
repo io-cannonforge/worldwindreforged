@@ -155,11 +155,13 @@ public class FramebufferTexture implements WWTexture
 
         Texture t = dc.getTextureCache().getTexture(this);
 
-        if (t == null)
-            t = this.initializeTexture(dc);
+        if (t == null) {
+			t = this.initializeTexture(dc);
+		}
 
-        if (t != null)
-            t.bind(dc.getGL());
+        if (t != null) {
+			t.bind(dc.getGL());
+		}
 
         return t != null;
     }
@@ -180,12 +182,14 @@ public class FramebufferTexture implements WWTexture
         // The frame buffer can be used only during pre-rendering.
         // Bind actually binds the source texture only if the image source is available, otherwise it initiates image
         // source retrieval. If bind returns false, the image source is not yet available.
-        if (!dc.isPreRenderMode() || this.sourceTexture == null || !this.sourceTexture.bind(dc))
-            return null;
+        if (!dc.isPreRenderMode() || this.sourceTexture == null || !this.sourceTexture.bind(dc)) {
+			return null;
+		}
 
         // Ensure that the source texture size is available so that the FBO can be sized to match the source image.
-        if (this.sourceTexture.getWidth(dc) < 1 || this.sourceTexture.getHeight(dc) < 1)
-            return null;
+        if (this.sourceTexture.getWidth(dc) < 1 || this.sourceTexture.getHeight(dc) < 1) {
+			return null;
+		}
 
         int potSourceWidth = WWMath.powerOfTwoCeiling(this.sourceTexture.getWidth(dc));
         int potSourceHeight = WWMath.powerOfTwoCeiling(this.sourceTexture.getHeight(dc));
@@ -193,8 +197,9 @@ public class FramebufferTexture implements WWTexture
         this.width = Math.min(potSourceWidth, dc.getView().getViewport().width);
         this.height = Math.min(potSourceHeight, dc.getView().getViewport().height);
 
-        if (!this.generateTexture(dc, this.width, this.height))
-            return null;
+        if (!this.generateTexture(dc, this.width, this.height)) {
+			return null;
+		}
 
         GL gl = dc.getGL();
 
@@ -253,8 +258,9 @@ public class FramebufferTexture implements WWTexture
                 try
                 {
                     gl.glEnable(GL.GL_TEXTURE_2D);
-                    if (!this.sourceTexture.bind(dc))
-                        return false;
+                    if (!this.sourceTexture.bind(dc)) {
+						return false;
+					}
 
                     this.sourceTexture.applyInternalTransform(dc);
 

@@ -54,8 +54,9 @@ public class ScheduledInterpolator implements Interpolator
             throw new IllegalArgumentException(message);
         }
 
-        if (startTime != null)
-            this.startTime = startTime.getTime();
+        if (startTime != null) {
+			this.startTime = startTime.getTime();
+		}
         this.length = lengthMillis;
     }
 
@@ -86,11 +87,13 @@ public class ScheduledInterpolator implements Interpolator
 
         long currentTime = System.currentTimeMillis();
         // When no start time is specified, begin counting time on the first run.
-        if (this.startTime < 0)
-            this.startTime = currentTime;
+        if (this.startTime < 0) {
+			this.startTime = currentTime;
+		}
         // Exit when current time is before starting time.
-        if (currentTime < this.startTime)
-            return 0;
+        if (currentTime < this.startTime) {
+			return 0;
+		}
 
         long elapsedTime = currentTime - this.startTime;
         double unclampedInterpolant = ((double) elapsedTime) / ((double) this.length);

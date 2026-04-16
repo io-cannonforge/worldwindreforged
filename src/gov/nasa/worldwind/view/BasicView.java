@@ -205,13 +205,15 @@ public class BasicView extends WWObjectImpl implements View
             throw new IllegalStateException(message);
         }
 
-        if (this.viewInputHandler != null)
-            this.viewInputHandler.apply();
+        if (this.viewInputHandler != null) {
+			this.viewInputHandler.apply();
+		}
 
         doApply(dc);
 
-        if (this.viewInputHandler != null)
-            this.viewInputHandler.viewApplied();
+        if (this.viewInputHandler != null) {
+			this.viewInputHandler.viewApplied();
+		}
     }
 
     protected void doApply(DrawContext dc)
@@ -243,10 +245,11 @@ public class BasicView extends WWObjectImpl implements View
         if (this.lastFrustumInModelCoords == null)
         {
             Matrix modelviewTranspose = this.modelview.getTranspose();
-            if (modelviewTranspose != null)
-                this.lastFrustumInModelCoords = this.frustum.transformBy(modelviewTranspose);
-            else
-                this.lastFrustumInModelCoords = this.frustum;
+            if (modelviewTranspose != null) {
+				this.lastFrustumInModelCoords = this.frustum.transformBy(modelviewTranspose);
+			} else {
+				this.lastFrustumInModelCoords = this.frustum;
+			}
         }
         return this.lastFrustumInModelCoords;
     }
@@ -334,8 +337,9 @@ public class BasicView extends WWObjectImpl implements View
     @Override
 	public Vec4 getEyePoint()
     {
-        if (this.lastEyePoint == null)
-            this.lastEyePoint = Vec4.UNIT_W.transformBy4(this.modelviewInv);
+        if (this.lastEyePoint == null) {
+			this.lastEyePoint = Vec4.UNIT_W.transformBy4(this.modelviewInv);
+		}
         return this.lastEyePoint;
     }
 
@@ -494,16 +498,18 @@ public class BasicView extends WWObjectImpl implements View
     @Override
 	public Vec4 getUpVector()
     {
-        if (this.lastUpVector == null)
-            this.lastUpVector = Vec4.UNIT_Y.transformBy4(this.modelviewInv);
+        if (this.lastUpVector == null) {
+			this.lastUpVector = Vec4.UNIT_Y.transformBy4(this.modelviewInv);
+		}
         return this.lastUpVector;
     }
 
     @Override
 	public Vec4 getForwardVector()
     {
-        if (this.lastForwardVector == null)
-            this.lastForwardVector = Vec4.UNIT_NEGATIVE_Z.transformBy4(this.modelviewInv);
+        if (this.lastForwardVector == null) {
+			this.lastForwardVector = Vec4.UNIT_NEGATIVE_Z.transformBy4(this.modelviewInv);
+		}
         return this.lastForwardVector;
     }
 
@@ -646,8 +652,9 @@ public class BasicView extends WWObjectImpl implements View
         if (this.globe != null)
         {
             Line ray = computeRayFromScreenPoint(x, y);
-            if (ray != null)
-                return this.globe.getIntersectionPosition(ray);
+            if (ray != null) {
+				return this.globe.getIntersectionPosition(ray);
+			}
         }
 
         return null;
@@ -726,8 +733,9 @@ public class BasicView extends WWObjectImpl implements View
             if (distanceToSurface > 0)
             {
                 double maxNearDistance = ViewUtil.computePerspectiveNearDistance(this.fieldOfView, distanceToSurface);
-                if (nearDistance > maxNearDistance)
-                    nearDistance = maxNearDistance;
+                if (nearDistance > maxNearDistance) {
+					nearDistance = maxNearDistance;
+				}
             }
             else
             {
@@ -737,8 +745,9 @@ public class BasicView extends WWObjectImpl implements View
 
         // Prevent the near clip plane from becoming unnecessarily small. A very small clip plane is not useful for
         // rendering the WorldWind scene, and significantly reduces the depth precision in the majority of the scene.
-        if (nearDistance < MINIMUM_NEAR_DISTANCE)
-            nearDistance = MINIMUM_NEAR_DISTANCE;
+        if (nearDistance < MINIMUM_NEAR_DISTANCE) {
+			nearDistance = MINIMUM_NEAR_DISTANCE;
+		}
 
         return nearDistance;
     }
@@ -765,8 +774,9 @@ public class BasicView extends WWObjectImpl implements View
     {
         RestorableSupport rs = RestorableSupport.newRestorableSupport();
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (rs == null)
-            return null;
+        if (rs == null) {
+			return null;
+		}
 
         this.doGetRestorableState(rs, null);
 
@@ -818,20 +828,24 @@ public class BasicView extends WWObjectImpl implements View
 
         rs.addStateValueAsBoolean(context, "detectCollisions", this.isDetectCollisions());
 
-        if (this.getFieldOfView() != null)
-            rs.addStateValueAsDouble(context, "fieldOfView", this.getFieldOfView().getDegrees());
+        if (this.getFieldOfView() != null) {
+			rs.addStateValueAsDouble(context, "fieldOfView", this.getFieldOfView().getDegrees());
+		}
 
         rs.addStateValueAsDouble(context, "nearClipDistance", this.getNearClipDistance());
         rs.addStateValueAsDouble(context, "farClipDistance", this.getFarClipDistance());
 
-        if (this.getEyePosition() != null)
-            rs.addStateValueAsPosition(context, "eyePosition", this.getEyePosition());
+        if (this.getEyePosition() != null) {
+			rs.addStateValueAsPosition(context, "eyePosition", this.getEyePosition());
+		}
 
-        if (this.getHeading() != null)
-            rs.addStateValueAsDouble(context, "heading", this.getHeading().getDegrees());
+        if (this.getHeading() != null) {
+			rs.addStateValueAsDouble(context, "heading", this.getHeading().getDegrees());
+		}
 
-        if (this.getPitch() != null)
-            rs.addStateValueAsDouble(context, "pitch", this.getPitch().getDegrees());
+        if (this.getPitch() != null) {
+			rs.addStateValueAsDouble(context, "pitch", this.getPitch().getDegrees());
+		}
     }
 
     protected void doRestoreState(RestorableSupport rs, RestorableSupport.StateObject context)
@@ -841,36 +855,44 @@ public class BasicView extends WWObjectImpl implements View
         // current property limits and the current surface collision state.
 
         RestorableSupport.StateObject so = rs.getStateObject(context, "viewPropertyLimits");
-        if (so != null)
-            this.getViewPropertyLimits().restoreState(rs, so);
+        if (so != null) {
+			this.getViewPropertyLimits().restoreState(rs, so);
+		}
 
         Boolean b = rs.getStateValueAsBoolean(context, "detectCollisions");
-        if (b != null)
-            this.setDetectCollisions(b);
+        if (b != null) {
+			this.setDetectCollisions(b);
+		}
 
         Double d = rs.getStateValueAsDouble(context, "fieldOfView");
-        if (d != null)
-            this.setFieldOfView(Angle.fromDegrees(d));
+        if (d != null) {
+			this.setFieldOfView(Angle.fromDegrees(d));
+		}
 
         d = rs.getStateValueAsDouble(context, "nearClipDistance");
-        if (d != null)
-            this.setNearClipDistance(d);
+        if (d != null) {
+			this.setNearClipDistance(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "farClipDistance");
-        if (d != null)
-            this.setFarClipDistance(d);
+        if (d != null) {
+			this.setFarClipDistance(d);
+		}
 
         Position p = rs.getStateValueAsPosition(context, "eyePosition");
-        if (p != null)
-            this.setEyePosition(p);
+        if (p != null) {
+			this.setEyePosition(p);
+		}
 
         d = rs.getStateValueAsDouble(context, "heading");
-        if (d != null)
-            this.setHeading(Angle.fromDegrees(d));
+        if (d != null) {
+			this.setHeading(Angle.fromDegrees(d));
+		}
 
         d = rs.getStateValueAsDouble(context, "pitch");
-        if (d != null)
-            this.setPitch(Angle.fromDegrees(d));
+        if (d != null) {
+			this.setPitch(Angle.fromDegrees(d));
+		}
     }
 
     @Override
@@ -899,8 +921,9 @@ public class BasicView extends WWObjectImpl implements View
 
         // Compute a new model-view matrix with origin at referenceCenter.
         Matrix matrix = null;
-        if (modelview != null)
-            matrix = modelview.multiply(Matrix.fromTranslation(referenceCenter));
+        if (modelview != null) {
+			matrix = modelview.multiply(Matrix.fromTranslation(referenceCenter));
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
@@ -956,10 +979,12 @@ public class BasicView extends WWObjectImpl implements View
 
         // Compute a new model-view matrix with origin at referenceCenter.
         Matrix matrix = null;
-        if (modelview != null)
-            matrix = modelview.multiply(Matrix.fromTranslation(referenceCenter));
-        if (matrix == null)
-            return null;
+        if (modelview != null) {
+			matrix = modelview.multiply(Matrix.fromTranslation(referenceCenter));
+		}
+        if (matrix == null) {
+			return null;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 

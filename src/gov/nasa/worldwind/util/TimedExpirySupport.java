@@ -141,12 +141,14 @@ public class TimedExpirySupport
      */
     public boolean isExpired(DrawContext dc)
     {
-        if (this.expired)
-            return true;
+        if (this.expired) {
+			return true;
+		}
 
         long now = dc != null ? dc.getFrameTimeStamp() : System.currentTimeMillis();
-        if (now >= this.expiryTime)
-            return true;
+        if (now >= this.expiryTime) {
+			return true;
+		}
 
         return false;
     }

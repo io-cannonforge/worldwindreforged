@@ -124,8 +124,9 @@ public class LicenseDialog
         int result;
         try
         {
-            if (licenseComponent instanceof Component)
-                licenseComponent = new JScrollPane((Component) licenseComponent);
+            if (licenseComponent instanceof Component) {
+				licenseComponent = new JScrollPane((Component) licenseComponent);
+			}
 
             result = JOptionPane.showOptionDialog(
                 parentComponent, // parentComponent
@@ -185,8 +186,9 @@ public class LicenseDialog
                 {
                     Logging.logger().fine("Fetching license (URL): " + this.license);
                     editor = new JEditorPane();
-                    if (this.contentType != null)
-                        editor.setContentType(this.contentType);
+                    if (this.contentType != null) {
+						editor.setContentType(this.contentType);
+					}
                     editor.setPage((URL) this.license);
                 }
                 else if (this.license instanceof File)
@@ -195,8 +197,9 @@ public class LicenseDialog
                     URI uri = ((File) this.license).toURI();
                     URL url = uri.toURL();
                     editor = new JEditorPane();
-                    if (this.contentType != null)
-                        editor.setContentType(this.contentType);
+                    if (this.contentType != null) {
+						editor.setContentType(this.contentType);
+					}
                     editor.setPage(url);
                 }
                 else
@@ -204,8 +207,9 @@ public class LicenseDialog
                     Logging.logger().fine("Fetching license (String): " + this.license.toString());
                     URL url = getClass().getResource(this.license.toString());
                     editor = new JEditorPane();
-                    if (this.contentType != null)
-                        editor.setContentType(this.contentType);
+                    if (this.contentType != null) {
+						editor.setContentType(this.contentType);
+					}
                     editor.setPage(url);
                 }
             }
@@ -213,8 +217,9 @@ public class LicenseDialog
             if (editor != null)
             {
                 editor.setEditable(false);
-                if (this.preferredSize != null)
-                    editor.setPreferredSize(this.preferredSize);
+                if (this.preferredSize != null) {
+					editor.setPreferredSize(this.preferredSize);
+				}
             }
         }
         catch (Exception e)

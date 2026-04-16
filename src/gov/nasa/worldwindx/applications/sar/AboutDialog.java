@@ -97,12 +97,13 @@ public class AboutDialog
         try
         {
             final JDialog dialog;
-            if (parentComponent instanceof Dialog)
-                dialog = new JDialog((Dialog) parentComponent);
-            else if (parentComponent instanceof Frame)
-                dialog = new JDialog((Frame) parentComponent);
-            else
-                dialog = new JDialog();
+            if (parentComponent instanceof Dialog) {
+				dialog = new JDialog((Dialog) parentComponent);
+			} else if (parentComponent instanceof Frame) {
+				dialog = new JDialog((Frame) parentComponent);
+			} else {
+				dialog = new JDialog();
+			}
 
             component.addMouseListener(new MouseAdapter() {
                 @Override
@@ -137,16 +138,18 @@ public class AboutDialog
             {
                 URL url = getClass().getResource(this.content.toString());
                 editor = new JEditorPane();
-                if (this.contentType != null)
-                    editor.setContentType(this.contentType);
+                if (this.contentType != null) {
+					editor.setContentType(this.contentType);
+				}
                 editor.setPage(url);
             }
 
             if (editor != null)
             {
                 editor.setEditable(false);
-                if (this.preferredSize != null)
-                    editor.setPreferredSize(this.preferredSize);
+                if (this.preferredSize != null) {
+					editor.setPreferredSize(this.preferredSize);
+				}
             }
         }
         catch (Exception e)

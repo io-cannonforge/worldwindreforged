@@ -805,8 +805,9 @@ public class ViewInputAttributes
         }
 
         ActionAttributesMap map = this.getActionMap(deviceKey);
-        if (map == null)
-            return null;
+        if (map == null) {
+			return null;
+		}
 
         return map.getActionAttributes(actionKey);
     }

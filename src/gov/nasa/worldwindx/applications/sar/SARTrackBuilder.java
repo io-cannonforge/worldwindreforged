@@ -90,8 +90,9 @@ public class SARTrackBuilder
             {
                 if (armed && sarTrack != null && mouseEvent.getButton() == MouseEvent.BUTTON1)
                 {
-                    if (mouseEvent.isControlDown())
-                        removeLastTrackPoint();
+                    if (mouseEvent.isControlDown()) {
+						removeLastTrackPoint();
+					}
                     mouseEvent.consume();
                 }
             }
@@ -107,8 +108,9 @@ public class SARTrackBuilder
                     // Don't update the track here because the wwd current cursor position will not
                     // have been updated to reflect the current mouse position. Wait to update in the
                     // position listener, but consume the event so the view doesn't respond to it.
-                    if (active)
-                        mouseEvent.consume();
+                    if (active) {
+						mouseEvent.consume();
+					}
                 }
             }
         };
@@ -118,8 +120,9 @@ public class SARTrackBuilder
             @Override
 			public void moved(PositionEvent event)
             {
-                if (!active || sarTrack == null)
-                    return;
+                if (!active || sarTrack == null) {
+					return;
+				}
 
                 replacePosition();
             }
@@ -128,8 +131,9 @@ public class SARTrackBuilder
 
     public void setWwd(WorldWindow wwd)
     {
-        if (this.wwd == wwd)
-            return;
+        if (this.wwd == wwd) {
+			return;
+		}
 
         if (this.wwd != null)
         {
@@ -168,20 +172,23 @@ public class SARTrackBuilder
     {
         this.armed = armed;
 
-        if (this.armed)
-            ((Component) this.wwd).setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-        else
-            ((Component) this.wwd).setCursor(Cursor.getDefaultCursor());
+        if (this.armed) {
+			((Component) this.wwd).setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+		} else {
+			((Component) this.wwd).setCursor(Cursor.getDefaultCursor());
+		}
     }
 
     private void addPosition()
     {
         Position curPos = this.wwd != null ? this.wwd.getCurrentPosition() : null;
-        if (curPos == null)
-            return;
+        if (curPos == null) {
+			return;
+		}
 
-        if (this.useTrackElevation && this.sarTrack.size() > 0)
-            curPos = new Position(curPos, this.sarTrack.get(this.sarTrack.size() - 1).getElevation());
+        if (this.useTrackElevation && this.sarTrack.size() > 0) {
+			curPos = new Position(curPos, this.sarTrack.get(this.sarTrack.size() - 1).getElevation());
+		}
 
         this.sarTrack.appendPosition(new SARPosition(curPos));
     }
@@ -189,15 +196,18 @@ public class SARTrackBuilder
     private void replacePosition()
     {
         Position curPos = this.wwd != null ? this.wwd.getCurrentPosition() : null;
-        if (curPos == null)
-            return;
+        if (curPos == null) {
+			return;
+		}
 
-        if (this.useTrackElevation && this.sarTrack.size() > 0)
-            curPos = new Position(curPos, this.sarTrack.get(this.sarTrack.size() - 1).getElevation());
+        if (this.useTrackElevation && this.sarTrack.size() > 0) {
+			curPos = new Position(curPos, this.sarTrack.get(this.sarTrack.size() - 1).getElevation());
+		}
 
         int index = this.sarTrack.size() - 1;
-        if (index < 0)
-            index = 0;
+        if (index < 0) {
+			index = 0;
+		}
 
         this.sarTrack.set(index, new SARPosition(curPos));
     }
@@ -209,8 +219,9 @@ public class SARTrackBuilder
 
     public void removeLastTrackPoint()
     {
-        if (this.sarTrack == null || this.sarTrack.size() == 0)
-            return;
+        if (this.sarTrack == null || this.sarTrack.size() == 0) {
+			return;
+		}
 
         this.sarTrack.removePosition(this.sarTrack.size() - 1);
     }

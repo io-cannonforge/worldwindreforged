@@ -413,33 +413,35 @@ public class ViewControlsLayer extends RenderableLayer
      */
     public String getControlType(Object control)
     {
-        if (control == null || !(control instanceof ScreenAnnotation))
-            return null;
+        if (control == null || !(control instanceof ScreenAnnotation)) {
+			return null;
+		}
 
-        if (showPanControls && controlPan.equals(control))
-            return AVKey.VIEW_PAN;
-        else if (showLookControls && controlLook.equals(control))
-            return AVKey.VIEW_LOOK;
-        else if (showHeadingControls && controlHeadingLeft.equals(control))
-            return AVKey.VIEW_HEADING_LEFT;
-        else if (showHeadingControls && controlHeadingRight.equals(control))
-            return AVKey.VIEW_HEADING_RIGHT;
-        else if (showZoomControls && controlZoomIn.equals(control))
-            return AVKey.VIEW_ZOOM_IN;
-        else if (showZoomControls && controlZoomOut.equals(control))
-            return AVKey.VIEW_ZOOM_OUT;
-        else if (showPitchControls && controlPitchUp.equals(control))
-            return AVKey.VIEW_PITCH_UP;
-        else if (showPitchControls && controlPitchDown.equals(control))
-            return AVKey.VIEW_PITCH_DOWN;
-        else if (showFovControls && controlFovNarrow.equals(control))
-            return AVKey.VIEW_FOV_NARROW;
-        else if (showFovControls && controlFovWide.equals(control))
-            return AVKey.VIEW_FOV_WIDE;
-        else if (showVeControls && controlVeUp.equals(control))
-            return AVKey.VERTICAL_EXAGGERATION_UP;
-        else if (showVeControls && controlVeDown.equals(control))
-            return AVKey.VERTICAL_EXAGGERATION_DOWN;
+        if (showPanControls && controlPan.equals(control)) {
+			return AVKey.VIEW_PAN;
+		} else if (showLookControls && controlLook.equals(control)) {
+			return AVKey.VIEW_LOOK;
+		} else if (showHeadingControls && controlHeadingLeft.equals(control)) {
+			return AVKey.VIEW_HEADING_LEFT;
+		} else if (showHeadingControls && controlHeadingRight.equals(control)) {
+			return AVKey.VIEW_HEADING_RIGHT;
+		} else if (showZoomControls && controlZoomIn.equals(control)) {
+			return AVKey.VIEW_ZOOM_IN;
+		} else if (showZoomControls && controlZoomOut.equals(control)) {
+			return AVKey.VIEW_ZOOM_OUT;
+		} else if (showPitchControls && controlPitchUp.equals(control)) {
+			return AVKey.VIEW_PITCH_UP;
+		} else if (showPitchControls && controlPitchDown.equals(control)) {
+			return AVKey.VIEW_PITCH_DOWN;
+		} else if (showFovControls && controlFovNarrow.equals(control)) {
+			return AVKey.VIEW_FOV_NARROW;
+		} else if (showFovControls && controlFovWide.equals(control)) {
+			return AVKey.VIEW_FOV_WIDE;
+		} else if (showVeControls && controlVeUp.equals(control)) {
+			return AVKey.VERTICAL_EXAGGERATION_UP;
+		} else if (showVeControls && controlVeDown.equals(control)) {
+			return AVKey.VERTICAL_EXAGGERATION_DOWN;
+		}
 
         return null;
     }
@@ -462,8 +464,9 @@ public class ViewControlsLayer extends RenderableLayer
     public void highlight(Object control)
     {
         // Manage highlighting of controls.
-        if (this.currentControl == control)
-            return; // same thing selected
+        if (this.currentControl == control) {
+			return; // same thing selected
+		}
 
         // Turn off highlight if on.
         if (this.currentControl != null)
@@ -483,11 +486,13 @@ public class ViewControlsLayer extends RenderableLayer
     @Override
     public void doRender(DrawContext dc)
     {
-        if (!this.initialized)
-            initialize(dc);
+        if (!this.initialized) {
+			initialize(dc);
+		}
 
-        if (!this.referenceViewport.equals(dc.getView().getViewport()))
-            updatePositions(dc);
+        if (!this.referenceViewport.equals(dc.getView().getViewport())) {
+			updatePositions(dc);
+		}
 
         super.doRender(dc);
     }
@@ -499,8 +504,9 @@ public class ViewControlsLayer extends RenderableLayer
 
     protected void initialize(DrawContext dc)
     {
-        if (this.initialized)
-            return;
+        if (this.initialized) {
+			return;
+		}
 
         // Setup user interface - common default attributes
         AnnotationAttributes ca = new AnnotationAttributes();
@@ -612,30 +618,31 @@ public class ViewControlsLayer extends RenderableLayer
      */
     protected Object getImageSource(String control)
     {
-        if (control.equals(AVKey.VIEW_PAN))
-            return IMAGE_PAN;
-        else if (control.equals(AVKey.VIEW_LOOK))
-            return IMAGE_LOOK;
-        else if (control.equals(AVKey.VIEW_HEADING_LEFT))
-            return IMAGE_HEADING_LEFT;
-        else if (control.equals(AVKey.VIEW_HEADING_RIGHT))
-            return IMAGE_HEADING_RIGHT;
-        else if (control.equals(AVKey.VIEW_ZOOM_IN))
-            return IMAGE_ZOOM_IN;
-        else if (control.equals(AVKey.VIEW_ZOOM_OUT))
-            return IMAGE_ZOOM_OUT;
-        else if (control.equals(AVKey.VIEW_PITCH_UP))
-            return IMAGE_PITCH_UP;
-        else if (control.equals(AVKey.VIEW_PITCH_DOWN))
-            return IMAGE_PITCH_DOWN;
-        else if (control.equals(AVKey.VIEW_FOV_WIDE))
-            return IMAGE_FOV_WIDE;
-        else if (control.equals(AVKey.VIEW_FOV_NARROW))
-            return IMAGE_FOV_NARROW;
-        else if (control.equals(AVKey.VERTICAL_EXAGGERATION_UP))
-            return IMAGE_VE_UP;
-        else if (control.equals(AVKey.VERTICAL_EXAGGERATION_DOWN))
-            return IMAGE_VE_DOWN;
+        if (control.equals(AVKey.VIEW_PAN)) {
+			return IMAGE_PAN;
+		} else if (control.equals(AVKey.VIEW_LOOK)) {
+			return IMAGE_LOOK;
+		} else if (control.equals(AVKey.VIEW_HEADING_LEFT)) {
+			return IMAGE_HEADING_LEFT;
+		} else if (control.equals(AVKey.VIEW_HEADING_RIGHT)) {
+			return IMAGE_HEADING_RIGHT;
+		} else if (control.equals(AVKey.VIEW_ZOOM_IN)) {
+			return IMAGE_ZOOM_IN;
+		} else if (control.equals(AVKey.VIEW_ZOOM_OUT)) {
+			return IMAGE_ZOOM_OUT;
+		} else if (control.equals(AVKey.VIEW_PITCH_UP)) {
+			return IMAGE_PITCH_UP;
+		} else if (control.equals(AVKey.VIEW_PITCH_DOWN)) {
+			return IMAGE_PITCH_DOWN;
+		} else if (control.equals(AVKey.VIEW_FOV_WIDE)) {
+			return IMAGE_FOV_WIDE;
+		} else if (control.equals(AVKey.VIEW_FOV_NARROW)) {
+			return IMAGE_FOV_NARROW;
+		} else if (control.equals(AVKey.VERTICAL_EXAGGERATION_UP)) {
+			return IMAGE_VE_UP;
+		} else if (control.equals(AVKey.VERTICAL_EXAGGERATION_DOWN)) {
+			return IMAGE_VE_DOWN;
+		}
 
         return null;
     }
@@ -682,64 +689,78 @@ public class ViewControlsLayer extends RenderableLayer
 
         if (this.showPanControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (panSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (panSize * scale);
+			}
             controlPan.setScreenPoint(new Point(x + halfPanSize, y));
-            if (horizontalLayout)
-                x += (int) (panSize * scale);
+            if (horizontalLayout) {
+				x += (int) (panSize * scale);
+			}
         }
         if (this.showLookControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (panSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (panSize * scale);
+			}
             controlLook.setScreenPoint(new Point(x + halfPanSize, y));
-            if (horizontalLayout)
-                x += (int) (panSize * scale);
+            if (horizontalLayout) {
+				x += (int) (panSize * scale);
+			}
         }
         if (this.showZoomControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (buttonSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (buttonSize * scale);
+			}
             controlZoomIn.setScreenPoint(new Point(x + halfButtonSize + xOffset, y + yOffset));
             controlZoomOut.setScreenPoint(new Point(x + halfButtonSize, y));
-            if (horizontalLayout)
-                x += (int) (buttonSize * scale);
+            if (horizontalLayout) {
+				x += (int) (buttonSize * scale);
+			}
         }
         if (this.showHeadingControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (buttonSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (buttonSize * scale);
+			}
             controlHeadingLeft.setScreenPoint(new Point(x + halfButtonSize + xOffset, y + yOffset));
             controlHeadingRight.setScreenPoint(new Point(x + halfButtonSize, y));
-            if (horizontalLayout)
-                x += (int) (buttonSize * scale);
+            if (horizontalLayout) {
+				x += (int) (buttonSize * scale);
+			}
         }
         if (this.showPitchControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (buttonSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (buttonSize * scale);
+			}
             controlPitchUp.setScreenPoint(new Point(x + halfButtonSize + xOffset, y + yOffset));
             controlPitchDown.setScreenPoint(new Point(x + halfButtonSize, y));
-            if (horizontalLayout)
-                x += (int) (buttonSize * scale);
+            if (horizontalLayout) {
+				x += (int) (buttonSize * scale);
+			}
         }
         if (this.showFovControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (buttonSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (buttonSize * scale);
+			}
             controlFovNarrow.setScreenPoint(new Point(x + halfButtonSize + xOffset, y + yOffset));
             controlFovWide.setScreenPoint(new Point(x + halfButtonSize, y));
-            if (horizontalLayout)
-                x += (int) (buttonSize * scale);
+            if (horizontalLayout) {
+				x += (int) (buttonSize * scale);
+			}
         }
         if (this.showVeControls)
         {
-            if (!horizontalLayout)
-                y -= (int) (buttonSize * scale);
+            if (!horizontalLayout) {
+				y -= (int) (buttonSize * scale);
+			}
             controlVeUp.setScreenPoint(new Point(x + halfButtonSize + xOffset, y + yOffset));
             controlVeDown.setScreenPoint(new Point(x + halfButtonSize, y));
-            if (horizontalLayout)
-                x += (int) (buttonSize * scale);
+            if (horizontalLayout) {
+				x += (int) (buttonSize * scale);
+			}
         }
 
         this.referenceViewport = dc.getView().getViewport();

@@ -70,8 +70,9 @@ public class ImageInterpolator
 
         public void build(int numLevels, int cellSize)
         {
-            if ((numLevels == 0) || (this.m1 - this.m0 <= cellSize && this.n1 - this.n0 <= cellSize))
-                return;
+            if ((numLevels == 0) || (this.m1 - this.m0 <= cellSize && this.n1 - this.n0 <= cellSize)) {
+				return;
+			}
 
             this.children = this.split(this.m0, this.m1, this.n0, this.n1);
             for (Cell t : this.children)
@@ -132,15 +133,19 @@ public class ImageInterpolator
                     float x = xs[k];
                     float y = ys[k];
 
-                    if (x < this.minx)
-                        this.minx = x;
-                    if (x > this.maxx)
-                        this.maxx = x;
+                    if (x < this.minx) {
+						this.minx = x;
+					}
+                    if (x > this.maxx) {
+						this.maxx = x;
+					}
 
-                    if (y < this.miny)
-                        this.miny = y;
-                    if (y > this.maxy)
-                        this.maxy = y;
+                    if (y < this.miny) {
+						this.miny = y;
+					}
+                    if (y > this.maxy) {
+						this.maxy = y;
+					}
                 }
             }
         }
@@ -152,20 +157,25 @@ public class ImageInterpolator
             this.miny = Float.MAX_VALUE;
             this.maxy = -Float.MAX_VALUE;
 
-            if (this.children == null)
-                return;
+            if (this.children == null) {
+				return;
+			}
 
             for (Cell t : children)
             {
-                if (t.minx < this.minx)
-                    this.minx = t.minx;
-                if (t.maxx > this.maxx)
-                    this.maxx = t.maxx;
+                if (t.minx < this.minx) {
+					this.minx = t.minx;
+				}
+                if (t.maxx > this.maxx) {
+					this.maxx = t.maxx;
+				}
 
-                if (t.miny < this.miny)
-                    this.miny = t.miny;
-                if (t.maxy > this.maxy)
-                    this.maxy = t.maxy;
+                if (t.miny < this.miny) {
+					this.miny = t.miny;
+				}
+                if (t.maxy > this.maxy) {
+					this.maxy = t.maxy;
+				}
             }
         }
     }
@@ -263,11 +273,13 @@ public class ImageInterpolator
 
     protected ContainingCell findContainingCell(Cell cell, float x, float y)
     {
-        if (!cell.intersects(x, y))
-            return null;
+        if (!cell.intersects(x, y)) {
+			return null;
+		}
 
-        if (cell.m1 - cell.m0 <= this.cellSize && cell.n1 - cell.n0 <= this.cellSize)
-            return this.checkContainment(x, y, cell);
+        if (cell.m1 - cell.m0 <= this.cellSize && cell.n1 - cell.n0 <= this.cellSize) {
+			return this.checkContainment(x, y, cell);
+		}
 
         Cell[] kids = cell.children != null ? cell.children : (Cell[]) this.kidCache.getObject(cell);
         if (kids == null)
@@ -277,15 +289,17 @@ public class ImageInterpolator
             {
                 child.computeExtremesFromLocations(this.gridSize, this.xs, this.ys);
             }
-            if (cell.children == null)
-                this.kidCache.add(cell, kids, 4 * kids[0].getSizeInBytes());
+            if (cell.children == null) {
+				this.kidCache.add(cell, kids, 4 * kids[0].getSizeInBytes());
+			}
         }
 
         for (Cell t : kids)
         {
             ContainingCell cellFound = this.findContainingCell(t, x, y);
-            if (cellFound != null)
-                return cellFound;
+            if (cellFound != null) {
+				return cellFound;
+			}
         }
 
         return null;

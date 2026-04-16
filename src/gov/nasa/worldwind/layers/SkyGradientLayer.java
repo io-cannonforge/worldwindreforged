@@ -147,8 +147,9 @@ public class SkyGradientLayer extends AbstractLayer
     @Override
     public void doRender(DrawContext dc)
     {
-        if (dc.is2DGlobe())
-            return; // Layer doesn't make sense in 2D
+        if (dc.is2DGlobe()) {
+			return; // Layer doesn't make sense in 2D
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         OGLStackHandler ogsh = new OGLStackHandler();
@@ -199,10 +200,12 @@ public class SkyGradientLayer extends AbstractLayer
         double viewportHeight = view.getViewport().getHeight();
 
         // If either the viewport width or height is zero, then treat the dimension as if it had value 1.
-        if (viewportWidth <= 0)
-            viewportWidth = 1;
-        if (viewportHeight <= 0)
-            viewportHeight = 1;
+        if (viewportWidth <= 0) {
+			viewportWidth = 1;
+		}
+        if (viewportHeight <= 0) {
+			viewportHeight = 1;
+		}
 
         Matrix projection = Matrix.fromPerspective(view.getFieldOfView(), viewportWidth, viewportHeight,
             100, view.getHorizonDistance() + 10e3);

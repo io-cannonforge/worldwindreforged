@@ -51,15 +51,17 @@ public class GLContextLocal<T>
     public void set(T value)
     {
         GLContext ctx = GLContext.getCurrent();
-        if (ctx != null)
-            map.put(ctx, value);
+        if (ctx != null) {
+			map.put(ctx, value);
+		}
     }
 
     /** Sets the value for the given GL context. */
     public void set(GLContext ctx, T value)
     {
-        if (ctx != null)
-            map.put(ctx, value);
+        if (ctx != null) {
+			map.put(ctx, value);
+		}
     }
 
     /**
@@ -69,8 +71,9 @@ public class GLContextLocal<T>
     public T computeIfAbsent(Supplier<T> factory)
     {
         GLContext ctx = GLContext.getCurrent();
-        if (ctx == null)
-            return null;
+        if (ctx == null) {
+			return null;
+		}
         synchronized (map)
         {
             T val = map.get(ctx);
@@ -87,8 +90,9 @@ public class GLContextLocal<T>
     public void remove()
     {
         GLContext ctx = GLContext.getCurrent();
-        if (ctx != null)
-            map.remove(ctx);
+        if (ctx != null) {
+			map.remove(ctx);
+		}
     }
 
     /** Returns {@code true} if a value is stored for the current GL context. */

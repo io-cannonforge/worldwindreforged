@@ -152,8 +152,9 @@ public class VecBuffer
 
         int index = this.indexFromVectorPosition(position);
         int length = array.length;
-        if (length > this.coordsPerVec)
-            length = this.coordsPerVec;
+        if (length > this.coordsPerVec) {
+			length = this.coordsPerVec;
+		}
 
         this.buffer.getDouble(index, array, 0, length);
 
@@ -190,8 +191,9 @@ public class VecBuffer
 
         int index = this.indexFromVectorPosition(position);
         int length = array.length;
-        if (length > this.coordsPerVec)
-            length = this.coordsPerVec;
+        if (length > this.coordsPerVec) {
+			length = this.coordsPerVec;
+		}
 
         this.buffer.getFloat(index, array, 0, length);
 
@@ -226,8 +228,9 @@ public class VecBuffer
 
         int index = this.indexFromVectorPosition(position);
         int length = array.length;
-        if (length > this.coordsPerVec)
-            length = this.coordsPerVec;
+        if (length > this.coordsPerVec) {
+			length = this.coordsPerVec;
+		}
 
         this.buffer.putDouble(index, array, 0, length);
     }
@@ -260,8 +263,9 @@ public class VecBuffer
 
         int index = this.indexFromVectorPosition(position);
         int length = array.length;
-        if (length > this.coordsPerVec)
-            length = this.coordsPerVec;
+        if (length > this.coordsPerVec) {
+			length = this.coordsPerVec;
+		}
 
         this.buffer.putFloat(index, array, 0, length);
     }
@@ -755,8 +759,9 @@ public class VecBuffer
         {
             this.put(pos, coords);
 
-            if (++pos >= this.getSize())
-                break;
+            if (++pos >= this.getSize()) {
+				break;
+			}
         }
     }
 
@@ -821,8 +826,9 @@ public class VecBuffer
         {
             this.putVector(pos, vec);
 
-            if (++pos >= this.getSize())
-                break;
+            if (++pos >= this.getSize()) {
+				break;
+			}
         }
     }
 
@@ -886,8 +892,9 @@ public class VecBuffer
         {
             this.putLocation(pos, ll);
 
-            if (++pos >= this.getSize())
-                break;
+            if (++pos >= this.getSize()) {
+				break;
+			}
         }
     }
 
@@ -951,8 +958,9 @@ public class VecBuffer
         {
             this.putPosition(pos, p);
 
-            if (++pos >= this.getSize())
-                break;
+            if (++pos >= this.getSize()) {
+				break;
+			}
         }
     }
 
@@ -1222,8 +1230,9 @@ public class VecBuffer
         public CoordAccessor(int minCoordsPerVec)
         {
             this.numCoords = coordsPerVec;
-            if (this.numCoords < minCoordsPerVec)
-                this.numCoords = minCoordsPerVec;
+            if (this.numCoords < minCoordsPerVec) {
+				this.numCoords = minCoordsPerVec;
+			}
         }
 
         @Override

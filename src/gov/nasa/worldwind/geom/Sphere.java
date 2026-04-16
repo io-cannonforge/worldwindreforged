@@ -153,8 +153,9 @@ public final class Sphere implements Extent, Renderable
         // Compute the mean center point of the specified extents.
         for (Extent e : extents)
         {
-            if (e == null)
-                continue;
+            if (e == null) {
+				continue;
+			}
 
             center = (center != null) ? e.getCenter().add3(center) : e.getCenter();
             count++;
@@ -162,8 +163,9 @@ public final class Sphere implements Extent, Renderable
 
         // If the accumulated center point is null, then the specified Iterable is empty or contains only null elements.
         // We cannot compute an enclosing extent, so just return null.
-        if (center == null)
-            return null;
+        if (center == null) {
+			return null;
+		}
 
         center = center.divide3(count);
 
@@ -171,12 +173,14 @@ public final class Sphere implements Extent, Renderable
         // the radius of the enclosing extent.
         for (Extent e : extents)
         {
-            if (e == null)
-                continue;
+            if (e == null) {
+				continue;
+			}
 
             double distance = e.getCenter().distanceTo3(center) + e.getRadius();
-            if (radius < distance)
-                radius = distance;
+            if (radius < distance) {
+				radius = distance;
+			}
         }
 
         return new Sphere(center, radius);
@@ -306,8 +310,9 @@ public final class Sphere implements Extent, Renderable
         double c = line.getOrigin().getLengthSquared3() - this.radius * this.radius;
 
         double discriminant = Sphere.discriminant(a, b, c);
-        if (discriminant < 0)
-            return null;
+        if (discriminant < 0) {
+			return null;
+		}
 
         double discriminantRoot = Math.sqrt(discriminant);
         if (discriminant == 0)
@@ -366,13 +371,13 @@ public final class Sphere implements Extent, Renderable
         Vec4 c = this.getCenter();
         double nr = -this.getRadius();
 
-        if ((frustum.getFar().dot(c) <= nr) || (frustum.getLeft().dot(c) <= nr) || (frustum.getRight().dot(c) <= nr) || (frustum.getTop().dot(c) <= nr))
-            return false;
-        if (frustum.getBottom().dot(c) <= nr)
-            return false;
+        if ((frustum.getFar().dot(c) <= nr) || (frustum.getLeft().dot(c) <= nr) || (frustum.getRight().dot(c) <= nr) || (frustum.getTop().dot(c) <= nr)) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (frustum.getNear().dot(c) <= nr)
-            return false;
+        if ((frustum.getBottom().dot(c) <= nr) || (frustum.getNear().dot(c) <= nr)) {
+			return false;
+		}
 
         return true;
     }
@@ -478,16 +483,19 @@ public final class Sphere implements Extent, Renderable
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final gov.nasa.worldwind.geom.Sphere sphere = (gov.nasa.worldwind.geom.Sphere) o;
 
         //noinspection RedundantIfStatement
-        if ((Double.compare(sphere.radius, radius) != 0) || !center.equals(sphere.center))
-            return false;
+        if ((Double.compare(sphere.radius, radius) != 0) || !center.equals(sphere.center)) {
+			return false;
+		}
 
         return true;
     }

@@ -189,34 +189,38 @@ public class Offset
         if (this.getX() != null)
         {
             String units = this.getXUnits();
-            if (AVKey.PIXELS.equals(units))
-                dx = this.getX();
-            else if (AVKey.INSET_PIXELS.equals(units))
-                dx = width - this.getX();
-            else if (AVKey.FRACTION.equals(units))
-                dx = (width * this.getX());
-            else
-                dx = this.getX(); // treat as pixels
+            if (AVKey.PIXELS.equals(units)) {
+				dx = this.getX();
+			} else if (AVKey.INSET_PIXELS.equals(units)) {
+				dx = width - this.getX();
+			} else if (AVKey.FRACTION.equals(units)) {
+				dx = (width * this.getX());
+			} else {
+				dx = this.getX(); // treat as pixels
+			}
         }
 
         if (this.getY() != null)
         {
             String units = this.getYUnits();
-            if (AVKey.PIXELS.equals(units))
-                dy = this.getY();
-            else if (AVKey.INSET_PIXELS.equals(units))
-                dy = height - this.getY();
-            else if (AVKey.FRACTION.equals(units))
-                dy = (height * this.getY());
-            else
-                dy = this.getY(); // treat as pixels
+            if (AVKey.PIXELS.equals(units)) {
+				dy = this.getY();
+			} else if (AVKey.INSET_PIXELS.equals(units)) {
+				dy = height - this.getY();
+			} else if (AVKey.FRACTION.equals(units)) {
+				dy = (height * this.getY());
+			} else {
+				dy = this.getY(); // treat as pixels
+			}
         }
 
-        if (xScale != null)
-            dx *= xScale;
+        if (xScale != null) {
+			dx *= xScale;
+		}
 
-        if (yScale != null)
-            dy *= yScale;
+        if (yScale != null) {
+			dy *= yScale;
+		}
 
         return new Point.Double(dx, dy);
     }
@@ -241,17 +245,21 @@ public class Offset
             throw new IllegalArgumentException(message);
         }
 
-        if (this.getX() != null)
-            restorableSupport.addStateValueAsDouble(context, "x", this.getX());
+        if (this.getX() != null) {
+			restorableSupport.addStateValueAsDouble(context, "x", this.getX());
+		}
 
-        if (this.getY() != null)
-            restorableSupport.addStateValueAsDouble(context, "y", this.getY());
+        if (this.getY() != null) {
+			restorableSupport.addStateValueAsDouble(context, "y", this.getY());
+		}
 
-        if (this.getXUnits() != null)
-            restorableSupport.addStateValueAsString(context, "xUnits", this.getXUnits());
+        if (this.getXUnits() != null) {
+			restorableSupport.addStateValueAsString(context, "xUnits", this.getXUnits());
+		}
 
-        if (this.getYUnits() != null)
-            restorableSupport.addStateValueAsString(context, "yUnits", this.getYUnits());
+        if (this.getYUnits() != null) {
+			restorableSupport.addStateValueAsString(context, "yUnits", this.getYUnits());
+		}
     }
 
     /**
@@ -274,36 +282,43 @@ public class Offset
         }
 
         Double d = restorableSupport.getStateValueAsDouble(context, "x");
-        if (d != null)
-            this.setX(d);
+        if (d != null) {
+			this.setX(d);
+		}
 
         d = restorableSupport.getStateValueAsDouble(context, "y");
-        if (d != null)
-            this.setY(d);
+        if (d != null) {
+			this.setY(d);
+		}
 
         String s = restorableSupport.getStateValueAsString(context, "xUnits");
-        if (s != null)
-            this.setXUnits(s);
+        if (s != null) {
+			this.setXUnits(s);
+		}
 
         s = restorableSupport.getStateValueAsString(context, "yUnits");
-        if (s != null)
-            this.setYUnits(s);
+        if (s != null) {
+			this.setYUnits(s);
+		}
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         Offset that = (Offset) o;
 
         //noinspection RedundantIfStatement
         if ((this.x != null ? !this.x.equals(that.x) : that.x != null) || (this.y != null ? !this.y.equals(that.y) : that.y != null) || (this.xUnits != null ? !this.xUnits.equals(that.xUnits) : that.xUnits != null)
-				|| (this.yUnits != null ? !this.yUnits.equals(that.yUnits) : that.yUnits != null))
-            return false;
+				|| (this.yUnits != null ? !this.yUnits.equals(that.yUnits) : that.yUnits != null)) {
+			return false;
+		}
 
         return true;
     }

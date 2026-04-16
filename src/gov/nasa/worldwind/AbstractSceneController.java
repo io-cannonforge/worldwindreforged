@@ -152,8 +152,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     @Override
     public void reinitialize()
     {
-        if (this.textRendererCache != null)
-            this.textRendererCache.dispose();
+        if (this.textRendererCache != null) {
+			this.textRendererCache.dispose();
+		}
         this.textRendererCache = new TextRendererCache();
     }
 
@@ -161,19 +162,23 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     @Override
     public void dispose()
     {
-        if (this.lastPickedObjects != null)
-            this.lastPickedObjects.clear();
+        if (this.lastPickedObjects != null) {
+			this.lastPickedObjects.clear();
+		}
         this.lastPickedObjects = null;
 
-        if (this.lastObjectsInPickRect != null)
-            this.lastObjectsInPickRect.clear();
+        if (this.lastObjectsInPickRect != null) {
+			this.lastObjectsInPickRect.clear();
+		}
         this.lastObjectsInPickRect = null;
 
-        if (this.dc != null)
-            this.dc.dispose();
+        if (this.dc != null) {
+			this.dc.dispose();
+		}
 
-        if (this.textRendererCache != null)
-            this.textRendererCache.dispose();
+        if (this.textRendererCache != null) {
+			this.textRendererCache.dispose();
+		}
     }
 
     @Override
@@ -208,10 +213,12 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     @Override
     public void setModel(Model model)
     {
-        if (this.model != null)
-            this.model.removePropertyChangeListener(this);
-        if (model != null)
-            model.addPropertyChangeListener(this);
+        if (this.model != null) {
+			this.model.removePropertyChangeListener(this);
+		}
+        if (model != null) {
+			model.addPropertyChangeListener(this);
+		}
 
         Model oldModel = this.model;
         this.model = model;
@@ -221,10 +228,12 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     @Override
     public void setView(View view)
     {
-        if (this.view != null)
-            this.view.removePropertyChangeListener(this);
-        if (view != null)
-            view.addPropertyChangeListener(this);
+        if (this.view != null) {
+			this.view.removePropertyChangeListener(this);
+		}
+        if (view != null) {
+			view.addPropertyChangeListener(this);
+		}
 
         View oldView = this.view;
         this.view = view;
@@ -251,8 +260,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     public void setPickPoint(Point pickPoint)
     {
         // seaglassfoundry.com: mark pick dirty when pick point changes
-        if (pickPoint != null && !pickPoint.equals(this.pickPoint))
-            this.pickDirty = true;
+        if (pickPoint != null && !pickPoint.equals(this.pickPoint)) {
+			this.pickDirty = true;
+		}
         this.pickPoint = pickPoint;
     }
 
@@ -268,8 +278,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     public void setPickRectangle(Rectangle pickRect)
     {
         // seaglassfoundry.com: mark pick dirty when pick rectangle changes
-        if (pickRect != null && !pickRect.equals(this.pickRect))
-            this.pickDirty = true;
+        if (pickRect != null && !pickRect.equals(this.pickRect)) {
+			this.pickDirty = true;
+		}
         this.pickRect = pickRect;
     }
 
@@ -339,13 +350,15 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     public void setPerFrameStatisticsKeys(Set<String> keys)
     {
         this.perFrameStatisticsKeys.clear();
-        if (keys == null)
-            return;
+        if (keys == null) {
+			return;
+		}
 
         for (String key : keys)
         {
-            if (key != null)
-                this.perFrameStatisticsKeys.add(key);
+            if (key != null) {
+				this.perFrameStatisticsKeys.add(key);
+			}
         }
     }
 
@@ -522,8 +535,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
             "Max Frame Time (ms)", (int) this.maxFrameTime);
 
         Set<String> perfKeys = dc.getPerFrameStatisticsKeys();
-        if (perfKeys == null)
-            return dc.getRedrawRequested();
+        if (perfKeys == null) {
+			return dc.getRedrawRequested();
+		}
 
         if (perfKeys.contains(PerformanceStatistic.MEMORY_CACHE) || perfKeys.contains(PerformanceStatistic.ALL))
         {
@@ -532,9 +546,10 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
 
         if (perfKeys.contains(PerformanceStatistic.TEXTURE_CACHE) || perfKeys.contains(PerformanceStatistic.ALL))
         {
-            if (dc.getTextureCache() != null)
-                this.dc.setPerFrameStatistic(PerformanceStatistic.TEXTURE_CACHE,
+            if (dc.getTextureCache() != null) {
+				this.dc.setPerFrameStatistic(PerformanceStatistic.TEXTURE_CACHE,
                     "Texture Cache size (Kb)", this.dc.getTextureCache().getUsedCapacity() / 1000);
+			}
         }
 
         if (perfKeys.contains(PerformanceStatistic.JVM_HEAP) || perfKeys.contains(PerformanceStatistic.ALL))
@@ -585,12 +600,14 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     protected Point getViewportCenter(DrawContext dc)
     {
         View view = dc.getView();
-        if (view == null)
-            return null;
+        if (view == null) {
+			return null;
+		}
 
         Rectangle viewport = view.getViewport();
-        if (viewport == null)
-            return null;
+        if (viewport == null) {
+			return null;
+		}
 
         return new Point((int) (viewport.getCenterX() + 0.5), (int) (viewport.getCenterY() + 0.5));
     }
@@ -643,10 +660,11 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
 
     protected void applyView(DrawContext dc)
     {
-        if (dc.getView() != null)
-            dc.getView().apply(dc);
+        if (dc.getView() != null) {
+			dc.getView().apply(dc);
 //
 //        this.resetGroupingFilters();
+		}
     }
 
     protected void createPickFrustum(DrawContext dc)
@@ -729,8 +747,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     {
         // Full pick needed when there's an active pick point (mouse hover/click)
         // Full pick needed when there's an active pick rectangle (drag selection)
-        if ((this.pickPoint != null) || (this.pickRect != null && !this.pickRect.isEmpty()))
-            return true;
+        if ((this.pickPoint != null) || (this.pickRect != null && !this.pickRect.isEmpty())) {
+			return true;
+		}
 
         return false;
     }
@@ -741,8 +760,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     protected void onPickCompleted(DrawContext dc)
     {
         this.pickDirty = false;
-        if (dc.getView() != null)
-            this.lastPickViewStateID = dc.getView().getViewStateID();
+        if (dc.getView() != null) {
+			this.lastPickViewStateID = dc.getView().getViewStateID();
+		}
     }
 
     /**
@@ -751,17 +771,20 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
      */
     protected void resolveViewportCenterPosition(DrawContext dc)
     {
-        if (dc.getViewportCenterScreenPoint() == null || dc.getViewportCenterPosition() != null || dc.getSurfaceGeometry() == null || dc.getSurfaceGeometry().size() == 0)
-            return;
+        if (dc.getViewportCenterScreenPoint() == null || dc.getViewportCenterPosition() != null || dc.getSurfaceGeometry() == null || dc.getSurfaceGeometry().size() == 0) {
+			return;
+		}
 
         View view = dc.getView();
-        if (view == null)
-            return;
+        if (view == null) {
+			return;
+		}
 
         Point vpc = dc.getViewportCenterScreenPoint();
         Line ray = view.computeRayFromScreenPoint(vpc.getX(), vpc.getY());
-        if (ray == null)
-            return;
+        if (ray == null) {
+			return;
+		}
 
         Intersection[] intersections = dc.getSurfaceGeometry().intersect(ray);
         if (intersections != null && intersections.length > 0)
@@ -778,28 +801,34 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
             && dc.getSurfaceGeometry().size() > 0)
         {
             this.pickPoints.clear();
-            if (dc.getPickPoint() != null)
-                this.pickPoints.add(dc.getPickPoint());
+            if (dc.getPickPoint() != null) {
+				this.pickPoints.add(dc.getPickPoint());
+			}
 
             Point vpc = dc.getViewportCenterScreenPoint();
-            if (vpc != null && dc.getViewportCenterPosition() == null)
-                this.pickPoints.add(vpc);
+            if (vpc != null && dc.getViewportCenterPosition() == null) {
+				this.pickPoints.add(vpc);
+			}
 
-            if (this.pickPoints.size() == 0)
-                return;
+            if (this.pickPoints.size() == 0) {
+				return;
+			}
 
             List<PickedObject> pickedObjects = dc.getSurfaceGeometry().pick(dc, this.pickPoints);
-            if (pickedObjects == null || pickedObjects.size() == 0)
-                return;
+            if (pickedObjects == null || pickedObjects.size() == 0) {
+				return;
+			}
 
             for (PickedObject po : pickedObjects)
             {
-                if (po == null)
-                    continue;
-                if (po.getPickPoint().equals(dc.getPickPoint()))
-                    dc.addPickedObject(po);
-                else if (po.getPickPoint().equals(vpc))
-                    dc.setViewportCenterPosition((Position) po.getObject());
+                if (po == null) {
+					continue;
+				}
+                if (po.getPickPoint().equals(dc.getPickPoint())) {
+					dc.addPickedObject(po);
+				} else if (po.getPickPoint().equals(vpc)) {
+					dc.setViewportCenterPosition((Position) po.getObject());
+				}
             }
         }
     }
@@ -834,12 +863,14 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     protected void resolveTopPick(DrawContext dc)
     {
         // Resolve the top object at the pick point, if the pick point is enabled.
-        if (dc.getPickPoint() != null)
-            this.doResolveTopPick(dc, dc.getPickPoint());
+        if (dc.getPickPoint() != null) {
+			this.doResolveTopPick(dc, dc.getPickPoint());
+		}
 
         // Resolve the top objects in the pick rectangle, if the pick rectangle is enabled.
-        if (dc.getPickRectangle() != null && !dc.getPickRectangle().isEmpty())
-            this.doResolveTopPick(dc, dc.getPickRectangle());
+        if (dc.getPickRectangle() != null && !dc.getPickRectangle().isEmpty()) {
+			this.doResolveTopPick(dc, dc.getPickRectangle());
+		}
     }
 
     protected void doResolveTopPick(DrawContext dc, Point pickPoint)
@@ -897,17 +928,19 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
                     // Keep track of the minimum and maximum color codes of the scene's picked objects. These values are
                     // used to cull the number of colors that the draw context must consider with identifying the unique
                     // pick colors in the specified screen rectangle.
-                    if (minAndMaxColorCodes == null)
-                        minAndMaxColorCodes = new int[]
+                    if (minAndMaxColorCodes == null) {
+						minAndMaxColorCodes = new int[]
                         {
                             colorCode, colorCode
                         };
-                    else
+					} else
                     {
-                        if (minAndMaxColorCodes[0] > colorCode)
-                            minAndMaxColorCodes[0] = colorCode;
-                        if (minAndMaxColorCodes[1] < colorCode)
-                            minAndMaxColorCodes[1] = colorCode;
+                        if (minAndMaxColorCodes[0] > colorCode) {
+							minAndMaxColorCodes[0] = colorCode;
+						}
+                        if (minAndMaxColorCodes[1] < colorCode) {
+							minAndMaxColorCodes[1] = colorCode;
+						}
                     }
                 }
 
@@ -922,8 +955,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
                         if (colorCode != 0) // This should never happen, but we check anyway.
                         {
                             PickedObject po = this.pickableObjects.get(colorCode);
-                            if (po != null)
-                                po.setOnTop();
+                            if (po != null) {
+								po.setOnTop();
+							}
                         }
                     }
                 }
@@ -949,8 +983,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
             this.pickTerrain(dc);
             this.doNonTerrainPick(dc);
 
-            if (this.isDeferOrderedRendering())
-                return;
+            if (this.isDeferOrderedRendering()) {
+				return;
+			}
 
             this.resolveTopPick(dc);
             this.lastPickedObjects = new PickedObjectList(dc.getPickedObjects());
@@ -977,8 +1012,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     protected void doNonTerrainPick(DrawContext dc)
     {
         // Don't do the pick if there's no current pick point and no current pick rectangle.
-        if (dc.getPickPoint() == null && (dc.getPickRectangle() == null || dc.getPickRectangle().isEmpty()))
-            return;
+        if (dc.getPickPoint() == null && (dc.getPickRectangle() == null || dc.getPickRectangle().isEmpty())) {
+			return;
+		}
 
         // Pick against the layers.
         this.pickLayers(dc);
@@ -986,12 +1022,14 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
         // Pick against the deferred/ordered surface renderables.
         this.pickOrderedSurfaceRenderables(dc);
 
-        if (this.isDeferOrderedRendering())
-            return;
+        if (this.isDeferOrderedRendering()) {
+			return;
+		}
 
         // Pick against the screen credits.
-        if (this.screenCreditController != null)
-            this.screenCreditController.pick(dc, dc.getPickPoint());
+        if (this.screenCreditController != null) {
+			this.screenCreditController.pick(dc, dc.getPickPoint());
+		}
 
         // Pick against the deferred/ordered renderables.
         dc.setOrderedRenderingMode(true);
@@ -1028,19 +1066,22 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
 
     protected PickedObjectList mergePickedObjectLists(PickedObjectList listA, PickedObjectList listB)
     {
-        if (listA == null || listB == null || !listA.hasNonTerrainObjects() || !listB.hasNonTerrainObjects())
-            return listA;
+        if (listA == null || listB == null || !listA.hasNonTerrainObjects() || !listB.hasNonTerrainObjects()) {
+			return listA;
+		}
 
         for (PickedObject pb : listB)
         {
-            if (pb.isTerrain())
-                continue;
+            if (pb.isTerrain()) {
+				continue;
+			}
 
             boolean common = false; // cannot modify listA within its iterator, so use a flag to indicate commonality
             for (PickedObject pa : listA)
             {
-                if (pa.isTerrain())
-                    continue;
+                if (pa.isTerrain()) {
+					continue;
+				}
 
                 if (pa.getObject() == pb.getObject())
                 {
@@ -1049,8 +1090,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
                 }
             }
 
-            if (!common)
-                listA.add(pb);
+            if (!common) {
+				listA.add(pb);
+			}
         }
 
         return listA;
@@ -1088,11 +1130,13 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
             // Draw the deferred/ordered surface renderables.
             this.drawOrderedSurfaceRenderables(dc);
 
-            if (this.isDeferOrderedRendering())
-                return;
+            if (this.isDeferOrderedRendering()) {
+				return;
+			}
 
-            if (this.screenCreditController != null)
-                this.screenCreditController.render(dc);
+            if (this.screenCreditController != null) {
+				this.screenCreditController.render(dc);
+			}
 
             // Draw the deferred/ordered renderables.
             dc.setOrderedRenderingMode(true);
@@ -1124,8 +1168,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
 
                 for (SectorGeometry sg : dc.getSurfaceGeometry())
                 {
-                    if (model.isShowWireframeInterior() || model.isShowWireframeExterior())
-                        sg.renderWireframe(dc, model.isShowWireframeInterior(), model.isShowWireframeExterior());
+                    if (model.isShowWireframeInterior() || model.isShowWireframeExterior()) {
+						sg.renderWireframe(dc, model.isShowWireframeInterior(), model.isShowWireframeExterior());
+					}
 
                     if (model.isShowTessellationBoundingVolumes())
                     {
@@ -1167,8 +1212,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     //**************************************************************//
     protected void preRenderOrderedSurfaceRenderables(DrawContext dc)
     {
-        if (dc.getOrderedSurfaceRenderables().isEmpty())
-            return;
+        if (dc.getOrderedSurfaceRenderables().isEmpty()) {
+			return;
+		}
 
         dc.setOrderedRenderingMode(true);
 
@@ -1183,8 +1229,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
             try
             {
                 OrderedRenderable or = dc.getOrderedSurfaceRenderables().poll();
-                if (or instanceof PreRenderable)
-                    ((PreRenderable) or).preRender(dc);
+                if (or instanceof PreRenderable) {
+					((PreRenderable) or).preRender(dc);
+				}
             }
             catch (Exception e)
             {
@@ -1192,8 +1239,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
                     Logging.getMessage("BasicSceneController.ExceptionDuringPreRendering"), e);
 
                 // Limit how many times we log a problem.
-                if (++logCount > Logging.getMaxMessageRepeatCount())
-                    break;
+                if (++logCount > Logging.getMaxMessageRepeatCount()) {
+					break;
+				}
             }
         }
 
@@ -1276,8 +1324,9 @@ public abstract class AbstractSceneController extends WWObjectImpl implements Sc
     protected void drawCompositeSurfaceObjects(DrawContext dc)
     {
         int tileCount = this.surfaceObjectTileBuilder.getTileCount(dc);
-        if (tileCount == 0)
-            return;
+        if (tileCount == 0) {
+			return;
+		}
 
         int attributeMask
             = GL.GL_COLOR_BUFFER_BIT // For alpha test enable, blend enable, alpha func, blend func, blend ref.

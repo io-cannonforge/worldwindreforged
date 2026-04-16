@@ -119,8 +119,9 @@ public class DTEDRasterReader extends AbstractDataRasterReader
         // This may be the first time the file has been opened, so pass the metadata list to the read method
         // in order to update that list with the file's metadata.
         DataRaster raster = DTED.read(file, params);
-        if (raster instanceof ByteBufferRaster)
-            ElevationsUtil.rectify((ByteBufferRaster) raster);
+        if (raster instanceof ByteBufferRaster) {
+			ElevationsUtil.rectify((ByteBufferRaster) raster);
+		}
 
         return new DataRaster[] {raster};
     }

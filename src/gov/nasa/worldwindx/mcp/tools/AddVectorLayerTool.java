@@ -65,9 +65,11 @@ public final class AddVectorLayerTool implements Tool {
         String displayName = arguments.path("name").asText(file.getName());
 
         // Parse GeoJSON.
-        GeoJSONDoc doc = new GeoJSONDoc(file);
-        doc.parse();
-        Object root = doc.getRootObject();
+        Object root;
+        try (GeoJSONDoc doc = new GeoJSONDoc(file)) {
+            doc.parse();
+            root = doc.getRootObject();
+        }
 
         if (!(root instanceof GeoJSONObject geoRoot)) {
             return ToolResult.error("Failed to parse GeoJSON from: " + file.getName());

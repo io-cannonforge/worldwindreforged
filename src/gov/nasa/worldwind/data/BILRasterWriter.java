@@ -146,12 +146,13 @@ public class BILRasterWriter extends AbstractDataRasterWriter
         Object dataType = values.getValue(AVKey.DATA_TYPE);
 
         int nBits = 0;
-        if (AVKey.INT8.equals(dataType))
-            nBits = 8;
-        else if (AVKey.INT16.equals(dataType))
-            nBits = 16;
-        else if (AVKey.INT32.equals(dataType) || AVKey.FLOAT32.equals(dataType))
-            nBits = 32;
+        if (AVKey.INT8.equals(dataType)) {
+			nBits = 8;
+		} else if (AVKey.INT16.equals(dataType)) {
+			nBits = 16;
+		} else if (AVKey.INT32.equals(dataType) || AVKey.FLOAT32.equals(dataType)) {
+			nBits = 32;
+		}
 
         int rowBytes = size[0] * (nBits / 8);
 
@@ -170,8 +171,9 @@ public class BILRasterWriter extends AbstractDataRasterWriter
             // This code expects the string "gov.nasa.worldwind.avkey.MissingDataValue", which now corresponds to the
             // key MISSING_DATA_REPLACEMENT.
             Object o = values.getValue(AVKey.MISSING_DATA_REPLACEMENT);
-            if (o != null)
-                out.append("NODATA         ").println(o);
+            if (o != null) {
+				out.append("NODATA         ").println(o);
+			}
         }
     }
 
@@ -192,21 +194,23 @@ public class BILRasterWriter extends AbstractDataRasterWriter
         worldFileParams.setValue(AVKey.DATA_TYPE, getDataType(byteBufferRaster.getBuffer()));
 
         double d = byteBufferRaster.getTransparentValue();
-        if (d != Double.MAX_VALUE)
-            worldFileParams.setValue(AVKey.MISSING_DATA_REPLACEMENT, d);
+        if (d != Double.MAX_VALUE) {
+			worldFileParams.setValue(AVKey.MISSING_DATA_REPLACEMENT, d);
+		}
     }
 
     private static Object getDataType(BufferWrapper buffer)
     {
         Object dataType = null;
-        if (buffer instanceof BufferWrapper.ByteBufferWrapper)
-            dataType = AVKey.INT8;
-        else if (buffer instanceof BufferWrapper.ShortBufferWrapper)
-            dataType = AVKey.INT16;
-        else if (buffer instanceof BufferWrapper.IntBufferWrapper)
-            dataType = AVKey.INT32;
-        else if (buffer instanceof BufferWrapper.FloatBufferWrapper)
-            dataType = AVKey.FLOAT32;
+        if (buffer instanceof BufferWrapper.ByteBufferWrapper) {
+			dataType = AVKey.INT8;
+		} else if (buffer instanceof BufferWrapper.ShortBufferWrapper) {
+			dataType = AVKey.INT16;
+		} else if (buffer instanceof BufferWrapper.IntBufferWrapper) {
+			dataType = AVKey.INT32;
+		} else if (buffer instanceof BufferWrapper.FloatBufferWrapper) {
+			dataType = AVKey.FLOAT32;
+		}
 
         return dataType;
     }
@@ -221,34 +225,40 @@ public class BILRasterWriter extends AbstractDataRasterWriter
         StringBuilder sb = new StringBuilder();
 
         Object o = worldFileParams.getValue(WorldFile.WORLD_FILE_IMAGE_SIZE);
-        if (o == null || !(o instanceof int[]))
-            sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSizeSpecified", dataSource));
+        if (o == null || !(o instanceof int[])) {
+			sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSizeSpecified", dataSource));
+		}
 
         o = worldFileParams.getValue(AVKey.SECTOR);
-        if (o == null || !(o instanceof Sector))
-            sb.append(sb.length() > 0 ? ", " : "").append(
+        if (o == null || !(o instanceof Sector)) {
+			sb.append(sb.length() > 0 ? ", " : "").append(
                 Logging.getMessage("WorldFile.NoSectorSpecified", dataSource));
+		}
 
         o = worldFileParams.getValue(AVKey.BYTE_ORDER);
-        if (o == null || !(o instanceof String))
-            sb.append(sb.length() > 0 ? ", " : "").append(
+        if (o == null || !(o instanceof String)) {
+			sb.append(sb.length() > 0 ? ", " : "").append(
                 Logging.getMessage("WorldFile.NoByteOrderSpecified", dataSource));
+		}
 
         o = worldFileParams.getValue(AVKey.PIXEL_FORMAT);
-        if (o == null)
-            sb.append(sb.length() > 0 ? ", " : "").append(
+        if (o == null) {
+			sb.append(sb.length() > 0 ? ", " : "").append(
                 Logging.getMessage("WorldFile.NoPixelFormatSpecified", dataSource));
-        else if (!AVKey.ELEVATION.equals(o))
-            sb.append(sb.length() > 0 ? ", " : "").append(
+		} else if (!AVKey.ELEVATION.equals(o)) {
+			sb.append(sb.length() > 0 ? ", " : "").append(
                 Logging.getMessage("WorldFile.InvalidPixelFormat", dataSource));
+		}
 
         o = worldFileParams.getValue(AVKey.DATA_TYPE);
-        if (o == null)
-            sb.append(sb.length() > 0 ? ", " : "").append(
+        if (o == null) {
+			sb.append(sb.length() > 0 ? ", " : "").append(
                 Logging.getMessage("WorldFile.NoDataTypeSpecified", dataSource));
+		}
 
-        if (sb.length() == 0)
-            return null;
+        if (sb.length() == 0) {
+			return null;
+		}
 
         return sb.toString();
     }

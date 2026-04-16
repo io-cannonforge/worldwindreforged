@@ -191,8 +191,9 @@ public class CompoundStringBuilder
         }
 
         int newCount = 1 + this.count;
-        if (newCount > this.capacity)
-            this.expandCapacity(newCount);
+        if (newCount > this.capacity) {
+			this.expandCapacity(newCount);
+		}
 
         int index = this.count;
         this.offsets[index] = this.buffer.length();

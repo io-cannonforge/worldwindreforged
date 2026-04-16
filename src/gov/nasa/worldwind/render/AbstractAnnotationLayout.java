@@ -118,8 +118,9 @@ public abstract class AbstractAnnotationLayout implements AnnotationLayoutManage
     {
         try
         {
-            if (this.pickSupport != null)
-                annotation.setPickSupport(this.pickSupport);
+            if (this.pickSupport != null) {
+				annotation.setPickSupport(this.pickSupport);
+			}
 
             annotation.draw(dc, width, height, opacity, pickPosition);
         }

@@ -79,8 +79,9 @@ public class ViewPropertyAccessor
         @Override
 		public final Angle getAngle()
         {
-            if (this.view == null)
-                return null;
+            if (this.view == null) {
+				return null;
+			}
 
             return this.view.getHeading();
         }
@@ -89,8 +90,9 @@ public class ViewPropertyAccessor
 		public final boolean setAngle(Angle value)
         {
             //noinspection SimplifiableIfStatement
-            if (this.view == null || value == null)
-                return false;
+            if (this.view == null || value == null) {
+				return false;
+			}
 
             try
             {
@@ -116,8 +118,9 @@ public class ViewPropertyAccessor
         @Override
 		public final Angle getAngle()
         {
-            if (this.view == null)
-                return null;
+            if (this.view == null) {
+				return null;
+			}
 
             return view.getPitch();
         }
@@ -126,8 +129,9 @@ public class ViewPropertyAccessor
 		public final boolean setAngle(Angle value)
         {
             //noinspection SimplifiableIfStatement
-            if (this.view == null || value == null)
-                return false;
+            if (this.view == null || value == null) {
+				return false;
+			}
 
             try
             {
@@ -153,8 +157,9 @@ public class ViewPropertyAccessor
         @Override
 		public final Angle getAngle()
         {
-            if (this.view == null)
-                return null;
+            if (this.view == null) {
+				return null;
+			}
 
             return view.getRoll();
         }
@@ -163,8 +168,9 @@ public class ViewPropertyAccessor
 		public final boolean setAngle(Angle value)
         {
             //noinspection SimplifiableIfStatement
-            if (this.view == null || value == null)
-                return false;
+            if (this.view == null || value == null) {
+				return false;
+			}
 
             try
             {
@@ -192,8 +198,9 @@ public class ViewPropertyAccessor
         @Override
 		public Position getPosition()
         {
-            if (this.view == null)
-                return null;
+            if (this.view == null) {
+				return null;
+			}
 
             return this.view.getEyePosition();
         }
@@ -202,8 +209,9 @@ public class ViewPropertyAccessor
 		public boolean setPosition(Position value)
         {
             //noinspection SimplifiableIfStatement
-            if (this.view == null || value == null)
-                return false;
+            if (this.view == null || value == null) {
+				return false;
+			}
 
             try
             {
@@ -230,8 +238,9 @@ public class ViewPropertyAccessor
         @Override
 		public Double getDouble()
         {
-            if (this.view == null)
-                return null;
+            if (this.view == null) {
+				return null;
+			}
 
             return this.view.getEyePosition().getElevation();
         }
@@ -240,8 +249,9 @@ public class ViewPropertyAccessor
 		public boolean setDouble(Double value)
         {
             //noinspection SimplifiableIfStatement
-            if (this.view == null || value == null)
-                return false;
+            if (this.view == null || value == null) {
+				return false;
+			}
 
             try
             {

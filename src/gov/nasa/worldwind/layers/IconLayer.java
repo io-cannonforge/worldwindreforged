@@ -123,8 +123,9 @@ public class IconLayer extends AbstractLayer
         for (WWIcon icon : icons)
         {
             // Internal list of icons does not accept null values.
-            if (icon != null)
-                this.icons.add(icon, icon.getPosition().asDegreesArray());
+            if (icon != null) {
+				this.icons.add(icon, icon.getPosition().asDegreesArray());
+			}
         }
     }
 
@@ -175,8 +176,9 @@ public class IconLayer extends AbstractLayer
 
     protected void clearIcons()
     {
-        if (this.icons != null)
-            this.icons.clear();
+        if (this.icons != null) {
+			this.icons.clear();
+		}
     }
 
     /**
@@ -189,11 +191,13 @@ public class IconLayer extends AbstractLayer
      */
     public Iterable<WWIcon> getIcons()
     {
-        if (this.iconsOverride != null)
-            return this.iconsOverride;
+        if (this.iconsOverride != null) {
+			return this.iconsOverride;
+		}
 
-        if (this.icons != null)
-            return this.icons;
+        if (this.icons != null) {
+			return this.icons;
+		}
 
         return Collections.emptyList();
     }
@@ -233,21 +237,25 @@ public class IconLayer extends AbstractLayer
      */
     protected Iterable<WWIcon> getActiveIcons(DrawContext dc)
     {
-        if (this.iconsOverride != null)
-            return this.iconsOverride;
+        if (this.iconsOverride != null) {
+			return this.iconsOverride;
+		}
 
         // Use the active icons computed in the pick pass.
         Set<WWIcon> lastActiveIcons = this.lastActiveIconsLists.get(dc.getGlobe().getGlobeStateKey());
         this.lastActiveIconsLists.remove(dc.getGlobe().getGlobeStateKey()); // remove it on re-use
-        if (lastActiveIcons != null && this.frameId == dc.getFrameTimeStamp())
-            return lastActiveIcons;
+        if (lastActiveIcons != null && this.frameId == dc.getFrameTimeStamp()) {
+			return lastActiveIcons;
+		}
 
-        if (!this.isRegionCulling())
-            return this.icons;
+        if (!this.isRegionCulling()) {
+			return this.icons;
+		}
 
         SectorGeometryList sgList = dc.getSurfaceGeometry();
-        if (sgList == null || sgList.size() == 0)
-            return Collections.emptyList();
+        if (sgList == null || sgList.size() == 0) {
+			return Collections.emptyList();
+		}
 
         lastActiveIcons = this.icons.getItemsInRegions(sgList, new HashSet<>());
         this.lastActiveIconsLists.put(dc.getGlobe().getGlobeStateKey(), lastActiveIcons);

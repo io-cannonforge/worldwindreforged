@@ -175,9 +175,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
                         String message = Logging.getMessage("generic.MissingRequiredParameter", key);
                         Logging.logger().finest(message);
                         throw new IllegalArgumentException(message);
-                    }
-                    else
-                        return false;
+                    } else {
+						return false;
+					}
                 }
             }
         }
@@ -189,8 +189,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
 	public int getWidth()
     {
         Object o = this.getValue(AVKey.WIDTH);
-        if (null != o && o instanceof Integer)
-            return (Integer) o;
+        if (null != o && o instanceof Integer) {
+			return (Integer) o;
+		}
         throw new WWRuntimeException(Logging.getMessage("generic.MissingRequiredParameter", AVKey.WIDTH));
     }
 
@@ -198,8 +199,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
 	public int getHeight()
     {
         Object o = this.getValue(AVKey.HEIGHT);
-        if (null != o && o instanceof Integer)
-            return (Integer) o;
+        if (null != o && o instanceof Integer) {
+			return (Integer) o;
+		}
         throw new WWRuntimeException(Logging.getMessage("generic.MissingRequiredParameter", AVKey.HEIGHT));
     }
 
@@ -207,8 +209,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
 	public Sector getSector()
     {
         Object o = this.getValue(AVKey.SECTOR);
-        if (null != o && o instanceof Sector)
-            return (Sector) o;
+        if (null != o && o instanceof Sector) {
+			return (Sector) o;
+		}
         throw new WWRuntimeException(Logging.getMessage("generic.MissingRequiredParameter", AVKey.SECTOR));
     }
 
@@ -247,8 +250,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
             DataRaster[] rasters = (this.rasterCache != null)
                 ? (DataRaster[]) this.rasterCache.getObject(this.dataSource) : null;
 
-            if (null != rasters)
-                return rasters;
+            if (null != rasters) {
+				return rasters;
+			}
 
             // prevent an attempt to re-read rasters which failed to load
             if (this.rasterCache == null || !this.rasterCache.contains(this.dataSource))
@@ -291,8 +295,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
                     {
                         long totalBytes = getSizeInBytes(rasters);
                         totalBytes = (memoryDelta > totalBytes) ? memoryDelta : totalBytes;
-                        if (totalBytes > 0L)
-                            this.rasterCache.add(this.dataSource, rasters, totalBytes);
+                        if (totalBytes > 0L) {
+							this.rasterCache.add(this.dataSource, rasters, totalBytes);
+						}
                     }
                 }
             }
@@ -382,8 +387,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
     @Override
 	public DataRaster getSubRaster(int width, int height, Sector sector, AVList params)
     {
-        if (null == params)
-            params = new AVListImpl();
+        if (null == params) {
+			params = new AVListImpl();
+		}
 
         params.setValue(AVKey.WIDTH, width);
         params.setValue(AVKey.HEIGHT, height);
@@ -394,10 +400,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
 
     protected void releaseMemory()
     {
-        if (this.rasterCache != null)
-            this.rasterCache.clear();
-
-        System.runFinalization();
+        if (this.rasterCache != null) {
+			this.rasterCache.clear();
+		}
 
         System.gc();
 
@@ -408,8 +413,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
     {
         StringBuilder sb = new StringBuilder();
 
-        if (null != this.dataSource)
-            sb.append(this.dataSource).append(" : ");
+        if (null != this.dataSource) {
+			sb.append(this.dataSource).append(" : ");
+		}
 
         sb.append(WWUtil.extractExceptionReason(t));
 
@@ -424,8 +430,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
         {
             for (DataRaster raster : rasters)
             {
-                if (raster != null && raster instanceof Cacheable)
-                    totalBytes += ((Cacheable) raster).getSizeInBytes();
+                if (raster != null && raster instanceof Cacheable) {
+					totalBytes += ((Cacheable) raster).getSizeInBytes();
+				}
             }
         }
 
@@ -455,8 +462,9 @@ public class CachedDataRaster extends AVListImpl implements DataRaster
         @Override
 		public void entryRemoved(Object key, Object clientObject)
         {
-            if (key != this.key)
-                return;
+            if (key != this.key) {
+				return;
+			}
 
             if (clientObject == null || !(clientObject instanceof DataRaster[]))
             {

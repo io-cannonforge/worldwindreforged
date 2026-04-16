@@ -178,8 +178,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
                 }
 
                 StoreLocation oldStore = this.storeLocationFor(path);
-                if (oldStore != null) // filter out duplicates
-                    continue;
+                if (oldStore != null) { // filter out duplicates
+					continue;
+				}
 
                 // Even paths that don't exist or are otherwise problematic are added to the list because they may
                 // become readable during the session. E.g., removable media. So add them to the search list.
@@ -196,8 +197,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
                 // If the input parameter "markWhenUsed" is null or empty, then the StoreLocation should keep its
                 // default value. Otherwise the store location value is set to true when the input parameter contains
                 // "t", and is set to false otherwise.
-                if (isMarkWhenUsed != null && isMarkWhenUsed.length() > 0)
-                    newStore.setMarkWhenUsed(isMarkWhenUsed.toLowerCase().contains("t"));
+                if (isMarkWhenUsed != null && isMarkWhenUsed.length() > 0) {
+					newStore.setMarkWhenUsed(isMarkWhenUsed.toLowerCase().contains("t"));
+				}
 
                 this.readLocations.add(newStore);
             }
@@ -252,8 +254,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
 
                     // Remove the writable location from search path if it already exists.
                     StoreLocation oldLocation = this.storeLocationFor(path);
-                    if (oldLocation != null)
-                        this.readLocations.remove(oldLocation);
+                    if (oldLocation != null) {
+						this.readLocations.remove(oldLocation);
+					}
 
                     // Writable location is always first in search path.
                     this.readLocations.add(0, this.writeLocation);
@@ -274,29 +277,35 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
     {
         String path = propertyToPath(property);
 
-        if (append != null && append.length() != 0)
-            path = WWIO.appendPathPart(path, append.trim());
+        if (append != null && append.length() != 0) {
+			path = WWIO.appendPathPart(path, append.trim());
+		}
 
-        if (wwDir != null && wwDir.length() != 0)
-            path = WWIO.appendPathPart(path, wwDir.trim());
+        if (wwDir != null && wwDir.length() != 0) {
+			path = WWIO.appendPathPart(path, wwDir.trim());
+		}
 
         return path;
     }
 
     protected static String propertyToPath(String propName)
     {
-        if (propName == null || propName.length() == 0)
-            return null;
+        if (propName == null || propName.length() == 0) {
+			return null;
+		}
 
         String prop = System.getProperty(propName);
-        if (prop != null)
-            return prop;
+        if (prop != null) {
+			return prop;
+		}
 
-        if (propName.equalsIgnoreCase("gov.nasa.worldwind.platform.alluser.store"))
-            return determineAllUserLocation();
+        if (propName.equalsIgnoreCase("gov.nasa.worldwind.platform.alluser.store")) {
+			return determineAllUserLocation();
+		}
 
-        if (propName.equalsIgnoreCase("gov.nasa.worldwind.platform.user.store"))
-            return determineSingleUserLocation();
+        if (propName.equalsIgnoreCase("gov.nasa.worldwind.platform.user.store")) {
+			return determineSingleUserLocation();
+		}
 
         return null;
     }
@@ -368,8 +377,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
             Logging.logger().fine("generic.UnknownOperatingSystem");
         }
 
-        if (path == null)
-            return null;
+        if (path == null) {
+			return null;
+		}
 
         return home + path;
     }
@@ -424,11 +434,13 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
         }
 
         StoreLocation oldLocation = this.storeLocationFor(newPath);
-        if (oldLocation != null)
-            this.readLocations.remove(oldLocation);
+        if (oldLocation != null) {
+			this.readLocations.remove(oldLocation);
+		}
 
-        if (index > 0 && index > this.readLocations.size())
-            index = this.readLocations.size();
+        if (index > 0 && index > this.readLocations.size()) {
+			index = this.readLocations.size();
+		}
         java.io.File newFile = new java.io.File(newPath);
         StoreLocation newLocation = new StoreLocation(newFile, isInstall);
         this.readLocations.add(index, newLocation);
@@ -446,8 +458,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
         }
 
         StoreLocation location = this.storeLocationFor(path);
-        if (location == null) // Path is not part of this FileStore.
-            return;
+        if (location == null) { // Path is not part of this FileStore.
+			return;
+		}
 
         if (location.equals(this.writeLocation))
         {
@@ -479,8 +492,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
 
         for (StoreLocation location : this.readLocations)
         {
-            if (file.equals(location.getFile()))
-                return location;
+            if (file.equals(location.getFile())) {
+				return location;
+			}
         }
 
         return null;
@@ -493,21 +507,24 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
     @Override
 	public boolean containsFile(String fileName)
     {
-        if (fileName == null)
-            return false;
+        if (fileName == null) {
+			return false;
+		}
 
         for (StoreLocation location : this.readLocations)
         {
             java.io.File dir = location.getFile();
             java.io.File file;
 
-            if (fileName.startsWith(dir.getAbsolutePath()))
-                file = new java.io.File(fileName);
-            else
-                file = makeAbsoluteFile(dir, fileName);
+            if (fileName.startsWith(dir.getAbsolutePath())) {
+				file = new java.io.File(fileName);
+			} else {
+				file = makeAbsoluteFile(dir, fileName);
+			}
 
-            if (file.exists())
-                return true;
+            if (file.exists()) {
+				return true;
+			}
         }
 
         return false;
@@ -535,8 +552,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
         if (checkClassPath)
         {
             java.net.URL url = this.getClass().getClassLoader().getResource(fileName);
-            if (url != null)
-                return url;
+            if (url != null) {
+				return url;
+			}
 
             // Check for a thread context class loader. This allows the file store to find resources in a case
             // in which different parts of the application are handled by different class loaders.
@@ -544,26 +562,29 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
             if (tccl != null)
             {
                 url = tccl.getResource(fileName);
-                if (url != null)
-                    return url;
+                if (url != null) {
+					return url;
+				}
             }
         }
 
         for (StoreLocation location : this.readLocations)
         {
             java.io.File dir = location.getFile();
-            if (!dir.exists())
-                continue;
+            if (!dir.exists()) {
+				continue;
+			}
 
             java.io.File file = new java.io.File(makeAbsolutePath(dir, fileName));
             if (file.exists())
             {
                 try
                 {
-                    if (location.isMarkWhenUsed())
-                        markFileUsed(file);
-                    else
-                        markFileUsed(file.getParentFile());
+                    if (location.isMarkWhenUsed()) {
+						markFileUsed(file);
+					} else {
+						markFileUsed(file.getParentFile());
+					}
 
                     return file.toURI().toURL();
                 }
@@ -580,20 +601,24 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
 
     protected static void markFileUsed(java.io.File file)
     {
-        if (file == null)
-            return;
+        if (file == null) {
+			return;
+		}
 
         long currentTime = System.currentTimeMillis();
 
-        if (file.canWrite())
-            file.setLastModified(currentTime);
+        if (file.canWrite()) {
+			file.setLastModified(currentTime);
+		}
 
-        if (file.isDirectory())
-            return;
+        if (file.isDirectory()) {
+			return;
+		}
 
         java.io.File parent = file.getParentFile();
-        if (parent != null && parent.canWrite())
-            parent.setLastModified(currentTime);
+        if (parent != null && parent.canWrite()) {
+			parent.setLastModified(currentTime);
+		}
     }
 
     /**
@@ -625,15 +650,16 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
             // fails, resulting in an erroneous log message: The log reports that the file cannot be created.
             synchronized (this.fileLock)
             {
-                if (file.getParentFile().exists())
-                    canCreateFile = true;
-                else if (file.getParentFile().mkdirs())
-                    canCreateFile = true;
+                if (file.getParentFile().exists()) {
+					canCreateFile = true;
+				} else if (file.getParentFile().mkdirs()) {
+					canCreateFile = true;
+				}
             }
 
-            if (canCreateFile)
-                return file;
-            else
+            if (canCreateFile) {
+				return file;
+			} else
             {
                 String msg = Logging.getMessage("generic.CannotCreateFile", fullPath);
                 Logging.logger().severe(msg);
@@ -673,8 +699,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
                     // Don't remove files outside the cache or temp directory.
                     String parent = file.getParent();
                     if (!(parent.startsWith(this.getWriteLocation().getPath())
-                        || parent.startsWith(Configuration.getSystemTempDirectory())))
-                        return;
+                        || parent.startsWith(Configuration.getSystemTempDirectory()))) {
+						return;
+					}
 
                     file.delete();
                 }
@@ -715,8 +742,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
         if (location != null)
         {
             String locationPath = location.getFile().getPath();
-            if (path.startsWith(locationPath))
-                path = path.substring(locationPath.length(), path.length());
+            if (path.startsWith(locationPath)) {
+				path = path.substring(locationPath.length(), path.length());
+			}
         }
 
         return path;
@@ -778,24 +806,28 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
             // If the path name is null, then just search from the root of each location. Otherwise search from the
             // named cache path.
             java.io.File dir = location.getFile();
-            if (pathName != null)
-                dir = new java.io.File(makeAbsolutePath(dir, pathName));
+            if (pathName != null) {
+				dir = new java.io.File(makeAbsolutePath(dir, pathName));
+			}
 
             // Either the location does not exists, or the speciifed path does not exist under that location. In either
             // case we skip searching this location.
-            if (!dir.exists())
-                continue;
+            if (!dir.exists()) {
+				continue;
+			}
 
             // Lazily initialize the list of file names. If no location contains the specified path, then the list is
             // not created, and this method will return null.
-            if (nameList == null)
-                nameList = new java.util.ArrayList<>();
+            if (nameList == null) {
+				nameList = new java.util.ArrayList<>();
+			}
 
             this.doListFileNames(location, dir, filter, recurse, exitBranchOnFirstMatch, nameList);
         }
 
-        if (nameList == null)
-            return null;
+        if (nameList == null) {
+			return null;
+		}
 
         String[] names = new String[nameList.size()];
         nameList.toArray(names);
@@ -813,8 +845,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
         // effect of choosing files closest to the search root.
         for (java.io.File childFile : dir.listFiles())
         {
-            if (childFile == null)
-                continue;
+            if (childFile == null) {
+				continue;
+			}
 
             if (childFile.isDirectory())
             {
@@ -822,13 +855,15 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
             }
             else
             {
-                if (this.listFile(location, childFile, filter, names) && exitBranchOnFirstMatch)
-                    return;
+                if (this.listFile(location, childFile, filter, names) && exitBranchOnFirstMatch) {
+					return;
+				}
             }
         }
 
-        if (!recurse)
-            return;
+        if (!recurse) {
+			return;
+		}
 
         // Recursively search each sub-directory. If exitBranchOnFirstMatch is true, then we did not find a match under
         // this directory.
@@ -842,8 +877,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
         java.util.Collection<String> names)
     {
         String fileName = storePathForFile(location, file);
-        if (fileName == null)
-            return false;
+        if (fileName == null) {
+			return false;
+		}
 
         String normalizedName = normalizeFileStoreName(fileName);
         return this.listFileName(location, normalizedName, filter, names);
@@ -853,8 +889,9 @@ public abstract class AbstractFileStore extends WWObjectImpl implements FileStor
     protected boolean listFileName(StoreLocation location, String fileName, FileStoreFilter filter,
         java.util.Collection<String> names)
     {
-        if (!filter.accept(this, fileName))
-            return false;
+        if (!filter.accept(this, fileName)) {
+			return false;
+		}
 
         names.add(fileName);
         return true;

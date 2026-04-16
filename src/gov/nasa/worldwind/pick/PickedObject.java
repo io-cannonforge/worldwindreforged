@@ -141,16 +141,19 @@ public class PickedObject extends AVListImpl
     @Override
 	public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         PickedObject that = (PickedObject) o;
 
         //noinspection RedundantIfStatement
-        if ((colorCode != that.colorCode) || (isOnTop != that.isOnTop) || (userObject != null ? !userObject.equals(that.userObject) : that.userObject != null))
-            return false;
+        if ((colorCode != that.colorCode) || (isOnTop != that.isOnTop) || (userObject != null ? !userObject.equals(that.userObject) : that.userObject != null)) {
+			return false;
+		}
 
         return true;
     }

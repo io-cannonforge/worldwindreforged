@@ -172,8 +172,9 @@ public class PatternFactory {
         // Background
         g2.setPaint(backColor);
         g2.fillRect(0, 0, size.width, size.height);
-        if (scale <= 0)
-            return image;
+        if (scale <= 0) {
+			return image;
+		}
 
         // Pattern
         g2.setPaint(lineColor);
@@ -285,8 +286,9 @@ public class PatternFactory {
         int size = kernelSize * kernelSize;
         float value = 1f / size;
         float[] matrix = new float[size];
-        for (int i = 0; i < size; i++)
-            matrix[i] = value;
+        for (int i = 0; i < size; i++) {
+			matrix[i] = value;
+		}
         BufferedImage destImage = new BufferedImage(sourceImage.getWidth(),  sourceImage.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
         BufferedImageOp op = new ConvolveOp( new Kernel(kernelSize, kernelSize, matrix) );
         op.filter(sourceImage, destImage);

@@ -119,11 +119,13 @@ public class StarsLayer extends RenderableLayer
      */
     protected void initialize(String starsFileName, Double radius)
     {
-        if (starsFileName != null)
-            this.setStarsFileName(starsFileName);
+        if (starsFileName != null) {
+			this.setStarsFileName(starsFileName);
+		}
 
-        if (radius != null)
-            this.radius = radius;
+        if (radius != null) {
+			this.radius = radius;
+		}
 
         this.setPickEnabled(false);
 
@@ -219,8 +221,9 @@ public class StarsLayer extends RenderableLayer
     @Override
     public void doRender(DrawContext dc)
     {
-        if (dc.is2DGlobe())
-            return; // Layer doesn't make sense in 2D
+        if (dc.is2DGlobe()) {
+			return; // Layer doesn't make sense in 2D
+		}
 
         // Load or reload stars if not previously loaded
         if (this.starsBuffer == null || this.rebuild)
@@ -230,13 +233,15 @@ public class StarsLayer extends RenderableLayer
         }
 
         // Still no stars to render ?
-        if (this.starsBuffer == null)
-            return;
+        if (this.starsBuffer == null) {
+			return;
+		}
 
         // Exit if the viewport is not visible, in which case rendering results in exceptions.
         View view = dc.getView();
-        if (view.getViewport().getWidth() == 0 || view.getViewport().getHeight() == 0)
-            return;
+        if (view.getViewport().getWidth() == 0 || view.getViewport().getHeight() == 0) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         OGLStackHandler ogsh = new OGLStackHandler();
@@ -267,8 +272,9 @@ public class StarsLayer extends RenderableLayer
 
             if (dc.getGLRuntimeCapabilities().isUseVertexBufferObject())
             {
-                if (!this.drawWithVBO(dc))
-                    this.drawWithVertexArray(dc);
+                if (!this.drawWithVBO(dc)) {
+					this.drawWithVertexArray(dc);
+				}
             }
             else
             {
@@ -297,8 +303,9 @@ public class StarsLayer extends RenderableLayer
         {
             this.fillVbo(dc);
             vboId = (int[]) dc.getGpuResourceCache().get(this.vboCacheKey);
-            if (vboId == null)
-                return false;
+            if (vboId == null) {
+				return false;
+			}
         }
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
@@ -378,10 +385,11 @@ public class StarsLayer extends RenderableLayer
         }
 
         //Grab the radius from the first value in the buffer
-        if (this.radius == null)
-            this.radius = (double) byteBuffer.getFloat();
-        else
-            byteBuffer.getFloat(); // skip over it
+        if (this.radius == null) {
+			this.radius = (double) byteBuffer.getFloat();
+		} else {
+			byteBuffer.getFloat(); // skip over it
+		}
 
         //View the rest of the ByteBuffer as a FloatBuffer
         this.starsBuffer = byteBuffer.asFloatBuffer();

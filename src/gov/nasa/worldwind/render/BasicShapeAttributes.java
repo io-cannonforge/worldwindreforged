@@ -453,8 +453,9 @@ public class BasicShapeAttributes implements ShapeAttributes
 
         rs.addStateValueAsInteger(so, "outlineStipplePattern", this.getOutlineStipplePattern());
 
-        if (this.getImageSource() != null && this.getImageSource() instanceof String)
-            rs.addStateValueAsString(so, "interiorImagePath", (String) this.getImageSource());
+        if (this.getImageSource() != null && this.getImageSource() instanceof String) {
+			rs.addStateValueAsString(so, "interiorImagePath", (String) this.getImageSource());
+		}
 
         rs.addStateValueAsDouble(so, "interiorImageScale", this.getImageScale());
     }
@@ -471,93 +472,110 @@ public class BasicShapeAttributes implements ShapeAttributes
         }
 
         Boolean b = rs.getStateValueAsBoolean(so, "drawInterior");
-        if (b != null)
-            this.setDrawInterior(b);
+        if (b != null) {
+			this.setDrawInterior(b);
+		}
 
         b = rs.getStateValueAsBoolean(so, "drawOutline");
-        if (b != null)
-            this.setDrawOutline(b);
+        if (b != null) {
+			this.setDrawOutline(b);
+		}
 
         b = rs.getStateValueAsBoolean(so, "enableAntialiasing");
-        if (b != null)
-            this.setEnableAntialiasing(b);
+        if (b != null) {
+			this.setEnableAntialiasing(b);
+		}
 
         b = rs.getStateValueAsBoolean(so, "enableLighting");
-        if (b != null)
-            this.setEnableLighting(b);
+        if (b != null) {
+			this.setEnableLighting(b);
+		}
 
         RestorableSupport.StateObject mo = rs.getStateObject(so, "interiorMaterial");
-        if (mo != null)
-            this.setInteriorMaterial(this.getInteriorMaterial().restoreState(rs, mo));
+        if (mo != null) {
+			this.setInteriorMaterial(this.getInteriorMaterial().restoreState(rs, mo));
+		}
 
         mo = rs.getStateObject(so, "outlineMaterial");
-        if (mo != null)
-            this.setOutlineMaterial(this.getOutlineMaterial().restoreState(rs, mo));
+        if (mo != null) {
+			this.setOutlineMaterial(this.getOutlineMaterial().restoreState(rs, mo));
+		}
 
         Double d = rs.getStateValueAsDouble(so, "interiorOpacity");
-        if (d != null)
-            this.setInteriorOpacity(d);
+        if (d != null) {
+			this.setInteriorOpacity(d);
+		}
 
         d = rs.getStateValueAsDouble(so, "outlineOpacity");
-        if (d != null)
-            this.setOutlineOpacity(d);
+        if (d != null) {
+			this.setOutlineOpacity(d);
+		}
 
         d = rs.getStateValueAsDouble(so, "outlineWidth");
-        if (d != null)
-            this.setOutlineWidth(d);
+        if (d != null) {
+			this.setOutlineWidth(d);
+		}
 
         Integer i = rs.getStateValueAsInteger(so, "outlineStippleFactor");
-        if (i != null)
-            this.setOutlineStippleFactor(i);
+        if (i != null) {
+			this.setOutlineStippleFactor(i);
+		}
 
         i = rs.getStateValueAsInteger(so, "outlineStipplePattern");
-        if (i != null)
-            this.setOutlineStipplePattern(i.shortValue());
+        if (i != null) {
+			this.setOutlineStipplePattern(i.shortValue());
+		}
 
         String s = rs.getStateValueAsString(so, "interiorImagePath");
-        if (s != null)
-            this.setImageSource(s);
+        if (s != null) {
+			this.setImageSource(s);
+		}
 
         d = rs.getStateValueAsDouble(so, "interiorImageScale");
-        if (d != null)
-            this.setImageScale(d);
+        if (d != null) {
+			this.setImageScale(d);
+		}
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || this.getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || this.getClass() != o.getClass()) {
+			return false;
+		}
 
         BasicShapeAttributes that = (BasicShapeAttributes) o;
 
-        if ((this.unresolved != that.unresolved) || (this.drawInterior != that.drawInterior) || (this.drawOutline != that.drawOutline) || (this.enableAntialiasing != that.enableAntialiasing))
-            return false;
-        if (this.enableLighting != that.enableLighting)
-            return false;
-        if (this.interiorMaterial != null ? !this.interiorMaterial.equals(that.interiorMaterial)
-            : that.interiorMaterial != null)
-            return false;
-        if (this.outlineMaterial != null ? !this.outlineMaterial.equals(that.outlineMaterial)
-            : that.outlineMaterial != null)
-            return false;
-        if (Double.compare(this.interiorOpacity, that.interiorOpacity) != 0)
-            return false;
-        if (Double.compare(this.outlineOpacity, that.outlineOpacity) != 0)
-            return false;
-        if (Double.compare(this.outlineWidth, that.outlineWidth) != 0)
-            return false;
-        if (this.outlineStippleFactor != that.outlineStippleFactor)
-            return false;
-        if (this.outlineStipplePattern != that.outlineStipplePattern)
-            return false;
-        if (this.imageSource != null ? !this.imageSource.equals(that.imageSource) : that.imageSource != null)
-            return false;
+        if ((this.unresolved != that.unresolved) || (this.drawInterior != that.drawInterior) || (this.drawOutline != that.drawOutline) || (this.enableAntialiasing != that.enableAntialiasing)) {
+			return false;
+		}
+        if ((this.enableLighting != that.enableLighting) || (this.interiorMaterial != null ? !this.interiorMaterial.equals(that.interiorMaterial)
+            : that.interiorMaterial != null) || (this.outlineMaterial != null ? !this.outlineMaterial.equals(that.outlineMaterial)
+            : that.outlineMaterial != null) || (Double.compare(this.interiorOpacity, that.interiorOpacity) != 0)) {
+			return false;
+		}
+        if (Double.compare(this.outlineOpacity, that.outlineOpacity) != 0) {
+			return false;
+		}
+        if (Double.compare(this.outlineWidth, that.outlineWidth) != 0) {
+			return false;
+		}
+        if (this.outlineStippleFactor != that.outlineStippleFactor) {
+			return false;
+		}
+        if (this.outlineStipplePattern != that.outlineStipplePattern) {
+			return false;
+		}
+        if (this.imageSource != null ? !this.imageSource.equals(that.imageSource) : that.imageSource != null) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (Double.compare(this.imageScale, that.imageScale) != 0)
-            return false;
+        if (Double.compare(this.imageScale, that.imageScale) != 0) {
+			return false;
+		}
 
         return true;
     }
@@ -594,10 +612,11 @@ public class BasicShapeAttributes implements ShapeAttributes
     @Override
 	public String isExportFormatSupported(String mimeType)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(mimeType))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(mimeType)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     /** {@inheritDoc} */
@@ -728,7 +747,8 @@ public class BasicShapeAttributes implements ShapeAttributes
         xmlWriter.writeEndElement(); // Style
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

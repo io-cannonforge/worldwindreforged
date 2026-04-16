@@ -894,8 +894,9 @@ public class AnnotationAttributes implements Restorable
     {
         RestorableSupport restorableSupport = RestorableSupport.newRestorableSupport();
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         // Save application set attributes to the document root.
         saveAttributes(this, restorableSupport, null);
@@ -957,8 +958,9 @@ public class AnnotationAttributes implements Restorable
             AnnotationAttributes newDefaultAttributes = this.defaultAttributes;
             // We do not want to write to the static member "defaults". So if this AnnotationAttributes' does not
             // have it's own defaultAttributes instance, we create one for it
-            if (newDefaultAttributes == AnnotationAttributes.defaults)
-                newDefaultAttributes = new AnnotationAttributes();
+            if (newDefaultAttributes == AnnotationAttributes.defaults) {
+				newDefaultAttributes = new AnnotationAttributes();
+			}
             restoreAttributes(restorableSupport, defaultAttributesStateObj, newDefaultAttributes);
             setDefaults(newDefaultAttributes);
         }
@@ -980,16 +982,19 @@ public class AnnotationAttributes implements Restorable
         RestorableSupport restorableSupport,
         RestorableSupport.StateObject context)
     {
-        if (source == null || restorableSupport == null)
-            throw new IllegalArgumentException();
+        if (source == null || restorableSupport == null) {
+			throw new IllegalArgumentException();
+		}
 
-        if (source.frameShape != null)
-            restorableSupport.addStateValueAsString(context, "frameShape", source.frameShape);
+        if (source.frameShape != null) {
+			restorableSupport.addStateValueAsString(context, "frameShape", source.frameShape);
+		}
 
         restorableSupport.addStateValueAsBoolean(context, "highlighted", source.isHighlighted);
 
-        if (source.highlightScale >= 0)
-            restorableSupport.addStateValueAsDouble(context, "highlightScale", source.highlightScale);
+        if (source.highlightScale >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "highlightScale", source.highlightScale);
+		}
 
         if (source.size != null)
         {
@@ -1001,23 +1006,29 @@ public class AnnotationAttributes implements Restorable
             }
         }
 
-        if (source.scale >= 0)
-            restorableSupport.addStateValueAsDouble(context, "scale", source.scale);
+        if (source.scale >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "scale", source.scale);
+		}
 
-        if (source.opacity >= 0)
-            restorableSupport.addStateValueAsDouble(context, "opacity", source.opacity);
+        if (source.opacity >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "opacity", source.opacity);
+		}
 
-        if (source.leader != null)
-            restorableSupport.addStateValueAsString(context, "leader", source.leader);
+        if (source.leader != null) {
+			restorableSupport.addStateValueAsString(context, "leader", source.leader);
+		}
 
-        if (source.leaderGapWidth >= 0)
-            restorableSupport.addStateValueAsInteger(context, "leaderGapWidth", source.leaderGapWidth);
+        if (source.leaderGapWidth >= 0) {
+			restorableSupport.addStateValueAsInteger(context, "leaderGapWidth", source.leaderGapWidth);
+		}
 
-        if (source.cornerRadius >= 0)
-            restorableSupport.addStateValueAsInteger(context, "cornerRadius", source.cornerRadius);
+        if (source.cornerRadius >= 0) {
+			restorableSupport.addStateValueAsInteger(context, "cornerRadius", source.cornerRadius);
+		}
 
-        if (source.adjustWidthToText != null)
-            restorableSupport.addStateValueAsString(context, "adjustWidthToText", source.adjustWidthToText);
+        if (source.adjustWidthToText != null) {
+			restorableSupport.addStateValueAsString(context, "adjustWidthToText", source.adjustWidthToText);
+		}
 
         if (source.drawOffset != null)
         {
@@ -1041,17 +1052,21 @@ public class AnnotationAttributes implements Restorable
             }
         }
 
-        if (source.borderWidth >= 0)
-            restorableSupport.addStateValueAsDouble(context, "borderWidth", source.borderWidth);
+        if (source.borderWidth >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "borderWidth", source.borderWidth);
+		}
 
-        if (source.borderStippleFactor >= 0)
-            restorableSupport.addStateValueAsInteger(context, "borderStippleFactor", source.borderStippleFactor);
+        if (source.borderStippleFactor >= 0) {
+			restorableSupport.addStateValueAsInteger(context, "borderStippleFactor", source.borderStippleFactor);
+		}
 
-        if (source.borderStipplePattern != (short) 0x0000)
-            restorableSupport.addStateValueAsInteger(context, "borderStipplePattern", source.borderStipplePattern);
+        if (source.borderStipplePattern != (short) 0x0000) {
+			restorableSupport.addStateValueAsInteger(context, "borderStipplePattern", source.borderStipplePattern);
+		}
 
-        if (source.antiAliasHint >= 0)
-            restorableSupport.addStateValueAsInteger(context, "antiAliasHint", source.antiAliasHint);
+        if (source.antiAliasHint >= 0) {
+			restorableSupport.addStateValueAsInteger(context, "antiAliasHint", source.antiAliasHint);
+		}
 
         restorableSupport.addStateValueAsBoolean(context, "visible", source.isVisible);
 
@@ -1068,38 +1083,44 @@ public class AnnotationAttributes implements Restorable
             }
         }
 
-        if (source.textAlign != null)
-            restorableSupport.addStateValueAsString(context, "textAlign", source.textAlign);
+        if (source.textAlign != null) {
+			restorableSupport.addStateValueAsString(context, "textAlign", source.textAlign);
+		}
 
         if (source.textColor != null)
         {
             String encodedColor = RestorableSupport.encodeColor(source.textColor);
-            if (encodedColor != null)
-                restorableSupport.addStateValueAsString(context, "textColor", encodedColor);
+            if (encodedColor != null) {
+				restorableSupport.addStateValueAsString(context, "textColor", encodedColor);
+			}
         }
 
         if (source.backgroundColor != null)
         {
             String encodedColor = RestorableSupport.encodeColor(source.backgroundColor);
-            if (encodedColor != null)
-                restorableSupport.addStateValueAsString(context, "backgroundColor", encodedColor);
+            if (encodedColor != null) {
+				restorableSupport.addStateValueAsString(context, "backgroundColor", encodedColor);
+			}
         }
 
         if (source.borderColor != null)
         {
             String encodedColor = RestorableSupport.encodeColor(source.borderColor);
-            if (encodedColor != null)
-                restorableSupport.addStateValueAsString(context, "borderColor", encodedColor);
+            if (encodedColor != null) {
+				restorableSupport.addStateValueAsString(context, "borderColor", encodedColor);
+			}
         }
 
         // Save the imagePath property only when the imageSource property is a simple String path. If the imageSource
         // property is a BufferedImage (or some other object), we make no effort to save that state. We save under
         // the name "imagePath" to denote that it is a special case of "imageSource".
-        if (source.getPath() != null)
-            restorableSupport.addStateValueAsString(context, "imagePath", source.getPath(), true);
+        if (source.getPath() != null) {
+			restorableSupport.addStateValueAsString(context, "imagePath", source.getPath(), true);
+		}
 
-        if (source.imageScale >= 0)
-            restorableSupport.addStateValueAsDouble(context, "imageScale", source.imageScale);
+        if (source.imageScale >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "imageScale", source.imageScale);
+		}
 
         if (source.imageOffset != null)
         {
@@ -1112,23 +1133,29 @@ public class AnnotationAttributes implements Restorable
             }
         }
 
-        if (source.imageOpacity >= 0)
-            restorableSupport.addStateValueAsDouble(context, "imageOpacity", source.imageOpacity);
+        if (source.imageOpacity >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "imageOpacity", source.imageOpacity);
+		}
 
-        if (source.imageRepeat != null)
-            restorableSupport.addStateValueAsString(context, "imageRepeat", source.imageRepeat);
+        if (source.imageRepeat != null) {
+			restorableSupport.addStateValueAsString(context, "imageRepeat", source.imageRepeat);
+		}
 
-        if (source.distanceMinScale >= 0)
-            restorableSupport.addStateValueAsDouble(context, "distanceMinScale", source.distanceMinScale);
+        if (source.distanceMinScale >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "distanceMinScale", source.distanceMinScale);
+		}
 
-        if (source.distanceMaxScale >= 0)
-            restorableSupport.addStateValueAsDouble(context, "distanceMaxScale", source.distanceMaxScale);
+        if (source.distanceMaxScale >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "distanceMaxScale", source.distanceMaxScale);
+		}
 
-        if (source.distanceMinOpacity >= 0)
-            restorableSupport.addStateValueAsDouble(context, "distanceMinOpacity", source.distanceMinOpacity);
+        if (source.distanceMinOpacity >= 0) {
+			restorableSupport.addStateValueAsDouble(context, "distanceMinOpacity", source.distanceMinOpacity);
+		}
 
-        if (source.effect != null)
-            restorableSupport.addStateValueAsString(context, "effect", source.effect);
+        if (source.effect != null) {
+			restorableSupport.addStateValueAsString(context, "effect", source.effect);
+		}
     }
 
     /**
@@ -1160,27 +1187,31 @@ public class AnnotationAttributes implements Restorable
         legacySupport.put("Render.FrameFactory.LeaderTriangle", AVKey.SHAPE_TRIANGLE);
         legacySupport.put("Render.FrameFactory.LeaderNone", AVKey.SHAPE_NONE);
 
-        if (restorableSupport == null || dest == null)
-            throw new IllegalArgumentException();
+        if (restorableSupport == null || dest == null) {
+			throw new IllegalArgumentException();
+		}
 
         String frameShapeState = restorableSupport.getStateValueAsString(context, "frameShape");
         if (frameShapeState != null)
         {
             // Map legacy versions using FrameFactory frame shape constants to the new AVKey constants.
             String updatedValue = legacySupport.get(frameShapeState);
-            if (updatedValue != null)
-                frameShapeState = updatedValue;
+            if (updatedValue != null) {
+				frameShapeState = updatedValue;
+			}
 
             dest.setFrameShape(frameShapeState);
         }
 
         Boolean highlightedState = restorableSupport.getStateValueAsBoolean(context, "highlighted");
-        if (highlightedState != null)
-            dest.setHighlighted(highlightedState);
+        if (highlightedState != null) {
+			dest.setHighlighted(highlightedState);
+		}
 
         Double highlightScaleState = restorableSupport.getStateValueAsDouble(context, "highlightScale");
-        if (highlightScaleState != null)
-            dest.setHighlightScale(highlightScaleState);
+        if (highlightScaleState != null) {
+			dest.setHighlightScale(highlightScaleState);
+		}
 
         // Restore the size property only if all parts are available.
         // We will not restore a partial size (for example, just the width).
@@ -1189,44 +1220,51 @@ public class AnnotationAttributes implements Restorable
         {
             Double widthState = restorableSupport.getStateValueAsDouble(sizeStateObj, "width");
             Double heightState = restorableSupport.getStateValueAsDouble(sizeStateObj, "height");
-            if (widthState != null && heightState != null)
-                dest.setSize(new Dimension(widthState.intValue(), heightState.intValue()));
+            if (widthState != null && heightState != null) {
+				dest.setSize(new Dimension(widthState.intValue(), heightState.intValue()));
+			}
         }
 
         Double scaleState = restorableSupport.getStateValueAsDouble(context, "scale");
-        if (scaleState != null)
-            dest.setScale(scaleState);
+        if (scaleState != null) {
+			dest.setScale(scaleState);
+		}
 
         Double opacityState = restorableSupport.getStateValueAsDouble(context, "opacity");
-        if (opacityState != null)
-            dest.setOpacity(opacityState);
+        if (opacityState != null) {
+			dest.setOpacity(opacityState);
+		}
 
         String leaderState = restorableSupport.getStateValueAsString(context, "leader");
         if (leaderState != null)
         {
             // Map legacy versions using FrameFactory leader shape constants to the new AVKey constants.
             String updatedValue = legacySupport.get(leaderState);
-            if (updatedValue != null)
-                leaderState = updatedValue;
+            if (updatedValue != null) {
+				leaderState = updatedValue;
+			}
 
             dest.setLeader(leaderState);
         }
 
         Integer leaderGapWidthState = restorableSupport.getStateValueAsInteger(context, "leaderGapWidth");
-        if (leaderGapWidthState != null)
-            dest.setLeaderGapWidth(leaderGapWidthState);
+        if (leaderGapWidthState != null) {
+			dest.setLeaderGapWidth(leaderGapWidthState);
+		}
 
         Integer cornerRadiusState = restorableSupport.getStateValueAsInteger(context, "cornerRadius");
-        if (cornerRadiusState != null)
-            dest.setCornerRadius(cornerRadiusState);
+        if (cornerRadiusState != null) {
+			dest.setCornerRadius(cornerRadiusState);
+		}
 
         String adjustWidthToTextState = restorableSupport.getStateValueAsString(context, "adjustWidthToText");
         if (adjustWidthToTextState != null)
         {
             // Map legacy versions using Annotation size constants to the new AVKey constants.
             String updatedValue = legacySupport.get(adjustWidthToTextState);
-            if (updatedValue != null)
-                adjustWidthToTextState = updatedValue;
+            if (updatedValue != null) {
+				adjustWidthToTextState = updatedValue;
+			}
 
             dest.setAdjustWidthToText(adjustWidthToTextState);
         }
@@ -1238,8 +1276,9 @@ public class AnnotationAttributes implements Restorable
         {
             Double xState = restorableSupport.getStateValueAsDouble(drawOffsetStateObj, "x");
             Double yState = restorableSupport.getStateValueAsDouble(drawOffsetStateObj, "y");
-            if (xState != null && yState != null)
-                dest.setDrawOffset(new Point(xState.intValue(), yState.intValue()));
+            if (xState != null && yState != null) {
+				dest.setDrawOffset(new Point(xState.intValue(), yState.intValue()));
+			}
         }
 
         // Restore the insets property only if all parts are available.
@@ -1251,29 +1290,35 @@ public class AnnotationAttributes implements Restorable
             Integer leftState = restorableSupport.getStateValueAsInteger(insetsStateObj, "left");
             Integer bottomState = restorableSupport.getStateValueAsInteger(insetsStateObj, "bottom");
             Integer rightState = restorableSupport.getStateValueAsInteger(insetsStateObj, "right");
-            if (topState != null && leftState != null && bottomState != null && rightState != null)
-                dest.setInsets(new Insets(topState, leftState, bottomState, rightState));
+            if (topState != null && leftState != null && bottomState != null && rightState != null) {
+				dest.setInsets(new Insets(topState, leftState, bottomState, rightState));
+			}
         }
 
         Double borderWidthState = restorableSupport.getStateValueAsDouble(context, "borderWidth");
-        if (borderWidthState != null)
-            dest.setBorderWidth(borderWidthState);
+        if (borderWidthState != null) {
+			dest.setBorderWidth(borderWidthState);
+		}
 
         Integer borderStippleFactorState = restorableSupport.getStateValueAsInteger(context, "borderStippleFactor");
-        if (borderStippleFactorState != null)
-            dest.setBorderStippleFactor(borderStippleFactorState);
+        if (borderStippleFactorState != null) {
+			dest.setBorderStippleFactor(borderStippleFactorState);
+		}
 
         Integer borderStipplePatternState = restorableSupport.getStateValueAsInteger(context, "borderStipplePattern");
-        if (borderStipplePatternState != null)
-            dest.setBorderStipplePattern(borderStipplePatternState.shortValue());
+        if (borderStipplePatternState != null) {
+			dest.setBorderStipplePattern(borderStipplePatternState.shortValue());
+		}
 
         Integer antiAliasHintState = restorableSupport.getStateValueAsInteger(context, "antiAliasHint");
-        if (antiAliasHintState != null)
-            dest.setAntiAliasHint(antiAliasHintState);
+        if (antiAliasHintState != null) {
+			dest.setAntiAliasHint(antiAliasHintState);
+		}
 
         Boolean visibleState = restorableSupport.getStateValueAsBoolean(context, "visible");
-        if (visibleState != null)
-            dest.setVisible(visibleState);
+        if (visibleState != null) {
+			dest.setVisible(visibleState);
+		}
 
         // Restore the font property only if all parts are available.
         // We will not restore a partial font (for example, just the size).
@@ -1286,8 +1331,9 @@ public class AnnotationAttributes implements Restorable
             Integer styleState = restorableSupport.getStateValueAsInteger(fontStateObj, "style");
             // The simple font size.
             Integer sizeState = restorableSupport.getStateValueAsInteger(fontStateObj, "size");
-            if (nameState != null && styleState != null && sizeState != null)
-                dest.setFont(new Font(nameState, styleState, sizeState));
+            if (nameState != null && styleState != null && sizeState != null) {
+				dest.setFont(new Font(nameState, styleState, sizeState));
+			}
         }
 
         String textAlignState = restorableSupport.getStateValueAsString(context, "textAlign");
@@ -1310,36 +1356,41 @@ public class AnnotationAttributes implements Restorable
         if (textColorState != null)
         {
             Color color = RestorableSupport.decodeColor(textColorState);
-            if (color != null)
-                dest.setTextColor(color);
+            if (color != null) {
+				dest.setTextColor(color);
+			}
         }
 
         String backgroundColorState = restorableSupport.getStateValueAsString(context, "backgroundColor");
         if (backgroundColorState != null)
         {
             Color color = RestorableSupport.decodeColor(backgroundColorState);
-            if (color != null)
-                dest.setBackgroundColor(color);
+            if (color != null) {
+				dest.setBackgroundColor(color);
+			}
         }
 
         String borderColorState = restorableSupport.getStateValueAsString(context, "borderColor");
         if (borderColorState != null)
         {
             Color color = RestorableSupport.decodeColor(borderColorState);
-            if (color != null)
-                dest.setBorderColor(color);
+            if (color != null) {
+				dest.setBorderColor(color);
+			}
         }
 
         // The imagePath property should exist only if the imageSource property was a simple String path.
         // If the imageSource property was a BufferedImage (or some other object), it should not exist in the
         // state document. We save under the name "imagePath" to denote that it is a special case of "imageSource".
         String imagePathState = restorableSupport.getStateValueAsString(context, "imagePath");
-        if (imagePathState != null)
-            dest.setImageSource(imagePathState);
+        if (imagePathState != null) {
+			dest.setImageSource(imagePathState);
+		}
 
         Double imageScaleState = restorableSupport.getStateValueAsDouble(context, "imageScale");
-        if (imageScaleState != null)
-            dest.setImageScale(imageScaleState);
+        if (imageScaleState != null) {
+			dest.setImageScale(imageScaleState);
+		}
 
         // Restore the imageOffset property only if all parts are available.
         // We will not restore a partial imageOffset (for example, just the x value).
@@ -1348,39 +1399,46 @@ public class AnnotationAttributes implements Restorable
         {
             Double xState = restorableSupport.getStateValueAsDouble(imageOffsetStateObj, "x");
             Double yState = restorableSupport.getStateValueAsDouble(imageOffsetStateObj, "y");
-            if (xState != null && yState != null)
-                dest.setImageOffset(new Point(xState.intValue(), yState.intValue()));
+            if (xState != null && yState != null) {
+				dest.setImageOffset(new Point(xState.intValue(), yState.intValue()));
+			}
         }
 
         Double imageOpacityState = restorableSupport.getStateValueAsDouble(context, "imageOpacity");
-        if (imageOpacityState != null)
-            dest.setImageOpacity(imageOpacityState);
+        if (imageOpacityState != null) {
+			dest.setImageOpacity(imageOpacityState);
+		}
 
         String imageRepeatState = restorableSupport.getStateValueAsString(context, "imageRepeat");
         if (imageRepeatState != null)
         {
             // Map legacy versions using Annotation repeat constants to the new AVKey constants.
             String updatedValue = legacySupport.get(imageRepeatState);
-            if (updatedValue != null)
-                imageRepeatState = updatedValue;
+            if (updatedValue != null) {
+				imageRepeatState = updatedValue;
+			}
 
             dest.setImageRepeat(imageRepeatState);
         }
 
         Double distanceMinScaleState = restorableSupport.getStateValueAsDouble(context, "distanceMinScale");
-        if (distanceMinScaleState != null)
-            dest.setDistanceMinScale(distanceMinScaleState);
+        if (distanceMinScaleState != null) {
+			dest.setDistanceMinScale(distanceMinScaleState);
+		}
 
         Double distanceMaxScaleState = restorableSupport.getStateValueAsDouble(context, "distanceMaxScale");
-        if (distanceMaxScaleState != null)
-            dest.setDistanceMaxScale(distanceMaxScaleState);
+        if (distanceMaxScaleState != null) {
+			dest.setDistanceMaxScale(distanceMaxScaleState);
+		}
 
         Double distanceMinOpacityState = restorableSupport.getStateValueAsDouble(context, "distanceMinOpacity");
-        if (distanceMinOpacityState != null)
-            dest.setDistanceMinOpacity(distanceMinOpacityState);
+        if (distanceMinOpacityState != null) {
+			dest.setDistanceMinOpacity(distanceMinOpacityState);
+		}
 
         String effectState = restorableSupport.getStateValueAsString(context, "effect");
-        if (effectState != null)
-            dest.setEffect(effectState);
+        if (effectState != null) {
+			dest.setEffect(effectState);
+		}
     }
 }

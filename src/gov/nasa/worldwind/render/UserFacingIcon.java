@@ -279,9 +279,9 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
         {
             this.backgroundTexture = new BasicWWTexture(background, true);
             this.backgroundTexture.setUseAnisotropy(false);
-        }
-        else
-            this.backgroundTexture = null;
+        } else {
+			this.backgroundTexture = null;
+		}
     }
 
     @Override
@@ -343,11 +343,13 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.RELATIVE_TO_GROUND);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.RELATIVE_TO_GROUND);
+		}
 
         this.doDrag(dragContext);
     }
@@ -373,14 +375,16 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
     {
         RestorableSupport rs = RestorableSupport.newRestorableSupport();
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (rs == null)
-            return null;
+        if (rs == null) {
+			return null;
+		}
 
         // Save the imagePath property only when the imageSource property is a simple String path. If the imageSource
         // property is a BufferedImage (or some other object), we make no effort to save that state. We save under
         // the name "imagePath" to denote that it is a special case of "imageSource".
-        if (getPath() != null)
-            rs.addStateValueAsString("imagePath", getPath(), true);
+        if (getPath() != null) {
+			rs.addStateValueAsString("imagePath", getPath(), true);
+		}
 
         // Save the iconPosition property only if all parts (latitude, longitude, and elevation) can be saved.
         // We will not save a partial iconPosition (for example, just the elevation).
@@ -410,8 +414,9 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
             }
         }
 
-        if (this.toolTipText != null)
-            rs.addStateValueAsString("toolTipText", this.toolTipText, true);
+        if (this.toolTipText != null) {
+			rs.addStateValueAsString("toolTipText", this.toolTipText, true);
+		}
 
         // Save the name, style, and size of the font. These will be used to restore the font using the
         // constructor: new Font(name, style, size).
@@ -429,8 +434,9 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
         if (this.textColor != null)
         {
             String encodedColor = RestorableSupport.encodeColor(this.textColor);
-            if (encodedColor != null)
-                rs.addStateValueAsString("toolTipTextColor", encodedColor);
+            if (encodedColor != null) {
+				rs.addStateValueAsString("toolTipTextColor", encodedColor);
+			}
         }
 
         // Save the backgroundImage property only when it is a simple String path. If the backgroundImage property is a
@@ -496,8 +502,9 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
         // If the imageSource property was a BufferedImage (or some other object), it should not exist in the
         // state document. We save under the name "imagePath" to denote that it is a special case of "imageSource".
         String s = restorableSupport.getStateValueAsString("imagePath");
-        if (s != null)
-            this.setImageSource(s);
+        if (s != null) {
+			this.setImageSource(s);
+		}
 
         // Restore the position property only if all parts are available.
         // We will not restore a partial position (for example, just the elevation).
@@ -507,8 +514,9 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
             Double lat = restorableSupport.getStateValueAsDouble(so, "latitude");
             Double lon = restorableSupport.getStateValueAsDouble(so, "longitude");
             Double elev = restorableSupport.getStateValueAsDouble(so, "elevation");
-            if (lat != null && lon != null && elev != null)
-                this.setPosition(Position.fromDegrees(lat, lon, elev));
+            if (lat != null && lon != null && elev != null) {
+				this.setPosition(Position.fromDegrees(lat, lon, elev));
+			}
         }
 
         // Restore the size property only if all parts are available.
@@ -518,13 +526,15 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
         {
             Double width = restorableSupport.getStateValueAsDouble(so, "width");
             Double height = restorableSupport.getStateValueAsDouble(so, "height");
-            if (width != null && height != null)
-                this.setSize(new Dimension(width.intValue(), height.intValue()));
+            if (width != null && height != null) {
+				this.setSize(new Dimension(width.intValue(), height.intValue()));
+			}
         }
 
         s = restorableSupport.getStateValueAsString("toolTipText");
-        if (s != null)
-            this.setToolTipText(s);
+        if (s != null) {
+			this.setToolTipText(s);
+		}
 
         // Restore the toolTipFont property only if all parts are available.
         // We will not restore a partial toolTipFont (for example, just the size).
@@ -537,16 +547,18 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
             Integer style = restorableSupport.getStateValueAsInteger(so, "style");
             // The simple font size.
             Integer size = restorableSupport.getStateValueAsInteger(so, "size");
-            if (name != null && style != null && size != null)
-                this.setToolTipFont(new Font(name, style, size));
+            if (name != null && style != null && size != null) {
+				this.setToolTipFont(new Font(name, style, size));
+			}
         }
 
         s = restorableSupport.getStateValueAsString("toolTipTextColor");
         if (s != null)
         {
             Color color = RestorableSupport.decodeColor(s);
-            if (color != null)
-                this.setToolTipTextColor(color);
+            if (color != null) {
+				this.setToolTipTextColor(color);
+			}
         }
 
         // The backgroundImagePath property should exist only if the backgroundImage property was a simple String path.
@@ -554,32 +566,39 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
         // state document. We save under the name "backgroundImagePath" to denote that it is a special case of
         // "backgroundImage".
         s = restorableSupport.getStateValueAsString("backgroundImagePath");
-        if (s != null)
-            this.setBackgroundImage(s);
+        if (s != null) {
+			this.setBackgroundImage(s);
+		}
 
         Boolean b = restorableSupport.getStateValueAsBoolean("highlighted");
-        if (b != null)
-            this.setHighlighted(b);
+        if (b != null) {
+			this.setHighlighted(b);
+		}
 
         Double d = restorableSupport.getStateValueAsDouble("highlightScale");
-        if (d != null)
-            this.setHighlightScale(d);
+        if (d != null) {
+			this.setHighlightScale(d);
+		}
 
         b = restorableSupport.getStateValueAsBoolean("visible");
-        if (b != null)
-            this.setVisible(b);
+        if (b != null) {
+			this.setVisible(b);
+		}
 
         b = restorableSupport.getStateValueAsBoolean("showToolTip");
-        if (b != null)
-            this.setShowToolTip(b);
+        if (b != null) {
+			this.setShowToolTip(b);
+		}
 
         b = restorableSupport.getStateValueAsBoolean("alwaysOnTop");
-        if (b != null)
-            this.setAlwaysOnTop(b);
+        if (b != null) {
+			this.setAlwaysOnTop(b);
+		}
 
         d = restorableSupport.getStateValueAsDouble("backgroundScale");
-        if (d != null)
-            this.setBackgroundScale(d);
+        if (d != null) {
+			this.setBackgroundScale(d);
+		}
 
         so = restorableSupport.getStateObject(null, "avlist");
         if (so != null)
@@ -589,8 +608,9 @@ public class UserFacingIcon extends AVListImpl implements WWIcon, Movable, Dragg
             {
                 for (RestorableSupport.StateObject avp : avpairs)
                 {
-                    if (avp != null)
-                        this.setValue(avp.getName(), avp.getValue());
+                    if (avp != null) {
+						this.setValue(avp.getName(), avp.getValue());
+					}
                 }
             }
         }

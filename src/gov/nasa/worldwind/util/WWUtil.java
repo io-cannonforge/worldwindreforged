@@ -184,11 +184,13 @@ public class WWUtil
         {
             s = s.trim();
 
-            if (s.length() == 0)
-                return null;
+            if (s.length() == 0) {
+				return null;
+			}
 
-            if (s.length() == 1)
-                return convertNumericStringToBoolean(s);
+            if (s.length() == 1) {
+				return convertNumericStringToBoolean(s);
+			}
 
             return Boolean.valueOf(s);
         }
@@ -1055,8 +1057,9 @@ public class WWUtil
         StringBuilder sb = new StringBuilder();
 
         String message = t.getMessage();
-        if (!WWUtil.isEmpty(message))
-            sb.append(message);
+        if (!WWUtil.isEmpty(message)) {
+			sb.append(message);
+		}
 
         String messageClass = t.getClass().getName();
 
@@ -1093,8 +1096,9 @@ public class WWUtil
      */
     public static String stripLeadingPeriod(String s)
     {
-        if (null != s && s.startsWith("."))
-            return s.substring(Math.min(1, s.length()), s.length());
+        if (null != s && s.startsWith(".")) {
+			return s.substring(Math.min(1, s.length()), s.length());
+		}
         return s;
     }
 
@@ -1116,8 +1120,9 @@ public class WWUtil
      */
     public static Long parseTimeString(String timeString)
     {
-        if (timeString == null)
-            return null;
+        if (timeString == null) {
+			return null;
+		}
 
         // KML allows a hybrid time zone offset that does not contain the leading "GMT", e.g. 1997-05-10T09:30:00+03:00.
         // If the time string has this pattern, we convert it to an RFC 822 time zone so that SimpleDateFormat can
@@ -1197,8 +1202,9 @@ public class WWUtil
             throw new IllegalArgumentException(Logging.getMessage("nullValue.StringIsNull"));
         }
 
-        if (va.equals(vb))
-            return 0;
+        if (va.equals(vb)) {
+			return 0;
+		}
 
         String[] vas = va.split("\\.");
         String[] vbs = vb.split("\\.");
@@ -1208,11 +1214,13 @@ public class WWUtil
             String sa = vas.length > i ? vas[i] : "0";
             String sb = vbs.length > i ? vbs[i] : "0";
 
-            if (sa.compareTo(sb) < 0)
-                return -1;
+            if (sa.compareTo(sb) < 0) {
+				return -1;
+			}
 
-            if (sa.compareTo(sb) > 0)
-                return 1;
+            if (sa.compareTo(sb) > 0) {
+				return 1;
+			}
         }
 
         return 0; // the versions match

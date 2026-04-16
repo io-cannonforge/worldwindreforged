@@ -91,8 +91,9 @@ public class SARAnnotationWriter
 
         for (SARAnnotation sa : sarAnnotations)
         {
-            if (sa != null)
-                doWriteAnnotation(sa, this.doc.getDocumentElement());
+            if (sa != null) {
+				doWriteAnnotation(sa, this.doc.getDocumentElement());
+			}
         }
         doFlush();
     }
@@ -109,8 +110,9 @@ public class SARAnnotationWriter
         // doesn't already have a root element.
         if (doc != null)
         {
-            if (doc.getDocumentElement() != null)
-                doc.removeChild(doc.getDocumentElement());
+            if (doc.getDocumentElement() != null) {
+				doc.removeChild(doc.getDocumentElement());
+			}
 
             org.w3c.dom.Element annotations = doc.createElement("sarTrackAnnotations");
             doc.appendChild(annotations);

@@ -107,8 +107,9 @@ public class BasicDataRasterReaderFactory implements DataRasterReaderFactory
 
         for (DataRasterReader reader : readers)
         {
-            if (reader != null && reader.canRead(source, params))
-                return reader;
+            if (reader != null && reader.canRead(source, params)) {
+				return reader;
+			}
         }
 
         return null;

@@ -566,10 +566,11 @@ public class PointPlacemarkAttributes implements Exportable
     @Override
 	public String isExportFormatSupported(String format)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     /**
@@ -802,7 +803,8 @@ public class PointPlacemarkAttributes implements Exportable
         xmlWriter.writeEndElement(); // Style
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

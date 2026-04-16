@@ -137,18 +137,20 @@ public class WorldWindowGLJPanel extends GLJPanel implements WorldWindow, Proper
     {
         super(Configuration.getRequiredGLCapabilities(), new BasicGLCapabilitiesChooser());
 
-        if (shareWith != null)
-            this.setSharedContext(shareWith.getContext());
+        if (shareWith != null) {
+			this.setSharedContext(shareWith.getContext());
+		}
 
         try
         {
             this.wwd = ((WorldWindowGLDrawable) WorldWind.createConfigurationComponent(AVKey.WORLD_WINDOW_CLASS_NAME));
             this.wwd.initDrawable(this);
             this.wwd.addPropertyChangeListener(this);
-            if (shareWith != null)
-                this.wwd.initGpuResourceCache(shareWith.getGpuResourceCache());
-            else
-                this.wwd.initGpuResourceCache(WorldWindowImpl.createGpuResourceCache());
+            if (shareWith != null) {
+				this.wwd.initGpuResourceCache(shareWith.getGpuResourceCache());
+			} else {
+				this.wwd.initGpuResourceCache(WorldWindowImpl.createGpuResourceCache());
+			}
             this.createView();
             this.createDefaultInputHandler();
             WorldWind.addPropertyChangeListener(WorldWind.SHUTDOWN_EVENT, this);
@@ -180,18 +182,20 @@ public class WorldWindowGLJPanel extends GLJPanel implements WorldWindow, Proper
     {
         super(capabilities, chooser);
 
-        if (shareWith != null)
-            this.setSharedContext(shareWith.getContext());
+        if (shareWith != null) {
+			this.setSharedContext(shareWith.getContext());
+		}
 
         try
         {
             this.wwd = ((WorldWindowGLDrawable) WorldWind.createConfigurationComponent(AVKey.WORLD_WINDOW_CLASS_NAME));
             this.wwd.initDrawable(this);
             this.wwd.addPropertyChangeListener(this);
-            if (shareWith != null)
-                this.wwd.initGpuResourceCache(shareWith.getGpuResourceCache());
-            else
-                this.wwd.initGpuResourceCache(WorldWindowImpl.createGpuResourceCache());
+            if (shareWith != null) {
+				this.wwd.initGpuResourceCache(shareWith.getGpuResourceCache());
+			} else {
+				this.wwd.initGpuResourceCache(WorldWindowImpl.createGpuResourceCache());
+			}
             this.createView();
             this.createDefaultInputHandler();
             WorldWind.addPropertyChangeListener(WorldWind.SHUTDOWN_EVENT, this);
@@ -208,12 +212,14 @@ public class WorldWindowGLJPanel extends GLJPanel implements WorldWindow, Proper
     @Override
 	public void propertyChange(PropertyChangeEvent evt)
     {
-        if(this.wwd == evt.getSource())
-            this.firePropertyChange(evt);
+        if(this.wwd == evt.getSource()) {
+			this.firePropertyChange(evt);
+		}
 
         //noinspection StringEquality
-        if (evt.getPropertyName() == WorldWind.SHUTDOWN_EVENT)
-            this.shutdown();
+        if (evt.getPropertyName() == WorldWind.SHUTDOWN_EVENT) {
+			this.shutdown();
+		}
     }
 
     @Override
@@ -256,12 +262,14 @@ public class WorldWindowGLJPanel extends GLJPanel implements WorldWindow, Proper
     @Override
 	public void setInputHandler(InputHandler inputHandler)
     {
-        if (this.wwd.getInputHandler() != null)
-            this.wwd.getInputHandler().setEventSource(null); // remove this window as a source of events
+        if (this.wwd.getInputHandler() != null) {
+			this.wwd.getInputHandler().setEventSource(null); // remove this window as a source of events
+		}
 
         this.wwd.setInputHandler(inputHandler != null ? inputHandler : new NoOpInputHandler());
-        if (inputHandler != null)
-            inputHandler.setEventSource(this);
+        if (inputHandler != null) {
+			inputHandler.setEventSource(this);
+		}
     }
 
     @Override
@@ -311,8 +319,9 @@ public class WorldWindowGLJPanel extends GLJPanel implements WorldWindow, Proper
 	public void setView(View view)
     {
         // null views are permissible
-        if (view != null)
-            this.wwd.setView(view);
+        if (view != null) {
+			this.wwd.setView(view);
+		}
     }
 
     @Override

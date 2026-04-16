@@ -52,8 +52,9 @@ public class CompoundElevationModel extends AbstractElevationModel
     {
         for (ElevationModel child : this.elevationModels)
         {
-            if (child != null)
-                child.dispose();
+            if (child != null) {
+				child.dispose();
+			}
         }
     }
 
@@ -76,16 +77,18 @@ public class CompoundElevationModel extends AbstractElevationModel
         }
 
         // Check if the elevation model is one of the models in our list.
-        if (this.elevationModels.contains(em))
-            return true;
+        if (this.elevationModels.contains(em)) {
+			return true;
+		}
 
         // Check if the elevation model is a child of any CompoundElevationModels in our list.
         for (ElevationModel child : this.elevationModels)
         {
             if (child instanceof CompoundElevationModel)
             {
-                if (((CompoundElevationModel) child).containsElevationModel(em))
-                    return true;
+                if (((CompoundElevationModel) child).containsElevationModel(em)) {
+					return true;
+				}
             }
         }
 
@@ -94,8 +97,9 @@ public class CompoundElevationModel extends AbstractElevationModel
 
     protected void sortElevationModels()
     {
-        if (this.elevationModels.size() == 1)
-            return;
+        if (this.elevationModels.size() == 1) {
+			return;
+		}
 
         List<ElevationModel> temp = new ArrayList<>(this.elevationModels.size());
         for (ElevationModel em : this.elevationModels)
@@ -180,8 +184,9 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel child : this.elevationModels)
         {
-            if (child instanceof CompoundElevationModel)
-                ((CompoundElevationModel) child).removeElevationModel(em);
+            if (child instanceof CompoundElevationModel) {
+				((CompoundElevationModel) child).removeElevationModel(em);
+			}
         }
 
         this.elevationModels.remove(em);
@@ -249,12 +254,14 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             double m = em.getMaxElevation();
-            if (m > max)
-                max = m;
+            if (m > max) {
+				max = m;
+			}
         }
 
         return max == -Double.MAX_VALUE ? 0 : max;
@@ -267,12 +274,14 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             double m = em.getMinElevation();
-            if (m < min)
-                min = m;
+            if (m < min) {
+				min = m;
+			}
         }
 
         return min == Double.MAX_VALUE ? 0 : min;
@@ -292,8 +301,9 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             double[] minmax = em.getExtremeElevations(latitude, longitude);
             if (retVal == null)
@@ -302,10 +312,12 @@ public class CompoundElevationModel extends AbstractElevationModel
             }
             else
             {
-                if (minmax[0] < retVal[0])
-                    retVal[0] = minmax[0];
-                if (minmax[1] > retVal[1])
-                    retVal[1] = minmax[1];
+                if (minmax[0] < retVal[0]) {
+					retVal[0] = minmax[0];
+				}
+                if (minmax[1] > retVal[1]) {
+					retVal[1] = minmax[1];
+				}
             }
         }
 
@@ -326,12 +338,14 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             int c = em.intersects(sector);
-            if (c < 0) // no intersection
-                continue;
+            if (c < 0) { // no intersection
+				continue;
+			}
 
             double[] minmax = em.getExtremeElevations(sector);
             if (retVal == null)
@@ -340,10 +354,12 @@ public class CompoundElevationModel extends AbstractElevationModel
             }
             else
             {
-                if (minmax[0] < retVal[0])
-                    retVal[0] = minmax[0];
-                if (minmax[1] > retVal[1])
-                    retVal[1] = minmax[1];
+                if (minmax[0] < retVal[0]) {
+					retVal[0] = minmax[0];
+				}
+                if (minmax[1] > retVal[1]) {
+					retVal[1] = minmax[1];
+				}
             }
         }
 
@@ -357,12 +373,14 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled() || (sector != null && em.intersects(sector) < 0)) // sector does not intersect elevation model
-                continue;
+            if (!em.isEnabled() || (sector != null && em.intersects(sector) < 0)) { // sector does not intersect elevation model
+				continue;
+			}
 
             double r = em.getBestResolution(sector);
-            if (r < res || res == 0)
-                res = r;
+            if (r < res || res == 0) {
+				res = r;
+			}
         }
 
         return res != 0 ? res : Double.MAX_VALUE;
@@ -397,12 +415,14 @@ public class CompoundElevationModel extends AbstractElevationModel
         {
             ElevationModel em = this.elevationModels.get(i);
 
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             int c = em.intersects(sector);
-            if (c != -1)
-                return em.getDetailHint(sector);
+            if (c != -1) {
+				return em.getDetailHint(sector);
+			}
         }
 
         // No elevation model intersects the sector. Return a default detail hint.
@@ -423,15 +443,18 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             int c = em.intersects(sector);
-            if (c == 0) // sector fully contained in the elevation model. no need to test further
-                return 0;
+            if (c == 0) { // sector fully contained in the elevation model. no need to test further
+				return 0;
+			}
 
-            if (c == 1)
-                intersects = true;
+            if (c == 1) {
+				intersects = true;
+			}
         }
 
         return intersects ? 1 : -1;
@@ -449,11 +472,13 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
-            if (em.contains(latitude, longitude))
-                return true;
+            if (em.contains(latitude, longitude)) {
+				return true;
+			}
         }
 
         return false;
@@ -475,8 +500,9 @@ public class CompoundElevationModel extends AbstractElevationModel
         {
             ElevationModel em = this.elevationModels.get(i);
 
-            if (!em.isEnabled() || !em.contains(latitude, longitude))
-                continue;
+            if (!em.isEnabled() || !em.contains(latitude, longitude)) {
+				continue;
+			}
 
             double emValue = em.getUnmappedElevation(latitude, longitude);
 
@@ -619,21 +645,25 @@ public class CompoundElevationModel extends AbstractElevationModel
             ElevationModel em = this.elevationModels.get(i);
             resolutionAchieved[i] = 0;
 
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             int c = em.intersects(sector);
-            if (c < 0) // no intersection
-                continue;
+            if (c < 0) { // no intersection
+				continue;
+			}
 
             double r;
-            if (mapMissingData || this.elevationModels.size() == 1)
-                r = em.getElevations(sector, latlons, targetResolution[i], buffer);
-            else
-                r = em.getUnmappedElevations(sector, latlons, targetResolution[i], buffer);
+            if (mapMissingData || this.elevationModels.size() == 1) {
+				r = em.getElevations(sector, latlons, targetResolution[i], buffer);
+			} else {
+				r = em.getUnmappedElevations(sector, latlons, targetResolution[i], buffer);
+			}
 
-            if (r < resolutionAchieved[i] || resolutionAchieved[i] == 0)
-                resolutionAchieved[i] = r;
+            if (r < resolutionAchieved[i] || resolutionAchieved[i] == 0) {
+				resolutionAchieved[i] = r;
+			}
         }
 
         return resolutionAchieved;
@@ -675,12 +705,14 @@ public class CompoundElevationModel extends AbstractElevationModel
         // ElevationModels are expected to leave the buffer untouched when data is missing at a location.
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             int c = em.intersects(sector);
-            if (c < 0) // no intersection
-                continue;
+            if (c < 0) { // no intersection
+				continue;
+			}
 
             em.composeElevations(sector, latlons, tileWidth, buffer);
         }
@@ -705,8 +737,9 @@ public class CompoundElevationModel extends AbstractElevationModel
 
         for (ElevationModel em : this.elevationModels)
         {
-            if (!em.isEnabled())
-                continue;
+            if (!em.isEnabled()) {
+				continue;
+			}
 
             if (em.intersects(sector) >= 0)
             {
@@ -732,8 +765,9 @@ public class CompoundElevationModel extends AbstractElevationModel
     {
         for (ElevationModel em : this.elevationModels)
         {
-            if (em.isExtremesCachingEnabled())
-                return true;
+            if (em.isExtremesCachingEnabled()) {
+				return true;
+			}
         }
 
         return false;

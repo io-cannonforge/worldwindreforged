@@ -170,10 +170,12 @@ public class SurfaceImage extends WWObjectImpl
         // frame, this still keeps track of the previous texture. Clearing of the source texture is necessary only for
         // BufferedImage sources. Other types will clear automatically through the GPU resource cache. Clearing of the
         // generated texture is necessary because those are FBO textures and therefore require significant memory.
-        if (this.sourceTexture != null && imageSource instanceof BufferedImage)
-            this.previousSourceTexture = this.sourceTexture;
-        if (this.generatedTexture != null)
-            this.previousGeneratedTexture = this.generatedTexture;
+        if (this.sourceTexture != null && imageSource instanceof BufferedImage) {
+			this.previousSourceTexture = this.sourceTexture;
+		}
+        if (this.generatedTexture != null) {
+			this.previousGeneratedTexture = this.generatedTexture;
+		}
 
         // Assign the new image source and clear the current source texture. We initialize the source texture during the
         // next frame. This enables SurfaceImage to retrieve remote images during each frame on a separate thread.
@@ -296,8 +298,9 @@ public class SurfaceImage extends WWObjectImpl
     @Override
 	public void applyInternalTransform(DrawContext dc, boolean textureIdentityActive)
     {
-        if (this.generatedTexture != null)
-            this.generatedTexture.applyInternalTransform(dc);
+        if (this.generatedTexture != null) {
+			this.generatedTexture.applyInternalTransform(dc);
+		}
     }
 
     // Renderable interface
@@ -311,8 +314,9 @@ public class SurfaceImage extends WWObjectImpl
     @Override
 	public void preRender(DrawContext dc)
     {
-        if (dc.isOrderedRenderingMode())
-            return; // preRender is called twice - during layer rendering then again during ordered surface rendering
+        if (dc.isOrderedRenderingMode()) {
+			return; // preRender is called twice - during layer rendering then again during ordered surface rendering
+		}
 
         if (this.previousSourceTexture != null)
         {
@@ -321,12 +325,14 @@ public class SurfaceImage extends WWObjectImpl
         }
 
         // Initialize the source texture if the caller specified a new image source.
-        if (this.getImageSource() != null && this.sourceTexture == null)
-            this.initializeSourceTexture(dc);
+        if (this.getImageSource() != null && this.sourceTexture == null) {
+			this.initializeSourceTexture(dc);
+		}
 
         // Exit if the source texture could not be initialized.
-        if (this.sourceTexture == null)
-            return;
+        if (this.sourceTexture == null) {
+			return;
+		}
 
         if (this.generatedTexture == null || this.generatedTextureExpired)
         {
@@ -354,11 +360,13 @@ public class SurfaceImage extends WWObjectImpl
             throw new IllegalStateException(message);
         }
 
-        if ((dc.isPickingMode() && !this.isPickEnabled()) || this.getSector() == null || !this.getSector().intersects(dc.getVisibleSector()))
-            return;
+        if ((dc.isPickingMode() && !this.isPickEnabled()) || this.getSector() == null || !this.getSector().intersects(dc.getVisibleSector())) {
+			return;
+		}
 
-        if (this.sourceTexture == null && this.generatedTexture == null)
-            return;
+        if (this.sourceTexture == null && this.generatedTexture == null) {
+			return;
+		}
 
         if (!dc.isOrderedRenderingMode() && this.isAlwaysOnTop())
         {
@@ -374,8 +382,9 @@ public class SurfaceImage extends WWObjectImpl
     public void pick(DrawContext dc, Point pickPoint)
     {
         // Lazily allocate the pick support property, since it's only used when alwaysOnTop is set to true.
-        if (this.pickSupport == null)
-            this.pickSupport = new PickSupport();
+        if (this.pickSupport == null) {
+			this.pickSupport = new PickSupport();
+		}
 
         try
         {
@@ -489,8 +498,9 @@ public class SurfaceImage extends WWObjectImpl
 	public void moveTo(Position position)
     {
         LatLon oldRef = this.getReferencePosition();
-        if (oldRef == null)
-            return;
+        if (oldRef == null) {
+			return;
+		}
 
         for (int i = 0; i < this.corners.size(); i++)
         {
@@ -531,11 +541,13 @@ public class SurfaceImage extends WWObjectImpl
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+		}
 
         this.doDrag(dragContext);
     }
@@ -548,19 +560,23 @@ public class SurfaceImage extends WWObjectImpl
     @Override
 	public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
+        if (this == o) {
+			return true;
+		}
 
-        if (o == null || this.getClass() != o.getClass())
-            return false;
+        if (o == null || this.getClass() != o.getClass()) {
+			return false;
+		}
 
         SurfaceImage that = (SurfaceImage) o;
 
-        if (this.getSector() == null || that.getSector() == null)
-            return false;
+        if (this.getSector() == null || that.getSector() == null) {
+			return false;
+		}
 
-        if (this.getImageSource() == null)
-            return that.imageSource == null && this.getSector().equals(that.getSector());
+        if (this.getImageSource() == null) {
+			return that.imageSource == null && this.getSector().equals(that.getSector());
+		}
 
         return this.getImageSource().equals(that.getImageSource()) && this.getSector().equals(that.getSector());
     }
@@ -578,10 +594,11 @@ public class SurfaceImage extends WWObjectImpl
     @Override
 	public String isExportFormatSupported(String format)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     /**
@@ -681,8 +698,9 @@ public class SurfaceImage extends WWObjectImpl
         // nothing we can do.
         String imgSourceStr = null;
         Object imgSource = this.getImageSource();
-        if (imgSource instanceof String || imgSource instanceof URL)
-            imgSourceStr = imgSource.toString();
+        if (imgSource instanceof String || imgSource instanceof URL) {
+			imgSourceStr = imgSource.toString();
+		}
 
         if (imgSourceStr != null)
         {
@@ -718,8 +736,9 @@ public class SurfaceImage extends WWObjectImpl
         xmlWriter.writeEndElement(); // GroundOverlay
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 
     protected void exportKMLLatLonBox(XMLStreamWriter xmlWriter) throws XMLStreamException

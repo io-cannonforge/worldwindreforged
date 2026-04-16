@@ -57,8 +57,9 @@ public class MoveToPositionAnimator extends PositionAnimator
     @Override
 	public void next()
     {
-        if (hasNext())
-            set(1.0-smoothing);
+        if (hasNext()) {
+			set(1.0-smoothing);
+		}
     }
 
     @Override

@@ -217,8 +217,9 @@ public class RestorableSupport
         }
 
         // Document already has a root element.
-        if (doc.getDocumentElement() != null)
-            return;
+        if (doc.getDocumentElement() != null) {
+			return;
+		}
 
         org.w3c.dom.Element elem = doc.createElement(tagName);
         doc.appendChild(elem);
@@ -418,8 +419,9 @@ public class RestorableSupport
                 // document root element.
                 (context != null ? context : getDocumentElement()),
                 javax.xml.xpath.XPathConstants.NODE);
-            if (result == null)
-                return null;
+            if (result == null) {
+				return null;
+			}
 
             // If the result is an Element node, return a new StateObject with the result as its content.
             // Otherwise return null.
@@ -442,10 +444,11 @@ public class RestorableSupport
 
         // Search for the state elements beneath the context with the specified name.
         String expression;
-        if (name.length() != 0)
-            expression = String.format("%s[@name=\"%s\"]", getStateObjectTagName(), name);
-        else
-            expression = String.format("%s//.", getStateObjectTagName());
+        if (name.length() != 0) {
+			expression = String.format("%s[@name=\"%s\"]", getStateObjectTagName(), name);
+		} else {
+			expression = String.format("%s//.", getStateObjectTagName());
+		}
 
         try
         {
@@ -517,18 +520,20 @@ public class RestorableSupport
         org.w3c.dom.Element elem = this.doc.createElement(getStateObjectTagName());
 
         // If non-null, name goes in an attribute entitled "name".
-        if (name != null)
-            elem.setAttribute("name", name);
+        if (name != null) {
+			elem.setAttribute("name", name);
+		}
 
         // If non-null, value goes in the element text content.
         if (value != null)
         {
             // If escapeValue is true, we place value in a CDATA node beneath elem.
-            if (escapeValue)
-                elem.appendChild(this.doc.createCDATASection(value));
+            if (escapeValue) {
+				elem.appendChild(this.doc.createCDATASection(value));
                 // Otherwise, just set the text value of elem normally.
-            else
-                elem.setTextContent(value);
+			} else {
+				elem.setTextContent(value);
+			}
         }
 
         // If non-null, add the StateObject element to the specified context. Otherwise, add it to the
@@ -802,8 +807,9 @@ public class RestorableSupport
     public String getStateValueAsString(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsString(stateObject);
     }
@@ -821,8 +827,9 @@ public class RestorableSupport
     public Integer getStateObjectAsInteger(StateObject stateObject)
     {
         String stringValue = getStateObjectAsString(stateObject);
-        if (stringValue == null)
-            return null;
+        if (stringValue == null) {
+			return null;
+		}
 
         try
         {
@@ -869,8 +876,9 @@ public class RestorableSupport
     public Integer getStateValueAsInteger(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsInteger(stateObject);
     }
@@ -888,8 +896,9 @@ public class RestorableSupport
     public Double getStateObjectAsDouble(StateObject stateObject)
     {
         String stringValue = getStateObjectAsString(stateObject);
-        if (stringValue == null)
-            return null;
+        if (stringValue == null) {
+			return null;
+		}
 
         try
         {
@@ -936,8 +945,9 @@ public class RestorableSupport
     public Double getStateValueAsDouble(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsDouble(stateObject);
     }
@@ -955,8 +965,9 @@ public class RestorableSupport
     public Long getStateObjectAsLong(StateObject stateObject)
     {
         String stringValue = getStateObjectAsString(stateObject);
-        if (stringValue == null)
-            return null;
+        if (stringValue == null) {
+			return null;
+		}
 
         try
         {
@@ -1003,8 +1014,9 @@ public class RestorableSupport
     public Long getStateValueAsLong(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsLong(stateObject);
     }
@@ -1022,8 +1034,9 @@ public class RestorableSupport
     public Float getStateObjectAsFloat(StateObject stateObject)
     {
         String stringValue = getStateObjectAsString(stateObject);
-        if (stringValue == null)
-            return null;
+        if (stringValue == null) {
+			return null;
+		}
 
         try
         {
@@ -1070,8 +1083,9 @@ public class RestorableSupport
     public Float getStateValueAsFloat(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsFloat(stateObject);
     }
@@ -1090,8 +1104,9 @@ public class RestorableSupport
     public Boolean getStateObjectAsBoolean(StateObject stateObject)
     {
         String stringValue = getStateObjectAsString(stateObject);
-        if (stringValue == null)
-            return null;
+        if (stringValue == null) {
+			return null;
+		}
 
         try
         {
@@ -1140,8 +1155,9 @@ public class RestorableSupport
     public Boolean getStateValueAsBoolean(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsBoolean(stateObject);
     }
@@ -1191,8 +1207,9 @@ public class RestorableSupport
     public LatLon getStateValueAsLatLon(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsLatLon(stateObject);
     }
@@ -1243,8 +1260,9 @@ public class RestorableSupport
     public Position getStateValueAsPosition(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsPosition(stateObject);
     }
@@ -1275,8 +1293,9 @@ public class RestorableSupport
         }
 
         RestorableSupport.StateObject[] llsos = getAllStateObjects(stateObject, "location");
-        if (llsos == null || llsos.length == 0)
-            return null;
+        if (llsos == null || llsos.length == 0) {
+			return null;
+		}
 
         ArrayList<LatLon> outList = new ArrayList<>(llsos.length);
 
@@ -1285,8 +1304,9 @@ public class RestorableSupport
             if (llso != null)
             {
                 LatLon ll = getStateObjectAsLatLon(llso);
-                if (ll != null)
-                    outList.add(ll);
+                if (ll != null) {
+					outList.add(ll);
+				}
             }
         }
 
@@ -1301,8 +1321,9 @@ public class RestorableSupport
     public List<LatLon> getStateValueAsLatLonList(StateObject context, String name)
     {
         RestorableSupport.StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsLatLonList(stateObject);
     }
@@ -1334,8 +1355,9 @@ public class RestorableSupport
         }
 
         RestorableSupport.StateObject[] offsetsLists = getAllStateObjects(stateObject, "face");
-        if (offsetsLists == null || offsetsLists.length == 0)
-            return null;
+        if (offsetsLists == null || offsetsLists.length == 0) {
+			return null;
+		}
 
         HashMap<Integer, OffsetsList> outList = new HashMap<>();
 
@@ -1345,8 +1367,9 @@ public class RestorableSupport
             if (faceOffsets != null)
             {
                 OffsetsList offsets = getStateObjectAsOffsets(faceOffsets);
-                if (offsets != null)
-                    outList.put(index, offsets);
+                if (offsets != null) {
+					outList.put(index, offsets);
+				}
             }
             index++;
         }
@@ -1362,8 +1385,9 @@ public class RestorableSupport
     public HashMap<Integer, OffsetsList> getStateValueAsOffsetsList(StateObject context, String name)
     {
         RestorableSupport.StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsOffsetsList(stateObject);
     }
@@ -1424,8 +1448,9 @@ public class RestorableSupport
     public OffsetsList getStateValueAsOffsets(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsOffsets(stateObject);
     }
@@ -1480,8 +1505,9 @@ public class RestorableSupport
     public float[] getStateValueAsOffsetPair(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsOffsetPair(stateObject);
     }
@@ -1514,8 +1540,9 @@ public class RestorableSupport
         }
 
         RestorableSupport.StateObject[] imageSourceList = getAllStateObjects(stateObject, "imageSource");
-        if (imageSourceList == null || imageSourceList.length == 0)
-            return null;
+        if (imageSourceList == null || imageSourceList.length == 0) {
+			return null;
+		}
 
         HashMap<Integer, Object> outList = new HashMap<>();
 
@@ -1525,10 +1552,11 @@ public class RestorableSupport
             if (imageSource != null)
             {
                 String path = getStateObjectAsString(imageSource);
-                if (path != null)
-                    outList.put(index, path);
-                else
-                    outList.put(index, null);
+                if (path != null) {
+					outList.put(index, path);
+				} else {
+					outList.put(index, null);
+				}
             }
             index++;
         }
@@ -1544,8 +1572,9 @@ public class RestorableSupport
     public HashMap<Integer, Object> getStateValueAsImageSourceList(StateObject context, String name)
     {
         RestorableSupport.StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsImageSourceList(stateObject);
     }
@@ -1597,8 +1626,9 @@ public class RestorableSupport
     public Sector getStateValueAsSector(StateObject context, String name)
     {
         RestorableSupport.StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsSector(stateObject);
     }
@@ -1606,8 +1636,9 @@ public class RestorableSupport
     public java.awt.Color getStateObjectAsColor(StateObject stateObject)
     {
         String stringValue = getStateObjectAsString(stateObject);
-        if (stringValue == null)
-            return null;
+        if (stringValue == null) {
+			return null;
+		}
 
         return decodeColor(stringValue);
     }
@@ -1615,8 +1646,9 @@ public class RestorableSupport
     public Color getStateValueAsColor(StateObject context, String name)
     {
         StateObject stateObject = getStateObject(context, name);
-        if (stateObject == null)
-            return null;
+        if (stateObject == null) {
+			return null;
+		}
 
         return getStateObjectAsColor(stateObject);
     }
@@ -2069,10 +2101,11 @@ public class RestorableSupport
         RestorableSupport.StateObject stateObject = addStateObject(context, name);
         for (int i = 0; i < faceCount; i++)
         {
-            if (imageSources.get(i) == null)
-                addStateValueAsString(stateObject, "imageSource", "null");
-            else
-                addStateValueAsString(stateObject, "imageSource", imageSources.get(i).toString());
+            if (imageSources.get(i) == null) {
+				addStateValueAsString(stateObject, "imageSource", "null");
+			} else {
+				addStateValueAsString(stateObject, "imageSource", imageSources.get(i).toString());
+			}
         }
     }
 
@@ -2193,8 +2226,9 @@ public class RestorableSupport
             throw new IllegalArgumentException(message);
         }
 
-        if (!encodedString.startsWith("0x") && !encodedString.startsWith("0X"))
-            return null;
+        if (!encodedString.startsWith("0x") && !encodedString.startsWith("0X")) {
+			return null;
+		}
 
         // The hexadecimal representation for an RGBA color can result in a value larger than
         // Integer.MAX_VALUE (for example, 0XFFFF). Therefore we decode the string as a long,
@@ -2222,7 +2256,8 @@ public class RestorableSupport
     public static void adjustTitleAndDisplayName(AVList params)
     {
         String displayName = params.getStringValue(AVKey.DISPLAY_NAME);
-        if (displayName == null && params.getValue(AVKey.TITLE) != null)
-            params.setValue(AVKey.DISPLAY_NAME, params.getValue(AVKey.TITLE));
+        if (displayName == null && params.getValue(AVKey.TITLE) != null) {
+			params.setValue(AVKey.DISPLAY_NAME, params.getValue(AVKey.TITLE));
+		}
     }
 }

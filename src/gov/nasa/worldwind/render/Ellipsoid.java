@@ -188,8 +188,9 @@ public class Ellipsoid extends RigidShape
             for (int divisions = minDivisions; divisions <= maxDivisions; divisions++)
             {
                 this.subdivisions = divisions;
-                if (this.sufficientDetail(dc, divisions, shapeData))
-                    break;
+                if (this.sufficientDetail(dc, divisions, shapeData)) {
+					break;
+				}
             }
         }
     }
@@ -209,12 +210,14 @@ public class Ellipsoid extends RigidShape
             throw new IllegalArgumentException(message);
         }
 
-        if (shapeData == null)
-            return false;
+        if (shapeData == null) {
+			return false;
+		}
 
         Extent extent = shapeData.getExtent();
-        if (extent == null)
-            return true;
+        if (extent == null) {
+			return true;
+		}
 
         double thresholdDensity = this.computeDetailThreshold();
 
@@ -234,8 +237,9 @@ public class Ellipsoid extends RigidShape
         // check if current LOD is sufficient
         int oldDivisions = this.subdivisions;
         computeSubdivisions(dc, this.getCurrentShapeData());
-        if (oldDivisions != this.subdivisions)
-            return true;
+        if (oldDivisions != this.subdivisions) {
+			return true;
+		}
 
         return super.mustRegenerateGeometry(dc);
     }
@@ -407,8 +411,9 @@ public class Ellipsoid extends RigidShape
             if (mustApplyLighting(dc, null))
             {
                 // re-enable normals if we temporarily turned them off earlier
-                if (normalBuffer == null)
-                    gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+                if (normalBuffer == null) {
+					gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+				}
             }
             // this.logGeometryStatistics(dc, geom);
         }

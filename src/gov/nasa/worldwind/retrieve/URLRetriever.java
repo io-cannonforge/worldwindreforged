@@ -109,12 +109,13 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
 
         String protocol = url.getProtocol();
 
-        if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol))
-            return new HTTPRetriever(url, postProcessor);
-        else if ("jar".equalsIgnoreCase(protocol))
-            return new JarRetriever(url, postProcessor);
-        else
-            return null;
+        if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
+			return new HTTPRetriever(url, postProcessor);
+		} else if ("jar".equalsIgnoreCase(protocol)) {
+			return new JarRetriever(url, postProcessor);
+		} else {
+			return null;
+		}
     }
 
     /**
@@ -283,8 +284,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
     @Override
 	public final Retriever call() throws Exception
     {
-        if (this.interrupted())
-            return this;
+        if (this.interrupted()) {
+			return this;
+		}
 
         int maxRetries = Configuration.getIntegerValue(AVKey.URL_MAX_RETRIES, 3);
         int retryBaseDelay = Configuration.getIntegerValue(AVKey.URL_RETRY_BASE_DELAY, 500);
@@ -309,8 +311,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
                     this.byteBuffer = this.read();
                 }
 
-                if (!this.interrupted())
-                    this.setState(RETRIEVER_STATE_SUCCESSFUL);
+                if (!this.interrupted()) {
+					this.setState(RETRIEVER_STATE_SUCCESSFUL);
+				}
 
                 WorldWind.getNetworkStatus().logAvailableHost(this.url);
             }
@@ -355,9 +358,10 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
                     catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
                     continue;
                 }
-                if (!isTimeout)
-                    Logging.logger().log(Level.WARNING,
+                if (!isTimeout) {
+					Logging.logger().log(Level.WARNING,
                         Logging.getMessage("URLRetriever.ErrorAttemptingToRetrieve", this.url.toString()));
+				}
                 pendingException = e;
             }
             break; // success or non-retryable failure - exit retry loop
@@ -372,12 +376,14 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
             this.setState(RETRIEVER_STATE_ERROR);
             Logging.logger().log(Level.WARNING,
                 Logging.getMessage("Retriever.ErrorPostProcessing", this.url.toString()));
-            if (pendingException == null)
-                pendingException = e;
+            if (pendingException == null) {
+				pendingException = e;
+			}
         }
 
-        if (pendingException != null)
-            throw pendingException;
+        if (pendingException != null) {
+			throw pendingException;
+		}
 
         return this;
     }
@@ -406,10 +412,11 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
         try
         {
             Proxy proxy = WWIO.configureProxy();
-            if (proxy != null)
-                this.connection = this.url.openConnection(proxy);
-            else
-                this.connection = this.url.openConnection();
+            if (proxy != null) {
+				this.connection = this.url.openConnection(proxy);
+			} else {
+				this.connection = this.url.openConnection();
+			}
         }
         catch (java.io.IOException e)
         {
@@ -425,8 +432,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
             throw new IllegalStateException(message);
         }
 
-        if (this.connection instanceof HttpsURLConnection)
-            this.configureSSLContext((HttpsURLConnection) this.connection);
+        if (this.connection instanceof HttpsURLConnection) {
+			this.configureSSLContext((HttpsURLConnection) this.connection);
+		}
 
         this.connection.setConnectTimeout(this.connectTimeout);
         this.connection.setReadTimeout(this.readTimeout);
@@ -438,8 +446,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
     {
         SSLContext sslContext = (SSLContext) WorldWind.getValue(AVKey.HTTP_SSL_CONTEXT);
 
-        if (sslContext != null)
-            connection.setSSLSocketFactory(sslContext.getSocketFactory());
+        if (sslContext != null) {
+			connection.setSSLSocketFactory(sslContext.getSocketFactory());
+		}
     }
 
     protected void end() throws Exception
@@ -465,8 +474,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
         try
         {
             ByteBuffer buffer = this.doRead(this.connection);
-            if (buffer == null)
-                this.contentLength = 0;
+            if (buffer == null) {
+				this.contentLength = 0;
+			}
             return buffer;
         }
         catch (Exception e)
@@ -516,11 +526,12 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
             // automatically unzip the content if the content type is application/zip.
             this.contentType = connection.getContentType();
             if (this.contentType != null && this.contentType.equalsIgnoreCase("application/zip")
-                && !WWUtil.isEmpty(this.getValue(EXTRACT_ZIP_ENTRY)))
-                // Assume single file in zip and decompress it
+                && !WWUtil.isEmpty(this.getValue(EXTRACT_ZIP_ENTRY))) {
+				// Assume single file in zip and decompress it
                 buffer = this.readZipStream(inputStream, connection.getURL());
-            else
-                buffer = this.readNonSpecificStream(inputStream, connection);
+			} else {
+				buffer = this.readNonSpecificStream(inputStream, connection);
+			}
         }
 
         return buffer;
@@ -553,12 +564,14 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
                 numBytesRead += count;
                 this.contentLengthRead.getAndAdd(count);
             }
-            if (count < 0)
-                throw new WWRuntimeException("Premature end of stream from server.");
+            if (count < 0) {
+				throw new WWRuntimeException("Premature end of stream from server.");
+			}
         }
 
-        if (buffer != null)
-            buffer.flip();
+        if (buffer != null) {
+			buffer.flip();
+		}
 
         return buffer;
     }
@@ -587,8 +600,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
             }
         }
 
-        if (buffer != null)
-            buffer.flip();
+        if (buffer != null) {
+			buffer.flip();
+		}
 
         return buffer;
     }
@@ -629,8 +643,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
                 }
             }
         }
-        if (buffer != null)
-            buffer.flip();
+        if (buffer != null) {
+			buffer.flip();
+		}
 
         return buffer;
     }
@@ -660,8 +675,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
             if (matcher.find())
             {
                 Long maxAgeSec = WWUtil.makeLong(matcher.group(1));
-                if (maxAgeSec != null)
-                    return maxAgeSec * 1000 + System.currentTimeMillis();
+                if (maxAgeSec != null) {
+					return maxAgeSec * 1000 + System.currentTimeMillis();
+				}
             }
         }
 
@@ -671,8 +687,9 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
         long expiration = connection.getExpiration();
         long date = connection.getDate();
 
-        if (date > 0 && expiration > date)
-            return System.currentTimeMillis() + (expiration - date);
+        if (date > 0 && expiration > date) {
+			return System.currentTimeMillis() + (expiration - date);
+		}
 
         return expiration;
     }
@@ -680,10 +697,12 @@ public abstract class URLRetriever extends WWObjectImpl implements Retriever
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final URLRetriever that = (URLRetriever) o;
 

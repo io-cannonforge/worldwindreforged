@@ -129,8 +129,9 @@ public class Configuration // Singleton
         try
         {
             String appConfigLocation = System.getProperty(CONFIG_APP_DOCUMENT_KEY);
-            if (appConfigLocation != null)
-                this.loadConfigDoc(System.getProperty(CONFIG_APP_DOCUMENT_KEY)); // Load app's config first
+            if (appConfigLocation != null) {
+				this.loadConfigDoc(System.getProperty(CONFIG_APP_DOCUMENT_KEY)); // Load app's config first
+			}
         }
         catch (Exception e)
         {
@@ -194,16 +195,18 @@ public class Configuration // Singleton
             XPath xpath = WWXML.makeXPath();
 
             NodeList nodes = (NodeList) xpath.evaluate("/WorldWindConfiguration/Property", doc, XPathConstants.NODESET);
-            if (nodes == null || nodes.getLength() == 0)
-                return;
+            if (nodes == null || nodes.getLength() == 0) {
+				return;
+			}
 
             for (int i = 0; i < nodes.getLength(); i++)
             {
                 Node node = nodes.item(i);
                 String prop = xpath.evaluate("@name", node);
                 String value = xpath.evaluate("@value", node);
-                if (WWUtil.isEmpty(prop))// || WWUtil.isEmpty(value))
-                    continue;
+                if (WWUtil.isEmpty(prop)) { // || WWUtil.isEmpty(value))
+					continue;
+				}
 
                 this.properties.setProperty(prop, value);
             }
@@ -218,10 +221,11 @@ public class Configuration // Singleton
     {
         Properties defaults = new Properties();
         java.util.TimeZone tz = java.util.Calendar.getInstance().getTimeZone();
-        if (tz != null)
-            defaults.setProperty(AVKey.INITIAL_LONGITUDE,
+        if (tz != null) {
+			defaults.setProperty(AVKey.INITIAL_LONGITUDE,
                 Double.toString(
                     Angle.fromDegrees(180.0 * tz.getOffset(System.currentTimeMillis()) / (12.0 * 3.6e6)).degrees));
+		}
         return defaults;
     }
 
@@ -253,8 +257,9 @@ public class Configuration // Singleton
                 propsStream = this.getClass().getResourceAsStream("/" + configFileName);
             }
 
-            if (propsStream != null)
-                this.properties.load(propsStream);
+            if (propsStream != null) {
+				this.properties.load(propsStream);
+			}
         }
         // Use a named logger in all the catch statements below to prevent Logger from calling back into
         // Configuration when this Configuration instance is not yet fully instantiated.
@@ -322,8 +327,9 @@ public class Configuration // Singleton
     public static synchronized Integer getIntegerValue(String key)
     {
         String v = getStringValue(key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {
@@ -362,8 +368,9 @@ public class Configuration // Singleton
     public static synchronized Long getLongValue(String key)
     {
         String v = getStringValue(key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {
@@ -402,8 +409,9 @@ public class Configuration // Singleton
     public static synchronized Double getDoubleValue(String key)
     {
         String v = getStringValue(key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {
@@ -448,8 +456,9 @@ public class Configuration // Singleton
     public static synchronized Boolean getBooleanValue(String key)
     {
         String v = getStringValue(key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         if (v.trim().toUpperCase().startsWith("T") || v.trim().equals("1"))
         {
@@ -668,8 +677,9 @@ public class Configuration // Singleton
     {
         float ver = 0f;
         String s = System.getProperty("java.specification.version");
-        if (null == s || s.length() == 0)
-            s = System.getProperty("java.version");
+        if (null == s || s.length() == 0) {
+			s = System.getProperty("java.version");
+		}
         try
         {
             ver = Float.parseFloat(s.trim());
@@ -693,8 +703,9 @@ public class Configuration // Singleton
     {
         // Prefer GL 3.x/4.x compatibility — guarantees GLSL 3.30, layout qualifiers, robust VAOs.
         // seaglassfoundry.com: GL3bc includes all fixed-function APIs so existing code keeps working.
-        if (GLProfile.isAvailable(GLProfile.GL3bc))
-            return GLProfile.get(GLProfile.GL3bc);
+        if (GLProfile.isAvailable(GLProfile.GL3bc)) {
+			return GLProfile.get(GLProfile.GL3bc);
+		}
 
         // Fallback for old hardware: highest available fixed-function profile.
         return GLProfile.getMaxFixedFunc(true);
@@ -721,8 +732,9 @@ public class Configuration // Singleton
 
         // Determine whether we should request a stereo canvas
         String stereo = System.getProperty(AVKey.STEREO_MODE);
-        if ("device".equals(stereo))
-            caps.setStereo(true);
+        if ("device".equals(stereo)) {
+			caps.setStereo(true);
+		}
 
         return caps;
     }
@@ -745,8 +757,9 @@ public class Configuration // Singleton
             try
             {
                 Node node = (Node) xpath.evaluate(xpathExpression, doc.getDocumentElement(), XPathConstants.NODE);
-                if (node != null)
-                    return (Element) node;
+                if (node != null) {
+					return (Element) node;
+				}
             }
             catch (XPathExpressionException e)
             {

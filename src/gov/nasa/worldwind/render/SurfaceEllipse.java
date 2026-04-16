@@ -435,8 +435,9 @@ public class SurfaceEllipse extends AbstractSurfaceShape
             throw new IllegalArgumentException(message);
         }
 
-        if (this.majorRadius == 0 && this.minorRadius == 0)
-            return null;
+        if (this.majorRadius == 0 && this.minorRadius == 0) {
+			return null;
+		}
 
         int numLocations = 1 + Math.max(MIN_NUM_INTERVALS, intervals);
         double globeRadius = globe.getRadiusAt(this.center.getLatitude(), this.center.getLongitude());
@@ -451,8 +452,9 @@ public class SurfaceEllipse extends AbstractSurfaceShape
             {
                 List<LatLon> gpuResult = gpuTessellator.tessellateEllipse(gl, this.center,
                     this.majorRadius, this.minorRadius, this.heading, globeRadius, numLocations);
-                if (gpuResult != null)
-                    return gpuResult;
+                if (gpuResult != null) {
+					return gpuResult;
+				}
             }
         }
 
@@ -482,8 +484,9 @@ public class SurfaceEllipse extends AbstractSurfaceShape
         int intervals = this.computeNumIntervals(globe, edgeIntervalsPerDegree);
 
         List<LatLon> drawLocations = this.computeLocations(globe, intervals);
-        if (drawLocations == null)
-            return null;
+        if (drawLocations == null) {
+			return null;
+		}
 
         ArrayList<List<LatLon>> geom = new ArrayList<>();
         geom.add(drawLocations);
@@ -546,24 +549,29 @@ public class SurfaceEllipse extends AbstractSurfaceShape
         super.doRestoreState(rs, context);
 
         LatLon ll = rs.getStateValueAsLatLon(context, "center");
-        if (ll != null)
-            this.setCenter(ll);
+        if (ll != null) {
+			this.setCenter(ll);
+		}
 
         Double d = rs.getStateValueAsDouble(context, "majorRadius");
-        if (d != null)
-            this.setMajorRadius(d);
+        if (d != null) {
+			this.setMajorRadius(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "minorRadius");
-        if (d != null)
-            this.setMinorRadius(d);
+        if (d != null) {
+			this.setMinorRadius(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "headingDegrees");
-        if (d != null)
-            this.setHeading(Angle.fromDegrees(d));
+        if (d != null) {
+			this.setHeading(Angle.fromDegrees(d));
+		}
 
         Integer i = rs.getStateValueAsInteger(context, "intervals");
-        if (d != null)
-            this.setIntervals(i);
+        if (d != null) {
+			this.setIntervals(i);
+		}
     }
 
     @Override
@@ -588,8 +596,9 @@ public class SurfaceEllipse extends AbstractSurfaceShape
         //    this.setIntervals(intervals);
 
         Double od = rs.getStateValueAsDouble(context, "orientationDegrees");
-        if (od != null)
-            this.setHeading(Angle.fromDegrees(od));
+        if (od != null) {
+			this.setHeading(Angle.fromDegrees(od));
+		}
     }
 }
 

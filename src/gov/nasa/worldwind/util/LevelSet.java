@@ -28,6 +28,7 @@
 package gov.nasa.worldwind.util;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,29 +81,34 @@ public class LevelSet extends WWObjectImpl
         StringBuilder sb = new StringBuilder();
 
         Object o = params.getValue(AVKey.LEVEL_ZERO_TILE_DELTA);
-        if (o == null || !(o instanceof LatLon))
-            sb.append(Logging.getMessage("term.tileDelta")).append(" ");
+        if (o == null || !(o instanceof LatLon)) {
+			sb.append(Logging.getMessage("term.tileDelta")).append(" ");
+		}
 
         o = params.getValue(AVKey.SECTOR);
-        if (o == null || !(o instanceof Sector))
-            sb.append(Logging.getMessage("term.sector")).append(" ");
+        if (o == null || !(o instanceof Sector)) {
+			sb.append(Logging.getMessage("term.sector")).append(" ");
+		}
 
         int numLevels = 0;
         o = params.getValue(AVKey.NUM_LEVELS);
-        if (o == null || !(o instanceof Integer) || (numLevels = (Integer) o) < 1)
-            sb.append(Logging.getMessage("term.numLevels")).append(" ");
+        if (o == null || !(o instanceof Integer) || (numLevels = (Integer) o) < 1) {
+			sb.append(Logging.getMessage("term.numLevels")).append(" ");
+		}
 
         int numEmptyLevels = 0;
         o = params.getValue(AVKey.NUM_EMPTY_LEVELS);
-        if (o != null && o instanceof Integer && (Integer) o > 0)
-            numEmptyLevels = (Integer) o;
+        if (o != null && o instanceof Integer && (Integer) o > 0) {
+			numEmptyLevels = (Integer) o;
+		}
 
         String[] inactiveLevels = null;
         o = params.getValue(AVKey.INACTIVE_LEVELS);
-        if (o != null && !(o instanceof String))
-            sb.append(Logging.getMessage("term.inactiveLevels")).append(" ");
-        else if (o != null)
-            inactiveLevels = ((String) o).split(",");
+        if (o != null && !(o instanceof String)) {
+			sb.append(Logging.getMessage("term.inactiveLevels")).append(" ");
+		} else if (o != null) {
+			inactiveLevels = ((String) o).split(",");
+		}
 
         SectorResolution[] sectorLimits = null;
         o = params.getValue(AVKey.SECTOR_RESOLUTION_LIMITS);
@@ -137,10 +143,11 @@ public class LevelSet extends WWObjectImpl
         this.levelZeroTileDelta = (LatLon) params.getValue(AVKey.LEVEL_ZERO_TILE_DELTA);
 
         o = params.getValue(AVKey.TILE_ORIGIN);
-        if (o != null && o instanceof LatLon)
-            this.tileOrigin = (LatLon) o;
-        else
-            this.tileOrigin = new LatLon(Angle.NEG90, Angle.NEG180);
+        if (o != null && o instanceof LatLon) {
+			this.tileOrigin = (LatLon) o;
+		} else {
+			this.tileOrigin = new LatLon(Angle.NEG90, Angle.NEG180);
+		}
 
         params = params.copy(); // copy so as not to modify the user's params
 
@@ -153,12 +160,14 @@ public class LevelSet extends WWObjectImpl
 				public URL getURL(Tile tile, String altImageFormat) throws MalformedURLException
                 {
                     String service = tile.getLevel().getService();
-                    if (service == null || service.length() < 1)
-                        return null;
+                    if (service == null || service.length() < 1) {
+						return null;
+					}
 
                     StringBuilder sb = new StringBuilder(tile.getLevel().getService());
-                    if (sb.lastIndexOf("?") != sb.length() - 1)
-                        sb.append("?");
+                    if (sb.lastIndexOf("?") != sb.length() - 1) {
+						sb.append("?");
+					}
                     sb.append("T=");
                     sb.append(tile.getLevel().getDataset());
                     sb.append("&L=");
@@ -169,7 +178,7 @@ public class LevelSet extends WWObjectImpl
                     sb.append(tile.getRow());
 
                     // Convention for NASA WWN tiles is to request them with common dataset name but without dds.
-                    return new URL(altImageFormat == null ? sb.toString() : sb.toString().replace("dds", ""));
+                    return URI.create(altImageFormat == null ? sb.toString() : sb.toString().replace("dds", "")).toURL();
                 }
             });
         }
@@ -255,14 +264,16 @@ public class LevelSet extends WWObjectImpl
     {
         Object value = super.getValue(key);
 
-        if (value != null)
-            return value;
+        if (value != null) {
+			return value;
+		}
 
         // See if any level has it
         for (Level level : this.getLevels())
         {
-            if (level != null && (value = level.getValue(key)) != null)
-                return value;
+            if (level != null && (value = level.getValue(key)) != null) {
+				return value;
+			}
         }
 
         return null;
@@ -285,8 +296,9 @@ public class LevelSet extends WWObjectImpl
 
     public final SectorResolution[] getSectorLevelLimits()
     {
-        if (this.sectorLevelLimits == null)
-            return null;
+        if (this.sectorLevelLimits == null) {
+			return null;
+		}
 
         // The SectorResolution instances themselves are immutable. However the entries in a Java array cannot be made
         // immutable, therefore we create a copy to insulate ourselves from changes by the caller.
@@ -335,13 +347,14 @@ public class LevelSet extends WWObjectImpl
             throw new IllegalArgumentException(msg);
         }
 
-        if (!this.getSector().intersects(sector))
-            return null;
+        if (!this.getSector().intersects(sector)) {
+			return null;
+		}
 
         Level level = this.getLevel(this.getNumLevels() - 1);
 
-        if (this.sectorLevelLimits != null)
-            for (SectorResolution sr : this.sectorLevelLimits)
+        if (this.sectorLevelLimits != null) {
+			for (SectorResolution sr : this.sectorLevelLimits)
             {
                 if (sr.sector.intersects(sector) && sr.levelNumber <= level.getLevelNumber())
                 {
@@ -349,6 +362,7 @@ public class LevelSet extends WWObjectImpl
                     break;
                 }
             }
+		}
 
         return level;
     }
@@ -357,8 +371,8 @@ public class LevelSet extends WWObjectImpl
     {
         Level level = this.getLevel(this.getNumLevels() - 1);
 
-        if (this.sectorLevelLimits != null)
-            for (SectorResolution sr : this.sectorLevelLimits)
+        if (this.sectorLevelLimits != null) {
+			for (SectorResolution sr : this.sectorLevelLimits)
             {
                 if (sr.sector.contains(latitude, longitude) && sr.levelNumber <= level.getLevelNumber())
                 {
@@ -366,6 +380,7 @@ public class LevelSet extends WWObjectImpl
                     break;
                 }
             }
+		}
 
         return level;
     }

@@ -89,8 +89,9 @@ public class GeotiffRasterReader extends AbstractDataRasterReader
         }
 
         AVList metadata = new AVListImpl();
-        if (null != params)
-            metadata.setValues(params);
+        if (null != params) {
+			metadata.setValues(params);
+		}
 
         this.readMetadata(source, metadata);
 

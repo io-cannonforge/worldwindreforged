@@ -212,11 +212,13 @@ public class Tile implements Comparable<Tile>, Cacheable
         // Return just an approximate size
         long size = 0;
 
-        if (this.sector != null)
-            size += this.sector.getSizeInBytes();
+        if (this.sector != null) {
+			size += this.sector.getSizeInBytes();
+		}
 
-        if (this.path != null)
-            size += this.getPath().length();
+        if (this.path != null) {
+			size += this.getPath().length();
+		}
 
         size += 32; // to account for the references and the TileKey size
 
@@ -228,8 +230,9 @@ public class Tile implements Comparable<Tile>, Cacheable
         if (this.path == null)
         {
             this.path = this.level.getPath() + "/" + this.row + "/" + this.row + "_" + this.column;
-            if (!this.level.isEmpty())
-                path += this.level.getFormatSuffix();
+            if (!this.level.isEmpty()) {
+				path += this.level.getFormatSuffix();
+			}
         }
 
         return this.path;
@@ -280,8 +283,9 @@ public class Tile implements Comparable<Tile>, Cacheable
      */
     public final String getCacheName()
     {
-        if (this.cacheName != null)
-            return this.cacheName;
+        if (this.cacheName != null) {
+			return this.cacheName;
+		}
 
         return this.level != null ? this.level.getCacheName() : null;
     }
@@ -341,21 +345,27 @@ public class Tile implements Comparable<Tile>, Cacheable
         }
 
         // No need to compare Sectors or path because they are redundant with row and column
-        if (tile.getLevelNumber() == this.getLevelNumber() && tile.row == this.row && tile.column == this.column)
-            return 0;
+        if (tile.getLevelNumber() == this.getLevelNumber() && tile.row == this.row && tile.column == this.column) {
+			return 0;
+		}
 
-        if (this.getLevelNumber() < tile.getLevelNumber()) // Lower-res levels compare lower than higher-res
-            return -1;
-        if (this.getLevelNumber() > tile.getLevelNumber())
-            return 1;
+        if (this.getLevelNumber() < tile.getLevelNumber()) { // Lower-res levels compare lower than higher-res
+			return -1;
+		}
+        if (this.getLevelNumber() > tile.getLevelNumber()) {
+			return 1;
+		}
 
-        if (this.row < tile.row)
-            return -1;
-        if (this.row > tile.row)
-            return 1;
+        if (this.row < tile.row) {
+			return -1;
+		}
+        if (this.row > tile.row) {
+			return 1;
+		}
 
-        if (this.column < tile.column)
-            return -1;
+        if (this.column < tile.column) {
+			return -1;
+		}
 
         return 1; // tile.column must be > this.column because equality was tested above
     }
@@ -364,10 +374,12 @@ public class Tile implements Comparable<Tile>, Cacheable
     public boolean equals(Object o)
     {
         // Equality based only on the tile key
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final Tile tile = (Tile) o;
 
@@ -423,8 +435,9 @@ public class Tile implements Comparable<Tile>, Cacheable
 
         int row = (int) ((latitude.degrees - origin.degrees) / delta.degrees);
         // Latitude is at the end of the grid. Subtract 1 from the computed row to return the last row.
-        if ((latitude.degrees - origin.degrees) == 180d)
-            row = row - 1;
+        if ((latitude.degrees - origin.degrees) == 180d) {
+			row = row - 1;
+		}
 
         return row;
     }
@@ -467,13 +480,15 @@ public class Tile implements Comparable<Tile>, Cacheable
         // Compute the longitude relative to the grid. The grid provides 360 degrees of longitude from the grid origin.
         // We wrap grid longitude values so that the grid begins and ends at the origin.
         double gridLongitude = longitude.degrees - origin.degrees;
-        if (gridLongitude < 0.0)
-            gridLongitude = 360d + gridLongitude;
+        if (gridLongitude < 0.0) {
+			gridLongitude = 360d + gridLongitude;
+		}
 
         int col = (int) (gridLongitude / delta.degrees);
         // Longitude is at the end of the grid. Subtract 1 from the computed column to return the last column.
-        if ((longitude.degrees - origin.degrees) == 360d)
-            col = col - 1;
+        if ((longitude.degrees - origin.degrees) == 360d) {
+			col = col - 1;
+		}
 
         return col;
     }

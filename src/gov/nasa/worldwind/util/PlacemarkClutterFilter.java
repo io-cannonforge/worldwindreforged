@@ -75,9 +75,9 @@ public class PlacemarkClutterFilter implements ClutterFilter
             Rectangle2D bounds = shape.getBounds(dc);
 
             Rectangle2D intersectingRegion = this.intersects(bounds);
-            if (intersectingRegion != null)
-                this.addShape(intersectingRegion, shape);
-            else if (bounds != null)
+            if (intersectingRegion != null) {
+				this.addShape(intersectingRegion, shape);
+			} else if (bounds != null)
             {
                 // Double the size of the capturing rectangle in order to grab more than it otherwise would. This
                 // reduces the clutter caused by the decluttered representations themselves.
@@ -110,13 +110,15 @@ public class PlacemarkClutterFilter implements ClutterFilter
      */
     protected Rectangle2D intersects(Rectangle2D rectangle)
     {
-        if (rectangle == null)
-            return null;
+        if (rectangle == null) {
+			return null;
+		}
 
         for (Rectangle2D rect : this.rectList)
         {
-            if (rectangle.intersects(rect))
-                return rect;
+            if (rectangle.intersects(rect)) {
+				return rect;
+			}
         }
 
         return null;
@@ -160,21 +162,24 @@ public class PlacemarkClutterFilter implements ClutterFilter
             {
                 if (shape instanceof PointPlacemark.OrderedPlacemark)
                 {
-                    if (placemarks == null)
-                        placemarks = new ArrayList<>();
+                    if (placemarks == null) {
+						placemarks = new ArrayList<>();
+					}
                     placemarks.add((PointPlacemark.OrderedPlacemark) shape);
                 }
                 else
                 {
                     // Keep track of the first non-placemark shape associated with the current rectangle.
-                    if (firstShape == null)
-                        firstShape = shape;
+                    if (firstShape == null) {
+						firstShape = shape;
+					}
                 }
             }
 
             // Add the first shape back to the ordered renderable list.
-            if (firstShape != null)
-                dc.addOrderedRenderable(firstShape);
+            if (firstShape != null) {
+				dc.addOrderedRenderable(firstShape);
+			}
 
             if (placemarks != null && placemarks.size() > 1)
             {
@@ -220,8 +225,9 @@ public class PlacemarkClutterFilter implements ClutterFilter
         {
             if (this.opm.getPlacemark().isEnableLabelPicking())
             {
-                if (this.pickSupport == null)
-                    this.pickSupport = new PickSupport();
+                if (this.pickSupport == null) {
+					this.pickSupport = new PickSupport();
+				}
 
                 this.pickSupport.clearPickList();
                 try
@@ -243,8 +249,9 @@ public class PlacemarkClutterFilter implements ClutterFilter
             GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
             PointPlacemarkAttributes attrs = this.opm.getPlacemark().getAttributes();
             Font font = attrs != null ? attrs.getLabelFont() : null;
-            if (font == null)
-                font = PointPlacemarkAttributes.DEFAULT_LABEL_FONT;
+            if (font == null) {
+				font = PointPlacemarkAttributes.DEFAULT_LABEL_FONT;
+			}
 
             OGLStackHandler osh = new OGLStackHandler();
 
@@ -295,8 +302,9 @@ public class PlacemarkClutterFilter implements ClutterFilter
                     dx = textPoint.x - startPoint.x;
                     dy = textPoint.y - startPoint.y;
                     double d2 = dx * dx + dy * dy;
-                    if (d2 < d1)
-                        endPoint = textPoint;
+                    if (d2 < d1) {
+						endPoint = textPoint;
+					}
                     this.drawDeclutterLine(dc, startPoint, endPoint);
                 }
             }
@@ -333,10 +341,11 @@ public class PlacemarkClutterFilter implements ClutterFilter
                     PointPlacemark placemark = this.opm.getPlacemark();
                     Color textColor = Color.WHITE;
                     if (placemark.isHighlighted() && placemark.getHighlightAttributes() != null
-                        && placemark.getHighlightAttributes().getLabelColor() != null)
-                        textColor = placemark.getHighlightAttributes().getLabelColor();
-                    else if (placemark.getAttributes() != null && placemark.getAttributes().getLabelColor() != null)
-                        textColor = placemark.getAttributes().getLabelColor();
+                        && placemark.getHighlightAttributes().getLabelColor() != null) {
+						textColor = placemark.getHighlightAttributes().getLabelColor();
+					} else if (placemark.getAttributes() != null && placemark.getAttributes().getLabelColor() != null) {
+						textColor = placemark.getAttributes().getLabelColor();
+					}
 
                     textRenderer.begin3DRendering();
                     textRenderer.setColor(Color.BLACK);

@@ -86,22 +86,23 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
     protected void setDirection(String direction)
     {
         int dir = 0;
-        if (AVKey.NORTH.equals(direction))
-            dir = NORTH;
-        else if (AVKey.SOUTH.equals(direction))
-            dir = SOUTH;
-        else if (AVKey.EAST.equals(direction))
-            dir = EAST;
-        else if (AVKey.WEST.equals(direction))
-            dir = WEST;
-        else if (AVKey.NORTHEAST.equals(direction))
-            dir = NORTHEAST;
-        else if (AVKey.NORTHWEST.equals(direction))
-            dir = NORTHWEST;
-        else if (AVKey.SOUTHEAST.equals(direction))
-            dir = SOUTHEAST;
-        else if (AVKey.SOUTHWEST.equals(direction))
-            dir = SOUTHWEST;
+        if (AVKey.NORTH.equals(direction)) {
+			dir = NORTH;
+		} else if (AVKey.SOUTH.equals(direction)) {
+			dir = SOUTH;
+		} else if (AVKey.EAST.equals(direction)) {
+			dir = EAST;
+		} else if (AVKey.WEST.equals(direction)) {
+			dir = WEST;
+		} else if (AVKey.NORTHEAST.equals(direction)) {
+			dir = NORTHEAST;
+		} else if (AVKey.NORTHWEST.equals(direction)) {
+			dir = NORTHWEST;
+		} else if (AVKey.SOUTHEAST.equals(direction)) {
+			dir = SOUTHEAST;
+		} else if (AVKey.SOUTHWEST.equals(direction)) {
+			dir = SOUTHWEST;
+		}
 
         this.setDirection(dir);
     }
@@ -135,32 +136,35 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
             this.allowHorizontalResize = true;
         }
 
-        if (WEST == direction || SOUTHWEST == direction || NORTHWEST == direction)
-            this.xSign = -1;
-        else
-            this.xSign = 1;
+        if (WEST == direction || SOUTHWEST == direction || NORTHWEST == direction) {
+			this.xSign = -1;
+		} else {
+			this.xSign = 1;
+		}
 
-        if (NORTH == direction || NORTHEAST == direction || NORTHWEST == direction)
-            this.ySign = -1;
-        else
-            this.ySign = 1;
+        if (NORTH == direction || NORTHEAST == direction || NORTHWEST == direction) {
+			this.ySign = -1;
+		} else {
+			this.ySign = 1;
+		}
 
-        if (NORTH == direction)
-            this.cursor = Cursor.N_RESIZE_CURSOR;
-        else if (SOUTH == direction)
-            this.cursor = Cursor.S_RESIZE_CURSOR;
-        else if (EAST == direction)
-            this.cursor = Cursor.E_RESIZE_CURSOR;
-        else if (WEST == direction)
-            this.cursor = Cursor.W_RESIZE_CURSOR;
-        else if (NORTHEAST == direction)
-            this.cursor = Cursor.NE_RESIZE_CURSOR;
-        else if (SOUTHEAST == direction)
-            this.cursor = Cursor.SE_RESIZE_CURSOR;
-        else if (SOUTHWEST == direction)
-            this.cursor = Cursor.SW_RESIZE_CURSOR;
-        else if (NORTHWEST == direction)
-            this.cursor = Cursor.NW_RESIZE_CURSOR;
+        if (NORTH == direction) {
+			this.cursor = Cursor.N_RESIZE_CURSOR;
+		} else if (SOUTH == direction) {
+			this.cursor = Cursor.S_RESIZE_CURSOR;
+		} else if (EAST == direction) {
+			this.cursor = Cursor.E_RESIZE_CURSOR;
+		} else if (WEST == direction) {
+			this.cursor = Cursor.W_RESIZE_CURSOR;
+		} else if (NORTHEAST == direction) {
+			this.cursor = Cursor.NE_RESIZE_CURSOR;
+		} else if (SOUTHEAST == direction) {
+			this.cursor = Cursor.SE_RESIZE_CURSOR;
+		} else if (SOUTHWEST == direction) {
+			this.cursor = Cursor.SW_RESIZE_CURSOR;
+		} else if (NORTHWEST == direction) {
+			this.cursor = Cursor.NW_RESIZE_CURSOR;
+		}
     }
 
     /**
@@ -174,8 +178,9 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
         Point topLeft = this.getScreenPoint();
         Dimension size = this.getSize();
 
-        if (topLeft == null || size == null)
-            return;
+        if (topLeft == null || size == null) {
+			return;
+		}
 
         // Find the center of the frame
         Point center = new Point(topLeft.x + size.width / 2, topLeft.y + size.height / 2);
@@ -197,12 +202,13 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
         int dir;
 
         double tolerance = frameAspectRatio * 0.1;
-        if (Math.abs(pickAspectRatio - frameAspectRatio) < tolerance)
-            dir = hdir + vdir;
-        else if (pickAspectRatio < frameAspectRatio)
-            dir = vdir;
-        else
-            dir = hdir;
+        if (Math.abs(pickAspectRatio - frameAspectRatio) < tolerance) {
+			dir = hdir + vdir;
+		} else if (pickAspectRatio < frameAspectRatio) {
+			dir = vdir;
+		} else {
+			dir = hdir;
+		}
 
         this.setDirection(dir);
     }
@@ -227,8 +233,9 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
     @Override
     public void selected(SelectEvent event)
     {
-        if (event == null || this.isConsumed(event))
-            return;
+        if (event == null || this.isConsumed(event)) {
+			return;
+		}
 
         Point pickPoint = event.getPickPoint();
         if (pickPoint != null)
@@ -264,8 +271,9 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
     @Override
     public void mouseMoved(MouseEvent e)
     {
-        if (e == null || e.isConsumed())
-            return;
+        if (e == null || e.isConsumed()) {
+			return;
+		}
 
         this.setDirectionFromPoint(e.getPoint());
     }
@@ -282,13 +290,16 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
         int deltaX = 0;
         int deltaY = 0;
 
-        if (this.refLocation == null || this.refSize == null)
-            return;
+        if (this.refLocation == null || this.refSize == null) {
+			return;
+		}
 
-        if (this.allowHorizontalResize)
-            deltaX = (point.x - this.dragRefPoint.x) * this.xSign;
-        if (this.allowVerticalResize)
-            deltaY = (point.y - this.dragRefPoint.y) * this.ySign;
+        if (this.allowHorizontalResize) {
+			deltaX = (point.x - this.dragRefPoint.x) * this.xSign;
+		}
+        if (this.allowVerticalResize) {
+			deltaY = (point.y - this.dragRefPoint.y) * this.ySign;
+		}
 
         int width = this.refSize.width + deltaX;
         int height = this.refSize.height + deltaY;
@@ -335,8 +346,9 @@ public abstract class AbstractResizeHotSpot extends AbstractHotSpot
     {
         // If the resize area is being deactivated, reset the cursor so that the next time the HotSpot becomes active
         // we won't show the wrong cursor.
-        if (!active)
-            this.cursor = Cursor.DEFAULT_CURSOR;
+        if (!active) {
+			this.cursor = Cursor.DEFAULT_CURSOR;
+		}
         super.setActive(active);
     }
 

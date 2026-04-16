@@ -128,10 +128,11 @@ public class AnimationSupport
      */
     public static double mixDouble(double amount, double value1, double value2)
     {
-        if (amount < 0)
-            return value1;
-        else if (amount > 1)
-            return value2;
+        if (amount < 0) {
+			return value1;
+		} else if (amount > 1) {
+			return value2;
+		}
         return value1 * (1.0 - amount) + value2 * amount;
     }
 
@@ -159,10 +160,11 @@ public class AnimationSupport
     public static double interpolantNormalized(double amount, double startAmount,
         double stopAmount)
     {
-        if (amount < startAmount)
-            return 0.0;
-        else if (amount > stopAmount)
-            return 1.0;
+        if (amount < startAmount) {
+			return 0.0;
+		} else if (amount > stopAmount) {
+			return 1.0;
+		}
         if ((stopAmount - startAmount) == 0)
         {
             return(1.0);

@@ -339,8 +339,9 @@ public class Wedge extends RigidShape
             for (int divisions = minDivisions; divisions <= maxDivisions; divisions++)
             {
                 this.subdivisions = divisions;
-                if (this.sufficientDetail(dc, divisions, shapeData))
-                    break;
+                if (this.sufficientDetail(dc, divisions, shapeData)) {
+					break;
+				}
             }
         }
     }
@@ -360,12 +361,14 @@ public class Wedge extends RigidShape
             throw new IllegalArgumentException(message);
         }
 
-        if (shapeData == null)
-            return false;
+        if (shapeData == null) {
+			return false;
+		}
 
         Extent extent = shapeData.getExtent();
-        if (extent == null)
-            return true;
+        if (extent == null) {
+			return true;
+		}
 
         double thresholdDensity = this.computeDetailThreshold();
 
@@ -384,8 +387,9 @@ public class Wedge extends RigidShape
         // check if current LOD is sufficient
         int oldDivisions = this.subdivisions;
         computeSubdivisions(dc, this.getCurrentShapeData());
-        if (oldDivisions != this.subdivisions)
-            return true;
+        if (oldDivisions != this.subdivisions) {
+			return true;
+		}
 
         return super.mustRegenerateGeometry(dc);
     }
@@ -422,8 +426,9 @@ public class Wedge extends RigidShape
             makeUnitWedge(this.subdivisions, shapeData.getMeshes());
             for (int piece = 0; piece < getFaceCount(); piece++)
             {
-                if (offsets.get(piece) == null)  // if texture offsets don't exist, set default values to 0
-                    offsets.put(piece, new OffsetsList());
+                if (offsets.get(piece) == null) { // if texture offsets don't exist, set default values to 0
+					offsets.put(piece, new OffsetsList());
+				}
                 // add the new mesh pieces to the cache
                 cacheKey = new Geometry.CacheKey(this.getClass(), "Wedge" + piece + "-" + this.wedgeAngle.toString(),
                     this.subdivisions);
@@ -435,8 +440,9 @@ public class Wedge extends RigidShape
             // otherwise, just use the one from the cache
             for (int piece = 0; piece < getFaceCount(); piece++)
             {
-                if (offsets.get(piece) == null)  // if texture offsets don't exist, set default values to 0
-                    offsets.put(piece, new OffsetsList());
+                if (offsets.get(piece) == null) { // if texture offsets don't exist, set default values to 0
+					offsets.put(piece, new OffsetsList());
+				}
                 cacheKey = new Geometry.CacheKey(this.getClass(), "Wedge" + piece + "-" + this.wedgeAngle.toString(),
                     this.subdivisions);
                 geom = (Geometry) this.getGeometryCache().getObject(cacheKey);
@@ -633,8 +639,9 @@ public class Wedge extends RigidShape
             if (mustApplyLighting(dc, null))
             {
                 // re-enable normals if we temporarily turned them off earlier
-                if (normalBuffer == null)
-                    gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+                if (normalBuffer == null) {
+					gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+				}
             }
             // this.logGeometryStatistics(dc, geom);
         }
@@ -698,7 +705,8 @@ public class Wedge extends RigidShape
         super.doRestoreState(rs, context);
 
         Double doubleState = rs.getStateValueAsDouble(context, "wedgeAngle");
-        if (doubleState != null)
-            this.setWedgeAngle(Angle.fromDegrees(doubleState));
+        if (doubleState != null) {
+			this.setWedgeAngle(Angle.fromDegrees(doubleState));
+		}
     }
 }

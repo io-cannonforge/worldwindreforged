@@ -103,8 +103,9 @@ public class StatisticsPanel extends JPanel
         // Put the name panel in a scroll bar.
         this.scrollPane = new JScrollPane(dummyPanel);
         this.scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        if (size != null)
-            this.scrollPane.setPreferredSize(size);
+        if (size != null) {
+			this.scrollPane.setPreferredSize(size);
+		}
 
         // Add the scroll bar and stats panel to a titled panel that will resize with the main window.
         outerPanel = new JPanel(new GridLayout(0, 1, 0, 10));
@@ -117,8 +118,9 @@ public class StatisticsPanel extends JPanel
 
     private void fill(WorldWindow wwd)
     {
-        if (wwd.getSceneController().getPerFrameStatistics().size() < 1)
-            return;
+        if (wwd.getSceneController().getPerFrameStatistics().size() < 1) {
+			return;
+		}
 
         PerformanceStatistic[] pfs = new PerformanceStatistic[wwd.getPerFrameStatistics().size()];
         pfs = wwd.getSceneController().getPerFrameStatistics().toArray(pfs);

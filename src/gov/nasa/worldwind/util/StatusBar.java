@@ -121,8 +121,9 @@ public class StatusBar extends JPanel implements PositionListener, RenderingList
         {
             if (!showNetworkStatus.get())
             {
-                if (heartBeat.getText().length() > 0)
-                    heartBeat.setText("");
+                if (heartBeat.getText().length() > 0) {
+					heartBeat.setText("");
+				}
                 return;
             }
 
@@ -139,10 +140,11 @@ public class StatusBar extends JPanel implements PositionListener, RenderingList
             if (isNetworkAvailable.get() && WorldWind.getRetrievalService().hasActiveTasks())
             {
                 heartBeat.setText(Logging.getMessage("term.Downloading"));
-                if (alpha >= MAX_ALPHA)
-                    alpha = MAX_ALPHA;
-                else
-                    alpha = alpha < 16 ? 16 : Math.min(MAX_ALPHA, alpha + 20);
+                if (alpha >= MAX_ALPHA) {
+					alpha = MAX_ALPHA;
+				} else {
+					alpha = alpha < 16 ? 16 : Math.min(MAX_ALPHA, alpha + 20);
+				}
             }
             else
             {
@@ -211,15 +213,17 @@ public class StatusBar extends JPanel implements PositionListener, RenderingList
 
         if (showNetworkStatus)
         {
-            if (this.netCheckThread != null)
-                this.netCheckThread.interrupt();
+            if (this.netCheckThread != null) {
+				this.netCheckThread.interrupt();
+			}
 
             this.netCheckThread = this.startNetCheckThread();
         }
         else
         {
-            if (this.netCheckThread != null)
-                this.netCheckThread.interrupt();
+            if (this.netCheckThread != null) {
+				this.netCheckThread.interrupt();
+			}
 
             this.netCheckThread = null;
         }
@@ -274,10 +278,11 @@ public class StatusBar extends JPanel implements PositionListener, RenderingList
     {
         String s;
         String elev = Logging.getMessage("term.Elev");
-        if (UNIT_IMPERIAL.equals(elevationUnit))
-            s = String.format(elev + " %,7d feet", (int) (WWMath.convertMetersToFeet(metersElevation)));
-        else // Default to metric units.
-            s = String.format(elev + " %,7d meters", (int) metersElevation);
+        if (UNIT_IMPERIAL.equals(elevationUnit)) {
+			s = String.format(elev + " %,7d feet", (int) (WWMath.convertMetersToFeet(metersElevation)));
+		} else { // Default to metric units.
+			s = String.format(elev + " %,7d meters", (int) metersElevation);
+		}
         return s;
     }
 
@@ -288,25 +293,28 @@ public class StatusBar extends JPanel implements PositionListener, RenderingList
         if (UNIT_IMPERIAL.equals(elevationUnit))
         {
             double miles = WWMath.convertMetersToMiles(metersAltitude);
-            if (Math.abs(miles) >= 1)
-                s = String.format(altitude + " %,7d mi", (int) Math.round(miles));
-            else
-                s = String.format(altitude + " %,7d ft", (int) Math.round(WWMath.convertMetersToFeet(metersAltitude)));
+            if (Math.abs(miles) >= 1) {
+				s = String.format(altitude + " %,7d mi", (int) Math.round(miles));
+			} else {
+				s = String.format(altitude + " %,7d ft", (int) Math.round(WWMath.convertMetersToFeet(metersAltitude)));
+			}
         }
-        else if (Math.abs(metersAltitude) >= 1000) // Default to metric units.
-            s = String.format(altitude + " %,7d km", (int) Math.round(metersAltitude / 1e3));
-        else
-            s = String.format(altitude + " %,7d m", (int) Math.round(metersAltitude));
+        else if (Math.abs(metersAltitude) >= 1000) { // Default to metric units.
+			s = String.format(altitude + " %,7d km", (int) Math.round(metersAltitude / 1e3));
+		} else {
+			s = String.format(altitude + " %,7d m", (int) Math.round(metersAltitude));
+		}
         return s;
     }
 
     protected String makeAngleDescription(String label, Angle angle)
     {
         String s;
-        if (Angle.ANGLE_FORMAT_DMS.equals(angleFormat))
-            s = String.format("%s %s", label, angle.toDMSString());
-        else
-            s = String.format("%s %7.4f\u00B0", label, angle.degrees);
+        if (Angle.ANGLE_FORMAT_DMS.equals(angleFormat)) {
+			s = String.format("%s %s", label, angle.toDMSString());
+		} else {
+			s = String.format("%s %7.4f\u00B0", label, angle.degrees);
+		}
         return s;
     }
 
@@ -334,21 +342,24 @@ public class StatusBar extends JPanel implements PositionListener, RenderingList
     @Override
 	public void stageChanged(RenderingEvent event)
     {
-        if (!event.getStage().equals(RenderingEvent.BEFORE_BUFFER_SWAP))
-            return;
+        if (!event.getStage().equals(RenderingEvent.BEFORE_BUFFER_SWAP)) {
+			return;
+		}
 
         EventQueue.invokeLater(() ->
         {
-            if (eventSource.getView() != null && eventSource.getView().getEyePosition() != null)
-                altDisplay.setText(makeEyeAltitudeDescription(
+            if (eventSource.getView() != null && eventSource.getView().getEyePosition() != null) {
+				altDisplay.setText(makeEyeAltitudeDescription(
                     eventSource.getView().getEyePosition().getElevation()));
-            else
-                altDisplay.setText(Logging.getMessage("term.Altitude"));
+			} else {
+				altDisplay.setText(Logging.getMessage("term.Altitude"));
+			}
 
             // seaglassfoundry.com: FPS from scene controller EMA (Phase 8)
-            if (eventSource.getSceneController() != null)
-                fpsDisplay.setText(String.format("%.0f fps",
+            if (eventSource.getSceneController() != null) {
+				fpsDisplay.setText(String.format("%.0f fps",
                     eventSource.getSceneController().getFramesPerSecond()));
+			}
         });
     }
 }

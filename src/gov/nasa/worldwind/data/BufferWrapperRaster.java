@@ -116,8 +116,9 @@ public class BufferWrapperRaster extends AbstractDataRaster implements Cacheable
         if (this.hasKey(AVKey.MISSING_DATA_SIGNAL))
         {
             Object o = this.getValue(AVKey.MISSING_DATA_SIGNAL);
-            if (null != o && o instanceof Double)
-                return (Double) o;
+            if (null != o && o instanceof Double) {
+				return (Double) o;
+			}
         }
         return Double.MAX_VALUE;
     }
@@ -155,16 +156,20 @@ public class BufferWrapperRaster extends AbstractDataRaster implements Cacheable
 
             for (int i = 0; i < width; i++)
             {
-                if (buffer[i] == missingDataSignal) // Ignore values marked as missing-data.
-                    continue;
+                if (buffer[i] == missingDataSignal) { // Ignore values marked as missing-data.
+					continue;
+				}
 
-                if (extremes == null)
-                    extremes = WWUtil.defaultMinMix();
+                if (extremes == null) {
+					extremes = WWUtil.defaultMinMix();
+				}
 
-                if (extremes[0] > buffer[i])
-                    extremes[0] = buffer[i];
-                if (extremes[1] < buffer[i])
-                    extremes[1] = buffer[i];
+                if (extremes[0] > buffer[i]) {
+					extremes[0] = buffer[i];
+				}
+                if (extremes[1] < buffer[i]) {
+					extremes[1] = buffer[i];
+				}
             }
         }
 
@@ -237,8 +242,9 @@ public class BufferWrapperRaster extends AbstractDataRaster implements Cacheable
 
     protected void doDrawOnTo(BufferWrapperRaster canvas)
     {
-        if (!this.getSector().intersects(canvas.getSector()))
-            return;
+        if (!this.getSector().intersects(canvas.getSector())) {
+			return;
+		}
 
         int thisWidth = this.getWidth();
         int thisHeight = this.getHeight();
@@ -270,8 +276,9 @@ public class BufferWrapperRaster extends AbstractDataRaster implements Cacheable
         // either the two rasters do not intersect or that this raster fits entirely between two x-coordinates or two
         // y-coordinates (or both) in the canvas. In either case, we do not rasterize any contribution from this raster
         // into the canvas, and simply exit.
-        if (lut == null)
-            return;
+        if (lut == null) {
+			return;
+		}
 
         // Allocate space to hold the lookup table parameters.
         double[] xParams = new double[3];
@@ -460,11 +467,13 @@ public class BufferWrapperRaster extends AbstractDataRaster implements Cacheable
                 if (params[index] != -1d)
                 {
                     // Compute the minimum first parameter (x1 or y1).
-                    if (params[index] < min)
-                        min = params[index];
+                    if (params[index] < min) {
+						min = params[index];
+					}
                     // Compute the maximum second parameters (x2 or y2).
-                    if (params[index + 1] > max)
-                        max = params[index + 1];
+                    if (params[index + 1] > max) {
+						max = params[index + 1];
+					}
                 }
             }
             result[0] = min;

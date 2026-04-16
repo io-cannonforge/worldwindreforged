@@ -110,8 +110,9 @@ public class AnnotationLayer extends AbstractLayer
         for (Annotation annotation : annotations)
         {
             // Internal list of annotations does not accept null values.
-            if (annotation != null)
-                this.annotations.add(annotation);
+            if (annotation != null) {
+				this.annotations.add(annotation);
+			}
         }
     }
 
@@ -163,8 +164,9 @@ public class AnnotationLayer extends AbstractLayer
 
     protected void clearAnnotations()
     {
-        if (this.annotations != null && this.annotations.size() > 0)
-            this.annotations.clear();
+        if (this.annotations != null && this.annotations.size() > 0) {
+			this.annotations.clear();
+		}
     }
 
     /**

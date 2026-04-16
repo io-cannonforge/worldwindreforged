@@ -103,11 +103,13 @@ public class WWIO
 
         for (String pathPart : pathParts)
         {
-            if (pathPart == null)
-                continue;
+            if (pathPart == null) {
+				continue;
+			}
 
-            if (sb.length() > 0)
-                sb.append(File.separator);
+            if (sb.length() > 0) {
+				sb.append(File.separator);
+			}
             sb.append(pathPart.replaceAll(ILLEGAL_FILE_PATH_PART_CHARACTERS, "_"));
         }
 
@@ -116,10 +118,12 @@ public class WWIO
 
     public static String appendPathPart(String firstPart, String secondPart)
     {
-        if (secondPart == null || secondPart.length() == 0)
-            return firstPart;
-        if (firstPart == null || firstPart.length() == 0)
-            return secondPart;
+        if (secondPart == null || secondPart.length() == 0) {
+			return firstPart;
+		}
+        if (firstPart == null || firstPart.length() == 0) {
+			return secondPart;
+		}
 
         StringBuilder sb = new StringBuilder();
         sb.append(WWIO.stripTrailingSeparator(firstPart));
@@ -159,10 +163,11 @@ public class WWIO
             throw new IllegalArgumentException(message);
         }
 
-        if (s.endsWith("/") || s.endsWith("\\"))
-            return s.substring(0, s.length() - 1);
-        else
-            return s;
+        if (s.endsWith("/") || s.endsWith("\\")) {
+			return s.substring(0, s.length() - 1);
+		} else {
+			return s;
+		}
     }
 
     public static String stripLeadingSeparator(String s)
@@ -174,10 +179,11 @@ public class WWIO
             throw new IllegalArgumentException(message);
         }
 
-        if (s.startsWith("/") || s.startsWith("\\"))
-            return s.substring(1, s.length());
-        else
-            return s;
+        if (s.startsWith("/") || s.startsWith("\\")) {
+			return s.substring(1, s.length());
+		} else {
+			return s;
+		}
     }
 
     public static String stripLeadingZeros(String s)
@@ -190,19 +196,22 @@ public class WWIO
         }
 
         int len = s.length();
-        if (len < 2) // String is empty or is a single character, so there is nothing to strip.
-            return s;
+        if (len < 2) { // String is empty or is a single character, so there is nothing to strip.
+			return s;
+		}
 
         int i = 0;
         while (i < len && s.charAt(i) == '0')
         {
             i++;
         }
-        if (i == len) // String is just '0' characters. Leave the last one.
-            i = len - 1;
+        if (i == len) { // String is just '0' characters. Leave the last one.
+			i = len - 1;
+		}
 
-        if (i == 0) // String doesn't contain any '0' characters, return the original string.
-            return s;
+        if (i == 0) { // String doesn't contain any '0' characters, return the original string.
+			return s;
+		}
 
         return s.substring(i, len); // String contains at least one leading '0' character.
     }
@@ -228,31 +237,32 @@ public class WWIO
             throw new IllegalArgumentException(message);
         }
 
-        if (src instanceof File)
-            return (File) src;
-
-        else if (src instanceof URL)
-            return convertURLToFile((URL) src);
-
-        else if (src instanceof URI)
-            return convertURIToFile((URI) src);
-
-        else if (!(src instanceof String))
-            return null;
+        if (src instanceof File) {
+			return (File) src;
+		} else if (src instanceof URL) {
+			return convertURLToFile((URL) src);
+		} else if (src instanceof URI) {
+			return convertURIToFile((URI) src);
+		} else if (!(src instanceof String)) {
+			return null;
+		}
 
         String sourceName = (String) src;
 
         File file = new File(sourceName);
-        if (file.exists())
-            return file;
+        if (file.exists()) {
+			return file;
+		}
 
         URL url = makeURL(sourceName);
-        if (url != null)
-            return convertURLToFile(url);
+        if (url != null) {
+			return convertURLToFile(url);
+		}
 
         URI uri = makeURI(sourceName);
-        if (uri != null)
-            return convertURIToFile(uri);
+        if (uri != null) {
+			return convertURIToFile(uri);
+		}
 
         return null;
     }
@@ -358,8 +368,9 @@ public class WWIO
 
             // Optionally force writing to the underlying storage device. Doing so ensures that all contents are
             // written to the device (and not in the I/O cache) in the event of a system failure.
-            if (forceFilesystemWrite)
-                channel.force(true);
+            if (forceFilesystemWrite) {
+				channel.force(true);
+			}
             fos.flush();
             return true;
         }
@@ -368,8 +379,9 @@ public class WWIO
             Logging.logger().log(Level.FINE,
                 Logging.getMessage("generic.interrupted", "WWIO.saveBuffer", file.getPath()), e);
 
-            if (numBytesWritten > 0) // don't leave behind incomplete files
-                file.delete();
+            if (numBytesWritten > 0) { // don't leave behind incomplete files
+				file.delete();
+			}
 
             throw e;
         }
@@ -377,8 +389,9 @@ public class WWIO
         {
             Logging.logger().log(Level.SEVERE, Logging.getMessage("WWIO.ErrorSavingBufferTo", file.getPath()), e);
 
-            if (numBytesWritten > 0) // don't leave behind incomplete files
-                file.delete();
+            if (numBytesWritten > 0) { // don't leave behind incomplete files
+				file.delete();
+			}
 
             throw e;
         }
@@ -466,10 +479,11 @@ public class WWIO
         }
 
         String accessMode;
-        if (mode == FileChannel.MapMode.READ_ONLY)
-            accessMode = "r";
-        else // (mode == FileChannel.MapMode.READ_WRITE || mode == FileChannel.MapMode.PRIVATE)
-            accessMode = "rw";
+        if (mode == FileChannel.MapMode.READ_ONLY) {
+			accessMode = "r";
+		} else { // (mode == FileChannel.MapMode.READ_WRITE || mode == FileChannel.MapMode.PRIVATE)
+			accessMode = "rw";
+		}
 
         RandomAccessFile raf = null;
         try
@@ -969,8 +983,9 @@ public class WWIO
             }
         }
 
-        if (buffer != null)
-            buffer.flip();
+        if (buffer != null) {
+			buffer.flip();
+		}
 
         return buffer;
     }
@@ -1139,8 +1154,9 @@ public class WWIO
 
         int len = filePath.length();
         int p = filePath.lastIndexOf("/");
-        if (p < 0)
-            p = filePath.lastIndexOf("\\");
+        if (p < 0) {
+			p = filePath.lastIndexOf("\\");
+		}
         return (p >= 0 && p + 1 < len) ? filePath.substring(p + 1, len) : null;
     }
 
@@ -1166,8 +1182,9 @@ public class WWIO
 
         int len = filePath.length();
         int p = filePath.lastIndexOf("/");
-        if (p < 0)
-            p = filePath.lastIndexOf("\\");
+        if (p < 0) {
+			p = filePath.lastIndexOf("\\");
+		}
         return (p > 0 && p < len) ? filePath.substring(0, p) : null;
     }
 
@@ -1194,14 +1211,16 @@ public class WWIO
 
         String fs = File.separator;
         String[] pathParts = path.split("[/" + (fs.equals("/") ? "" : (fs.equals("\\") ? "\\\\" : fs)) + "]");
-        if (pathParts.length <= 1)
-            return true;
+        if (pathParts.length <= 1) {
+			return true;
+		}
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < pathParts.length - 1; i++)
         {
-            if (pathParts[i].length() == 0)
-                continue;
+            if (pathParts[i].length() == 0) {
+				continue;
+			}
 
             sb.append(File.separator);
             sb.append(pathParts[i]);
@@ -1224,8 +1243,9 @@ public class WWIO
         // and create a directory of the same name.
         File temp = File.createTempFile("wwj", null);
 
-        if (!temp.delete() || !temp.mkdir())
-            return null;
+        if (!temp.delete() || !temp.mkdir()) {
+			return null;
+		}
 
         return temp;
     }
@@ -1260,8 +1280,9 @@ public class WWIO
         {
             // Determine whether the file can be treated like a File, e.g., a jar entry.
             URI uri = url.toURI();
-            if (uri.isOpaque())
-                return false; // TODO: Determine how to check the date of non-Files
+            if (uri.isOpaque()) {
+				return false; // TODO: Determine how to check the date of non-Files
+			}
 
             File file = new File(uri);
 
@@ -1277,8 +1298,9 @@ public class WWIO
     public static Proxy configureProxy()
     {
         String proxyHost = Configuration.getStringValue(AVKey.URL_PROXY_HOST);
-        if (proxyHost == null)
-            return null;
+        if (proxyHost == null) {
+			return null;
+		}
 
         Proxy proxy = null;
 
@@ -1288,10 +1310,11 @@ public class WWIO
             String proxyType = Configuration.getStringValue(AVKey.URL_PROXY_TYPE);
 
             SocketAddress addr = new InetSocketAddress(proxyHost, proxyPort);
-            if (proxyType.equals("Proxy.Type.Http"))
-                proxy = new Proxy(Proxy.Type.HTTP, addr);
-            else if (proxyType.equals("Proxy.Type.SOCKS"))
-                proxy = new Proxy(Proxy.Type.SOCKS, addr);
+            if (proxyType.equals("Proxy.Type.Http")) {
+				proxy = new Proxy(Proxy.Type.HTTP, addr);
+			} else if (proxyType.equals("Proxy.Type.SOCKS")) {
+				proxy = new Proxy(Proxy.Type.SOCKS, addr);
+			}
         }
         catch (Exception e)
         {
@@ -1315,25 +1338,30 @@ public class WWIO
      */
     public static boolean isContentType(File file, String... mimeTypes)
     {
-        if (file == null || mimeTypes == null)
-            return false;
+        if (file == null || mimeTypes == null) {
+			return false;
+		}
 
         for (String mimeType : mimeTypes)
         {
-            if (mimeType == null)
-                continue;
+            if (mimeType == null) {
+				continue;
+			}
 
             String typeSuffix = WWIO.makeSuffixForMimeType(mimeType);
             String fileSuffix = WWIO.getSuffix(file.getName());
 
-            if (fileSuffix == null || typeSuffix == null)
-                continue;
+            if (fileSuffix == null || typeSuffix == null) {
+				continue;
+			}
 
-            if (!fileSuffix.startsWith("."))
-                fileSuffix = "." + fileSuffix;
+            if (!fileSuffix.startsWith(".")) {
+				fileSuffix = "." + fileSuffix;
+			}
 
-            if (fileSuffix.equalsIgnoreCase(typeSuffix))
-                return true;
+            if (fileSuffix.equalsIgnoreCase(typeSuffix)) {
+				return true;
+			}
         }
 
         return false;
@@ -1368,13 +1396,15 @@ public class WWIO
         // Remove any parameters appended to this mime type before using it as a key in the mimeTypeToSuffixMap. Mime
         // parameters do not change the mapping from mime type to suffix.
         int paramIndex = mimeType.indexOf(";");
-        if (paramIndex != -1)
-            mimeType = mimeType.substring(0, paramIndex);
+        if (paramIndex != -1) {
+			mimeType = mimeType.substring(0, paramIndex);
+		}
 
         String suffix = mimeTypeToSuffixMap.get(mimeType);
 
-        if (suffix == null)
-            suffix = mimeType.substring(mimeType.lastIndexOf("/") + 1);
+        if (suffix == null) {
+			suffix = mimeType.substring(mimeType.lastIndexOf("/") + 1);
+		}
 
         suffix = suffix.replaceFirst("bil32", "bil"); // if bil32, replace with "bil" suffix.
         suffix = suffix.replaceFirst("bil16", "bil"); // if bil16, replace with "bil" suffix.
@@ -1401,8 +1431,9 @@ public class WWIO
         }
 
         // Strip the starting period from the suffix string, if any exists.
-        if (suffix.startsWith("."))
-            suffix = suffix.substring(1, suffix.length());
+        if (suffix.startsWith(".")) {
+			suffix = suffix.substring(1, suffix.length());
+		}
 
         return suffixToMimeTypeMap.get(suffix.toLowerCase());
     }
@@ -1545,14 +1576,15 @@ public class WWIO
             throw new IllegalArgumentException(message);
         }
 
-        if (mimeType.equals("application/bil32"))
-            return AVKey.FLOAT32;
-        else if (mimeType.equals("application/bil16"))
-            return AVKey.INT16;
-        else if (mimeType.equals("application/bil"))
-            return AVKey.INT16;
-        else if (mimeType.equals("image/bil"))
-            return AVKey.INT16;
+        if (mimeType.equals("application/bil32")) {
+			return AVKey.FLOAT32;
+		} else if (mimeType.equals("application/bil16")) {
+			return AVKey.INT16;
+		} else if (mimeType.equals("application/bil")) {
+			return AVKey.INT16;
+		} else if (mimeType.equals("image/bil")) {
+			return AVKey.INT16;
+		}
 
         return null;
     }
@@ -1578,8 +1610,9 @@ public class WWIO
             }
         }
 
-        if (c == null)
-            c = WWIO.class;
+        if (c == null) {
+			c = WWIO.class;
+		}
 
         try
         {
@@ -1655,8 +1688,9 @@ public class WWIO
             throw new IllegalArgumentException(message);
         }
 
-        if (buffer.hasArray() && buffer.limit() == buffer.capacity()) // otherwise bytes beyond the limit are included
-            return new ByteArrayInputStream(buffer.array());
+        if (buffer.hasArray() && buffer.limit() == buffer.capacity()) { // otherwise bytes beyond the limit are included
+			return new ByteArrayInputStream(buffer.array());
+		}
 
         byte[] byteArray = new byte[buffer.limit()];
         buffer.get(byteArray);
@@ -1768,9 +1802,10 @@ public class WWIO
             throw new IllegalArgumentException(message);
         }
 
-        if (!destination.exists())
-            //noinspection ResultOfMethodCallIgnored
+        if (!destination.exists()) {
+			//noinspection ResultOfMethodCallIgnored
             destination.mkdirs();
+		}
 
         if (!destination.exists())
         {
@@ -1780,20 +1815,23 @@ public class WWIO
         }
 
         File[] fileList = source.listFiles();
-        if (fileList == null)
-            return;
+        if (fileList == null) {
+			return;
+		}
 
         List<File> childFiles = new ArrayList<>();
         List<File> childDirs = new ArrayList<>();
         for (File child : fileList)
         {
-            if (child == null)
-                continue;
+            if (child == null) {
+				continue;
+			}
 
-            if (child.isDirectory())
-                childDirs.add(child);
-            else
-                childFiles.add(child);
+            if (child.isDirectory()) {
+				childDirs.add(child);
+			} else {
+				childFiles.add(child);
+			}
         }
 
         for (File childFile : childFiles)
@@ -1828,13 +1866,15 @@ public class WWIO
             List<File> childDirs = new ArrayList<>();
             for (File child : fileList)
             {
-                if (child == null)
-                    continue;
+                if (child == null) {
+					continue;
+				}
 
-                if (child.isDirectory())
-                    childDirs.add(child);
-                else
-                    childFiles.add(child);
+                if (child.isDirectory()) {
+					childDirs.add(child);
+				} else {
+					childFiles.add(child);
+				}
             }
 
             for (File childFile : childFiles)
@@ -1858,8 +1898,9 @@ public class WWIO
      */
     public static void closeStream(Object stream, String name)
     {
-        if (stream == null)
-            return;
+        if (stream == null) {
+			return;
+		}
 
         try
         {
@@ -2103,16 +2144,17 @@ public class WWIO
     {
         java.io.Reader r = null;
 
-        if (src instanceof java.io.Reader)
-            r = (java.io.Reader) src;
-        else if (src instanceof java.io.InputStream)
-            r = new java.io.InputStreamReader((java.io.InputStream) src);
-        else if (src instanceof java.io.File)
-            r = new java.io.FileReader((java.io.File) src);
-        else if (src instanceof java.net.URL)
-            r = new java.io.InputStreamReader(((java.net.URL) src).openStream());
-        else if (src instanceof String)
-            r = new java.io.StringReader((String) src);
+        if (src instanceof java.io.Reader) {
+			r = (java.io.Reader) src;
+		} else if (src instanceof java.io.InputStream) {
+			r = new java.io.InputStreamReader((java.io.InputStream) src);
+		} else if (src instanceof java.io.File) {
+			r = new java.io.FileReader((java.io.File) src);
+		} else if (src instanceof java.net.URL) {
+			r = new java.io.InputStreamReader(((java.net.URL) src).openStream());
+		} else if (src instanceof String) {
+			r = new java.io.StringReader((String) src);
+		}
 
         return r;
     }
@@ -2171,8 +2213,9 @@ public class WWIO
         String sourceName = (String) src;
 
         URL url = WWIO.makeURL(sourceName);
-        if (url != null)
-            return url.openStream();
+        if (url != null) {
+			return url.openStream();
+		}
 
         Object streamOrException = getFileOrResourceAsStream(sourceName, null);
         if (streamOrException instanceof Exception)
@@ -2205,14 +2248,15 @@ public class WWIO
 
         String s = null;
 
-        if (src instanceof java.io.File)
-            s = ((java.io.File) src).getAbsolutePath();
-        else if (src instanceof java.net.URL)
-            s = ((java.net.URL) src).toExternalForm();
-        else if (src instanceof java.net.URI)
-            s = src.toString();
-        else if (src instanceof String)
-            s = (String) src;
+        if (src instanceof java.io.File) {
+			s = ((java.io.File) src).getAbsolutePath();
+		} else if (src instanceof java.net.URL) {
+			s = ((java.net.URL) src).toExternalForm();
+		} else if (src instanceof java.net.URI) {
+			s = src.toString();
+		} else if (src instanceof String) {
+			s = (String) src;
+		}
 
         return s;
     }
@@ -2231,7 +2275,7 @@ public class WWIO
     {
         try
         {
-            return new URL(path);
+            return URI.create(path).toURL();
         }
         catch (Exception e)
         {
@@ -2281,8 +2325,9 @@ public class WWIO
         {
             URL url = makeURL(path);
 
-            if (url == null && !WWUtil.isEmpty(path.toString()) && !WWUtil.isEmpty(defaultProtocol))
-                url = new URL(defaultProtocol, null, path.toString());
+            if (url == null && !WWUtil.isEmpty(path.toString()) && !WWUtil.isEmpty(defaultProtocol)) {
+				url = new URI(defaultProtocol, null, null, -1, path.toString(), null, null).toURL();
+			}
 
             return url;
         }
@@ -2307,14 +2352,15 @@ public class WWIO
     {
         try
         {
-            if (path instanceof String)
-                return new URI((String) path);
-            else if (path instanceof File)
-                return ((File) path).toURI();
-            else if (path instanceof URL)
-                return ((URL) path).toURI();
-            else
-                return null;
+            if (path instanceof String) {
+				return new URI((String) path);
+			} else if (path instanceof File) {
+				return ((File) path).toURI();
+			} else if (path instanceof URL) {
+				return ((URL) path).toURI();
+			} else {
+				return null;
+			}
         }
         catch (Exception e)
         {
@@ -2347,8 +2393,9 @@ public class WWIO
         // List the file and directory names in the specified file. If the returned array is null, then the specified
         // file does not denote a directory.
         String[] names = file.list();
-        if (names == null)
-            return null;
+        if (names == null) {
+			return null;
+		}
 
         ArrayList<String> matches = new ArrayList<>();
 
@@ -2357,8 +2404,9 @@ public class WWIO
         {
             // Ignore null or empty filenames.
             // If the filter is null, then all pathnames are accepted.
-            if (filename == null || filename.length() == 0 || (filter != null && !filter.accept(new File(file, filename))))
-                continue;
+            if (filename == null || filename.length() == 0 || (filter != null && !filter.accept(new File(file, filename)))) {
+				continue;
+			}
 
             matches.add(filename);
         }
@@ -2420,8 +2468,9 @@ public class WWIO
 
         // List the file and directory names in the specified file. If the returned array is null, then the specified
         // file does not denote a directory.
-        if (file.list() == null)
-            return null;
+        if (file.list() == null) {
+			return null;
+		}
 
         ArrayList<String> matches = new ArrayList<>();
         listDescendantFilenames(file, null, filter, recurseAfterMatch, matches);
@@ -2439,8 +2488,9 @@ public class WWIO
         // List the file and directory names in the specified file. Exit if the returned filename array is null,
         // indicating that the specified file does not denote a directory.
         String[] names = file.list();
-        if (names == null)
-            return;
+        if (names == null) {
+			return;
+		}
 
         boolean haveMatch = false;
 
@@ -2450,8 +2500,9 @@ public class WWIO
         {
             // Ignore null or empty filenames.
             // If the filter is null, then all pathnames are accepted.
-            if (filename == null || filename.length() == 0 || (filter != null && !filter.accept(new File(file, filename))))
-                continue;
+            if (filename == null || filename.length() == 0 || (filter != null && !filter.accept(new File(file, filename)))) {
+				continue;
+			}
 
             matches.add(appendPathPart(pathname, filename));
             haveMatch = true;
@@ -2459,8 +2510,9 @@ public class WWIO
 
         // Exit if any of the file or directories in the specified file match the file filter, and the caller has
         // specified to stop recursing after a match.
-        if (haveMatch && !recurseAfterMatch)
-            return;
+        if (haveMatch && !recurseAfterMatch) {
+			return;
+		}
 
         // Recursively process the contents of each path .
         for (String filename : names)

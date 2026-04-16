@@ -247,8 +247,9 @@ public class AnnotationFlowLayout extends AbstractAnnotationLayout
         int preferredHeight = 0;
 
         var iter = annotations.iterator();
-        if (!iter.hasNext())
-            return new java.awt.Dimension(preferredWidth, preferredHeight);
+        if (!iter.hasNext()) {
+			return new java.awt.Dimension(preferredWidth, preferredHeight);
+		}
 
         while (iter.hasNext())
         {
@@ -258,11 +259,13 @@ public class AnnotationFlowLayout extends AbstractAnnotationLayout
             {
                 preferredWidth += size.width;
 
-                if (preferredHeight < size.height)
-                    preferredHeight = size.height;
+                if (preferredHeight < size.height) {
+					preferredHeight = size.height;
+				}
 
-                if (iter.hasNext())
-                    preferredWidth += this.hgap;
+                if (iter.hasNext()) {
+					preferredWidth += this.hgap;
+				}
             }
         }
 
@@ -275,8 +278,9 @@ public class AnnotationFlowLayout extends AbstractAnnotationLayout
         int preferredHeight = 0;
 
         var iter = annotations.iterator();
-        if (!iter.hasNext())
-            return new java.awt.Dimension(preferredWidth, preferredHeight);
+        if (!iter.hasNext()) {
+			return new java.awt.Dimension(preferredWidth, preferredHeight);
+		}
 
         while (iter.hasNext())
         {
@@ -286,11 +290,13 @@ public class AnnotationFlowLayout extends AbstractAnnotationLayout
             {
                 preferredHeight += size.height;
 
-                if (preferredWidth < size.width)
-                    preferredWidth = size.width;
+                if (preferredWidth < size.width) {
+					preferredWidth = size.width;
+				}
 
-                if (iter.hasNext())
-                    preferredHeight += this.vgap;
+                if (iter.hasNext()) {
+					preferredHeight += this.vgap;
+				}
             }
         }
 

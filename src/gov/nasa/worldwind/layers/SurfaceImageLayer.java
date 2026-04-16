@@ -119,8 +119,9 @@ public class SurfaceImageLayer extends RenderableLayer
 
     protected BufferedImage getBufferedImage(DataRaster raster)
     {
-        if (null == raster)
-            return null;
+        if (null == raster) {
+			return null;
+		}
 
         if (raster instanceof GDALDataRaster)
         {
@@ -164,8 +165,9 @@ public class SurfaceImageLayer extends RenderableLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (null == params)
-            params = new AVListImpl();
+        if (null == params) {
+			params = new AVListImpl();
+		}
 
         DataRaster raster;
 
@@ -189,10 +191,11 @@ public class SurfaceImageLayer extends RenderableLayer
                 {
                     Sector sector = (Sector) o;
 
-                    if (raster instanceof GDALDataRaster)
-                        ((GDALDataRaster) raster).setSector(sector);
-                    else
-                        raster.setValue(AVKey.SECTOR, sector);
+                    if (raster instanceof GDALDataRaster) {
+						((GDALDataRaster) raster).setSector(sector);
+					} else {
+						raster.setValue(AVKey.SECTOR, sector);
+					}
                 }
             }
 
@@ -235,8 +238,9 @@ public class SurfaceImageLayer extends RenderableLayer
     {
         AVList params = new AVListImpl();
 
-        if (null != sector)
-            params.setValue(AVKey.SECTOR, sector);
+        if (null != sector) {
+			params.setValue(AVKey.SECTOR, sector);
+		}
 
         DataRaster raster = this.openDataRaster(imagePath, params);
         final BufferedImage image = this.getBufferedImage(raster);
@@ -290,8 +294,9 @@ public class SurfaceImageLayer extends RenderableLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (this.imageTable.contains(name))
-            this.removeImage(name);
+        if (this.imageTable.contains(name)) {
+			this.removeImage(name);
+		}
 
         final ArrayList<SurfaceImage> surfaceImages = new ArrayList<>();
         this.imageTable.put(name, surfaceImages);
@@ -399,8 +404,9 @@ public class SurfaceImageLayer extends RenderableLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (this.imageTable.contains(name))
-            this.removeImage(name);
+        if (this.imageTable.contains(name)) {
+			this.removeImage(name);
+		}
 
         final ArrayList<SurfaceImage> surfaceImages = new ArrayList<>();
         this.imageTable.put(name, surfaceImages);
@@ -425,15 +431,17 @@ public class SurfaceImageLayer extends RenderableLayer
     public void removeImage(String imagePath)
     {
         ArrayList<SurfaceImage> images = this.imageTable.get(imagePath);
-        if (images == null)
-            return;
+        if (images == null) {
+			return;
+		}
 
         this.imageTable.remove(imagePath);
 
         for (SurfaceImage si : images)
         {
-            if (si != null)
-                this.removeRenderable(si);
+            if (si != null) {
+				this.removeRenderable(si);
+			}
         }
     }
 
@@ -446,8 +454,9 @@ public class SurfaceImageLayer extends RenderableLayer
         {
             for (SurfaceImage si : entry.getValue())
             {
-                if (si != null)
-                    si.setOpacity(opacity);
+                if (si != null) {
+					si.setOpacity(opacity);
+				}
             }
         }
     }
@@ -505,23 +514,26 @@ public class SurfaceImageLayer extends RenderableLayer
             return null;
         }
 
-        if (image == null)
-            image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        if (image == null) {
+			image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+		}
 
         for (Renderable r : this.getRenderables())
         {
             SurfaceImage si = (SurfaceImage) r;
 
-            if (si.getImageSource() == null)
-                continue;
+            if (si.getImageSource() == null) {
+				continue;
+			}
 
             BufferedImage sourceImage = null;
             try
             {
-                if (si.getImageSource() instanceof String)
-                    sourceImage = ImageIO.read(new File((String) si.getImageSource()));
-                else
-                    sourceImage = (BufferedImage) si.getImageSource();
+                if (si.getImageSource() instanceof String) {
+					sourceImage = ImageIO.read(new File((String) si.getImageSource()));
+				} else {
+					sourceImage = (BufferedImage) si.getImageSource();
+				}
             }
             catch (IOException e)
             {

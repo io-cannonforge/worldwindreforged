@@ -128,8 +128,9 @@ public class GLRuntimeCapabilities
             {
                 s = s.substring(0, 3);
                 Double d = WWUtil.convertStringToDouble(s);
-                if (d != null)
-                    this.glVersion = d;
+                if (d != null) {
+					this.glVersion = d;
+				}
             }
         }
 

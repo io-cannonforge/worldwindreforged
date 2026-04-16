@@ -110,16 +110,19 @@ public class DeclutteringTextRenderer
             throw new IllegalArgumentException(msg);
         }
 
-        if (dc.getVisibleSector() == null)
-            return;
+        if (dc.getVisibleSector() == null) {
+			return;
+		}
 
         SectorGeometryList surfaceGeometry = dc.getSurfaceGeometry();
-        if (surfaceGeometry == null)
-            return;
+        if (surfaceGeometry == null) {
+			return;
+		}
 
         var iterator = textIterable.iterator();
-        if (!iterator.hasNext())
-            return;
+        if (!iterator.hasNext()) {
+			return;
+		}
 
         Frustum frustumInModelCoords = dc.getView().getFrustumInModelCoordinates();
         double horizon = dc.getView().getHorizonDistance();
@@ -128,33 +131,35 @@ public class DeclutteringTextRenderer
         {
             GeographicText text = iterator.next();
 
-            if (!isTextValid(text, true) || !text.isVisible())
-                continue;
+            if (!isTextValid(text, true) || !text.isVisible()) {
+				continue;
+			}
 
             if (dc.is2DGlobe())
             {
                 Sector limits = ((Globe2D)dc.getGlobe()).getProjection().getProjectionLimits();
-                if (limits != null && !limits.contains(text.getPosition()))
-                    continue;
+                if (limits != null && !limits.contains(text.getPosition())) {
+					continue;
+				}
             }
 
             Angle lat = text.getPosition().getLatitude();
             Angle lon = text.getPosition().getLongitude();
 
-            if (!dc.getVisibleSector().contains(lat, lon))
-                continue;
+            if (!dc.getVisibleSector().contains(lat, lon)) {
+				continue;
+			}
 
             Vec4 textPoint = surfaceGeometry.getSurfacePoint(lat, lon,
                 text.getPosition().getElevation() * dc.getVerticalExaggeration());
-            if (textPoint == null)
-                continue;
+            if (textPoint == null) {
+				continue;
+			}
 
             double eyeDistance = dc.getView().getEyePoint().distanceTo3(textPoint);
-            if (!dc.is2DGlobe() && eyeDistance > horizon)
-                continue;
-
-            if (!frustumInModelCoords.contains(textPoint))
-                continue;
+            if ((!dc.is2DGlobe() && eyeDistance > horizon) || !frustumInModelCoords.contains(textPoint)) {
+				continue;
+			}
 
             dc.addOrderedRenderable(new DeclutterableText(text, textPoint, eyeDistance, this));
         }
@@ -238,16 +243,19 @@ public class DeclutteringTextRenderer
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
         final CharSequence charSequence = geographicText.getText();
-        if (charSequence == null)
-            return null;
+        if (charSequence == null) {
+			return null;
+		}
 
         final Vec4 screenPoint = dc.getView().project(uText.getPoint());
-        if (screenPoint == null)
-            return null;
+        if (screenPoint == null) {
+			return null;
+		}
 
         Font font = geographicText.getFont();
-        if (font == null)
-            font = DEFAULT_FONT;
+        if (font == null) {
+			font = DEFAULT_FONT;
+		}
 
         TextRenderer textRenderer = this.getTextRenderer(dc, font);
 
@@ -259,8 +267,9 @@ public class DeclutteringTextRenderer
             this.setDepthFunc(dc, screenPoint);
 
             Rectangle2D textBounds = uText.getBounds(dc);
-            if (textBounds == null)
-                return null;
+            if (textBounds == null) {
+				return null;
+			}
 
             Point.Float drawPoint = this.computeDrawPoint(textBounds, screenPoint);
 
@@ -273,8 +282,9 @@ public class DeclutteringTextRenderer
                 }
 
                 Color color = geographicText.getColor();
-                if (color == null)
-                    color = DEFAULT_COLOR;
+                if (color == null) {
+					color = DEFAULT_COLOR;
+				}
                 color = this.applyOpacity(color, opacity);
 
                 Color background = geographicText.getBackgroundColor();
@@ -289,8 +299,9 @@ public class DeclutteringTextRenderer
                 textRenderer.draw3D(charSequence, drawPoint.x, drawPoint.y, 0, 1);
                 textRenderer.flush();
 
-                if (scale != 1d)
-                    gl.glLoadIdentity();
+                if (scale != 1d) {
+					gl.glLoadIdentity();
+				}
             }
         }
         catch (Exception e)
@@ -347,16 +358,18 @@ public class DeclutteringTextRenderer
 
     protected static boolean isTextValid(GeographicText text, boolean checkPosition)
     {
-        if (text == null || text.getText() == null || (checkPosition && text.getPosition() == null))
-            return false;
+        if (text == null || text.getText() == null || (checkPosition && text.getPosition() == null)) {
+			return false;
+		}
 
         return true;
     }
 
     protected Color applyOpacity(Color color, double opacity)
     {
-        if (opacity >= 1)
-            return color;
+        if (opacity >= 1) {
+			return color;
+		}
 
         float[] compArray = color.getRGBComponents(null);
         return new Color(compArray[0], compArray[1], compArray[2], compArray[3] * (float) opacity);
@@ -367,16 +380,19 @@ public class DeclutteringTextRenderer
         GeographicText geographicText = text.getText();
 
         final CharSequence charSequence = geographicText.getText();
-        if (charSequence == null)
-            return null;
+        if (charSequence == null) {
+			return null;
+		}
 
         final Vec4 screenPoint = dc.getView().project(text.getPoint());
-        if (screenPoint == null)
-            return null;
+        if (screenPoint == null) {
+			return null;
+		}
 
         Font font = geographicText.getFont();
-        if (font == null)
-            font = this.getDefaultFont();
+        if (font == null) {
+			font = this.getDefaultFont();
+		}
 
         try
         {

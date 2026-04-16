@@ -172,8 +172,9 @@ public class TrackViewPanel extends JPanel
 
     public void setViewMode(String viewMode)
     {
-        if (this.viewMode.equals(viewMode))
-            return;
+        if (this.viewMode.equals(viewMode)) {
+			return;
+		}
         this.viewMode = viewMode;
         this.firePropertyChange(VIEW_CHANGE, -1, 0);
     }
@@ -187,8 +188,9 @@ public class TrackViewPanel extends JPanel
             strings[i] = String.format("%,4d", i);
         }
 
-        if (strings.length == 0)
-            strings = new String[] {"   0"};
+        if (strings.length == 0) {
+			strings = new String[] {"   0"};
+		}
 
         int currentPosition = Math.min(this.getCurrentPositionNumber(), strings.length - 1);
         int currentSliderValue = this.positionSlider.getValue();
@@ -245,8 +247,9 @@ public class TrackViewPanel extends JPanel
     public int getCurrentPositionNumber()
     {
         Object o = this.positionSpinner.getValue();
-        if (o == null)
-            return -1;
+        if (o == null) {
+			return -1;
+		}
 
         return Integer.parseInt(o.toString().trim().replaceAll(",", ""));
     }
@@ -316,11 +319,12 @@ public class TrackViewPanel extends JPanel
         this.latReadout.setText(pos == null ? "" : SAR2.formatAngle(angleFormat, pos.getLatitude()));
         this.lonReadout.setText(pos == null ? "" : SAR2.formatAngle(angleFormat, pos.getLongitude()));
 
-        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit))
-            this.altReadout.setText(
+        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit)) {
+			this.altReadout.setText(
                 pos == null ? "" : String.format("% 8.0f ft", SAR2.metersToFeet(pos.getElevation())));
-        else // Default to metric units.
-            this.altReadout.setText(pos == null ? "" : String.format("% 8.0f m", pos.getElevation()));
+		} else { // Default to metric units.
+			this.altReadout.setText(pos == null ? "" : String.format("% 8.0f m", pos.getElevation()));
+		}
 
         this.speedLabel.setText(SAR2.UNIT_IMPERIAL.equals(this.elevationUnit) ? "MPH: " : "KMH: ");
     }
@@ -329,8 +333,9 @@ public class TrackViewPanel extends JPanel
     {
         String speedValue = (String)this.speedSpinner.getValue();
         double speed = Double.parseDouble(speedValue) * getSpeedFactor();
-        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit))
-            speed *= 1.609344; // mph to kmh
+        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit)) {
+			speed *= 1.609344; // mph to kmh
+		}
         return speed;
     }
 
@@ -344,8 +349,9 @@ public class TrackViewPanel extends JPanel
 
     private void fastReverseButtonActionPerformed()
     {
-        if (this.getCurrentPositionNumber() > 0)
-            setPositionSpinnerNumber(this.getCurrentPositionNumber() - 1);
+        if (this.getCurrentPositionNumber() > 0) {
+			setPositionSpinnerNumber(this.getCurrentPositionNumber() - 1);
+		}
     }
 
     private void reverseButtonActionPerformed()
@@ -365,8 +371,9 @@ public class TrackViewPanel extends JPanel
 
     private void fastForwardButtonActionPerformed()
     {
-        if (!isLastPosition(this.getCurrentPositionNumber()))
-            setPositionSpinnerNumber(this.getCurrentPositionNumber() + 1);
+        if (!isLastPosition(this.getCurrentPositionNumber())) {
+			setPositionSpinnerNumber(this.getCurrentPositionNumber() + 1);
+		}
     }
 
     public boolean isPlayerActive()
@@ -377,15 +384,17 @@ public class TrackViewPanel extends JPanel
     private void setPlayMode(int mode)
     {
         this.playMode = mode;
-        if (player == null)
-            initPlayer();
+        if (player == null) {
+			initPlayer();
+		}
         player.start();
     }
 
     private void initPlayer()
     {
-        if (player != null)
-            return;
+        if (player != null) {
+			return;
+		}
 
         player = new Timer(50, new ActionListener()
         {
@@ -800,16 +809,19 @@ public class TrackViewPanel extends JPanel
         // Retrieve state values
         Integer positionNumberState = rs.getStateValueAsInteger(context, "positionNumber");
         Double positionDeltaState = rs.getStateValueAsDouble(context, "positionDelta");
-        if (positionNumberState != null && positionDeltaState != null)
-            this.setPositionDelta(positionNumberState, positionDeltaState);
+        if (positionNumberState != null && positionDeltaState != null) {
+			this.setPositionDelta(positionNumberState, positionDeltaState);
+		}
 
         String speedState = rs.getStateValueAsString(context, "speed");
-        if (speedState != null)
-            this.speedSpinner.setValue(speedState);
+        if (speedState != null) {
+			this.speedSpinner.setValue(speedState);
+		}
 
         String speedFactorState = rs.getStateValueAsString(context, "speedFactor");
-        if (speedFactorState != null)
-            this.speedFactorSpinner.setValue(speedFactorState);
+        if (speedFactorState != null) {
+			this.speedFactorSpinner.setValue(speedFactorState);
+		}
 
         String viewModeState = rs.getStateValueAsString(context, "viewMode");
         if (viewModeState != null)

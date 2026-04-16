@@ -67,10 +67,11 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
     @Override
 	public void shutdown(boolean immediately)
     {
-        if (immediately)
-            this.executor.shutdownNow();
-        else
-            this.executor.shutdown();
+        if (immediately) {
+			this.executor.shutdownNow();
+		} else {
+			this.executor.shutdown();
+		}
 
         this.activeTasks.clear();
     }
@@ -90,7 +91,7 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
         private TaskExecutor(int poolSize, int queueSize)
         {
             super(poolSize, poolSize, THREAD_TIMEOUT, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<Runnable>(queueSize),
+                new ArrayBlockingQueue<>(queueSize),
                 new ThreadFactory()
                 {
                     @Override
@@ -146,8 +147,9 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
 
             ThreadedTaskService.this.activeTasks.add(runnable);
 
-            if (RUNNING_THREAD_NAME_PREFIX != null)
-                thread.setName(RUNNING_THREAD_NAME_PREFIX + runnable);
+            if (RUNNING_THREAD_NAME_PREFIX != null) {
+				thread.setName(RUNNING_THREAD_NAME_PREFIX + runnable);
+			}
             thread.setPriority(Thread.MIN_PRIORITY);
             thread.setUncaughtExceptionHandler(ThreadedTaskService.this);
 
@@ -168,8 +170,9 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
 
             ThreadedTaskService.this.activeTasks.remove(runnable);
 
-            if (throwable == null && IDLE_THREAD_NAME_PREFIX != null)
-                Thread.currentThread().setName(IDLE_THREAD_NAME_PREFIX);
+            if (throwable == null && IDLE_THREAD_NAME_PREFIX != null) {
+				Thread.currentThread().setName(IDLE_THREAD_NAME_PREFIX);
+			}
         }
     }
 
@@ -177,8 +180,9 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
 	public synchronized boolean contains(Runnable runnable)
     {
         //noinspection SimplifiableIfStatement
-        if (runnable == null)
-            return false;
+        if (runnable == null) {
+			return false;
+		}
 
         return (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable));
     }
@@ -201,8 +205,9 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
         }
 
         // Do not queue duplicates.
-        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable))
-            return;
+        if (this.activeTasks.contains(runnable) || this.executor.getQueue().contains(runnable)) {
+			return;
+		}
 
         this.executor.execute(runnable);
     }
@@ -220,8 +225,9 @@ public class ThreadedTaskService extends WWObjectImpl implements TaskService, Th
         int numThreads = Thread.enumerate(threads);
         for (int i = 0; i < numThreads; i++)
         {
-            if (threads[i].getName().startsWith(RUNNING_THREAD_NAME_PREFIX))
-                return true;
+            if (threads[i].getName().startsWith(RUNNING_THREAD_NAME_PREFIX)) {
+				return true;
+			}
         }
         return false;
     }

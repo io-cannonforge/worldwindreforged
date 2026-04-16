@@ -424,8 +424,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected List<Sector> computeSectors(Globe globe)
     {
         Iterable<? extends LatLon> locations = this.getLocations(globe);
-        if (locations == null)
-            return null;
+        if (locations == null) {
+			return null;
+		}
 
         List<Sector> sectors = null;
 
@@ -435,28 +436,32 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             // If the shape contains a pole, then the bounding sector is defined by the shape's extreme latitude, the
             // latitude of the pole, and the full range of longitude.
             Sector s = Sector.boundingSector(locations);
-            if (AVKey.NORTH.equals(pole))
-                s = new Sector(s.getMinLatitude(), Angle.POS90, Angle.NEG180, Angle.POS180);
-            else
-                s = new Sector(Angle.NEG90, s.getMaxLatitude(), Angle.NEG180, Angle.POS180);
+            if (AVKey.NORTH.equals(pole)) {
+				s = new Sector(s.getMinLatitude(), Angle.POS90, Angle.NEG180, Angle.POS180);
+			} else {
+				s = new Sector(Angle.NEG90, s.getMaxLatitude(), Angle.NEG180, Angle.POS180);
+			}
 
             sectors = Arrays.asList(s);
         }
         else if (LatLon.locationsCrossDateLine(locations))
         {
             Sector[] array = Sector.splitBoundingSectors(locations);
-            if (array != null && array.length == 2 && !isSectorEmpty(array[0]) && !isSectorEmpty(array[1]))
-                sectors = Arrays.asList(array);
+            if (array != null && array.length == 2 && !isSectorEmpty(array[0]) && !isSectorEmpty(array[1])) {
+				sectors = Arrays.asList(array);
+			}
         }
         else
         {
             Sector s = Sector.boundingSector(locations);
-            if (!isSectorEmpty(s))
-                sectors = Arrays.asList(s);
+            if (!isSectorEmpty(s)) {
+				sectors = Arrays.asList(s);
+			}
         }
 
-        if (sectors == null)
-            return null;
+        if (sectors == null) {
+			return null;
+		}
 
         // Great circle paths between two latitudes may result in a latitude which is greater or smaller than either of
         // the two latitudes. All other path types are bounded by the defining locations.
@@ -471,10 +476,12 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                 double minLatDegrees = s.getMinLatitude().degrees;
                 double maxLatDegrees = s.getMaxLatitude().degrees;
 
-                if (minLatDegrees > extremes[0].getLatitude().degrees)
-                    minLatDegrees = extremes[0].getLatitude().degrees;
-                if (maxLatDegrees < extremes[1].getLatitude().degrees)
-                    maxLatDegrees = extremes[1].getLatitude().degrees;
+                if (minLatDegrees > extremes[0].getLatitude().degrees) {
+					minLatDegrees = extremes[0].getLatitude().degrees;
+				}
+                if (maxLatDegrees < extremes[1].getLatitude().degrees) {
+					maxLatDegrees = extremes[1].getLatitude().degrees;
+				}
 
                 Angle minLat = Angle.fromDegreesLatitude(minLatDegrees);
                 Angle maxLat = Angle.fromDegreesLatitude(maxLatDegrees);
@@ -489,8 +496,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected static boolean isSectorEmpty(Sector sector)
     {
         //noinspection SimplifiableIfStatement
-        if ((sector == null) || sector.equals(Sector.EMPTY_SECTOR))
-            return true;
+        if ((sector == null) || sector.equals(Sector.EMPTY_SECTOR)) {
+			return true;
+		}
 
         return sector.getMinLatitude().equals(sector.getMaxLatitude())
             && sector.getMinLongitude().equals(sector.getMaxLongitude());
@@ -519,8 +527,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         }
 
         List<Sector> sectors = this.computeSectors(globe);
-        if (sectors == null)
-            return null;
+        if (sectors == null) {
+			return null;
+		}
 
         return this.computeExtent(globe, verticalExaggeration, sectors);
     }
@@ -656,8 +665,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         }
 
         Position referencePosition = this.getReferencePosition();
-        if (referencePosition == null)
-            return;
+        if (referencePosition == null) {
+			return;
+		}
 
         this.moveTo(referencePosition.add(position));
     }
@@ -673,8 +683,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         }
 
         Position oldReferencePosition = this.getReferencePosition();
-        if (oldReferencePosition == null)
-            return;
+        if (oldReferencePosition == null) {
+			return;
+		}
 
         this.doMoveTo(oldReferencePosition, position);
     }
@@ -690,8 +701,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         }
 
         Position oldReferencePosition = this.getReferencePosition();
-        if (oldReferencePosition == null)
-            return;
+        if (oldReferencePosition == null) {
+			return;
+		}
 
         this.doMoveTo(globe, oldReferencePosition, position);
     }
@@ -711,11 +723,13 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+		}
 
         this.doDrag(dragContext);
     }
@@ -736,10 +750,11 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             throw new IllegalArgumentException(msg);
         }
 
-        if (cc.isBoundingSectorMode())
-            this.combineBounds(cc);
-        else
-            this.combineContours(cc);
+        if (cc.isBoundingSectorMode()) {
+			this.combineBounds(cc);
+		} else {
+			this.combineContours(cc);
+		}
     }
 
     @Override
@@ -761,13 +776,15 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         this.geometryCache.clear();
 
         // Schedule deferred deletion of all cached VBOs
-        for (List<TessellationResult> vbos : this.vboCache.values())
-            scheduleVBODelete(vbos);
+        for (List<TessellationResult> vbos : this.vboCache.values()) {
+			scheduleVBODelete(vbos);
+		}
         this.vboCache.clear();
 
         // Schedule deferred deletion of all cached interior VBOs
-        for (InteriorVBOData data : this.interiorVboCache.values())
-            scheduleInteriorVBODelete(data);
+        for (InteriorVBOData data : this.interiorVboCache.values()) {
+			scheduleInteriorVBODelete(data);
+		}
         this.interiorVboCache.clear();
     }
 
@@ -880,11 +897,13 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         // Flush any VBOs that were marked for deferred deletion (interior + outline)
         flushPendingVBODeletes(dc.getGL());
 
-        if (this.getActiveAttributes().isDrawInterior() && this.getActiveAttributes().getInteriorOpacity() > 0)
-            this.drawInterior(dc, sdc);
+        if (this.getActiveAttributes().isDrawInterior() && this.getActiveAttributes().getInteriorOpacity() > 0) {
+			this.drawInterior(dc, sdc);
+		}
 
-        if (this.getActiveAttributes().isDrawOutline() && this.getActiveAttributes().getOutlineOpacity() > 0)
-            this.drawOutline(dc, sdc);
+        if (this.getActiveAttributes().isDrawOutline() && this.getActiveAttributes().getOutlineOpacity() > 0) {
+			this.drawOutline(dc, sdc);
+		}
     }
 
     protected void applyModelviewTransform(DrawContext dc, SurfaceTileDrawContext sdc)
@@ -910,14 +929,15 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     {
         if (this.isHighlighted())
         {
-            if (this.getHighlightAttributes() != null)
-                this.activeAttrs.copy(this.getHighlightAttributes());
-            else
+            if (this.getHighlightAttributes() != null) {
+				this.activeAttrs.copy(this.getHighlightAttributes());
+			} else
             {
                 // If no highlight attributes have been specified we need to use the normal attributes but adjust them
                 // to cause highlighting.
-                if (this.getAttributes() != null)
-                    this.activeAttrs.copy(this.getAttributes());
+                if (this.getAttributes() != null) {
+					this.activeAttrs.copy(this.getAttributes());
+				}
 
                 this.activeAttrs.setOutlineMaterial(DEFAULT_HIGHLIGHT_MATERIAL);
                 this.activeAttrs.setInteriorMaterial(DEFAULT_HIGHLIGHT_MATERIAL);
@@ -951,8 +971,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         this.activeOutlineGeometry.clear();
 
         List<List<LatLon>> geom = this.getCachedGeometry(dc, sdc);
-        if (geom == null)
-            return;
+        if (geom == null) {
+			return;
+		}
 
         for (List<LatLon> locations : geom)
         {
@@ -1010,8 +1031,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     // TODO handle a shape that contains both poles.
     protected String containsPole(Iterable<? extends LatLon> locations)
     {
-        if (!this.canContainPole())
-            return null;
+        if (!this.canContainPole()) {
+			return null;
+		}
 
         return LatLon.locationsContainPole(locations);
     }
@@ -1030,8 +1052,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected List<LatLon> cutAlongDateLine(List<LatLon> locations, String pole, Globe globe)
     {
         // If the locations do not contain a pole, then there's nothing to do.
-        if (pole == null)
-            return locations;
+        if (pole == null) {
+			return locations;
+		}
 
         return LatLon.cutLocationsAlongDateLine(locations, pole, globe);
     }
@@ -1058,8 +1081,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected void drawInterior(DrawContext dc, SurfaceTileDrawContext sdc)
     {
         // Try shader-based VBO rendering first
-        if (this.getActiveGeometry().isEmpty() || (!Boolean.TRUE.equals(fillShaderFailed.get()) && this.drawInteriorWithShader(dc, sdc)))
-            return;
+        if (this.getActiveGeometry().isEmpty() || (!Boolean.TRUE.equals(fillShaderFailed.get()) && this.drawInteriorWithShader(dc, sdc))) {
+			return;
+		}
 
         // Fallback: legacy GLU tessellator + immediate mode
         this.applyInteriorState(dc, sdc, this.getActiveAttributes(), this.getInteriorTexture(),
@@ -1090,8 +1114,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             }
             fillShaders.set(fillShader);
         }
-        if (!fillShader.isValid())
-            return false;
+        if (!fillShader.isValid()) {
+			return false;
+		}
 
         // Look up or build interior VBOs
         Object geoKey = this.createGeometryKey(dc, sdc);
@@ -1099,13 +1124,15 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         if (vboData == null)
         {
             vboData = this.buildInteriorVBOs(dc, sdc);
-            if (vboData == null)
-                return false; // triangulation failed — fall back to GLU
+            if (vboData == null) {
+				return false; // triangulation failed — fall back to GLU
+			}
 
             // Evict old VBOs for this key
             InteriorVBOData old = this.interiorVboCache.put(geoKey, vboData);
-            if (old != null)
-                scheduleInteriorVBODelete(old);
+            if (old != null) {
+				scheduleInteriorVBODelete(old);
+			}
         }
 
         // Determine texture mode: explicit per-vertex UVs, computed from position, procedural pattern, or solid color
@@ -1141,8 +1168,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         }
 
         // Enable blending for non-picking mode (matches legacy path)
-        if (!dc.isPickingMode())
-            OGLUtil.applyBlending(gl, useAnyTexture); // premultiplied alpha when textured
+        if (!dc.isPickingMode()) {
+			OGLUtil.applyBlending(gl, useAnyTexture); // premultiplied alpha when textured
+		}
 
         // Bind the appropriate texture
         WWTexture textureToBind = useExplicitTex ? explicitTex : useComputedTex ? computedTex : null;
@@ -1206,8 +1234,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         if (useExplicitTex && vboData.hasTexCoords)
         {
             int texAttrib = fillShader.getTexCoordAttribLocation();
-            if (texAttrib >= 0)
-                gl.glVertexAttribPointer(texAttrib, 2, GL.GL_FLOAT, false, stride, 2L * Float.BYTES);
+            if (texAttrib >= 0) {
+				gl.glVertexAttribPointer(texAttrib, 2, GL.GL_FLOAT, false, stride, 2L * Float.BYTES);
+			}
         }
 
         gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboData.indexVboId);
@@ -1218,24 +1247,27 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
         fillShader.end(gl);
 
-        if (useAnyTexture)
-            gl.glDisable(GL.GL_TEXTURE_2D);
+        if (useAnyTexture) {
+			gl.glDisable(GL.GL_TEXTURE_2D);
+		}
 
         return true;
     }
 
     protected void drawOutline(DrawContext dc, SurfaceTileDrawContext sdc)
     {
-        if (this.activeOutlineGeometry.isEmpty())
-            return;
+        if (this.activeOutlineGeometry.isEmpty()) {
+			return;
+		}
 
         ShapeAttributes attrs = this.getActiveAttributes();
         boolean useDashShader = !dc.isPickingMode()
             && attrs.getOutlineStippleFactor() > 0
             && !Boolean.TRUE.equals(dashLineShaderFailed.get());
 
-        if (useDashShader)
-            useDashShader = initDashShader(dc);
+        if (useDashShader) {
+			useDashShader = initDashShader(dc);
+		}
 
         this.applyOutlineState(dc, attrs, useDashShader);
 
@@ -1258,8 +1290,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                 color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, a,
                 dashLengthPixels, stipplePattern, false);
 
-            for (List<LatLon> drawLocations : this.activeOutlineGeometry)
-                this.drawLineStripWithDist(dc, drawLocations, pixelsPerDegree, dashLengthPixels);
+            for (List<LatLon> drawLocations : this.activeOutlineGeometry) {
+				this.drawLineStripWithDist(dc, drawLocations, pixelsPerDegree, dashLengthPixels);
+			}
 
             dashLineShader.end(gl);
         }
@@ -1285,22 +1318,25 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                     {
                         // Evict old VBOs for this key
                         List<TessellationResult> oldVBOs = this.vboCache.put(geoKey, newVBOs);
-                        if (oldVBOs != null)
-                            scheduleVBODelete(oldVBOs);
+                        if (oldVBOs != null) {
+							scheduleVBODelete(oldVBOs);
+						}
 
                         this.drawOutlineFromVBOs(dc, newVBOs);
                     }
                     else
                     {
                         // GPU path failed, draw with CPU vertex upload
-                        for (List<LatLon> drawLocations : this.activeOutlineGeometry)
-                            this.drawLineStrip(dc, drawLocations);
+                        for (List<LatLon> drawLocations : this.activeOutlineGeometry) {
+							this.drawLineStrip(dc, drawLocations);
+						}
                     }
                 }
                 else
                 {
-                    for (List<LatLon> drawLocations : this.activeOutlineGeometry)
-                        this.drawLineStrip(dc, drawLocations);
+                    for (List<LatLon> drawLocations : this.activeOutlineGeometry) {
+						this.drawLineStrip(dc, drawLocations);
+					}
                 }
             }
         }
@@ -1312,8 +1348,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     private List<TessellationResult> buildOutlineVBOs(DrawContext dc)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return null;
+        if (refPos == null) {
+			return null;
+		}
 
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;
@@ -1321,15 +1358,17 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         List<TessellationResult> results = new ArrayList<>();
         for (List<LatLon> locs : this.activeOutlineGeometry)
         {
-            if (locs.size() < 2)
-                continue;
+            if (locs.size() < 2) {
+				continue;
+			}
 
             TessellationResult result = gpuTessellators.get().tessellateToVBO(dc.getGL(), locs,
                 0, 0, 0,  // no additional tessellation — already tessellated
                 false, refLon, refLat);
 
-            if (result == null)
-                return null; // all or nothing
+            if (result == null) {
+				return null; // all or nothing
+			}
 
             results.add(result);
         }
@@ -1365,8 +1404,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected InteriorVBOData buildInteriorVBOs(DrawContext dc, SurfaceTileDrawContext sdc)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return null;
+        if (refPos == null) {
+			return null;
+		}
 
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;
@@ -1377,8 +1417,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
         for (List<LatLon> contour : this.getActiveGeometry())
         {
-            if (contour.size() < 3)
-                continue;
+            if (contour.size() < 3) {
+				continue;
+			}
 
             float[] verts = new float[contour.size() * 2];
             int vi = 0;
@@ -1391,8 +1432,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             totalVertices += contour.size();
         }
 
-        if (totalVertices < 3)
-            return null;
+        if (totalVertices < 3) {
+			return null;
+		}
 
         // Build combined vertex array and triangulate each contour
         float[] allVertices = new float[totalVertices * 2];
@@ -1407,8 +1449,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
             // Build sequential ring index array for this contour
             int[] ring = new int[count];
-            for (int i = 0; i < count; i++)
-                ring[i] = vertexOffset + i;
+            for (int i = 0; i < count; i++) {
+				ring[i] = vertexOffset + i;
+			}
 
             int[] triangles = GpuTriangulator.triangulateCPU(allVertices, ring);
             if (triangles.length > 0)
@@ -1420,8 +1463,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             vertexOffset += count;
         }
 
-        if (totalIndices == 0)
-            return null;
+        if (totalIndices == 0) {
+			return null;
+		}
 
         // Upload to VBOs
         GL gl = dc.getGL();
@@ -1468,8 +1512,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
      */
     private static void scheduleVBODelete(List<TessellationResult> vbos)
     {
-        for (TessellationResult tr : vbos)
-            pendingVBODeletes.add(tr.vboId);
+        for (TessellationResult tr : vbos) {
+			pendingVBODeletes.add(tr.vboId);
+		}
     }
 
     /**
@@ -1477,8 +1522,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
      */
     private static void flushPendingVBODeletes(GL gl)
     {
-        if (pendingVBODeletes.isEmpty())
-            return;
+        if (pendingVBODeletes.isEmpty()) {
+			return;
+		}
 
         List<Integer> toDelete;
         synchronized (pendingVBODeletes)
@@ -1488,8 +1534,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         }
 
         int[] ids = new int[toDelete.size()];
-        for (int i = 0; i < ids.length; i++)
-            ids[i] = toDelete.get(i);
+        for (int i = 0; i < ids.length; i++) {
+			ids[i] = toDelete.get(i);
+		}
         gl.glDeleteBuffers(ids.length, ids, 0);
     }
 
@@ -1497,8 +1544,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     {
         // seaglassfoundry.com: per-context shader lookup
         DashLineShader dashLineShader = dashLineShaders.get();
-        if (dashLineShader != null && dashLineShader.isValid())
-            return true;
+        if (dashLineShader != null && dashLineShader.isValid()) {
+			return true;
+		}
 
         GL2 gl = dc.getGL().getGL2();
         dashLineShader = new DashLineShader();
@@ -1517,21 +1565,25 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
      */
     private static int resolveGpuPathType(String pathType)
     {
-        if (pathType == AVKey.RHUMB_LINE || pathType == AVKey.LOXODROME)
-            return GpuTessellator.PATH_RHUMB_LINE;
-        if (pathType == AVKey.LINEAR)
-            return GpuTessellator.PATH_LINEAR;
+        if (pathType == AVKey.RHUMB_LINE || pathType == AVKey.LOXODROME) {
+			return GpuTessellator.PATH_RHUMB_LINE;
+		}
+        if (pathType == AVKey.LINEAR) {
+			return GpuTessellator.PATH_LINEAR;
+		}
         return GpuTessellator.PATH_GREAT_CIRCLE; // default
     }
 
     protected void drawLineStrip(DrawContext dc, List<LatLon> locations)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
-        if (vertexBuffer == null || vertexBuffer.capacity() < 2 * locations.size())
-            vertexBuffer = Buffers.newDirectFloatBuffer(2 * locations.size());
+        if (vertexBuffer == null || vertexBuffer.capacity() < 2 * locations.size()) {
+			vertexBuffer = Buffers.newDirectFloatBuffer(2 * locations.size());
+		}
         vertexBuffer.clear();
 
         for (LatLon ll : locations)
@@ -1561,12 +1613,14 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                                          float dashLengthPixels)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
         int n = locations.size();
-        if (n < 2)
-            return;
+        if (n < 2) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2();
         // seaglassfoundry.com: positions go through a generic attribute now,
@@ -1609,10 +1663,12 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             }
         }
 
-        if (vertexBuffer == null || vertexBuffer.capacity() < 2 * totalVerts)
-            vertexBuffer = Buffers.newDirectFloatBuffer(2 * totalVerts);
-        if (distBuffer == null || distBuffer.capacity() < totalVerts)
-            distBuffer = Buffers.newDirectFloatBuffer(totalVerts);
+        if (vertexBuffer == null || vertexBuffer.capacity() < 2 * totalVerts) {
+			vertexBuffer = Buffers.newDirectFloatBuffer(2 * totalVerts);
+		}
+        if (distBuffer == null || distBuffer.capacity() < totalVerts) {
+			distBuffer = Buffers.newDirectFloatBuffer(totalVerts);
+		}
 
         vertexBuffer.clear();
         distBuffer.clear();
@@ -1652,10 +1708,12 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                         {
                             vertexBuffer.flip();
                             distBuffer.flip();
-                            if (posLoc >= 0)
-                                gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
-                            if (distLoc >= 0)
-                                gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);
+                            if (posLoc >= 0) {
+								gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
+							}
+                            if (distLoc >= 0) {
+								gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);
+							}
                             gl.glDrawArrays(GL.GL_LINE_STRIP, 0, vertexCount);
                         }
 
@@ -1716,10 +1774,12 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         {
             vertexBuffer.flip();
             distBuffer.flip();
-            if (posLoc >= 0)
-                gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
-            if (distLoc >= 0)
-                gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);
+            if (posLoc >= 0) {
+				gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
+			}
+            if (distLoc >= 0) {
+				gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);
+			}
             gl.glDrawArrays(GL.GL_LINE_STRIP, 0, vertexCount);
         }
     }
@@ -1850,8 +1910,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected void combineBounds(CombineContext cc)
     {
         List<Sector> sectorList = this.computeSectors(cc.getGlobe());
-        if (sectorList == null)
-            return; // no caller specified locations to bound
+        if (sectorList == null) {
+			return; // no caller specified locations to bound
+		}
 
         cc.addBoundingSector(Sector.union(sectorList));
     }
@@ -1861,8 +1922,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         List<Sector> sectorList = this.computeSectors(cc.getGlobe());
          // no caller specified locations to draw
 
-        if ((sectorList == null) || !cc.getSector().intersectsAny(sectorList))
-            return; // this shape does not intersect the region of interest
+        if ((sectorList == null) || !cc.getSector().intersectsAny(sectorList)) {
+			return; // this shape does not intersect the region of interest
+		}
 
         this.doCombineContours(cc);
     }
@@ -1871,8 +1933,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     {
         double edgeIntervalsPerDegree = this.computeEdgeIntervalsPerDegree(cc.getResolution());
         List<List<LatLon>> contours = this.createGeometry(cc.getGlobe(), edgeIntervalsPerDegree);
-        if (contours == null)
-            return; // shape has no caller specified data
+        if (contours == null) {
+			return; // shape has no caller specified data
+		}
 
         for (List<LatLon> contour : contours)
         {
@@ -1961,8 +2024,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         double lineWidth = attributes.getOutlineWidth();
         if (dc.isPickingMode() && !attributes.isDrawInterior())
         {
-            if (lineWidth != 0)
-                lineWidth += 5;
+            if (lineWidth != 0) {
+				lineWidth += 5;
+			}
         }
         gl.glLineWidth((float) lineWidth);
 
@@ -2012,8 +2076,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
-        if (!texture.bind(dc))
-            return;
+        if (!texture.bind(dc)) {
+			return;
+		}
 
         if (!dc.isPickingMode())
         {
@@ -2140,8 +2205,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
         // Convert to float for shader uniform
         float[] result = new float[16];
-        for (int i = 0; i < 16; i++)
-            result[i] = (float) combined[i];
+        for (int i = 0; i < 16; i++) {
+			result[i] = (float) combined[i];
+		}
         return result;
     }
 
@@ -2322,12 +2388,14 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
     protected Integer tessellateInteriorVertices(GLUtessellator tess)
     {
-        if (this.getActiveGeometry().isEmpty())
-            return null;
+        if (this.getActiveGeometry().isEmpty()) {
+			return null;
+		}
 
         Position referencePos = this.getReferencePosition();
-        if (referencePos == null)
-            return null;
+        if (referencePos == null) {
+			return null;
+		}
 
         int numBytes = 0;
         GLU.gluTessBeginPolygon(tess, null);
@@ -2390,8 +2458,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                     arrayList.add(ll);
                 }
 
-                if (arrayList.size() > 1 && !arrayList.get(0).equals(arrayList.get(arrayList.size() - 1)))
-                    arrayList.add(arrayList.get(0));
+                if (arrayList.size() > 1 && !arrayList.get(0).equals(arrayList.get(arrayList.size() - 1))) {
+					arrayList.add(arrayList.get(0));
+				}
             }
 
             this.areaMeasurer.setPositions(arrayList, 0);
@@ -2421,11 +2490,13 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         rs.addStateValueAsInteger(context, "minEdgeIntervals", minAndMaxEdgeIntervals[0]);
         rs.addStateValueAsInteger(context, "maxEdgeIntervals", minAndMaxEdgeIntervals[1]);
 
-        if (this.getAttributes() != null)
-            this.getAttributes().getRestorableState(rs, rs.addStateObject(context, "attributes"));
+        if (this.getAttributes() != null) {
+			this.getAttributes().getRestorableState(rs, rs.addStateObject(context, "attributes"));
+		}
 
-        if (this.getHighlightAttributes() != null)
-            this.getHighlightAttributes().getRestorableState(rs, rs.addStateObject(context, "highlightAttrs"));
+        if (this.getHighlightAttributes() != null) {
+			this.getHighlightAttributes().getRestorableState(rs, rs.addStateObject(context, "highlightAttrs"));
+		}
 
         RestorableSupport.StateObject so = rs.addStateObject(null, "avlist");
         for (var avp : this.getEntries())
@@ -2443,37 +2514,44 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         // Note: drawBoundingSectors is a diagnostic flag, therefore it is not saved or restored.
 
         Boolean b = rs.getStateValueAsBoolean(context, "visible");
-        if (b != null)
-            this.setVisible(b);
+        if (b != null) {
+			this.setVisible(b);
+		}
 
         b = rs.getStateValueAsBoolean(context, "highlighted");
-        if (b != null)
-            this.setHighlighted(b);
+        if (b != null) {
+			this.setHighlighted(b);
+		}
 
         String s = rs.getStateValueAsString(context, "pathType");
         if (s != null)
         {
             String pathType = this.pathTypeFromString(s);
-            if (pathType != null)
-                this.setPathType(pathType);
+            if (pathType != null) {
+				this.setPathType(pathType);
+			}
         }
 
         Double d = rs.getStateValueAsDouble(context, "texelsPerEdgeInterval");
-        if (d != null)
-            this.setTexelsPerEdgeInterval(d);
+        if (d != null) {
+			this.setTexelsPerEdgeInterval(d);
+		}
 
         int[] minAndMaxEdgeIntervals = this.getMinAndMaxEdgeIntervals();
 
         Integer minEdgeIntervals = rs.getStateValueAsInteger(context, "minEdgeIntervals");
-        if (minEdgeIntervals != null)
-            minAndMaxEdgeIntervals[0] = minEdgeIntervals;
+        if (minEdgeIntervals != null) {
+			minAndMaxEdgeIntervals[0] = minEdgeIntervals;
+		}
 
         Integer maxEdgeIntervals = rs.getStateValueAsInteger(context, "maxEdgeIntervals");
-        if (maxEdgeIntervals != null)
-            minAndMaxEdgeIntervals[1] = maxEdgeIntervals;
+        if (maxEdgeIntervals != null) {
+			minAndMaxEdgeIntervals[1] = maxEdgeIntervals;
+		}
 
-        if (minEdgeIntervals != null || maxEdgeIntervals != null)
-            this.setMinAndMaxEdgeIntervals(minAndMaxEdgeIntervals[0], minAndMaxEdgeIntervals[1]);
+        if (minEdgeIntervals != null || maxEdgeIntervals != null) {
+			this.setMinAndMaxEdgeIntervals(minAndMaxEdgeIntervals[0], minAndMaxEdgeIntervals[1]);
+		}
 
         RestorableSupport.StateObject so = rs.getStateObject(context, "attributes");
         if (so != null)
@@ -2500,8 +2578,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             {
                 for (RestorableSupport.StateObject avp : avpairs)
                 {
-                    if (avp != null)
-                        this.setValue(avp.getName(), avp.getValue());
+                    if (avp != null) {
+						this.setValue(avp.getName(), avp.getValue());
+					}
                 }
             }
         }
@@ -2533,16 +2612,19 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         ShapeAttributes attrs = this.getAttributes();
 
         java.awt.Color color = rs.getStateValueAsColor(context, "color");
-        if (color != null)
-            (attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setInteriorMaterial(new Material(color));
+        if (color != null) {
+			(attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setInteriorMaterial(new Material(color));
+		}
 
         color = rs.getStateValueAsColor(context, "borderColor");
-        if (color != null)
-            (attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setOutlineMaterial(new Material(color));
+        if (color != null) {
+			(attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setOutlineMaterial(new Material(color));
+		}
 
         Double dub = rs.getStateValueAsDouble(context, "lineWidth");
-        if (dub != null)
-            (attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setOutlineWidth(dub);
+        if (dub != null) {
+			(attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setOutlineWidth(dub);
+		}
 
         // Ignore numEdgeIntervalsPerDegree, since it's no longer used.
         //Double intervals = rs.getStateValueAsDouble(context, "numEdgeIntervalsPerDegree");
@@ -2550,19 +2632,23 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         //    this.setEdgeIntervalsPerDegree(intervals.intValue());
 
         Boolean booleanState = rs.getStateValueAsBoolean(context, "drawBorder");
-        if (booleanState != null)
-            (attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setDrawOutline(booleanState);
+        if (booleanState != null) {
+			(attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setDrawOutline(booleanState);
+		}
 
         booleanState = rs.getStateValueAsBoolean(context, "drawInterior");
-        if (booleanState != null)
-            (attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setDrawInterior(booleanState);
+        if (booleanState != null) {
+			(attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setDrawInterior(booleanState);
+		}
 
         booleanState = rs.getStateValueAsBoolean(context, "antialias");
-        if (booleanState != null)
-            (attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setEnableAntialiasing(booleanState);
+        if (booleanState != null) {
+			(attrs != null ? attrs : (attrs = new BasicShapeAttributes())).setEnableAntialiasing(booleanState);
+		}
 
-        if (attrs != null)
-            this.setAttributes(attrs);
+        if (attrs != null) {
+			this.setAttributes(attrs);
+		}
 
         // Positions data is a per object property now. This value is recognized by SurfacePolygon, SurfacePolyline, and
         // SurfaceSector. Other shapes ignore this property.
@@ -2574,8 +2660,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
     protected String pathTypeFromString(String s)
     {
-        if (s == null)
-            return null;
+        if (s == null) {
+			return null;
+		}
 
         if (s.equals(AVKey.GREAT_CIRCLE))
         {
@@ -2639,10 +2726,12 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             SurfaceShapeStateKey that = (SurfaceShapeStateKey) o;
             return super.equals(o)
@@ -2691,10 +2780,12 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             GeometryKey that = (GeometryKey) o;
             return this.globe.equals(that.globe) && this.edgeIntervalsPerDegree == that.edgeIntervalsPerDegree;
@@ -2722,10 +2813,11 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
      */
     public String isExportFormatSupported(String format)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     /**

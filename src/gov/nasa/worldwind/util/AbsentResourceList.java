@@ -148,8 +148,9 @@ public class AbsentResourceList
             throw new IllegalArgumentException(message);
         }
 
-        if (cacheSize != null)
-            this.possiblyAbsent.setCapacity(cacheSize);
+        if (cacheSize != null) {
+			this.possiblyAbsent.setCapacity(cacheSize);
+		}
 
         this.maxTries = Math.max(maxTries, 1);
         this.minCheckInterval = minCheckInterval;
@@ -286,8 +287,9 @@ public class AbsentResourceList
     synchronized public final void markResourceAbsent(String resourceID)
     {
         AbsentResourceEntry entry = (AbsentResourceEntry) this.possiblyAbsent.get(resourceID);
-        if (entry == null)
-            this.possiblyAbsent.put(resourceID, entry = new AbsentResourceEntry());
+        if (entry == null) {
+			this.possiblyAbsent.put(resourceID, entry = new AbsentResourceEntry());
+		}
 
         ++entry.numTries;
         entry.timeOfLastMark = System.currentTimeMillis();
@@ -303,8 +305,9 @@ public class AbsentResourceList
     synchronized public final boolean isResourceAbsent(String resourceID)
     {
         AbsentResourceEntry entry = (AbsentResourceEntry) this.possiblyAbsent.get(resourceID);
-        if (entry == null)
-            return false;
+        if (entry == null) {
+			return false;
+		}
 
         long timeSinceLastMark = System.currentTimeMillis() - entry.timeOfLastMark;
 

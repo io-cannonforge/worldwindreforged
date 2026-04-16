@@ -89,16 +89,18 @@ public class EntityMap
      */
     protected static String getNextEntity(String source, int regionStart)
     {
-        if (source == null)
-            return null;
+        if (source == null) {
+			return null;
+		}
 
         for (Pattern pattern : patterns)
         {
             Matcher matcher = pattern.matcher(source);
             matcher.region(regionStart, source.length());
 
-            if (matcher.find())
-                return matcher.group();
+            if (matcher.find()) {
+				return matcher.group();
+			}
         }
 
         return null;
@@ -114,8 +116,9 @@ public class EntityMap
      */
     public static String get(String key)
     {
-        if (key == null)
-            return null;
+        if (key == null) {
+			return null;
+		}
 
         return map.get(key);
     }

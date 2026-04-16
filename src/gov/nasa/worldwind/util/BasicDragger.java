@@ -156,8 +156,9 @@ public class BasicDragger implements SelectListener
         else if (event.getEventAction().equals(SelectEvent.DRAG))
         {
 
-            if (this.dragContext == null)
-                this.dragContext = new DragContext();
+            if (this.dragContext == null) {
+				this.dragContext = new DragContext();
+			}
 
             this.dragContext.setPoint(event.getPickPoint());
             this.dragContext.setPreviousPoint(((DragSelectEvent) event).getPreviousPickPoint());
@@ -228,8 +229,9 @@ public class BasicDragger implements SelectListener
 
         DragSelectEvent dragEvent = (DragSelectEvent) event;
         Object dragObject = dragEvent.getTopObject();
-        if (dragObject == null)
-            return;
+        if (dragObject == null) {
+			return;
+		}
 
         View view = wwd.getView();
         Globe globe = wwd.getModel().getGlobe();
@@ -237,12 +239,14 @@ public class BasicDragger implements SelectListener
         // Compute dragged object ref-point in model coordinates.
         // Use the Icon and Annotation logic of elevation as offset above ground when below max elevation.
         Position refPos = null;
-        if (dragObject instanceof Movable2)
-            refPos = ((Movable2) dragObject).getReferencePosition();
-        else if (dragObject instanceof Movable)
-            refPos = ((Movable) dragObject).getReferencePosition();
-        if (refPos == null)
-            return;
+        if (dragObject instanceof Movable2) {
+			refPos = ((Movable2) dragObject).getReferencePosition();
+		} else if (dragObject instanceof Movable) {
+			refPos = ((Movable) dragObject).getReferencePosition();
+		}
+        if (refPos == null) {
+			return;
+		}
 
         Vec4 refPoint = globe.computePointFromPosition(refPos);
 
@@ -268,18 +272,20 @@ public class BasicDragger implements SelectListener
         Position pickPos = null;
         // Use intersection with sphere at reference altitude.
         Intersection inters[] = globe.intersect(ray, this.dragRefAltitude);
-        if (inters != null)
-            pickPos = globe.computePositionFromPoint(inters[0].getIntersectionPoint());
+        if (inters != null) {
+			pickPos = globe.computePositionFromPoint(inters[0].getIntersectionPoint());
+		}
 
         if (pickPos != null)
         {
             // Intersection with globe. Move reference point to the intersection point,
             // but maintain current altitude.
             Position p = new Position(pickPos, refPos.getElevation());
-            if (dragObject instanceof Movable2)
-                ((Movable2) dragObject).moveTo(globe, p);
-            else
-                ((Movable) dragObject).moveTo(p);
+            if (dragObject instanceof Movable2) {
+				((Movable2) dragObject).moveTo(globe, p);
+			} else {
+				((Movable) dragObject).moveTo(p);
+			}
         }
     }
 }

@@ -313,10 +313,11 @@ public class Size
         }
 
         double aspectRatio;
-        if (rectHeight != 0)
-            aspectRatio = (double) rectWidth / rectHeight;
-        else
-            aspectRatio = 0;
+        if (rectHeight != 0) {
+			aspectRatio = (double) rectWidth / rectHeight;
+		} else {
+			aspectRatio = 0;
+		}
 
         String xMode = this.getWidthMode();
         String yMode = this.getHeightMode();
@@ -342,22 +343,25 @@ public class Size
         {
             // x dimension is specified, scale y to maintain aspect ratio
             width = computeSize(this.widthParam, this.widthUnits, containerWidth);
-            if (aspectRatio != 0)
-                height = width / aspectRatio;
-            else
-                height = 0;
+            if (aspectRatio != 0) {
+				height = width / aspectRatio;
+			} else {
+				height = 0;
+			}
         }
         else
         {
-            if (NATIVE_DIMENSION.equals(xMode))
-                width = rectWidth;
-            else
-                width = computeSize(this.widthParam, this.widthUnits, containerWidth);
+            if (NATIVE_DIMENSION.equals(xMode)) {
+				width = rectWidth;
+			} else {
+				width = computeSize(this.widthParam, this.widthUnits, containerWidth);
+			}
 
-            if (NATIVE_DIMENSION.equals(yMode))
-                height = rectHeight;
-            else
-                height = computeSize(this.heightParam, this.heightUnits, containerHeight);
+            if (NATIVE_DIMENSION.equals(yMode)) {
+				height = rectHeight;
+			} else {
+				height = computeSize(this.heightParam, this.heightUnits, containerHeight);
+			}
         }
 
         return new Dimension((int) width, (int) height);
@@ -375,10 +379,11 @@ public class Size
      */
     protected double computeSize(double size, String units, double containerDimension)
     {
-        if (AVKey.FRACTION.equals(units))
-            return size * containerDimension;
-        else  // Default to pixel
-            return size;
+        if (AVKey.FRACTION.equals(units)) {
+			return size * containerDimension;
+		} else { // Default to pixel
+			return size;
+		}
     }
 
     /**
@@ -407,8 +412,9 @@ public class Size
             restorableSupport.addStateValueAsString(so, "mode", this.getWidthMode());
             restorableSupport.addStateValueAsDouble(so, "param", this.getWidth());
 
-            if (this.getWidthUnits() != null)
-                restorableSupport.addStateValueAsString(so, "units", this.getWidthUnits());
+            if (this.getWidthUnits() != null) {
+				restorableSupport.addStateValueAsString(so, "units", this.getWidthUnits());
+			}
         }
 
         so = restorableSupport.addStateObject(context, "height");
@@ -417,8 +423,9 @@ public class Size
             restorableSupport.addStateValueAsString(so, "mode", this.getHeightMode());
             restorableSupport.addStateValueAsDouble(so, "param", this.getHeight());
 
-            if (this.getHeightUnits() != null)
-                restorableSupport.addStateValueAsString(so, "units", this.getHeightUnits());
+            if (this.getHeightUnits() != null) {
+				restorableSupport.addStateValueAsString(so, "units", this.getHeightUnits());
+			}
         }
     }
 
@@ -451,8 +458,9 @@ public class Size
             String units = restorableSupport.getStateValueAsString(so, "units");
 
             // Restore the width only when the mode and param are specified. null is an acceptable value for units.
-            if (mode != null && param != null)
-                this.setWidth(mode, param, units);
+            if (mode != null && param != null) {
+				this.setWidth(mode, param, units);
+			}
         }
 
         so = restorableSupport.getStateObject(context, "height");
@@ -465,8 +473,9 @@ public class Size
             String units = restorableSupport.getStateValueAsString(so, "units");
 
             // Restore the height only when the mode and param are specified. null is an acceptable value for units.
-            if (mode != null && param != null)
-                this.setHeight(mode, param, units);
+            if (mode != null && param != null) {
+				this.setHeight(mode, param, units);
+			}
         }
     }
 
@@ -482,33 +491,36 @@ public class Size
      */
     protected String convertLegacyModeString(String string)
     {
-        if ("NativeDimension".equals(string))
-            return NATIVE_DIMENSION;
-        else if ("MaintainAspectRatio".equals(string))
-            return MAINTAIN_ASPECT_RATIO;
-        else if ("ExplicitDimension".equals(string))
-            return EXPLICIT_DIMENSION;
-        else
-            return string;
+        if ("NativeDimension".equals(string)) {
+			return NATIVE_DIMENSION;
+		} else if ("MaintainAspectRatio".equals(string)) {
+			return MAINTAIN_ASPECT_RATIO;
+		} else if ("ExplicitDimension".equals(string)) {
+			return EXPLICIT_DIMENSION;
+		} else {
+			return string;
+		}
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || this.getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || this.getClass() != o.getClass()) {
+			return false;
+		}
 
         Size that = (Size) o;
 
-        if ((Double.compare(this.widthParam, that.widthParam) != 0) || (Double.compare(this.heightParam, that.heightParam) != 0) || (this.widthUnits != null ? !this.widthUnits.equals(that.widthUnits) : that.widthUnits != null) || (this.heightUnits != null ? !this.heightUnits.equals(that.heightUnits) : that.heightUnits != null))
-            return false;
-        if (this.widthMode != null ? !this.widthMode.equals(that.widthMode) : that.widthMode != null)
-            return false;
+        if ((Double.compare(this.widthParam, that.widthParam) != 0) || (Double.compare(this.heightParam, that.heightParam) != 0) || (this.widthUnits != null ? !this.widthUnits.equals(that.widthUnits) : that.widthUnits != null) || (this.heightUnits != null ? !this.heightUnits.equals(that.heightUnits) : that.heightUnits != null)) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (this.heightMode != null ? !this.heightMode.equals(that.heightMode) : that.heightMode != null)
-            return false;
+        if ((this.widthMode != null ? !this.widthMode.equals(that.widthMode) : that.widthMode != null) || (this.heightMode != null ? !this.heightMode.equals(that.heightMode) : that.heightMode != null)) {
+			return false;
+		}
 
         return true;
     }

@@ -276,8 +276,9 @@ public class ScreenAnnotation extends AbstractAnnotation
     @Override
 	protected void doRenderNow(DrawContext dc)
     {
-        if (dc.isPickingMode() && this.getPickSupport() == null)
-            return;
+        if (dc.isPickingMode() && this.getPickSupport() == null) {
+			return;
+		}
 
         GL gl = dc.getGL();
         gl.glDepthFunc(GL.GL_ALWAYS);
@@ -319,11 +320,13 @@ public class ScreenAnnotation extends AbstractAnnotation
         }
 
         // Create our own state document from scratch.
-        if (restorableSupport == null)
-            restorableSupport = RestorableSupport.newRestorableSupport();
+        if (restorableSupport == null) {
+			restorableSupport = RestorableSupport.newRestorableSupport();
+		}
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         if (this.screenPoint != null)
         {
@@ -389,8 +392,9 @@ public class ScreenAnnotation extends AbstractAnnotation
         {
             Double xState = restorableSupport.getStateValueAsDouble(screenPointStateObj, "x");
             Double yState = restorableSupport.getStateValueAsDouble(screenPointStateObj, "y");
-            if (xState != null && yState != null)
-                setScreenPoint(new Point(xState.intValue(), yState.intValue()));
+            if (xState != null && yState != null) {
+				setScreenPoint(new Point(xState.intValue(), yState.intValue()));
+			}
         }
     }
 }

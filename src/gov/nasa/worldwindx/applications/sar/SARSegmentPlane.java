@@ -153,8 +153,9 @@ public class SARSegmentPlane extends WWObjectImpl
 
     public void setWorldWindow(WorldWindow wwd)
     {
-        if (this.wwd == wwd)
-            return;
+        if (this.wwd == wwd) {
+			return;
+		}
 
         if (this.wwd != null)
         {
@@ -691,15 +692,17 @@ public class SARSegmentPlane extends WWObjectImpl
 
             if (this.getPrefix() != null)
             {
-                if (sb.length() > 0)
-                    sb.append("\n");
+                if (sb.length() > 0) {
+					sb.append("\n");
+				}
                 sb.append(this.getPrefix());
             }
 
             if (this.isShowLocation())
             {
-                if (sb.length() > 0)
-                    sb.append("\n");
+                if (sb.length() > 0) {
+					sb.append("\n");
+				}
                 sb.append("(");
                 sb.append(this.formatAngle(position.getLatitude()));
                 sb.append(", ");
@@ -712,15 +715,17 @@ public class SARSegmentPlane extends WWObjectImpl
                 LatLon[] locations = segmentPlane.getPlaneLocations();
                 Angle heading = LatLon.rhumbAzimuth(locations[0], locations[1]);
 
-                if (sb.length() > 0)
-                    sb.append("\n");
+                if (sb.length() > 0) {
+					sb.append("\n");
+				}
                 sb.append("Heading: ").append(heading.toDecimalDegreesString(0));
             }
 
             if (this.isShowAltitude())
             {
-                if (sb.length() > 0)
-                    sb.append("\n");
+                if (sb.length() > 0) {
+					sb.append("\n");
+				}
                 sb.append("Alt: ").append(this.formatElevation(position.getElevation()));
             }
 
@@ -731,8 +736,9 @@ public class SARSegmentPlane extends WWObjectImpl
                     Double height = AVListImpl.getDoubleValue(values, AVKey.HEIGHT);
                     if (height != null)
                     {
-                        if (sb.length() > 0)
-                            sb.append("\n");
+                        if (sb.length() > 0) {
+							sb.append("\n");
+						}
                         sb.append("AGL: ").append(this.formatElevation(height));
                     }
                 }
@@ -799,24 +805,30 @@ public class SARSegmentPlane extends WWObjectImpl
                 Double height = AVListImpl.getDoubleValue(values, AVKey.HEIGHT);
                 boolean haveTuple = (width != null && height != null);
 
-                if (haveTuple)
-                    sb.append("(");
+                if (haveTuple) {
+					sb.append("(");
+				}
 
-                if (width != null)
-                    sb.append(this.formatElevation(width));
+                if (width != null) {
+					sb.append(this.formatElevation(width));
+				}
 
-                if (haveTuple)
-                    sb.append(", ");
+                if (haveTuple) {
+					sb.append(", ");
+				}
 
-                if (height != null)
-                    sb.append(this.formatElevation(height));
+                if (height != null) {
+					sb.append(this.formatElevation(height));
+				}
 
-                if (haveTuple)
-                    sb.append(")");
+                if (haveTuple) {
+					sb.append(")");
+				}
             }
 
-            if (sb.length() == 0)
-                return null;
+            if (sb.length() == 0) {
+				return null;
+			}
 
             return sb.toString();
         }
@@ -946,8 +958,9 @@ public class SARSegmentPlane extends WWObjectImpl
         double newMaxSegmentAltitude = -Double.MAX_VALUE;
         for (Position pos : positions)
         {
-            if (newMaxSegmentAltitude < pos.getElevation())
-                newMaxSegmentAltitude = pos.getElevation();
+            if (newMaxSegmentAltitude < pos.getElevation()) {
+				newMaxSegmentAltitude = pos.getElevation();
+			}
         }
 
         double segmentVGap = altitudes[1] - oldMaxSegmentAltitude;

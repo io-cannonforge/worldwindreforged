@@ -151,8 +151,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         this.imageSource = imageSource;
         this.useMipMaps = useMipMaps;
 
-        if (listener != null)
-            this.addPropertyChangeListener(listener);
+        if (listener != null) {
+			this.addPropertyChangeListener(listener);
+		}
     }
 
     @Override
@@ -290,8 +291,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
      */
     protected Texture getTexture(DrawContext dc)
     {
-        if (this.getImageSource() == null)
-            return null;
+        if (this.getImageSource() == null) {
+			return null;
+		}
 
         Texture texture = dc.getTextureCache().getTexture(this.getImageSource());
 
@@ -332,8 +334,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
     protected void setTextureData(TextureData textureData)
     {
         this.textureData = textureData;
-        if (textureData != null && textureData.getMipmapData() != null)
-            this.hasMipmapData = true;
+        if (textureData != null && textureData.getMipmapData() != null) {
+			this.hasMipmapData = true;
+		}
     }
 
     /**
@@ -347,8 +350,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
     @Override
 	public boolean bind(DrawContext dc)
     {
-        if (this.isTextureInitializationFailed())
-            return false;
+        if (this.isTextureInitializationFailed()) {
+			return false;
+		}
 
         if (dc == null)
         {
@@ -358,8 +362,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         }
 
         Texture texture = this.getTexture(dc);
-        if (texture == null)
-            texture = this.requestTexture(dc);
+        if (texture == null) {
+			texture = this.requestTexture(dc);
+		}
 
         if (texture != null)
         {
@@ -383,11 +388,13 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         }
 
         Texture texture = this.getTexture(dc);
-        if (texture == null)
-            texture = this.requestTexture(dc);
+        if (texture == null) {
+			texture = this.requestTexture(dc);
+		}
 
-        if (texture == null)
-            return;
+        if (texture == null) {
+			return;
+		}
 
         if (texture.getMustFlipVertically())
         {
@@ -409,18 +416,22 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
      */
     protected Texture requestTexture(DrawContext dc)
     {
-        if (this.isBufferedImageSource())
-            return this.makeBufferedImageTexture(dc);
+        if (this.isBufferedImageSource()) {
+			return this.makeBufferedImageTexture(dc);
+		}
 
-        if (this.getTextureData() != null && this.getTexture(dc) == null)
-            return this.makeTextureFromTextureData(dc);
+        if (this.getTextureData() != null && this.getTexture(dc) == null) {
+			return this.makeTextureFromTextureData(dc);
+		}
 
-        if (WorldWind.getTaskService().isFull())
-            return null;
+        if (WorldWind.getTaskService().isFull()) {
+			return null;
+		}
 
         Runnable task = this.createRequestTask();
-        if (WorldWind.getTaskService().contains(task))
-            return null;
+        if (WorldWind.getTaskService().contains(task)) {
+			return null;
+		}
 
         // Use either the current layer or the layer list as the listener to notify when the request completes. The
         // latter is used when the image source is requested during ordered rendering and the current layer is null.
@@ -464,8 +475,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         {
             TextureData td = AWTTextureIO.newTextureData(Configuration.getMaxCompatibleGLProfile(),
                 (BufferedImage) this.getImageSource(), this.isUseMipMaps());
-            if (td == null)
-                return null;
+            if (td == null) {
+				return null;
+			}
 
             this.setTextureData(td);
 
@@ -599,8 +611,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         @Override
 		public void run()
         {
-            if (Thread.currentThread().isInterrupted())
-                return; // the task was cancelled because it's a duplicate or for some other reason
+            if (Thread.currentThread().isInterrupted()) {
+				return; // the task was cancelled because it's a duplicate or for some other reason
+			}
 
             URL fileUrl = this.wwTexture.fileStore.requestFile(this.wwTexture.getImageSource().toString());
 
@@ -616,10 +629,12 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         @Override
 		public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
             final RequestTask that = (RequestTask) o;
 
@@ -655,8 +670,9 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
         {
             td = readImage(fileUrl);
 
-            if (td != null)
-                this.setTextureData(td);
+            if (td != null) {
+				this.setTextureData(td);
+			}
         }
 
         return this.getTextureData() != null;
@@ -688,16 +704,19 @@ public class LazilyLoadedTexture extends AVListImpl implements WWTexture
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         LazilyLoadedTexture that = (LazilyLoadedTexture) o;
 
         //noinspection RedundantIfStatement
-        if (imageSource != null ? !imageSource.equals(that.imageSource) : that.imageSource != null)
-            return false;
+        if (imageSource != null ? !imageSource.equals(that.imageSource) : that.imageSource != null) {
+			return false;
+		}
 
         return true;
     }

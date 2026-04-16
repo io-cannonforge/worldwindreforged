@@ -262,8 +262,9 @@ abstract public class AbstractElevationModel extends WWObjectImpl implements Ele
         {
             LatLon ll = latlons.get(i);
             double e = this.getUnmappedElevation(ll.getLatitude(), ll.getLongitude());
-            if (e != this.getMissingDataSignal() && !this.isTransparentValue(e))
-                buffer[i] = e;
+            if (e != this.getMissingDataSignal() && !this.isTransparentValue(e)) {
+				buffer[i] = e;
+			}
         }
     }
 
@@ -342,16 +343,19 @@ abstract public class AbstractElevationModel extends WWObjectImpl implements Ele
             params.getValue(AVKey.MISSING_DATA_REPLACEMENT) != null)
         {
             Element el = WWXML.getElement(context, "MissingData", null);
-            if (el == null)
-                el = WWXML.appendElementPath(context, "MissingData");
+            if (el == null) {
+				el = WWXML.appendElementPath(context, "MissingData");
+			}
 
             Double d = AVListImpl.getDoubleValue(params, AVKey.MISSING_DATA_SIGNAL);
-            if (d != null)
-                WWXML.setDoubleAttribute(el, "signal", d);
+            if (d != null) {
+				WWXML.setDoubleAttribute(el, "signal", d);
+			}
 
             d = AVListImpl.getDoubleValue(params, AVKey.MISSING_DATA_REPLACEMENT);
-            if (d != null)
-                WWXML.setDoubleAttribute(el, "replacement", d);
+            if (d != null) {
+				WWXML.setDoubleAttribute(el, "replacement", d);
+			}
         }
 
         WWXML.checkAndAppendDoubleElement(params, AVKey.DETAIL_HINT, context, "DataDetailHint");
@@ -389,8 +393,9 @@ abstract public class AbstractElevationModel extends WWObjectImpl implements Ele
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         XPath xpath = WWXML.makeXPath();
 

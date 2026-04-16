@@ -55,9 +55,10 @@ public class BasicPointOfInterest extends WWObjectImpl implements PointOfInteres
 	public String toString()
     {
         String str = this.getStringValue(AVKey.DISPLAY_NAME);
-        if (str != null)
-            return str;
-        else
-            return latlon.toString();
+        if (str != null) {
+			return str;
+		} else {
+			return latlon.toString();
+		}
     }
 }

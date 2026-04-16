@@ -289,8 +289,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
         this.glContext = glContext;
 
         this.visibleSector = null;
-        if (this.surfaceGeometry != null)
-            this.surfaceGeometry.clear();
+        if (this.surfaceGeometry != null) {
+			this.surfaceGeometry.clear();
+		}
         this.surfaceGeometry = null;
 
         this.pickedObjects.clear();
@@ -310,12 +311,14 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
 	public final void setModel(Model model)
     {
         this.model = model;
-        if (this.model == null)
-            return;
+        if (this.model == null) {
+			return;
+		}
 
         Globe g = this.model.getGlobe();
-        if (g != null)
-            this.globe = g;
+        if (g != null) {
+			this.globe = g;
+		}
     }
 
     @Override
@@ -552,8 +555,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             throw new IllegalArgumentException(msg);
         }
 
-        if (null == this.pickedObjects)
-            this.pickedObjects = new PickedObjectList();
+        if (null == this.pickedObjects) {
+			this.pickedObjects = new PickedObjectList();
+		}
 
         this.pickedObjects.add(pickedObject);
     }
@@ -589,14 +593,16 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
         this.uniquePickNumber++;
 
         int clearColorCode = this.getClearColor().getRGB();
-        if (clearColorCode == this.uniquePickNumber) // skip the clear color
-            this.uniquePickNumber++;
+        if (clearColorCode == this.uniquePickNumber) { // skip the clear color
+			this.uniquePickNumber++;
+		}
 
         if (this.uniquePickNumber >= 0x00FFFFFF)
         {
             this.uniquePickNumber = 1;  // no black, no white
-            if (clearColorCode == this.uniquePickNumber) // skip the clear color
-                this.uniquePickNumber++;
+            if (clearColorCode == this.uniquePickNumber) { // skip the clear color
+				this.uniquePickNumber++;
+			}
         }
 
         return new Color(this.uniquePickNumber, true); // has alpha
@@ -605,18 +611,21 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     @Override
 	public Color getUniquePickColorRange(int count)
     {
-        if (count < 1)
-            return null;
+        if (count < 1) {
+			return null;
+		}
 
         Range range = new Range(this.uniquePickNumber + 1, count); // compute the requested range
 
         int clearColorCode = this.getClearColor().getRGB();
-        if (range.contains(clearColorCode)) // skip the clear color when it's in the range
-            range.location = clearColorCode + 1;
+        if (range.contains(clearColorCode)) { // skip the clear color when it's in the range
+			range.location = clearColorCode + 1;
+		}
 
         int maxColorCode = range.location + range.length - 1;
-        if (maxColorCode >= 0x00FFFFFF) // not enough colors to satisfy the requested range
-            return null;
+        if (maxColorCode >= 0x00FFFFFF) { // not enough colors to satisfy the requested range
+			return null;
+		}
 
         this.uniquePickNumber = maxColorCode; // set the unique color to the last color in the requested range
 
@@ -644,8 +653,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
         int y = point.y;
 
         // Read the framebuffer color at the specified point in OpenGL screen coordinates as a 24-bit RGB value.
-        if (this.pixelColors == null || this.pixelColors.capacity() < 3)
-            this.pixelColors = Buffers.newDirectByteBuffer(3);
+        if (this.pixelColors == null || this.pixelColors.capacity() < 3) {
+			this.pixelColors = Buffers.newDirectByteBuffer(3);
+		}
         this.pixelColors.clear();
         this.getGL().glReadPixels(x, y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, this.pixelColors);
 
@@ -672,16 +682,19 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
         Rectangle r = new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
         r = r.intersection(viewport);
 
-        if (r.isEmpty()) // Return null if the rectangle is empty.
-            return null;
+        if (r.isEmpty()) { // Return null if the rectangle is empty.
+			return null;
+		}
 
-        if (minAndMaxColorCodes == null)
-            minAndMaxColorCodes = new int[] {0, Integer.MAX_VALUE};
+        if (minAndMaxColorCodes == null) {
+			minAndMaxColorCodes = new int[] {0, Integer.MAX_VALUE};
+		}
 
         // Allocate a native byte buffer to hold the framebuffer RGB colors.
         int numPixels = r.width * r.height;
-        if (this.pixelColors == null || this.pixelColors.capacity() < 3 * numPixels)
-            this.pixelColors = Buffers.newDirectByteBuffer(3 * numPixels);
+        if (this.pixelColors == null || this.pixelColors.capacity() < 3 * numPixels) {
+			this.pixelColors = Buffers.newDirectByteBuffer(3 * numPixels);
+		}
         this.pixelColors.clear();
 
         GL gl = this.getGL();
@@ -916,15 +929,17 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     @Override
 	public void applyClutterFilter()
     {
-        if (this.getClutterFilter() == null)
-            return;
+        if (this.getClutterFilter() == null) {
+			return;
+		}
 
         // Collect all the active declutterables.
         ArrayList<OrderedRenderableEntry> declutterableArray = new ArrayList<>();
         for (OrderedRenderableEntry ore : this.orderedRenderables)
         {
-            if (ore.or instanceof Declutterable && ((Declutterable) ore.or).isEnableDecluttering())
-                declutterableArray.add(ore);
+            if (ore.or instanceof Declutterable && ((Declutterable) ore.or).isEnableDecluttering()) {
+				declutterableArray.add(ore);
+			}
         }
 
         // Sort the declutterables front-to-back.
@@ -940,8 +955,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             }
         });
 
-        if (declutterableArray.size() == 0)
-            return;
+        if (declutterableArray.size() == 0) {
+			return;
+		}
 
         // Prepare the declutterable list for the filter and remove eliminated ordered renderables from the renderable
         // list. The clutter filter will add those it wants displayed back to the list, or it will add some other
@@ -1056,8 +1072,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     @Override
 	public void drawNormals(float length, FloatBuffer vBuf, FloatBuffer nBuf)
     {
-        if (vBuf == null || nBuf == null)
-            return;
+        if (vBuf == null || nBuf == null) {
+			return;
+		}
 
         GL2 gl = this.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
@@ -1092,15 +1109,17 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             throw new IllegalArgumentException(message);
         }
 
-        if ((this.getVisibleSector() == null) || !this.getVisibleSector().contains(latitude, longitude))
-            return null;
+        if ((this.getVisibleSector() == null) || !this.getVisibleSector().contains(latitude, longitude)) {
+			return null;
+		}
 
         SectorGeometryList sectorGeometry = this.getSurfaceGeometry();
         if (sectorGeometry != null)
         {
             Vec4 p = sectorGeometry.getSurfacePoint(latitude, longitude);
-            if (p != null)
-                return p;
+            if (p != null) {
+				return p;
+			}
         }
 
         return null;
@@ -1134,8 +1153,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     @Override
 	public void setPerFrameStatistic(String key, String displayName, Object value)
     {
-        if (this.perFrameStatistics == null || this.perFrameStatisticsKeys == null)
-            return;
+        if (this.perFrameStatistics == null || this.perFrameStatisticsKeys == null) {
+			return;
+		}
 
         if (key == null)
         {
@@ -1151,8 +1171,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             throw new IllegalArgumentException(message);
         }
 
-        if (this.perFrameStatisticsKeys.contains(key) || this.perFrameStatisticsKeys.contains(PerformanceStatistic.ALL))
-            this.perFrameStatistics.add(new PerformanceStatistic(key, displayName, value));
+        if (this.perFrameStatisticsKeys.contains(key) || this.perFrameStatisticsKeys.contains(PerformanceStatistic.ALL)) {
+			this.perFrameStatistics.add(new PerformanceStatistic(key, displayName, value));
+		}
     }
 
     @Override
@@ -1165,8 +1186,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             throw new IllegalArgumentException(message);
         }
 
-        if (this.perFrameStatistics == null || this.perFrameStatisticsKeys == null)
-            return;
+        if (this.perFrameStatistics == null || this.perFrameStatisticsKeys == null) {
+			return;
+		}
 
         for (PerformanceStatistic stat : stats)
         {
@@ -1203,14 +1225,16 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             throw new IllegalArgumentException(message);
         }
 
-        if (sector == null)
-            sector = this.visibleSector;
+        if (sector == null) {
+			sector = this.visibleSector;
+		}
 
-        if (this.visibleSectors == null)
-            this.visibleSectors = new SectorVisibilityTree();
-        else if (this.visibleSectors.getSectorSize() == resolutions[resolutions.length - 1]
-            && this.visibleSectors.getTimeStamp() == this.frameTimestamp)
-            return this.visibleSectors.getSectors();
+        if (this.visibleSectors == null) {
+			this.visibleSectors = new SectorVisibilityTree();
+		} else if (this.visibleSectors.getSectorSize() == resolutions[resolutions.length - 1]
+            && this.visibleSectors.getTimeStamp() == this.frameTimestamp) {
+			return this.visibleSectors.getSectors();
+		}
 
         long start = System.currentTimeMillis();
         List<Sector> sectors = this.visibleSectors.refresh(this, resolutions[0], sector);
@@ -1315,13 +1339,16 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             int offsetY = pickPointFrustumDimension.height / 2;
 
             //If the frustum is not valid then don't add it and return silently
-            if (offsetX == 0 || offsetY == 0)
-                return;
+            if (offsetX == 0 || offsetY == 0) {
+				return;
+			}
 
             //Compute the distance to the near plane in screen coordinates
             double width = getView().getFieldOfView().tanHalfAngle() * getView().getNearClipDistance();
             double viewportWidth = getView().getViewport().getWidth();
-            if (viewportWidth <= 0.0) viewportWidth = 1.0;
+            if (viewportWidth <= 0.0) {
+				viewportWidth = 1.0;
+			}
             double x = width / (viewportWidth/2);
             double screenDist = getView().getNearClipDistance() / x;
 
@@ -1343,8 +1370,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
 
             //Transform the frustum to Model Coordinates
             Matrix modelviewTranspose = getView().getModelviewMatrix().getTranspose();
-            if (modelviewTranspose != null)
-                frustum = frustum.transformBy(modelviewTranspose);
+            if (modelviewTranspose != null) {
+				frustum = frustum.transformBy(modelviewTranspose);
+			}
 
             this.pickFrustumList.add(new PickPointFrustum(frustum, rectScreen));
         }
@@ -1354,8 +1382,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
 	public void addPickRectangleFrustum()
     {
         // Do nothing if the pick rectangle is either null or has zero dimension.
-        if (this.getPickRectangle() == null || this.getPickRectangle().isEmpty())
-            return;
+        if (this.getPickRectangle() == null || this.getPickRectangle().isEmpty()) {
+			return;
+		}
 
         // Get the pick rectangle, transform it from GL surface coordinates to OpenGL screen coordinates, then translate
         // it such that the screen's center is at the origin.
@@ -1363,7 +1392,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
         pr.translate(-viewportCenterScreenPoint.x, -viewportCenterScreenPoint.y);
 
         double viewportWidth = view.getViewport().getWidth();
-        if (viewportWidth <= 0.0) viewportWidth = 1.0;
+        if (viewportWidth <= 0.0) {
+			viewportWidth = 1.0;
+		}
 
         // Create the four vectors that define the top-left, top-right, bottom-left, and bottom-right corners of the
         // pick rectangle in screen coordinates.
@@ -1379,8 +1410,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
 
         // Transform the frustum from eye coordinates to model coordinates.
         Matrix modelviewTranspose = view.getModelviewMatrix().getTranspose();
-        if (modelviewTranspose != null)
-            frustum = frustum.transformBy(modelviewTranspose);
+        if (modelviewTranspose != null) {
+			frustum = frustum.transformBy(modelviewTranspose);
+		}
 
         // Create the screen rectangle in OpenGL screen coordinates associated with this frustum. We translate the
         // specified pick rectangle from AWT coordinates to GL coordinates by inverting the y axis.
@@ -1406,8 +1438,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     {
         // If the renderingExceptions Collection is non-null, it's used as the data structure that accumulates rendering
         // exceptions. Otherwise this DrawContext ignores all rendering exceptions passed to this method.
-        if (this.renderingExceptions == null)
-            return;
+        if (this.renderingExceptions == null) {
+			return;
+		}
 
         if (t == null)
         {
@@ -1467,11 +1500,13 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
 
         if (this.isDeepPickingEnabled())
         {
-            if (renderer.isDrawInterior(this, shape))
-                renderer.drawInterior(this, shape);
+            if (renderer.isDrawInterior(this, shape)) {
+				renderer.drawInterior(this, shape);
+			}
 
-            if (renderer.isDrawOutline(this, shape)) // the line might extend outside the interior's projection
-                renderer.drawOutline(this, shape);
+            if (renderer.isDrawOutline(this, shape)) { // the line might extend outside the interior's projection
+				renderer.drawOutline(this, shape);
+			}
 
             return;
         }
@@ -1623,8 +1658,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             }
 
             SectorGeometryList sectorGeometry = DrawContextImpl.this.getSurfaceGeometry();
-            if (sectorGeometry == null)
-                return null;
+            if (sectorGeometry == null) {
+				return null;
+			}
 
             Vec4 pt = sectorGeometry.getSurfacePoint(position);
             if (pt == null)
@@ -1648,8 +1684,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             }
 
             SectorGeometryList sectorGeometry = DrawContextImpl.this.getSurfaceGeometry();
-            if (sectorGeometry == null)
-                return null;
+            if (sectorGeometry == null) {
+				return null;
+			}
 
             Vec4 pt = sectorGeometry.getSurfacePoint(latitude, longitude, metersOffset);
 
@@ -1667,14 +1704,16 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
 		public Intersection[] intersect(Position pA, Position pB)
         {
             SectorGeometryList sectorGeometry = DrawContextImpl.this.getSurfaceGeometry();
-            if (sectorGeometry == null)
-                return null;
+            if (sectorGeometry == null) {
+				return null;
+			}
 
             Vec4 ptA = this.getSurfacePoint(pA);
             Vec4 ptB = this.getSurfacePoint(pB);
 
-            if (pA == null || pB == null)
-                return null;
+            if (pA == null || pB == null) {
+				return null;
+			}
 
             return sectorGeometry.intersect(new Line(ptA, ptB.subtract3(ptA)));
         }
@@ -1717,8 +1756,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
             }
 
             Vec4 pt = this.getSurfacePoint(location.getLatitude(), location.getLongitude(), 0);
-            if (pt == null)
-                return null;
+            if (pt == null) {
+				return null;
+			}
 
             Vec4 p = this.getGlobe().computePointFromPosition(location.getLatitude(), location.getLongitude(), 0);
 
@@ -1781,13 +1821,19 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     /** {@inheritDoc} */
 	@Override
 	public int [] awtPointToGLpoint(Point pt) {
-		if (pt == null) return null;
+		if (pt == null) {
+			return null;
+		}
 
 		int [] awtPt = { pt.x, pt.y };
-		if (glContext == null) return awtPt;
+		if (glContext == null) {
+			return awtPt;
+		}
 
 		GLDrawable drawable = glContext.getGLDrawable();
-		if (drawable == null) return awtPt;
+		if (drawable == null) {
+			return awtPt;
+		}
 
 		// Convert to GL surface coordinates
 		int [] glSurfacePt = drawable.getNativeSurface().convertToPixelUnits(awtPt);
@@ -1799,7 +1845,9 @@ public class DrawContextImpl extends WWObjectImpl implements DrawContext
     @Override
 	public Point glPointToAwtPoint(Point glPoint) {
 		GLDrawable drawable = glContext.getGLDrawable();
-		if (drawable == null) return glPoint;
+		if (drawable == null) {
+			return glPoint;
+		}
 
 		final int viewportHeight = getView().getViewport().height;
 		int [] glPt = { glPoint.x, viewportHeight-1 - glPoint.y };

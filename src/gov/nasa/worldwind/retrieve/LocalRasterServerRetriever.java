@@ -61,8 +61,9 @@ public class LocalRasterServerRetriever extends WWObjectImpl implements Retrieve
 
     public LocalRasterServerRetriever(AVList params, RasterServer rasterServer, RetrievalPostProcessor postProcessor)
     {
-        if (null != params)
-            this.setValues(params);
+        if (null != params) {
+			this.setValues(params);
+		}
         this.server = rasterServer;
         this.postProcessor = postProcessor;
     }
@@ -219,12 +220,13 @@ public class LocalRasterServerRetriever extends WWObjectImpl implements Retrieve
                 this.setState(RETRIEVER_STATE_SUCCESSFUL);
                 this.contentLength = this.byteBuffer.capacity();
                 this.contentLengthRead.set(this.contentLength);
-            }
-            else
-                this.setState(RETRIEVER_STATE_ERROR);
+            } else {
+				this.setState(RETRIEVER_STATE_ERROR);
+			}
 
-            if (this.postProcessor != null)
-                this.byteBuffer = this.postProcessor.run(this);
+            if (this.postProcessor != null) {
+				this.byteBuffer = this.postProcessor.run(this);
+			}
         }
         catch (Exception e)
         {

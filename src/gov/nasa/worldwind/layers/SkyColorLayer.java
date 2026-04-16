@@ -127,12 +127,14 @@ public class SkyColorLayer extends RenderableLayer
 	public void doRender(DrawContext dc)
     {
         Position eyePos = dc.getView().getEyePosition();
-        if (eyePos == null)
-            return;
+        if (eyePos == null) {
+			return;
+		}
 
         double alt = eyePos.getElevation();
-        if(alt > this.fadeTopAltitude)
-            return;
+        if(alt > this.fadeTopAltitude) {
+			return;
+		}
         // Compute fade factor
         float fadeFactor = (alt < this.fadeBottomAltitude) ? 1f :
             (float)((this.fadeTopAltitude - alt) / (this.fadeTopAltitude - this.fadeBottomAltitude));
@@ -195,8 +197,9 @@ public class SkyColorLayer extends RenderableLayer
                 gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
                 gl.glPopMatrix();
             }
-            if (attribsPushed)
-                gl.glPopAttrib();
+            if (attribsPushed) {
+				gl.glPopAttrib();
+			}
         }
     }
 

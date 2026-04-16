@@ -141,10 +141,12 @@ public abstract class AbstractIconRetriever implements IconRetriever
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || this.getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || this.getClass() != o.getClass()) {
+			return false;
+		}
 
         AbstractIconRetriever that = (AbstractIconRetriever) o;
         return this.retrieverPath != null ? this.retrieverPath.equals(that.retrieverPath) : that.retrieverPath == null;
@@ -184,12 +186,14 @@ public abstract class AbstractIconRetriever implements IconRetriever
         try
         {
             URL url = WWIO.makeURL(sb.toString());
-            if (url != null)
-                return ImageIO.read(url);
+            if (url != null) {
+				return ImageIO.read(url);
+			}
 
             is = WWIO.openFileOrResourceStream(sb.toString(), this.getClass());
-            if (is != null)
-                return ImageIO.read(is);
+            if (is != null) {
+				return ImageIO.read(is);
+			}
         }
         catch (Exception e)
         {
@@ -236,8 +240,9 @@ public abstract class AbstractIconRetriever implements IconRetriever
         }
         finally
         {
-            if (g != null)
-                g.dispose();
+            if (g != null) {
+				g.dispose();
+			}
         }
 
         return dest;
@@ -271,8 +276,9 @@ public abstract class AbstractIconRetriever implements IconRetriever
         int w = image.getWidth();
         int h = image.getHeight();
 
-        if (w == 0 || h == 0)
-            return;
+        if (w == 0 || h == 0) {
+			return;
+		}
 
         int[] pixels = new int[w];
         int c = color.getRGB();
@@ -337,8 +343,9 @@ public abstract class AbstractIconRetriever implements IconRetriever
         int w = image.getWidth();
         int h = image.getHeight();
 
-        if (w == 0 || h == 0)
-            return;
+        if (w == 0 || h == 0) {
+			return;
+		}
 
         int[] pixels = new int[w];
         int c = color.getRGB();

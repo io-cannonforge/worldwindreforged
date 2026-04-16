@@ -148,8 +148,9 @@ public class SelectEvent extends WWEvent
     {
         super.consume();
 
-        if (this.getMouseEvent() != null)
-            this.getMouseEvent().consume();
+        if (this.getMouseEvent() != null) {
+			this.getMouseEvent().consume();
+		}
     }
 
     public String getEventAction()
@@ -277,8 +278,9 @@ public class SelectEvent extends WWEvent
     {
         StringBuilder sb = new StringBuilder(this.getClass().getName() + " "
             + (this.eventAction != null ? this.eventAction : Logging.getMessage("generic.Unknown")));
-        if (this.pickedObjects != null && this.pickedObjects.getTopObject() != null)
-            sb.append(", ").append(this.pickedObjects.getTopObject().getClass().getName());
+        if (this.pickedObjects != null && this.pickedObjects.getTopObject() != null) {
+			sb.append(", ").append(this.pickedObjects.getTopObject().getClass().getName());
+		}
 
         return sb.toString();
     }

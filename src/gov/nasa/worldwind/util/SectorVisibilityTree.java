@@ -101,8 +101,9 @@ public class SectorVisibilityTree
             @Override
 			public boolean isTerminal(Sector s, Context context)
             {
-                if (s.getDeltaLat().degrees > context.sectorSize)
-                    return false;
+                if (s.getDeltaLat().degrees > context.sectorSize) {
+					return false;
+				}
 
                 context.sectors.add(s);
                 return true;
@@ -118,8 +119,9 @@ public class SectorVisibilityTree
 			public boolean isVisible(Sector s, Context c)
             {
                 Extent extent = prevExtents.get(s);
-                if (extent == null)
-                    extent = Sector.computeBoundingBox(c.dc.getGlobe(), c.dc.getVerticalExaggeration(), s);
+                if (extent == null) {
+					extent = Sector.computeBoundingBox(c.dc.getGlobe(), c.dc.getVerticalExaggeration(), s);
+				}
 
                 if (extent.intersects(c.dc.getView().getFrustumInModelCoordinates()))
                 {
@@ -158,8 +160,9 @@ public class SectorVisibilityTree
             throw new IllegalArgumentException(message);
         }
 
-        if (dc.getVisibleSector() == null)
-            return Collections.emptyList();
+        if (dc.getVisibleSector() == null) {
+			return Collections.emptyList();
+		}
 
         this.sectors = new ArrayList<>();
         this.sectorSize = sectorSize;
@@ -268,8 +271,9 @@ public class SectorVisibilityTree
 
     protected void swapCylinderLists(DrawContext dc)
     {
-        if (this.globeStateKey != null && !dc.getGlobe().getStateKey(dc).equals(this.globeStateKey))
-            this.newExtents.clear();
+        if (this.globeStateKey != null && !dc.getGlobe().getStateKey(dc).equals(this.globeStateKey)) {
+			this.newExtents.clear();
+		}
 
         this.prevExtents.clear();
         HashMap<Sector, Extent> temp = this.prevExtents;

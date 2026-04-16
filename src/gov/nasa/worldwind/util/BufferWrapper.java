@@ -368,16 +368,17 @@ public abstract class BufferWrapper
             byteBuffer.order(AVKey.LITTLE_ENDIAN.equals(byteOrder) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
         }
 
-        if (AVKey.INT8.equals(dataType))
-            return new ByteBufferWrapper(byteBuffer.slice());
-        else if (AVKey.INT16.equals(dataType))
-            return new ShortBufferWrapper(byteBuffer.asShortBuffer());
-        else if (AVKey.INT32.equals(dataType))
-            return new IntBufferWrapper(byteBuffer.asIntBuffer());
-        else if (AVKey.FLOAT32.equals(dataType))
-            return new FloatBufferWrapper(byteBuffer.asFloatBuffer());
-        else if (AVKey.FLOAT64.equals(dataType))
-            return new DoubleBufferWrapper(byteBuffer.asDoubleBuffer());
+        if (AVKey.INT8.equals(dataType)) {
+			return new ByteBufferWrapper(byteBuffer.slice());
+		} else if (AVKey.INT16.equals(dataType)) {
+			return new ShortBufferWrapper(byteBuffer.asShortBuffer());
+		} else if (AVKey.INT32.equals(dataType)) {
+			return new IntBufferWrapper(byteBuffer.asIntBuffer());
+		} else if (AVKey.FLOAT32.equals(dataType)) {
+			return new FloatBufferWrapper(byteBuffer.asFloatBuffer());
+		} else if (AVKey.FLOAT64.equals(dataType)) {
+			return new DoubleBufferWrapper(byteBuffer.asDoubleBuffer());
+		}
 
         return null;
     }
@@ -490,8 +491,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -515,8 +517,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -540,8 +543,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -565,8 +569,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -590,8 +595,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -615,8 +621,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -640,8 +647,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -665,8 +673,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -690,8 +699,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -715,8 +725,9 @@ public abstract class BufferWrapper
                 throw new IllegalArgumentException(message);
             }
 
-            if (length <= 0)
-                return;
+            if (length <= 0) {
+				return;
+			}
 
             int pos = this.buffer.position(); // Save the buffer's current position.
             try
@@ -792,8 +803,9 @@ public abstract class BufferWrapper
 
             // Attempt to put the specified buffer's contents directly into this buffer. This returns false if the
             // specified buffer's primitive type is not equivalent to this buffer's primitive type.
-            if ((length <= 0) || this.doPutSubBuffer(index, buffer, offset, length))
-                return;
+            if ((length <= 0) || this.doPutSubBuffer(index, buffer, offset, length)) {
+				return;
+			}
 
             // The specified buffer's primitive type differs from this buffer's type. Use an intermediate double array
             // to put the sub-buffer content.

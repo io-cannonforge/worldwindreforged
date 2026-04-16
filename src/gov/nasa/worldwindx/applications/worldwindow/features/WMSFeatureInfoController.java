@@ -44,6 +44,7 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -218,7 +219,7 @@ public class WMSFeatureInfoController
 
                     try
                     {
-                        URL url = new URL(query);
+                        URL url = URI.create(query).toURL();
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setConnectTimeout(CONNECT_TIMEOUT);
                         conn.setReadTimeout(READ_TIMEOUT);

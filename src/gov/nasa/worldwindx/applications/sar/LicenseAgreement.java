@@ -83,8 +83,9 @@ public class LicenseAgreement extends WWObjectImpl
 
         this.license = license;
         this.licenseKey = licenseKey;
-        if (params != null)
-            setValues(params);
+        if (params != null) {
+			setValues(params);
+		}
     }
 
     public final Object getLicense()
@@ -100,18 +101,21 @@ public class LicenseAgreement extends WWObjectImpl
     public String checkForLicenseAgreement(Component parentComponent)
     {
         // License has already been accepted and installed.
-        if (isLicenseInstalled())
-            return LICENSE_ACCEPTED_AND_INSTALLED;
+        if (isLicenseInstalled()) {
+			return LICENSE_ACCEPTED_AND_INSTALLED;
+		}
 
         // License is not installed - display license agreement.
         int result = displayLicenseAgreement(parentComponent);
-        if (result == LicenseDialog.DECLINE_OPTION)
-            return LICENSE_DECLINED;
+        if (result == LicenseDialog.DECLINE_OPTION) {
+			return LICENSE_DECLINED;
+		}
 
         // Install the license key only if the user accepted,
         // and no problems occurred displaying the license.
-        if (result == LicenseDialog.ACCEPT_OPTION)
-            installLicenseKey();
+        if (result == LicenseDialog.ACCEPT_OPTION) {
+			installLicenseKey();
+		}
 
         return isLicenseInstalled() ? LICENSE_ACCEPTED_AND_INSTALLED : LICENSE_ACCEPTED;
     }
@@ -125,8 +129,9 @@ public class LicenseAgreement extends WWObjectImpl
         LicenseDialog dialog = new LicenseDialog(this.license);
         dialog.setContentType(contentType);
         dialog.setTitle(dialogTitle);
-        if (dialogSize != null && dialogSize instanceof Dimension)
-            dialog.setPreferredSize((Dimension) dialogSize);
+        if (dialogSize != null && dialogSize instanceof Dimension) {
+			dialog.setPreferredSize((Dimension) dialogSize);
+		}
 
         return dialog.showDialog(parentComponent);
     }
@@ -142,8 +147,9 @@ public class LicenseAgreement extends WWObjectImpl
         File keyFile = getLicenseKeyFile();
         try
         {
-            if (keyFile != null)
-                keyFile.createNewFile();
+            if (keyFile != null) {
+				keyFile.createNewFile();
+			}
         }
         catch (Exception e)
         {

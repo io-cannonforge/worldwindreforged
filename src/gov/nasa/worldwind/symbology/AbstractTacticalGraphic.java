@@ -173,8 +173,9 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
     @Override
 	public void setModifier(String modifier, Object value)
     {
-        if (this.modifiers == null)
-            this.modifiers = new AVListImpl();
+        if (this.modifiers == null) {
+			this.modifiers = new AVListImpl();
+		}
 
         this.modifiers.setValue(modifier, value);
         this.onModifierChanged();
@@ -377,8 +378,9 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
 
         // The reference position is null if this shape has no positions. In this case moving the shape by a
         // relative delta is meaningless. Therefore we fail softly by exiting and doing nothing.
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
         this.moveTo(refPos.add(delta));
     }
@@ -398,13 +400,15 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
 
         // The reference position is null if this shape has no positions. In this case moving the shape to a new
         // reference position is meaningless. Therefore we fail softly by exiting and doing nothing.
-        if (oldPosition == null)
-            return;
+        if (oldPosition == null) {
+			return;
+		}
 
         List<Position> newPositions = Position.computeShiftedPositions(oldPosition, position, this.getPositions());
 
-        if (newPositions != null)
-            this.setPositions(newPositions);
+        if (newPositions != null) {
+			this.setPositions(newPositions);
+		}
     }
 
     @Override
@@ -422,11 +426,13 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+		}
 
         this.doDrag(dragContext);
     }
@@ -453,11 +459,13 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
 
         this.doRenderGraphic(dc);
 
-        if (this.isShowTextModifiers())
-            this.doRenderTextModifiers(dc);
+        if (this.isShowTextModifiers()) {
+			this.doRenderTextModifiers(dc);
+		}
 
-        if (this.isShowGraphicModifiers())
-            this.doRenderGraphicModifiers(dc);
+        if (this.isShowGraphicModifiers()) {
+			this.doRenderGraphicModifiers(dc);
+		}
     }
 
     /**
@@ -498,8 +506,9 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
      */
     protected void doRenderTextModifiers(DrawContext dc)
     {
-        if (this.labels == null)
-            return;
+        if (this.labels == null) {
+			return;
+		}
 
         for (TacticalGraphicLabel label : this.labels)
         {
@@ -545,8 +554,9 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
 
     protected TacticalGraphicLabel addLabel(String text)
     {
-        if (this.labels == null)
-            this.labels = new ArrayList<>();
+        if (this.labels == null) {
+			this.labels = new ArrayList<>();
+		}
 
         TacticalGraphicLabel label = new TacticalGraphicLabel();
         label.setText(text);
@@ -640,14 +650,16 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
     /** Apply the active attributes to the graphic's labels. */
     protected void applyLabelAttributes()
     {
-        if (WWUtil.isEmpty(this.labels))
-            return;
+        if (WWUtil.isEmpty(this.labels)) {
+			return;
+		}
 
         Material labelMaterial = this.getLabelMaterial();
 
         Font font = this.activeOverrides.getTextModifierFont();
-        if (font == null)
-            font = TacticalGraphicLabel.DEFAULT_FONT;
+        if (font == null) {
+			font = TacticalGraphicLabel.DEFAULT_FONT;
+		}
 
         double opacity = this.getActiveShapeAttributes().getInteriorOpacity();
 
@@ -665,8 +677,9 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
 
         // Apply the offset to the main label.
         Offset offset = this.getLabelOffset();
-        if (offset == null)
-            offset = this.getDefaultLabelOffset();
+        if (offset == null) {
+			offset = this.getDefaultLabelOffset();
+		}
         this.labels.get(0).setOffset(offset);
     }
 
@@ -724,10 +737,11 @@ public abstract class AbstractTacticalGraphic extends AVListImpl implements Tact
     protected Material getLabelMaterial()
     {
         Material material = this.activeOverrides.getTextModifierMaterial();
-        if (material != null)
-            return material;
-        else
-            return this.activeShapeAttributes.getOutlineMaterial();
+        if (material != null) {
+			return material;
+		} else {
+			return this.activeShapeAttributes.getOutlineMaterial();
+		}
     }
 
     /**

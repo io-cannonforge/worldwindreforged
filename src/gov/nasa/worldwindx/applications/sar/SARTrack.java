@@ -132,8 +132,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
         for (formatIndex = 0; formatIndex < formatInfoArray.length; formatIndex++)
         {
             track = readTrack(filePath, formatInfoArray[formatIndex]);
-            if (track != null)
-                break;
+            if (track != null) {
+				break;
+			}
         }
 
         if (track != null)
@@ -148,8 +149,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     private static SARTrack readTrack(String filePath, FormatInfo format)
     {
-        if (!format.reader.canRead(filePath))
-            return null;
+        if (!format.reader.canRead(filePath)) {
+			return null;
+		}
 
         Track[] tracks = null;
         try
@@ -162,8 +164,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
             Logging.logger().severe(message);
         }
 
-        if (tracks == null)
-            return null;
+        if (tracks == null) {
+			return null;
+		}
 
         TrackPointIterator tpi = new TrackPointIteratorImpl(Arrays.asList(tracks));
         return makeTrackFromTrackPointIterator(tpi);
@@ -171,18 +174,21 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public static void toFile(SARTrack track, String filePath, int format) throws IOException
     {
-        if (track == null)
-            throw new IllegalArgumentException("track is null");
-        if (filePath == null)
-            throw new IllegalArgumentException("filePath is null");
+        if (track == null) {
+			throw new IllegalArgumentException("track is null");
+		}
+        if (filePath == null) {
+			throw new IllegalArgumentException("filePath is null");
+		}
 
-        if (format == FORMAT_GPX)
-            writeGPX(track, filePath);
-        else if (format == FORMAT_CSV)
-            writeCSV(track, filePath);
-        else if (format == FORMAT_NMEA)
-            writeNMEA(track, filePath);
+        if (format == FORMAT_GPX) {
+			writeGPX(track, filePath);
+		} else if (format == FORMAT_CSV) {
+			writeCSV(track, filePath);
+		} else if (format == FORMAT_NMEA) {
+			writeNMEA(track, filePath);
         // If no format is specified, then do nothing.
+		}
     }
 
     private SARTrack()
@@ -282,13 +288,15 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public void set(int index, SARPosition position)
     {
-        if (position == null)
-            return;
+        if (position == null) {
+			return;
+		}
 
-        if (index >= this.positions.size())
-            this.positions.add(position);
-        else
-            this.positions.set(index, position);
+        if (index >= this.positions.size()) {
+			this.positions.add(position);
+		} else {
+			this.positions.set(index, position);
+		}
 
         this.markDirty();
         this.firePropertyChange(TrackController.TRACK_MODIFY, null, index);
@@ -296,13 +304,15 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public void add(int index, SARPosition position)
     {
-        if (position == null)
-            return;
+        if (position == null) {
+			return;
+		}
 
-        if (index >= this.positions.size())
-            this.positions.add(position);
-        else
-            this.positions.add(index, position);
+        if (index >= this.positions.size()) {
+			this.positions.add(position);
+		} else {
+			this.positions.add(index, position);
+		}
 
         this.markDirty();
         this.firePropertyChange(TrackController.TRACK_MODIFY, null, this);
@@ -350,8 +360,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public void removePosition(int index)
     {
-        if (index < 0 || index >= this.positions.size())
-            return;
+        if (index < 0 || index >= this.positions.size()) {
+			return;
+		}
 
         this.positions.remove(index);
         this.markDirty();
@@ -363,8 +374,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
         Arrays.sort(positionNumbers);
         for (int i = positionNumbers.length - 1; i >= 0; i--)
         {
-            if (positionNumbers[i] < 0 || positionNumbers[i] >= this.positions.size())
-                continue;
+            if (positionNumbers[i] < 0 || positionNumbers[i] >= this.positions.size()) {
+				continue;
+			}
 
             this.positions.remove(positionNumbers[i]);
         }
@@ -375,8 +387,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public void appendPosition(SARPosition position)
     {
-        if (position == null)
-            return;
+        if (position == null) {
+			return;
+		}
 
         this.positions.add(position);
         this.markDirty();
@@ -385,8 +398,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public void insertPosition(int index, SARPosition position)
     {
-        if (position == null || index < 0)
-            return;
+        if (position == null || index < 0) {
+			return;
+		}
 
         this.positions.add(index, position);
         this.markDirty();
@@ -395,8 +409,9 @@ public class SARTrack extends WWObjectImpl implements Iterable<Position>
 
     public void setPosition(int index, SARPosition position)
     {
-        if (position == null || index < 0)
-            return;
+        if (position == null || index < 0) {
+			return;
+		}
 
         this.positions.set(index, position);
         this.markDirty();

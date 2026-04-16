@@ -125,12 +125,13 @@ public class TrackRenderer implements Disposable
 
     public void setShapeType(String shapeName)
     {
-        if (shapeName.equalsIgnoreCase("Cone"))
-            this.shape = CONE;
-        else if (shapeName.equalsIgnoreCase("Cylinder"))
-            this.shape = CYLINDER;
-        else
-            this.shape = SPHERE;
+        if (shapeName.equalsIgnoreCase("Cone")) {
+			this.shape = CONE;
+		} else if (shapeName.equalsIgnoreCase("Cylinder")) {
+			this.shape = CYLINDER;
+		} else {
+			this.shape = SPHERE;
+		}
     }
 
     public boolean isKeepSeparated()
@@ -145,23 +146,27 @@ public class TrackRenderer implements Disposable
 
     protected Vec4 draw(DrawContext dc, Iterator<TrackPoint> trackPositions)
     {
-        if (dc.getVisibleSector() == null)
-            return null;
+        if (dc.getVisibleSector() == null) {
+			return null;
+		}
 
         SectorGeometryList geos = dc.getSurfaceGeometry();
-        if (geos == null)
-            return null;
+        if (geos == null) {
+			return null;
+		}
 
-        if (!this.shape.isInitialized)
-            this.shape.initialize(dc);
+        if (!this.shape.isInitialized) {
+			this.shape.initialize(dc);
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         Vec4 lastPointDrawn = null;
 
         this.begin(dc);
         {
-            if (!dc.isPickingMode())
-                this.material.apply(gl, GL.GL_FRONT);
+            if (!dc.isPickingMode()) {
+				this.material.apply(gl, GL.GL_FRONT);
+			}
 
             Vec4 previousDrawnPoint = null;
             double radius;
@@ -169,15 +174,18 @@ public class TrackRenderer implements Disposable
             {
                 TrackPoint tp = trackPositions.next();
 
-                if (index < this.lowerLimit)
-                    continue;
+                if (index < this.lowerLimit) {
+					continue;
+				}
 
-                if (index > this.upperLimit)
-                    break;
+                if (index > this.upperLimit) {
+					break;
+				}
 
                 Vec4 point = this.computeSurfacePoint(dc, tp);
-                if (point == null)
-                    continue;
+                if (point == null) {
+					continue;
+				}
 
                 if (dc.isPickingMode())
                 {
@@ -219,8 +227,9 @@ public class TrackRenderer implements Disposable
     {
         double d = point.distanceTo3(dc.getView().getEyePoint());
         double radius = this.markerPixels * dc.getView().computePixelSizeAtDistance(d);
-        if (radius < this.minMarkerSize)
-            radius = this.minMarkerSize;
+        if (radius < this.minMarkerSize) {
+			radius = this.minMarkerSize;
+		}
 
         return radius;
     }
@@ -279,13 +288,15 @@ public class TrackRenderer implements Disposable
     {
         Position pos = tp.getPosition();
 
-        if (!this.overrideMarkerElevation)
-            return dc.getGlobe().computePointFromPosition(pos);
+        if (!this.overrideMarkerElevation) {
+			return dc.getGlobe().computePointFromPosition(pos);
+		}
 
         // Compute points that are at the track-specified elevation
         Vec4 point = dc.getSurfaceGeometry().getSurfacePoint(pos.getLatitude(), pos.getLongitude(), this.elevation);
-        if (point != null)
-            return point;
+        if (point != null) {
+			return point;
+		}
 
         // Point is outside the current sector geometry, so compute it from the globe.
         return dc.getGlobe().computePointFromPosition(pos.getLatitude(), pos.getLongitude(), this.elevation);
@@ -400,8 +411,9 @@ public class TrackRenderer implements Disposable
                 this.isInitialized = false;
 
                 GLContext glc = GLContext.getCurrent();
-                if (glc == null || glc.getGL() == null)
-                    return;
+                if (glc == null || glc.getGL() == null) {
+					return;
+				}
 
                 GL2 gl = glc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
                 gl.glDeleteLists(this.glListId, 1);

@@ -70,8 +70,9 @@ public class SurfaceIcons extends SurfaceIcon
     @Override
 	protected List<Sector> computeSectors(DrawContext dc)
     {
-        if (this.locations == null || !this.locations.iterator().hasNext())
-            return null;
+        if (this.locations == null || !this.locations.iterator().hasNext()) {
+			return null;
+		}
 
         // Compute all locations bounding sector, then add some padding for the icon half diagonal extent
         Sector sector = Sector.boundingSector(this.locations);
@@ -95,8 +96,9 @@ public class SurfaceIcons extends SurfaceIcon
     @Override
 	protected void drawIcon(DrawContext dc, SurfaceTileDrawContext sdc)
     {
-        if (this.locations == null)
-            return;
+        if (this.locations == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
@@ -104,8 +106,9 @@ public class SurfaceIcons extends SurfaceIcon
         TextureCoords textureCoords = new TextureCoords(0, 0, 1, 1);
 
         // Compute draw scale only once if not maintaining strict appearance
-        if (!this.isMaintainAppearance())
-            drawScale = this.computeDrawScale(dc, sdc, null);
+        if (!this.isMaintainAppearance()) {
+			drawScale = this.computeDrawScale(dc, sdc, null);
+		}
         // Determine which locations are to be drawn
         Iterable<? extends LatLon> drawLocations = this.computeDrawLocations(dc, sdc);
         // Draw icons
@@ -113,8 +116,9 @@ public class SurfaceIcons extends SurfaceIcon
         {
             gl.glPushMatrix();
 
-            if (this.isMaintainAppearance())
-                drawScale = this.computeDrawScale(dc, sdc, location);
+            if (this.isMaintainAppearance()) {
+				drawScale = this.computeDrawScale(dc, sdc, location);
+			}
             this.applyDrawTransform(dc, sdc, location, drawScale);
             gl.glScaled(this.imageWidth, this.imageHeight, 1d);
             dc.drawUnitQuad(textureCoords);
@@ -129,8 +133,9 @@ public class SurfaceIcons extends SurfaceIcon
         double safeDistanceDegreesSquared = Math.pow(this.computeSafeRadius(dc, sdc).degrees, 2);
         for (LatLon location : this.getLocations())
         {
-            if (this.computeLocationDistanceDegreesSquared(sdc.getSector(), location) <= safeDistanceDegreesSquared)
-                drawList.add(location);
+            if (this.computeLocationDistanceDegreesSquared(sdc.getSector(), location) <= safeDistanceDegreesSquared) {
+				drawList.add(location);
+			}
         }
         return drawList;
     }
@@ -153,8 +158,9 @@ public class SurfaceIcons extends SurfaceIcon
     protected Angle computeIconRadius(DrawContext dc, double regionPixelSize, Sector drawSector)
     {
         double minCosLat = Math.min(drawSector.getMinLatitude().cos(), drawSector.getMaxLatitude().cos());
-        if (minCosLat < 0.001)
-            return Angle.POS180;
+        if (minCosLat < 0.001) {
+			return Angle.POS180;
+		}
 
         Rectangle2D iconDimension = this.computeDrawDimension(regionPixelSize); // Meter
         double dLat = iconDimension.getHeight() / dc.getGlobe().getRadius();

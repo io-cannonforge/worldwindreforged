@@ -176,8 +176,9 @@ public class IconRenderer
     protected static boolean isIconValid(WWIcon icon, boolean checkPosition)
     {
         //noinspection RedundantIfStatement
-        if (icon == null || icon.getImageTexture() == null || (checkPosition && icon.getPosition() == null))
-            return false;
+        if (icon == null || icon.getImageTexture() == null || (checkPosition && icon.getPosition() == null)) {
+			return false;
+		}
 
         return true;
     }
@@ -253,13 +254,15 @@ public class IconRenderer
             throw new IllegalArgumentException(msg);
         }
 
-        if (dc.getVisibleSector() == null)
-            return;
+        if (dc.getVisibleSector() == null) {
+			return;
+		}
 
         SectorGeometryList geos = dc.getSurfaceGeometry();
         //noinspection RedundantIfStatement
-        if (geos == null)
-            return;
+        if (geos == null) {
+			return;
+		}
 
         if (icons == null)
         {
@@ -270,8 +273,9 @@ public class IconRenderer
 
         var iterator = icons.iterator();
 
-        if (!iterator.hasNext())
-            return;
+        if (!iterator.hasNext()) {
+			return;
+		}
 
         double horizon = dc.getView().getHorizonDistance();
 
@@ -281,8 +285,9 @@ public class IconRenderer
             if (!isIconValid(icon, true))
             {
                 // Record feedback data for this WWIcon if feedback is enabled.
-                if (icon != null)
-                    this.recordFeedback(dc, icon, null, null);
+                if (icon != null) {
+					this.recordFeedback(dc, icon, null, null);
+				}
 
                 continue;
             }
@@ -313,8 +318,9 @@ public class IconRenderer
                 Angle lat = pos.getLatitude();
                 Angle lon = pos.getLongitude();
                 double elevation = pos.getElevation();
-                if (!this.isAlwaysUseAbsoluteElevation())
-                    elevation += dc.getGlobe().getElevation(lat, lon);
+                if (!this.isAlwaysUseAbsoluteElevation()) {
+					elevation += dc.getGlobe().getElevation(lat, lon);
+				}
                 iconPoint = dc.getGlobe().computePointFromPosition(lat, lon, elevation);
             }
 
@@ -341,22 +347,26 @@ public class IconRenderer
             // The icons aren't drawn here, but added to the ordered queue to be drawn back-to-front.
             dc.addOrderedRenderable(new OrderedIcon(icon, iconPoint, layer, eyeDistance, horizon));
 
-            if (icon.isShowToolTip())
-                this.addToolTip(dc, icon, iconPoint);
+            if (icon.isShowToolTip()) {
+				this.addToolTip(dc, icon, iconPoint);
+			}
         }
     }
 
     protected void addToolTip(DrawContext dc, WWIcon icon, Vec4 iconPoint)
     {
-        if (icon.getToolTipFont() == null && icon.getToolTipText() == null)
-            return;
+        if (icon.getToolTipFont() == null && icon.getToolTipText() == null) {
+			return;
+		}
 
         Vec4 screenPoint = dc.getView().project(iconPoint);
-        if (screenPoint == null)
-            return;
+        if (screenPoint == null) {
+			return;
+		}
 
-        if (icon.getToolTipOffset() != null)
-            screenPoint = screenPoint.add3(icon.getToolTipOffset());
+        if (icon.getToolTipOffset() != null) {
+			screenPoint = screenPoint.add3(icon.getToolTipOffset());
+		}
 
         OrderedText tip = new OrderedText(icon.getToolTipText(), icon.getToolTipFont(), screenPoint,
             icon.getToolTipTextColor(), 0d);
@@ -515,10 +525,11 @@ public class IconRenderer
             IconRenderer.this.beginDrawIcons(dc);
             try
             {
-                if (IconRenderer.this.isAllowBatchPicking())
-                    IconRenderer.this.pickIconsInBatch(dc, this);
-                else
-                    IconRenderer.this.drawIcon(dc, this);
+                if (IconRenderer.this.isAllowBatchPicking()) {
+					IconRenderer.this.pickIconsInBatch(dc, this);
+				} else {
+					IconRenderer.this.drawIcon(dc, this);
+				}
             }
             catch (WWRuntimeException e)
             {
@@ -554,8 +565,9 @@ public class IconRenderer
         this.oglStackHandler.pushAttrib(gl, attributeMask);
 
         // Apply the depth buffer but don't change it.
-        if ((!dc.isDeepPickingEnabled()))
-            gl.glEnable(GL.GL_DEPTH_TEST);
+        if ((!dc.isDeepPickingEnabled())) {
+			gl.glEnable(GL.GL_DEPTH_TEST);
+		}
         gl.glDepthMask(false);
 
         // Suppress any fully transparent image pixels
@@ -589,8 +601,9 @@ public class IconRenderer
 
     protected void endDrawIcons(DrawContext dc)
     {
-        if (dc.isPickingMode())
-            this.pickSupport.endPicking(dc);
+        if (dc.isPickingMode()) {
+			this.pickSupport.endPicking(dc);
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
@@ -615,8 +628,9 @@ public class IconRenderer
         while (nextItem != null && nextItem instanceof OrderedIcon)
         {
             OrderedIcon oi = (OrderedIcon) nextItem;
-            if (oi.getRenderer() != this)
-                return;
+            if (oi.getRenderer() != this) {
+				return;
+			}
 
             dc.pollOrderedRenderables(); // take it off the queue
             this.drawIcon(dc, oi);
@@ -638,8 +652,9 @@ public class IconRenderer
             && ((OrderedIcon) nextItem).layer == uIcon.layer)
         {
             OrderedIcon oi = (OrderedIcon) nextItem;
-            if (oi.getRenderer() != this)
-                return;
+            if (oi.getRenderer() != this) {
+				return;
+			}
 
             dc.pollOrderedRenderables(); // take it off the queue
             this.drawIcon(dc, oi);
@@ -656,8 +671,9 @@ public class IconRenderer
             Logging.logger().severe(msg);
 
             // Record feedback data for this WWIcon if feedback is enabled.
-            if (uIcon.icon != null)
-                this.recordFeedback(dc, uIcon.icon, null, null);
+            if (uIcon.icon != null) {
+				this.recordFeedback(dc, uIcon.icon, null, null);
+			}
 
             return null;
         }
@@ -735,8 +751,9 @@ public class IconRenderer
             }
         }
 
-        if (icon.getBackgroundTexture() != null)
-            this.applyBackground(dc, icon, screenPoint, width, height, pedestalSpacing, pedestalScale);
+        if (icon.getBackgroundTexture() != null) {
+			this.applyBackground(dc, icon, screenPoint, width, height, pedestalSpacing, pedestalScale);
+		}
 
         if (icon.getImageTexture().bind(dc))
         {
@@ -854,8 +871,9 @@ public class IconRenderer
      */
     protected boolean isFeedbackEnabled(DrawContext dc, WWIcon icon)
     {
-        if (dc.isPickingMode())
-            return false;
+        if (dc.isPickingMode()) {
+			return false;
+		}
 
         Boolean b = (Boolean) icon.getValue(AVKey.FEEDBACK_ENABLED);
         return (b != null && b);
@@ -872,8 +890,9 @@ public class IconRenderer
      */
     protected void recordFeedback(DrawContext dc, WWIcon icon, Vec4 modelPoint, Rectangle screenRect)
     {
-        if (!this.isFeedbackEnabled(dc, icon))
-            return;
+        if (!this.isFeedbackEnabled(dc, icon)) {
+			return;
+		}
 
         this.doRecordFeedback(dc, icon, modelPoint, screenRect);
     }

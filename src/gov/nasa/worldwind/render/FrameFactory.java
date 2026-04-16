@@ -84,8 +84,9 @@ public class FrameFactory
     public static void drawShape(DrawContext dc, String shape, double width, double height, int glMode,
         int cornerRadius)
     {
-        if (!shape.equals(AVKey.SHAPE_NONE))
-            drawBuffer(dc, glMode, createShapeBuffer(shape, width, height, cornerRadius, null));
+        if (!shape.equals(AVKey.SHAPE_NONE)) {
+			drawBuffer(dc, glMode, createShapeBuffer(shape, width, height, cornerRadius, null));
+		}
     }
 
     /**
@@ -107,9 +108,10 @@ public class FrameFactory
     public static void drawShapeWithLeader(DrawContext dc, String shape, double width, double height,
         Point leaderOffset, double leaderGapWidth, int glMode, int cornerRadius)
     {
-        if (!shape.equals(AVKey.SHAPE_NONE))
-            drawBuffer(dc, glMode,
+        if (!shape.equals(AVKey.SHAPE_NONE)) {
+			drawBuffer(dc, glMode,
                 createShapeWithLeaderBuffer(shape, width, height, leaderOffset, leaderGapWidth, cornerRadius, null));
+		}
     }
 
     /**
@@ -127,15 +129,16 @@ public class FrameFactory
     public static DoubleBuffer createShapeBuffer(String shape, double width, double height, int cornerRadius,
         DoubleBuffer buffer)
     {
-        if (shape.equals(AVKey.SHAPE_RECTANGLE))
-            return createRoundedRectangleBuffer(width, height, cornerRadius, buffer);
-        else if (shape.equals(AVKey.SHAPE_ELLIPSE))
-            return createEllipseBuffer(width, height, circleSteps, buffer);
-        else if (shape.equals(AVKey.SHAPE_NONE))
-            return null;
-        else
-            // default to rectangle if shape unknown
-            return createRoundedRectangleBuffer(width, height, cornerRadius, buffer);
+        if (shape.equals(AVKey.SHAPE_RECTANGLE)) {
+			return createRoundedRectangleBuffer(width, height, cornerRadius, buffer);
+		} else if (shape.equals(AVKey.SHAPE_ELLIPSE)) {
+			return createEllipseBuffer(width, height, circleSteps, buffer);
+		} else if (shape.equals(AVKey.SHAPE_NONE)) {
+			return null;
+		} else { // default to rectangle if shape unknown
+			// default to rectangle if shape unknown
+			            return createRoundedRectangleBuffer(width, height, cornerRadius, buffer);
+		}
     }
 
     /**
@@ -156,17 +159,18 @@ public class FrameFactory
     public static DoubleBuffer createShapeWithLeaderBuffer(String shape, double width, double height,
         Point leaderOffset, double leaderGapWidth, int cornerRadius, DoubleBuffer buffer)
     {
-        if (shape.equals(AVKey.SHAPE_RECTANGLE))
-            return createRoundedRectangleWithLeaderBuffer(width, height, leaderOffset, leaderGapWidth, cornerRadius,
+        if (shape.equals(AVKey.SHAPE_RECTANGLE)) {
+			return createRoundedRectangleWithLeaderBuffer(width, height, leaderOffset, leaderGapWidth, cornerRadius,
                 buffer);
-        else if (shape.equals(AVKey.SHAPE_ELLIPSE))
-            return createEllipseWithLeaderBuffer(width, height, leaderOffset, leaderGapWidth, circleSteps, buffer);
-        else if (shape.equals(AVKey.SHAPE_NONE))
-            return null;
-        else
-            // default to rectangle if shape unknown
-            return createRoundedRectangleWithLeaderBuffer(width, height, leaderOffset, leaderGapWidth, cornerRadius,
-                buffer);
+		} else if (shape.equals(AVKey.SHAPE_ELLIPSE)) {
+			return createEllipseWithLeaderBuffer(width, height, leaderOffset, leaderGapWidth, circleSteps, buffer);
+		} else if (shape.equals(AVKey.SHAPE_NONE)) {
+			return null;
+		} else { // default to rectangle if shape unknown
+			// default to rectangle if shape unknown
+			            return createRoundedRectangleWithLeaderBuffer(width, height, leaderOffset, leaderGapWidth, cornerRadius,
+			                buffer);
+		}
     }
 
     /**
@@ -359,8 +363,9 @@ public class FrameFactory
     private static int drawCorner(double x0, double y0, double cornerRadius, double start, double end, int steps,
         DoubleBuffer buffer, int startIdx)
     {
-        if (cornerRadius < 1)
-            return startIdx;
+        if (cornerRadius < 1) {
+			return startIdx;
+		}
 
         double step = (end - start) / (steps - 1);
         for (int i = 1; i < steps - 1; i++)
@@ -424,10 +429,12 @@ public class FrameFactory
         for (int i = 0; i <= steps; i++)
         {
             double a = step * i - halfPI;
-            if (i == 0)
-                a += halfGap;
-            if (i == steps)
-                a -= halfGap;
+            if (i == 0) {
+				a += halfGap;
+			}
+            if (i == steps) {
+				a -= halfGap;
+			}
             double x = x0 + Math.cos(a) * halfWidth;
             double y = y0 + Math.sin(a) * halfHeight;
             buffer.put(idx++, x);
@@ -450,11 +457,13 @@ public class FrameFactory
     {
         int numCoords = 2 * numVertices;
 
-        if (buffer != null)
-            buffer.clear();
+        if (buffer != null) {
+			buffer.clear();
+		}
 
-        if (buffer == null || buffer.capacity() < numCoords)
-            buffer = Buffers.newDirectDoubleBuffer(numCoords);
+        if (buffer == null || buffer.capacity() < numCoords) {
+			buffer = Buffers.newDirectDoubleBuffer(numCoords);
+		}
 
         return buffer;
     }

@@ -217,8 +217,9 @@ public class SessionCacheRetrievalPostProcessor implements RetrievalPostProcesso
         {
             this.handleContent(retriever);
 
-            if (this.absentResourceList != null)
-                this.absentResourceList.unmarkResourceAbsent(this.resourceID);
+            if (this.absentResourceList != null) {
+				this.absentResourceList.unmarkResourceAbsent(this.resourceID);
+			}
         }
         catch (Exception e)
         {
@@ -229,17 +230,20 @@ public class SessionCacheRetrievalPostProcessor implements RetrievalPostProcesso
     @SuppressWarnings("unused")
     protected void onRetrievalFailed(Retriever retriever)
     {
-        if (this.absentResourceList != null)
-            this.absentResourceList.markResourceAbsent(this.resourceID);
+        if (this.absentResourceList != null) {
+			this.absentResourceList.markResourceAbsent(this.resourceID);
+		}
     }
 
     protected String validate(Retriever retriever)
     {
-        if (!retriever.getState().equals(Retriever.RETRIEVER_STATE_SUCCESSFUL))
-            return Logging.getMessage("generic.RetrievalFailed", this.toString());
+        if (!retriever.getState().equals(Retriever.RETRIEVER_STATE_SUCCESSFUL)) {
+			return Logging.getMessage("generic.RetrievalFailed", this.toString());
+		}
 
-        if (retriever.getBuffer() == null || retriever.getBuffer().limit() == 0)
-            return Logging.getMessage("generic.RetrievalReturnedNoContent", this.toString());
+        if (retriever.getBuffer() == null || retriever.getBuffer().limit() == 0) {
+			return Logging.getMessage("generic.RetrievalReturnedNoContent", this.toString());
+		}
 
         return null;
     }
@@ -304,8 +308,9 @@ public class SessionCacheRetrievalPostProcessor implements RetrievalPostProcesso
     @Override
 	public String toString()
     {
-        if (this.getName() != null)
-            return this.getName();
+        if (this.getName() != null) {
+			return this.getName();
+		}
 
         return super.toString();
     }

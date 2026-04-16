@@ -99,12 +99,14 @@ public class AWTInputHandler extends WWObjectImpl
 
         this.setEventSource(null);
 
-        if (this.hoverObjects != null)
-            this.hoverObjects.clear();
+        if (this.hoverObjects != null) {
+			this.hoverObjects.clear();
+		}
         this.hoverObjects = null;
 
-        if (this.objectsAtButtonPress != null)
-            this.objectsAtButtonPress.clear();
+        if (this.objectsAtButtonPress != null) {
+			this.objectsAtButtonPress.clear();
+		}
         this.objectsAtButtonPress = null;
     }
 
@@ -134,11 +136,13 @@ public class AWTInputHandler extends WWObjectImpl
             c.removeMouseWheelListener(this);
             c.removeFocusListener(this);
 
-            if (this.selectListener != null)
-                this.wwd.removeSelectListener(this.selectListener);
+            if (this.selectListener != null) {
+				this.wwd.removeSelectListener(this.selectListener);
+			}
 
-            if (this.wwd.getSceneController() != null)
-                this.wwd.getSceneController().removePropertyChangeListener(AVKey.VIEW, this);
+            if (this.wwd.getSceneController() != null) {
+				this.wwd.getSceneController().removePropertyChangeListener(AVKey.VIEW, this);
+			}
         }
 
         this.wwd = newWorldWindow;
@@ -168,8 +172,9 @@ public class AWTInputHandler extends WWObjectImpl
         };
         this.wwd.addSelectListener(this.selectListener);
 
-        if (this.wwd.getSceneController() != null)
-            this.wwd.getSceneController().addPropertyChangeListener(AVKey.VIEW, this);
+        if (this.wwd.getSceneController() != null) {
+			this.wwd.getSceneController().addPropertyChangeListener(AVKey.VIEW, this);
+		}
     }
 
     public void removeHoverSelectListener()
@@ -351,8 +356,9 @@ public class AWTInputHandler extends WWObjectImpl
             GLmousePt[0], GLmousePt[1], awtMouseEvent.getClickCount(), awtMouseEvent.isPopupTrigger(),
             awtMouseEvent.getButton());
 
-        if (awtMouseEvent.isConsumed())		// needed in case this method is overridden by a subclass
-            e.consume();
+        if (awtMouseEvent.isConsumed()) { // needed in case this method is overridden by a subclass
+			e.consume();
+		}
 
         return e;
     }
@@ -372,8 +378,9 @@ public class AWTInputHandler extends WWObjectImpl
             awtEv.getScrollType(), awtEv.getScrollAmount(),
             awtEv.getWheelRotation(), awtEv.getPreciseWheelRotation());
 
-        if (awtEv.isConsumed())		// needed in case this method is overridden by a subclass
-            e.consume();
+        if (awtEv.isConsumed()) { // needed in case this method is overridden by a subclass
+			e.consume();
+		}
 
         return e;
     }
@@ -446,11 +453,13 @@ public class AWTInputHandler extends WWObjectImpl
 
         // If the mouse point has changed then we need to set a new pick point, and redraw the scene because the current
         // picked object list may not reflect the current mouse position.
-        if (mousePointChanged && this.wwd.getSceneController() != null)
-            this.wwd.getSceneController().setPickPoint(this.mousePoint);
+        if (mousePointChanged && this.wwd.getSceneController() != null) {
+			this.wwd.getSceneController().setPickPoint(this.mousePoint);
+		}
 
-        if (this.isForceRedrawOnMousePressed() || mousePointChanged)
-            this.wwd.redrawNow();
+        if (this.isForceRedrawOnMousePressed() || mousePointChanged) {
+			this.wwd.redrawNow();
+		}
 
         this.objectsAtButtonPress = this.wwd.getObjectsAtCurrentPosition();
 
@@ -577,8 +586,9 @@ public class AWTInputHandler extends WWObjectImpl
                 this.callSelectListeners(selectEvent);
 
                 // If no listener consumed the event, then cancel the drag.
-                if (!selectEvent.isConsumed())
-                    this.cancelDrag();
+                if (!selectEvent.isConsumed()) {
+					this.cancelDrag();
+				}
             }
         }
 
@@ -634,8 +644,9 @@ public class AWTInputHandler extends WWObjectImpl
         MouseWheelEvent mouseWheelEvent = glMouseWheelEvent(awtMouseWheelEvent);
         this.callMouseWheelMovedListeners(mouseWheelEvent);
 
-        if (!mouseWheelEvent.isConsumed())
-            this.wwd.getView().getViewInputHandler().mouseWheelMoved(mouseWheelEvent);
+        if (!mouseWheelEvent.isConsumed()) {
+			this.wwd.getView().getViewInputHandler().mouseWheelMoved(mouseWheelEvent);
+		}
     }
 
     @Override

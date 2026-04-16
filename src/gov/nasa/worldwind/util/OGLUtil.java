@@ -240,8 +240,9 @@ public class OGLUtil
             throw new IllegalArgumentException(message);
         }
 
-        if (direction == null)
-            direction = DEFAULT_LIGHT_DIRECTION;
+        if (direction == null) {
+			direction = DEFAULT_LIGHT_DIRECTION;
+		}
 
         float[] ambient = {1f, 1f, 1f, 0f};
         float[] diffuse = {1f, 1f, 1f, 0f};
@@ -595,8 +596,9 @@ public class OGLUtil
         if (!ddsFormat)
         {
             BufferedImage img = ImageIO.read(stream);
-            if (img != null)
-                return AWTTextureIO.newTextureData(glp, img, useMipMaps);
+            if (img != null) {
+				return AWTTextureIO.newTextureData(glp, img, useMipMaps);
+			}
         }
 
         return TextureIO.newTextureData(glp, stream, useMipMaps, null);
@@ -625,8 +627,9 @@ public class OGLUtil
         if (!ddsFormat)
         {
             BufferedImage img = ImageIO.read(file);
-            if (img != null)
-                return AWTTextureIO.newTextureData(glp, img, useMipMaps);
+            if (img != null) {
+				return AWTTextureIO.newTextureData(glp, img, useMipMaps);
+			}
         }
 
         return TextureIO.newTextureData(glp, file, useMipMaps, null);

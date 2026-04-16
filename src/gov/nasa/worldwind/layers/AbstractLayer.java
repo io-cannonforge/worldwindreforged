@@ -224,8 +224,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
         }
 
         Position eyePos = dc.getView().getEyePosition();
-        if (eyePos == null)
-            return false;
+        if (eyePos == null) {
+			return false;
+		}
 
         double altitude = eyePos.getElevation();
         return altitude >= this.minActiveAltitude && altitude <= this.maxActiveAltitude;
@@ -234,8 +235,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
     @Override
 	public void preRender(DrawContext dc)
     {
-        if (!this.enabled)
-            return; // Don't check for arg errors if we're disabled
+        if (!this.enabled) {
+			return; // Don't check for arg errors if we're disabled
+		}
 
         if (null == dc)
         {
@@ -258,8 +260,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
             throw new IllegalStateException(message);
         }
 
-        if (!this.isLayerActive(dc) || !this.isLayerInView(dc))
-            return;
+        if (!this.isLayerActive(dc) || !this.isLayerInView(dc)) {
+			return;
+		}
 
         this.doPreRender(dc);
     }
@@ -273,8 +276,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
     @Override
 	public void render(DrawContext dc)
     {
-        if (!this.enabled)
-            return; // Don't check for arg errors if we're disabled
+        if (!this.enabled) {
+			return; // Don't check for arg errors if we're disabled
+		}
 
         if (null == dc)
         {
@@ -297,8 +301,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
             throw new IllegalStateException(message);
         }
 
-        if (!this.isLayerActive(dc) || !this.isLayerInView(dc))
-            return;
+        if (!this.isLayerActive(dc) || !this.isLayerInView(dc)) {
+			return;
+		}
 
         this.doRender(dc);
     }
@@ -306,8 +311,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
     @Override
 	public void pick(DrawContext dc, java.awt.Point point)
     {
-        if (!this.enabled)
-            return; // Don't check for arg errors if we're disabled
+        if (!this.enabled) {
+			return; // Don't check for arg errors if we're disabled
+		}
 
         if (null == dc)
         {
@@ -330,8 +336,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
             throw new IllegalStateException(message);
         }
 
-        if (!this.isLayerActive(dc) || !this.isLayerInView(dc))
-            return;
+        if (!this.isLayerActive(dc) || !this.isLayerInView(dc)) {
+			return;
+		}
 
         this.doPick(dc, point);
     }
@@ -475,10 +482,12 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
         if (maxAlt != null || minAlt != null)
         {
             Element el = WWXML.appendElementPath(context, "ActiveAltitudes");
-            if (maxAlt != null)
-                WWXML.setDoubleAttribute(el, "max", maxAlt);
-            if (minAlt != null)
-                WWXML.setDoubleAttribute(el, "min", minAlt);
+            if (maxAlt != null) {
+				WWXML.setDoubleAttribute(el, "max", maxAlt);
+			}
+            if (minAlt != null) {
+				WWXML.setDoubleAttribute(el, "min", minAlt);
+			}
         }
 
         WWXML.checkAndAppendBooleanElement(params, AVKey.NETWORK_RETRIEVAL_ENABLED, context, "NetworkRetrievalEnabled");
@@ -518,8 +527,9 @@ public abstract class AbstractLayer extends WWObjectImpl implements Layer
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         XPath xpath = WWXML.makeXPath();
 

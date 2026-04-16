@@ -112,20 +112,23 @@ public class TiledImageProducer extends TiledRasterProducer
 	protected String validateDataSource(Object source, AVList params)
     {
         // TiledImageProducer does not accept null data sources.
-        if (source == null)
-            return Logging.getMessage("nullValue.SourceIsNull");
+        if (source == null) {
+			return Logging.getMessage("nullValue.SourceIsNull");
+		}
 
         // TiledRasterProducer accepts BufferedImageRaster as a data source. If the data source is a DataRaster, then
         // check that it's a BufferedImageRaster.
         // TODO garakl DataSource as a source? What about GDALDataRaster
         if (source instanceof DataRaster raster)
         {
-            if (!(raster instanceof BufferedImageRaster))
-                return Logging.getMessage("TiledRasterProducer.UnrecognizedDataSource", raster);
+            if (!(raster instanceof BufferedImageRaster)) {
+				return Logging.getMessage("TiledRasterProducer.UnrecognizedDataSource", raster);
+			}
 
             String s = this.validateDataSourceParams(raster, String.valueOf(raster));
-            if (s != null)
-                return s;
+            if (s != null) {
+				return s;
+			}
         }
         // For any other data source, attempt to find a reader for the data source. If the reader knows the data
         // source's raster type, then check that it's a color image or a monochromatic image.
@@ -160,8 +163,9 @@ public class TiledImageProducer extends TiledRasterProducer
                 }
             }
 
-            if (!WWUtil.isEmpty(errMsg))
-                return errMsg;
+            if (!WWUtil.isEmpty(errMsg)) {
+				return errMsg;
+			}
         }
 
         return null;
@@ -184,8 +188,9 @@ public class TiledImageProducer extends TiledRasterProducer
                 params.getValue(AVKey.COORDINATE_SYSTEM), name);
         }
 
-        if (params.getValue(AVKey.SECTOR) == null)
-            return Logging.getMessage("TiledRasterProducer.NoSector", name);
+        if (params.getValue(AVKey.SECTOR) == null) {
+			return Logging.getMessage("TiledRasterProducer.NoSector", name);
+		}
 
         return null;
     }
@@ -249,12 +254,14 @@ public class TiledImageProducer extends TiledRasterProducer
         AVList configParams = params.copy();
 
         // Determine a default display name if none exists.
-        if (configParams.getValue(AVKey.DISPLAY_NAME) == null)
-            configParams.setValue(AVKey.DISPLAY_NAME, params.getValue(AVKey.DATASET_NAME));
+        if (configParams.getValue(AVKey.DISPLAY_NAME) == null) {
+			configParams.setValue(AVKey.DISPLAY_NAME, params.getValue(AVKey.DATASET_NAME));
+		}
 
         // Set the SERVICE_NAME and NETWORK_RETRIEVAL_ENABLED parameters to indicate this dataset is offline.
-        if (configParams.getValue(AVKey.SERVICE_NAME) == null)
-            configParams.setValue(AVKey.SERVICE_NAME, AVKey.SERVICE_NAME_OFFLINE);
+        if (configParams.getValue(AVKey.SERVICE_NAME) == null) {
+			configParams.setValue(AVKey.SERVICE_NAME, AVKey.SERVICE_NAME_OFFLINE);
+		}
 
         configParams.setValue(AVKey.NETWORK_RETRIEVAL_ENABLED, Boolean.FALSE);
 

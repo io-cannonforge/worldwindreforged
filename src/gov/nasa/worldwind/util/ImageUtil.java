@@ -615,8 +615,9 @@ public class ImageUtil
             throw new IllegalStateException(message);
         }
 
-        if (!(canvasSector.intersects(imageSector)))
-            return;
+        if (!(canvasSector.intersects(imageSector))) {
+			return;
+		}
 
         // Create an image with the desired aspect ratio within an enclosing canvas of possibly different aspect ratio.
         int subWidth = aspectRatio >= 1 ? canvas.getWidth() : (int) Math.ceil((canvas.getWidth() * aspectRatio));
@@ -646,12 +647,13 @@ public class ImageUtil
     public static Sector positionImage(BufferedImage sourceImage, Point[] imagePoints, LatLon[] geoPoints,
         BufferedImage destImage)
     {
-        if (imagePoints.length == 3)
-            return positionImage3(sourceImage, imagePoints, geoPoints, destImage);
-        else if (imagePoints.length == 4)
-            return positionImage4(sourceImage, imagePoints, geoPoints, destImage);
-        else
-            return null;
+        if (imagePoints.length == 3) {
+			return positionImage3(sourceImage, imagePoints, geoPoints, destImage);
+		} else if (imagePoints.length == 4) {
+			return positionImage4(sourceImage, imagePoints, geoPoints, destImage);
+		} else {
+			return null;
+		}
     }
 
     public static Sector positionImage3(BufferedImage sourceImage, Point[] imagePoints, LatLon[] geoPoints,
@@ -692,8 +694,9 @@ public class ImageUtil
                 double[] baryCoords = sourceLatLon.getBarycentricCoords(latLon);
                 Vec4 pixelPostion = sourcePixels.getPoint(baryCoords);
                 if (pixelPostion.x < 0 || pixelPostion.x >= sourceImage.getWidth()
-                    || pixelPostion.y < 0 || pixelPostion.y >= sourceImage.getHeight())
-                    continue;
+                    || pixelPostion.y < 0 || pixelPostion.y >= sourceImage.getHeight()) {
+					continue;
+				}
                 int pixel = sourceImage.getRGB((int) pixelPostion.x, (int) pixelPostion.y);
                 destImage.setRGB(col, row, pixel);
             }
@@ -742,8 +745,9 @@ public class ImageUtil
                 double[] baryCoords = sourceLatLon.getBarycentricCoords(latLon);
                 Vec4 pixelPostion = sourcePixels.getPoint(baryCoords);
                 if (pixelPostion.x < 0 || pixelPostion.x >= sourceImage.getWidth()
-                    || pixelPostion.y < 0 || pixelPostion.y >= sourceImage.getHeight())
-                    continue;
+                    || pixelPostion.y < 0 || pixelPostion.y >= sourceImage.getHeight()) {
+					continue;
+				}
                 int pixel = sourceImage.getRGB((int) pixelPostion.x, (int) pixelPostion.y);
                 destImage.setRGB(col, row, pixel);
             }
@@ -848,8 +852,9 @@ public class ImageUtil
     public static int getMipmapType(int imageType)
     {
         // We cannot create a BufferedImage of type "custom", so we fall back to a default image type.
-        if (imageType == BufferedImage.TYPE_CUSTOM)
-            return BufferedImage.TYPE_INT_ARGB;
+        if (imageType == BufferedImage.TYPE_CUSTOM) {
+			return BufferedImage.TYPE_INT_ARGB;
+		}
 
         return imageType;
     }
@@ -976,17 +981,22 @@ public class ImageUtil
             for (int x = 0; x < width; x++)
             {
                 int a = ((rowPixels[x] >> 24) & 0xff);
-                if (a <= 0)
-                    continue;
+                if (a <= 0) {
+					continue;
+				}
 
-                if (x1 > x)
-                    x1 = x;
-                if (x2 < x)
-                    x2 = x;
-                if (y1 > y)
-                    y1 = y;
-                if (y2 < y)
-                    y2 = y;
+                if (x1 > x) {
+					x1 = x;
+				}
+                if (x2 < x) {
+					x2 = x;
+				}
+                if (y1 > y) {
+					y1 = y;
+				}
+                if (y2 < y) {
+					y2 = y;
+				}
             }
         }
 
@@ -1100,8 +1110,9 @@ public class ImageUtil
         WorldFile.decodeWorldFiles(worldFiles, values);
 
         sector = (Sector) values.getValue(AVKey.SECTOR);
-        if (sector == null)
-            ImageUtil.reprojectUtmToGeographic(values, interpolation_mode);
+        if (sector == null) {
+			ImageUtil.reprojectUtmToGeographic(values, interpolation_mode);
+		}
 
         sector = (Sector) values.getValue(AVKey.SECTOR);
         if (sector == null)
@@ -1142,11 +1153,13 @@ public class ImageUtil
      */
     public static AVList readGeoKeys(GeotiffReader reader, int imageIndex, AVList values) throws IOException
     {
-        if (null == values)
-            values = new AVListImpl();
+        if (null == values) {
+			values = new AVListImpl();
+		}
 
-        if (null == reader)
-            return values;
+        if (null == reader) {
+			return values;
+		}
 
         return reader.copyMetadataTo(imageIndex, values);
     }
@@ -1178,8 +1191,9 @@ public class ImageUtil
 
         ImageUtil.readGeoKeys(reader, imageIndex, values);
 
-        if (AVKey.COORDINATE_SYSTEM_PROJECTED.equals(values.getValue(AVKey.COORDINATE_SYSTEM)))
-            ImageUtil.reprojectUtmToGeographic(values, interpolation_mode);
+        if (AVKey.COORDINATE_SYSTEM_PROJECTED.equals(values.getValue(AVKey.COORDINATE_SYSTEM))) {
+			ImageUtil.reprojectUtmToGeographic(values, interpolation_mode);
+		}
 
         return values;
     }
@@ -1329,12 +1343,14 @@ public class ImageUtil
         double yPixelSize = 0;
 
         Object o = values.getValue(WorldFile.WORLD_FILE_X_PIXEL_SIZE);
-        if (o != null && o instanceof Double)
-            xPixelSize = (Double) o;
+        if (o != null && o instanceof Double) {
+			xPixelSize = (Double) o;
+		}
 
         o = values.getValue(WorldFile.WORLD_FILE_Y_PIXEL_SIZE);
-        if (o != null && o instanceof Double)
-            yPixelSize = (Double) o;
+        if (o != null && o instanceof Double) {
+			yPixelSize = (Double) o;
+		}
 
         // TODO: validate that all these values exist and are valid
         double xLocation = (Double) values.getValue(WorldFile.WORLD_FILE_X_LOCATION);
@@ -1398,8 +1414,8 @@ public class ImageUtil
                     int iY = (int) Math.floor(ryD);
                     double dx = rxD - iX;
                     double dy = ryD - iY;
-                    if ((iX > 0) && (iY > 0))
-                        if ((iX < width - 1) && (iY < height - 1))
+                    if ((iX > 0) && (iY > 0)) {
+						if ((iX < width - 1) && (iY < height - 1))
                         {
                             //get four pixels from image
                             int a = image.getRGB(iX, iY);
@@ -1409,17 +1425,20 @@ public class ImageUtil
                             int sum = interpolateColor(dx, dy, a, b, c, d);
 
                             biOut.setRGB(x, y, Math.round(sum));
-                        }
-                        else
-                            biOut.setRGB(x, y, 0);
+                        } else {
+							biOut.setRGB(x, y, 0);
+						}
+					}
                 }
                 else  //NEAREST_NEIGHBOR is default
                 {
-                    if ((rx > 0) && (ry > 0))
-                        if ((rx < width) && (ry < height))
-                            biOut.setRGB(x, y, image.getRGB(Long.valueOf(rx).intValue(), Long.valueOf(ry).intValue()));
-                        else
-                            biOut.setRGB(x, y, 0);
+                    if ((rx > 0) && (ry > 0)) {
+						if ((rx < width) && (ry < height)) {
+							biOut.setRGB(x, y, image.getRGB(Long.valueOf(rx).intValue(), Long.valueOf(ry).intValue()));
+						} else {
+							biOut.setRGB(x, y, 0);
+						}
+					}
                 }
             }
         }
@@ -1677,12 +1696,14 @@ public class ImageUtil
         {
             JFileChooser fileChooser = new JFileChooser();
             int status = fileChooser.showSaveDialog(null);
-            if (status != JFileChooser.APPROVE_OPTION)
-                return;
+            if (status != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
 
             File imageFile = fileChooser.getSelectedFile();
-            if (!imageFile.getName().endsWith(".png"))
-                imageFile = new File(imageFile.getPath() + ".png");
+            if (!imageFile.getName().endsWith(".png")) {
+				imageFile = new File(imageFile.getPath() + ".png");
+			}
 
             ImageIO.write(sourceImage, "png", imageFile);
 
@@ -1719,8 +1740,9 @@ public class ImageUtil
             throw new IllegalArgumentException(message);
         }
 
-        if (java.awt.GraphicsEnvironment.isHeadless())
-            return image;
+        if (java.awt.GraphicsEnvironment.isHeadless()) {
+			return image;
+		}
 
         // If the image is not already compatible, and is within the restrictions on dimension, then convert it
         // to a compatible image type.
@@ -1771,8 +1793,9 @@ public class ImageUtil
 
     protected static boolean isCompatibleImage(BufferedImage image)
     {
-        if (java.awt.GraphicsEnvironment.isHeadless())
-            return false;
+        if (java.awt.GraphicsEnvironment.isHeadless()) {
+			return false;
+		}
 
         java.awt.GraphicsConfiguration gc = getDefaultGraphicsConfiguration();
         java.awt.image.ColorModel gcColorModel = gc.getColorModel(image.getTransparency());
@@ -1907,8 +1930,9 @@ public class ImageUtil
                 int index = j * width + i;
                 for (int c : originalColors)
                 {
-                    if (sourceColors[index] == originalColors[c])
-                        destColors[index] = newColors[c];
+                    if (sourceColors[index] == originalColors[c]) {
+						destColors[index] = newColors[c];
+					}
                 }
             }
         }
@@ -1981,9 +2005,9 @@ public class ImageUtil
                     writer.write(null, new IIOImage(image, null, null), param);
                     writer.dispose();
                 }
-            }
-            else
-                ImageIO.write(image, "jpeg", ios);
+            } else {
+				ImageIO.write(image, "jpeg", ios);
+			}
 
             buffer = ByteBuffer.wrap(imageBytes.toByteArray());
         }

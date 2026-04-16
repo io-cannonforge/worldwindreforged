@@ -123,8 +123,9 @@ public class BasicWWTexture implements WWTexture
     @Override
 	public int getWidth(DrawContext dc)
     {
-        if (this.width != null)
-            return this.width;
+        if (this.width != null) {
+			return this.width;
+		}
 
         Texture t = this.getTexture(dc, true);
 
@@ -134,8 +135,9 @@ public class BasicWWTexture implements WWTexture
     @Override
 	public int getHeight(DrawContext dc)
     {
-        if (this.height != null)
-            return this.height;
+        if (this.height != null) {
+			return this.height;
+		}
 
         Texture t = this.getTexture(dc, true);
 
@@ -194,8 +196,9 @@ public class BasicWWTexture implements WWTexture
     {
         Texture t = this.getTextureFromCache(dc);
 
-        if (t == null && initialize)
-            t = this.initializeTexture(dc, this.imageSource);
+        if (t == null && initialize) {
+			t = this.initializeTexture(dc, this.imageSource);
+		}
 
         return t;
     }
@@ -227,12 +230,14 @@ public class BasicWWTexture implements WWTexture
         if (t == null)
         {
             t = this.initializeTexture(dc, this.imageSource);
-            if (t != null)
-                return true; // texture was bound during initialization.
+            if (t != null) {
+				return true; // texture was bound during initialization.
+			}
         }
 
-        if (t != null)
-            t.bind(dc.getGL());
+        if (t != null) {
+			t.bind(dc.getGL());
+		}
 
         if (t != null && this.width == 0 && this.height == 0)
         {
@@ -256,8 +261,9 @@ public class BasicWWTexture implements WWTexture
 
         // Use the tile's texture if available.
         Texture t = this.getTextureFromCache(dc);
-        if (t == null)
-            t = this.initializeTexture(dc, this.imageSource);
+        if (t == null) {
+			t = this.initializeTexture(dc, this.imageSource);
+		}
 
         if (t != null)
         {
@@ -281,8 +287,9 @@ public class BasicWWTexture implements WWTexture
             throw new IllegalStateException(message);
         }
 
-        if (this.textureInitializationFailed)
-            return null;
+        if (this.textureInitializationFailed) {
+			return null;
+		}
 
         Texture t;
         boolean haveMipMapData;

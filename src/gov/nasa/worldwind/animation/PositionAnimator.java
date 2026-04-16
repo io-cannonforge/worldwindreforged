@@ -100,8 +100,9 @@ public class PositionAnimator extends BasicAnimator
 	protected void setImpl(double interpolant)
     {
         Position newValue = this.nextPosition(interpolant);
-        if (newValue == null)
-           return;
+        if (newValue == null) {
+			return;
+		}
 
         boolean success = this.propertyAccessor.setPosition(newValue);
         if (!success)

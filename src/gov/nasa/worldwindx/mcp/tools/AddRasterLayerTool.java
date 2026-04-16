@@ -80,40 +80,41 @@ public final class AddRasterLayerTool implements Tool {
         String displayName = arguments.path("name").asText(file.getName());
 
         // Read GeoTIFF -- try WorldWind-native reader first, fall back to ImageIO.
-        GeotiffReader reader = new GeotiffReader(file);
         BufferedImage image = null;
         Sector sector = null;
 
-        // Always extract sector from GeoTIFF metadata (works even when pixel
-        // reading fails, since metadata is parsed during construction).
-        try {
-            AVList meta = reader.copyMetadataTo(0, null);
-            if (meta != null) {
-                sector = (Sector) meta.getValue(AVKey.SECTOR);
-            }
-        } catch (Exception ignored) { }
-
-        if (sector == null) {
-            return ToolResult.error("GeoTIFF has no georeferencing (no sector).");
-        }
-
-        // Attempt 1: WorldWind-native pixel reading (handles RGB, palette).
-        try {
-            DataRaster[] rasters = reader.readDataRaster();
-            if (rasters != null && rasters.length > 0) {
-                DataRaster raster = rasters[0];
-                DataRaster subRaster = raster.getSubRaster(
-                        raster.getWidth(), raster.getHeight(), sector, null);
-                raster.dispose();
-                if (subRaster instanceof BufferedImageRaster bir) {
-                    image = bir.getBufferedImage();
-                    subRaster.dispose();
-                } else {
-                    subRaster.dispose();
+        try (GeotiffReader reader = new GeotiffReader(file)) {
+            // Always extract sector from GeoTIFF metadata (works even when pixel
+            // reading fails, since metadata is parsed during construction).
+            try {
+                AVList meta = reader.copyMetadataTo(0, null);
+                if (meta != null) {
+                    sector = (Sector) meta.getValue(AVKey.SECTOR);
                 }
+            } catch (Exception ignored) { }
+
+            if (sector == null) {
+                return ToolResult.error("GeoTIFF has no georeferencing (no sector).");
             }
-        } catch (Exception nativeErr) {
-            // Fall through to ImageIO.
+
+            // Attempt 1: WorldWind-native pixel reading (handles RGB, palette).
+            try {
+                DataRaster[] rasters = reader.readDataRaster();
+                if (rasters != null && rasters.length > 0) {
+                    DataRaster raster = rasters[0];
+                    DataRaster subRaster = raster.getSubRaster(
+                            raster.getWidth(), raster.getHeight(), sector, null);
+                    raster.dispose();
+                    if (subRaster instanceof BufferedImageRaster bir) {
+                        image = bir.getBufferedImage();
+                        subRaster.dispose();
+                    } else {
+                        subRaster.dispose();
+                    }
+                }
+            } catch (Exception nativeErr) {
+                // Fall through to ImageIO.
+            }
         }
 
         // Attempt 2: javax.imageio (handles DEFLATE, grayscale, etc.).

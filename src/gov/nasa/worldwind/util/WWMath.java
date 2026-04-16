@@ -563,8 +563,9 @@ public class WWMath
             throw new IllegalArgumentException(message);
         }
 
-        if (radius == 0)
-            return 0;
+        if (radius == 0) {
+			return 0;
+		}
 
         // Compute the sphere's area by scaling its radius based on the sphere's depth in eye coordinates. This provides
         // a good approximation of the sphere's projected area, but does not provide an exact value: the perspective
@@ -622,8 +623,9 @@ public class WWMath
     {
         int xstride = stride > 0 ? stride : 3;
 
-        if (coords == null || coords.limit() < 3 * xstride)
-            return null;
+        if (coords == null || coords.limit() < 3 * xstride) {
+			return null;
+		}
 
         Vec4 a = new Vec4(coords.get(0), coords.get(1), coords.get(2));
         Vec4 b = null;
@@ -633,13 +635,15 @@ public class WWMath
         for (; k < coords.limit(); k += xstride)
         {
             b = new Vec4(coords.get(k), coords.get(k + 1), coords.get(k + 2));
-            if (!(b.x == a.x && b.y == a.y && b.z == a.z))
-                break;
+            if (!(b.x == a.x && b.y == a.y && b.z == a.z)) {
+				break;
+			}
             b = null;
         }
 
-        if (b == null)
-            return null;
+        if (b == null) {
+			return null;
+		}
 
         for (k += xstride; k < coords.limit(); k += xstride)
         {
@@ -648,8 +652,9 @@ public class WWMath
             // if c is not coincident with a or b, and the vectors ab and bc are not colinear, break and return a, b, c
             if (!((c.x == a.x && c.y == a.y && c.z == a.z) || (c.x == b.x && c.y == b.y && c.z == b.z)))
             {
-                if (!Vec4.areColinear(a, b, c))
-                    break;
+                if (!Vec4.areColinear(a, b, c)) {
+					break;
+				}
             }
 
             c = null; // reset c to signal failure to return statement below
@@ -667,8 +672,9 @@ public class WWMath
      */
     public static Vec4[] findThreeIndependentVertices(Vec4[] coords)
     {
-        if (coords == null || coords.length < 3)
-            return null;
+        if (coords == null || coords.length < 3) {
+			return null;
+		}
 
         Vec4 a = coords[0];
         Vec4 b = null;
@@ -678,13 +684,15 @@ public class WWMath
         for (; k < coords.length; k++)
         {
             b = coords[k];
-            if (!(b.x == a.x && b.y == a.y && b.z == a.z))
-                break;
+            if (!(b.x == a.x && b.y == a.y && b.z == a.z)) {
+				break;
+			}
             b = null;
         }
 
-        if (b == null)
-            return null;
+        if (b == null) {
+			return null;
+		}
 
         for (; k < coords.length; k++)
         {
@@ -693,8 +701,9 @@ public class WWMath
             // if c is not coincident with a or b, and the vectors ab and bc are not colinear, break and return a, b, c
             if (!((c.x == a.x && c.y == a.y && c.z == a.z) || (c.x == b.x && c.y == b.y && c.z == b.z)))
             {
-                if (!Vec4.areColinear(a, b, c))
-                    break;
+                if (!Vec4.areColinear(a, b, c)) {
+					break;
+				}
             }
 
             c = null; // reset c to signal failure to return statement below
@@ -728,8 +737,9 @@ public class WWMath
         double z = ((b.x - a.x) * (c.y - a.y)) - ((b.y - a.y) * (c.x - a.x));
 
         double length = (x * x) + (y * y) + (z * z);
-        if (length == 0d)
-            return new Vec4(x, y, z);
+        if (length == 0d) {
+			return new Vec4(x, y, z);
+		}
 
         length = Math.sqrt(length);
         return new Vec4(x / length, y / length, z / length);
@@ -805,11 +815,13 @@ public class WWMath
         }
 
         var iter = locations.iterator();
-        if (!iter.hasNext())
-            return AVKey.COUNTER_CLOCKWISE;
+        if (!iter.hasNext()) {
+			return AVKey.COUNTER_CLOCKWISE;
+		}
 
-        if (LatLon.locationsCrossDateLine(locations))
-            iter = LatLon.makeDatelineCrossingLocationsPositive(locations).iterator();
+        if (LatLon.locationsCrossDateLine(locations)) {
+			iter = LatLon.makeDatelineCrossingLocationsPositive(locations).iterator();
+		}
 
         double area = 0;
         LatLon firstLocation = iter.next();
@@ -884,8 +896,9 @@ public class WWMath
         // Compute the covariance matrix of the specified points Iterable. Note that Matrix.fromCovarianceOfVertices
         // returns null if the points Iterable is empty, or if all of the points are null.
         Matrix covariance = Matrix.fromCovarianceOfVertices(points);
-        if (covariance == null)
-            return null;
+        if (covariance == null) {
+			return null;
+		}
 
         // Compute the eigenvalues and eigenvectors of the covariance matrix. Since the covariance matrix is symmetric
         // by definition, we can safely use the method Matrix.computeEigensystemFromSymmetricMatrix3().
@@ -956,8 +969,9 @@ public class WWMath
         // Compute the covariance matrix of the specified points Iterable. Note that Matrix.fromCovarianceOfVertices
         // returns null if the points Iterable is empty, or if all of the points are null.
         Matrix covariance = Matrix.fromCovarianceOfVertices(coordinates, stride);
-        if (covariance == null)
-            return null;
+        if (covariance == null) {
+			return null;
+		}
 
         // Compute the eigenvalues and eigenvectors of the covariance matrix. Since the covariance matrix is symmetric
         // by definition, we can safely use the method Matrix.computeEigensystemFromSymmetricMatrix3().
@@ -1111,8 +1125,9 @@ public class WWMath
                     && location.getLatitude().degrees < p2.getLatitude().degrees))
                 && (location.getLongitude().degrees < (p1.getLongitude().degrees - p2.getLongitude().degrees)
                 * (location.getLatitude().degrees - p2.getLatitude().degrees)
-                / (p1.getLatitude().degrees - p2.getLatitude().degrees) + p2.getLongitude().degrees))
-                result = !result;
+                / (p1.getLatitude().degrees - p2.getLatitude().degrees) + p2.getLongitude().degrees)) {
+				result = !result;
+			}
 
             p1 = p2;
         }
@@ -1168,13 +1183,15 @@ public class WWMath
         double E = e0 + e1 + e2;
 
         double tolerance = 1e-6;
-        if (Math.abs(E) <= tolerance * (max_e - min_e))
-            return false;
+        if (Math.abs(E) <= tolerance * (max_e - min_e)) {
+			return false;
+		}
 
         double radiusSquared = 0.5d * t0 * t1 * t2 / E;
         // the three points are collinear -- no circle with finite radius is possible
-        if (radiusSquared < 0d)
-            return false;
+        if (radiusSquared < 0d) {
+			return false;
+		}
 
         double radius = Math.sqrt(radiusSquared);
 
@@ -1185,12 +1202,15 @@ public class WWMath
         Vec4 axis = v2.cross3(v0);
         axis = axis.normalize3();
 
-        if (centerOut != null)
-            centerOut[0] = center;
-        if (axisOut != null)
-            axisOut[0] = axis;
-        if (radiusOut != null)
-            radiusOut[0] = radius;
+        if (centerOut != null) {
+			centerOut[0] = center;
+		}
+        if (axisOut != null) {
+			axisOut[0] = axis;
+		}
+        if (radiusOut != null) {
+			radiusOut[0] = radius;
+		}
         return true;
     }
 
@@ -1242,12 +1262,13 @@ public class WWMath
             if (s == 0) // line is parallel to plane
             {
                 double pdn = p.dot3(n);
-                if (pdn > d) // is line in positive halfspace (in front of) of the plane?
-                    return null; // no intersection
-                else
+                if (pdn > d) { // is line in positive halfspace (in front of) of the plane?
+					return null; // no intersection
+				} else
                 {
-                    if (pdn == d)
-                        isTangent = true; // line coincident with plane
+                    if (pdn == d) {
+						isTangent = true; // line coincident with plane
+					}
                     continue; // line is in negative halfspace; possible intersection; check other planes
                 }
             }
@@ -1258,8 +1279,9 @@ public class WWMath
             {
                 if (a > fMax)
                 {
-                    if (a > bMin)
-                        return null;
+                    if (a > bMin) {
+						return null;
+					}
                     fMax = a;
                 }
             }
@@ -1267,22 +1289,24 @@ public class WWMath
             {
                 if (a < bMin)
                 {
-                    if (a < 0 || a < fMax)
-                        return null;
+                    if (a < 0 || a < fMax) {
+						return null;
+					}
                     bMin = a;
                 }
             }
         }
 
         // Compute the Cartesian intersection points. There will be no more than two.
-        if (fMax >= 0) // intersects frontface and backface; point origin is outside the polytope
-            return new Intersection[]
-                {
-                    new Intersection(p.add3(u.multiply3(fMax)), isTangent),
-                    new Intersection(p.add3(u.multiply3(bMin)), isTangent)
-                };
-        else // intersects backface only; point origin is within the polytope
-            return new Intersection[] {new Intersection(p.add3(u.multiply3(bMin)), isTangent)};
+        if (fMax >= 0) { // intersects frontface and backface; point origin is outside the polytope
+			return new Intersection[]
+			                {
+			                    new Intersection(p.add3(u.multiply3(fMax)), isTangent),
+			                    new Intersection(p.add3(u.multiply3(bMin)), isTangent)
+			                };
+		} else { // intersects backface only; point origin is within the polytope
+			return new Intersection[] {new Intersection(p.add3(u.multiply3(bMin)), isTangent)};
+		}
     }
 
     //**************************************************************//
@@ -1444,9 +1468,9 @@ public class WWMath
 
         // If the normal buffer is null, create a new one with the capacity to store the same number of vertices as
         // the vertex buffer. Otherwise, initialize the normal buffer by setting all normal coordinate to zero.
-        if (normals == null)
-            normals = Buffers.newDirectFloatBuffer(3 * numVertices);
-        else
+        if (normals == null) {
+			normals = Buffers.newDirectFloatBuffer(3 * numVertices);
+		} else
         {
             for (int i = 0; i < numVertices; i++)
             {
@@ -1641,10 +1665,11 @@ public class WWMath
 
         for (int x = x0; x <= x1; x += 1)
         {
-            if (steep)
-                points.add(new Point(y, x));
-            else
-                points.add(new Point(x, y));
+            if (steep) {
+				points.add(new Point(y, x));
+			} else {
+				points.add(new Point(x, y));
+			}
             error -= deltay;
             if (error < 0)
             {
@@ -1813,10 +1838,11 @@ public class WWMath
 
             // If the angle is less than 1/10 of a degree than treat this segment as if it were linear.
             double length;
-            if (theta.degrees > 0.1)
-                length = distance / theta.sin();
-            else
-                length = distance;
+            if (theta.degrees > 0.1) {
+				length = distance / theta.sin();
+			} else {
+				length = distance;
+			}
 
             // Compute the scalar triple product of the vector BC, the normal vector, and the offset vector to
             // determine if the offset points to the left or the right of the control line.

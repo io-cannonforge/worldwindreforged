@@ -109,8 +109,9 @@ public class BasicLayerFactory extends BasicFactory
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         if (params.getStringValue(AVKey.LAYER_NAMES) == null)
         {
@@ -148,19 +149,23 @@ public class BasicLayerFactory extends BasicFactory
     protected Object doCreateFromElement(Element domElement, AVList params) throws Exception
     {
         Element[] elements = WWXML.getElements(domElement, "//LayerList", null);
-        if (elements != null && elements.length > 0)
-            return createLayerLists(elements, params);
+        if (elements != null && elements.length > 0) {
+			return createLayerLists(elements, params);
+		}
 
         elements = WWXML.getElements(domElement, "./Layer", null);
-        if (elements != null && elements.length > 1)
-            return createLayerList(elements, params);
+        if (elements != null && elements.length > 1) {
+			return createLayerList(elements, params);
+		}
 
-        if (elements != null && elements.length == 1)
-            return this.createFromLayerDocument(elements[0], params);
+        if (elements != null && elements.length == 1) {
+			return this.createFromLayerDocument(elements[0], params);
+		}
 
         String localName = WWXML.getUnqualifiedName(domElement);
-        if (localName != null && localName.equals("Layer"))
-            return this.createFromLayerDocument(domElement, params);
+        if (localName != null && localName.equals("Layer")) {
+			return this.createFromLayerDocument(domElement, params);
+		}
 
         return null;
     }
@@ -189,8 +194,9 @@ public class BasicLayerFactory extends BasicFactory
                 if (href != null && href.length() > 0)
                 {
                     Object o = this.createFromConfigSource(href, params);
-                    if (o == null)
-                        continue;
+                    if (o == null) {
+						continue;
+					}
 
                     if (o instanceof Layer)
                     {
@@ -201,14 +207,16 @@ public class BasicLayerFactory extends BasicFactory
 
                     if (o instanceof LayerList list)
                     {
-                        if (list != null && list.size() > 0)
-                            layerLists.add(list);
+                        if (list != null && list.size() > 0) {
+							layerLists.add(list);
+						}
                     }
                     else if (o instanceof LayerList[])
                     {
                         LayerList[] lists = (LayerList[]) o;
-                        if (lists != null && lists.length > 0)
-                            layerLists.addAll(Arrays.asList(lists));
+                        if (lists != null && lists.length > 0) {
+							layerLists.addAll(Arrays.asList(lists));
+						}
                     }
                     else
                     {
@@ -227,8 +235,9 @@ public class BasicLayerFactory extends BasicFactory
                     if (list != null && list.size() > 0)
                     {
                         layerLists.add(list);
-                        if (title != null && title.length() > 0)
-                            list.setValue(AVKey.DISPLAY_NAME, title);
+                        if (title != null && title.length() > 0) {
+							list.setValue(AVKey.DISPLAY_NAME, title);
+						}
                     }
                 }
             }
@@ -300,8 +309,9 @@ public class BasicLayerFactory extends BasicFactory
         AVList props = WWXML.copyProperties(domElement, null);
         if (props != null)
         {   // Copy params and add any properties for this layer to the copy
-            if (params != null)
-                props.setValues(params);
+            if (params != null) {
+				props.setValues(params);
+			}
             params = props;
         }
 
@@ -310,8 +320,9 @@ public class BasicLayerFactory extends BasicFactory
         if (href != null && href.length() > 0)
         {
             Object o = this.createFromConfigSource(href, params);
-            if (o == null)
-                return null;
+            if (o == null) {
+				return null;
+			}
 
             if (!(o instanceof Layer))
             {

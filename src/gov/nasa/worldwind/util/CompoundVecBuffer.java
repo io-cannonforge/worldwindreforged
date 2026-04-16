@@ -342,8 +342,9 @@ public abstract class CompoundVecBuffer
     protected int addSubBuffer(int offset, int length)
     {
         int minCount = 1 + this.count;
-        if (minCount > this.capacity)
-            this.expandCapacity(minCount);
+        if (minCount > this.capacity) {
+			this.expandCapacity(minCount);
+		}
 
         int index = this.count;
         this.offsets.put(index, offset);
@@ -440,7 +441,7 @@ public abstract class CompoundVecBuffer
      */
     public Iterable<? extends Vec4> getVectors()
     {
-        return new Iterable<Vec4>()
+        return new Iterable<>()
         {
             @Override
 			public Iterator<Vec4> iterator()
@@ -457,7 +458,7 @@ public abstract class CompoundVecBuffer
      */
     public Iterable<? extends Vec4> getReverseVectors()
     {
-        return new Iterable<Vec4>()
+        return new Iterable<>()
         {
             @Override
 			public Iterator<Vec4> iterator()
@@ -474,7 +475,7 @@ public abstract class CompoundVecBuffer
      */
     public Iterable<? extends LatLon> getLocations()
     {
-        return new Iterable<LatLon>()
+        return new Iterable<>()
         {
             @Override
 			public Iterator<LatLon> iterator()
@@ -491,7 +492,7 @@ public abstract class CompoundVecBuffer
      */
     public Iterable<? extends LatLon> getReverseLocations()
     {
-        return new Iterable<LatLon>()
+        return new Iterable<>()
         {
             @Override
 			public Iterator<LatLon> iterator()
@@ -508,7 +509,7 @@ public abstract class CompoundVecBuffer
      */
     public Iterable<? extends Position> getPositions()
     {
-        return new Iterable<Position>()
+        return new Iterable<>()
         {
             @Override
 			public Iterator<Position> iterator()
@@ -525,7 +526,7 @@ public abstract class CompoundVecBuffer
      */
     public Iterable<? extends Position> getReversePositions()
     {
-        return new Iterable<Position>()
+        return new Iterable<>()
         {
             @Override
 			public Iterator<Position> iterator()

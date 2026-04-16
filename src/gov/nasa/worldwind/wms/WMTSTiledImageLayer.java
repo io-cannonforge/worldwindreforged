@@ -21,6 +21,7 @@
 package gov.nasa.worldwind.wms;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import gov.nasa.worldwind.avlist.AVKey;
@@ -88,8 +89,9 @@ public class WMTSTiledImageLayer extends BasicTiledImageLayer
     /** Injects the WMTS-specific URL builder into the params before passing to the superclass. */
     private static AVList initParams(AVList params)
     {
-        if (params == null)
-            throw new IllegalArgumentException(Logging.getMessage("nullValue.AVListIsNull"));
+        if (params == null) {
+			throw new IllegalArgumentException(Logging.getMessage("nullValue.AVListIsNull"));
+		}
         params.setValue(AVKey.TILE_URL_BUILDER, new URLBuilder(params));
         params.setValue(AVKey.USE_TRANSPARENT_TEXTURES, true);
         return params;
@@ -139,12 +141,13 @@ public class WMTSTiledImageLayer extends BasicTiledImageLayer
             int tileCol    = tile.getColumn();
 
             String urlStr;
-            if (restBinding)
-                urlStr = buildRestUrl(tileMatrix, tileRow, tileCol);
-            else
-                urlStr = buildKvpUrl(tileMatrix, tileRow, tileCol, altImageFormat);
+            if (restBinding) {
+				urlStr = buildRestUrl(tileMatrix, tileRow, tileCol);
+			} else {
+				urlStr = buildKvpUrl(tileMatrix, tileRow, tileCol, altImageFormat);
+			}
 
-            return new URL(urlStr);
+            return URI.create(urlStr).toURL();
         }
 
         private String buildRestUrl(int tileMatrix, int tileRow, int tileCol)
@@ -153,11 +156,14 @@ public class WMTSTiledImageLayer extends BasicTiledImageLayer
             // For time-series layers GIBS inserts the date between style and tileMatrixSet:
             //   {serviceUrl}/{layer}/default/{date}/{tileMatrixSet}/{tileMatrix}/{tileRow}/{tileCol}.{ext}
             StringBuilder sb = new StringBuilder(serviceUrl);
-            if (!serviceUrl.endsWith("/")) sb.append('/');
+            if (!serviceUrl.endsWith("/")) {
+				sb.append('/');
+			}
             sb.append(layer).append('/');
             sb.append(style).append('/');
-            if (timeString != null && !timeString.isEmpty())
-                sb.append(timeString).append('/');
+            if (timeString != null && !timeString.isEmpty()) {
+				sb.append(timeString).append('/');
+			}
             sb.append(tileMatrixSet).append('/');
             sb.append(tileMatrix).append('/');
             sb.append(tileRow).append('/');
@@ -169,7 +175,11 @@ public class WMTSTiledImageLayer extends BasicTiledImageLayer
         {
             String fmt = (altFormat != null) ? altFormat : imageFormat;
             StringBuilder sb = new StringBuilder(serviceUrl);
-            if (!serviceUrl.contains("?")) sb.append('?'); else sb.append('&');
+            if (!serviceUrl.contains("?")) {
+				sb.append('?');
+			} else {
+				sb.append('&');
+			}
             sb.append("SERVICE=WMTS");
             sb.append("&REQUEST=GetTile");
             sb.append("&VERSION=1.0.0");
@@ -180,8 +190,9 @@ public class WMTSTiledImageLayer extends BasicTiledImageLayer
             sb.append("&TILEROW=").append(tileRow);
             sb.append("&TILECOL=").append(tileCol);
             sb.append("&FORMAT=").append(fmt.replace("/", "%2F"));
-            if (timeString != null && !timeString.isEmpty())
-                sb.append("&TIME=").append(timeString);
+            if (timeString != null && !timeString.isEmpty()) {
+				sb.append("&TIME=").append(timeString);
+			}
             return sb.toString();
         }
 
@@ -191,7 +202,9 @@ public class WMTSTiledImageLayer extends BasicTiledImageLayer
 
         private static String mimeToExt(String mime)
         {
-            if (mime == null) return "png";
+            if (mime == null) {
+				return "png";
+			}
             return switch (mime.toLowerCase())
             {
                 case "image/jpeg", "image/jpg" -> "jpg";

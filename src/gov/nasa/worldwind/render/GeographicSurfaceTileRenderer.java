@@ -76,11 +76,13 @@ public class GeographicSurfaceTileRenderer extends SurfaceTileRenderer
 
         for (SurfaceTile tile : tiles)
         {
-            if (!tile.getSector().intersectsInterior(sg.getSector()))
-                continue;
+            if (!tile.getSector().intersectsInterior(sg.getSector())) {
+				continue;
+			}
 
-            if (intersectingTiles == null) // lazy creation because most common case is no intersecting tiles
-                intersectingTiles = new ArrayList<>();
+            if (intersectingTiles == null) { // lazy creation because most common case is no intersecting tiles
+				intersectingTiles = new ArrayList<>();
+			}
 
             intersectingTiles.add(tile);
         }

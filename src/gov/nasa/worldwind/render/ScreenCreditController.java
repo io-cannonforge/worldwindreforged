@@ -31,6 +31,7 @@ package gov.nasa.worldwind.render;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
@@ -70,8 +71,9 @@ public class ScreenCreditController implements Renderable, SelectListener, Dispo
 
         this.wwd = wwd;
 
-        if (wwd.getSceneController().getScreenCreditController() != null)
-            wwd.getSceneController().getScreenCreditController().dispose();
+        if (wwd.getSceneController().getScreenCreditController() != null) {
+			wwd.getSceneController().getScreenCreditController().dispose();
+		}
 
         wwd.getSceneController().setScreenCreditController(this);
         wwd.addSelectListener(this);
@@ -81,8 +83,9 @@ public class ScreenCreditController implements Renderable, SelectListener, Dispo
 	public void dispose()
     {
         wwd.removeSelectListener(this);
-        if (wwd.getSceneController() == this)
-            wwd.getSceneController().setScreenCreditController(null);
+        if (wwd.getSceneController() == this) {
+			wwd.getSceneController().setScreenCreditController(null);
+		}
     }
 
     public boolean isEnabled()
@@ -104,8 +107,9 @@ public class ScreenCreditController implements Renderable, SelectListener, Dispo
             throw new IllegalArgumentException(msg);
         }
 
-        if (!this.isEnabled() || dc.getScreenCredits() == null || dc.getScreenCredits().size() < 1)
-            return;
+        if (!this.isEnabled() || dc.getScreenCredits() == null || dc.getScreenCredits().size() < 1) {
+			return;
+		}
 
         Set<Map.Entry<ScreenCredit, Long>> credits = dc.getScreenCredits().entrySet();
 
@@ -133,8 +137,9 @@ public class ScreenCreditController implements Renderable, SelectListener, Dispo
             throw new IllegalArgumentException(msg);
         }
 
-        if (dc.getScreenCredits() == null || dc.getScreenCredits().size() < 1 || !this.isEnabled())
-            return;
+        if (dc.getScreenCredits() == null || dc.getScreenCredits().size() < 1 || !this.isEnabled()) {
+			return;
+		}
 
         Set<Map.Entry<ScreenCredit, Long>> credits = dc.getScreenCredits().entrySet();
 
@@ -161,8 +166,9 @@ public class ScreenCreditController implements Renderable, SelectListener, Dispo
     @Override
 	public void selected(SelectEvent event)
     {
-        if (event.getMouseEvent() != null && event.getMouseEvent().isConsumed())
-            return;
+        if (event.getMouseEvent() != null && event.getMouseEvent().isConsumed()) {
+			return;
+		}
 
         Object po = event.getTopObject();
 
@@ -183,7 +189,7 @@ public class ScreenCreditController implements Renderable, SelectListener, Dispo
         {
             try
             {
-                BrowserOpener.browse(new URL(credit.getLink()));
+                BrowserOpener.browse(URI.create(credit.getLink()).toURL());
             }
             catch (MalformedURLException e)
             {

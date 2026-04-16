@@ -288,7 +288,9 @@ public class Sector implements Cacheable, Comparable<Sector>, Iterable<LatLon> {
         double maxLon = Angle.NEG180.getDegrees();
 
         for (LatLon p : locations) {
-        	if (p == null) break;
+        	if (p == null) {
+				break;
+			}
             double lat = p.getLatitude().getDegrees();
             if (lat < minLat) {
                 minLat = lat;
@@ -1103,7 +1105,7 @@ public class Sector implements Cacheable, Comparable<Sector>, Iterable<LatLon> {
      * otherwise <code>false</code>.
      */
     public boolean contains(Sector that) {
-        
+
 
         // Assumes normalized angles -- [-180, 180], [-90, 90]
         if ((that == null) || (that.minLongitude.degrees < this.minLongitude.degrees) || (that.maxLongitude.degrees > this.maxLongitude.degrees) || (that.minLatitude.degrees < this.minLatitude.degrees)) {
@@ -1129,7 +1131,7 @@ public class Sector implements Cacheable, Comparable<Sector>, Iterable<LatLon> {
      * <code>false</code>.
      */
     public boolean intersects(Sector that) {
-        
+
 
         // Assumes normalized angles -- [-180, 180], [-90, 90]
         if ((that == null) || (that.maxLongitude.degrees < this.minLongitude.degrees) || (that.minLongitude.degrees > this.maxLongitude.degrees) || (that.maxLatitude.degrees < this.minLatitude.degrees)) {
@@ -1157,7 +1159,7 @@ public class Sector implements Cacheable, Comparable<Sector>, Iterable<LatLon> {
      * @see #intersects(Sector)
      */
     public boolean intersectsInterior(Sector that) {
-        
+
 
         // Assumes normalized angles -- [-180, 180], [-90, 90]
         if ((that == null) || (that.maxLongitude.degrees <= this.minLongitude.degrees) || (that.minLongitude.degrees >= this.maxLongitude.degrees) || (that.maxLatitude.degrees <= this.minLatitude.degrees)) {

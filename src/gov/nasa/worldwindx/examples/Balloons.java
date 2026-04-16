@@ -85,7 +85,6 @@ import gov.nasa.worldwindx.examples.util.HotSpotController;
  * @author pabercrombie
  * @version $Id: Balloons.java 2109 2014-06-30 16:52:38Z tgaskins $
  */
-@SuppressWarnings("deprecation")
 public class Balloons extends ApplicationTemplate {
 
     protected static final String BROWSER_BALLOON_CONTENT_PATH

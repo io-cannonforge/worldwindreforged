@@ -29,6 +29,7 @@
 package gov.nasa.worldwind.terrain;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -104,8 +105,9 @@ public class WCSElevationModel extends BasicElevationModel
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         DataConfigurationUtils.getWCSConfigParams(domElement, params);
         BasicElevationModel.getBasicElevationModelConfigParams(domElement, params);
@@ -152,8 +154,9 @@ public class WCSElevationModel extends BasicElevationModel
             // Use the default extremes file if there are at least as many levels in this new elevation model as the
             // level of the extremes file, which is level 5.
             int numLevels = (Integer) params.getValue(AVKey.NUM_LEVELS);
-            if (numLevels >= 6)
-                params.setValue(AVKey.ELEVATION_EXTREMES_FILE, "config/SRTM30Plus_ExtremeElevations_5.bil");
+            if (numLevels >= 6) {
+				params.setValue(AVKey.ELEVATION_EXTREMES_FILE, "config/SRTM30Plus_ExtremeElevations_5.bil");
+			}
         }
 
         return params;
@@ -167,29 +170,37 @@ public class WCSElevationModel extends BasicElevationModel
             params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, new LatLon(delta, delta));
         }
 
-        if (params.getValue(AVKey.TILE_WIDTH) == null)
-            params.setValue(AVKey.TILE_WIDTH, 150);
+        if (params.getValue(AVKey.TILE_WIDTH) == null) {
+			params.setValue(AVKey.TILE_WIDTH, 150);
+		}
 
-        if (params.getValue(AVKey.TILE_HEIGHT) == null)
-            params.setValue(AVKey.TILE_HEIGHT, 150);
+        if (params.getValue(AVKey.TILE_HEIGHT) == null) {
+			params.setValue(AVKey.TILE_HEIGHT, 150);
+		}
 
-        if (params.getValue(AVKey.FORMAT_SUFFIX) == null)
-            params.setValue(AVKey.FORMAT_SUFFIX, ".tif");
+        if (params.getValue(AVKey.FORMAT_SUFFIX) == null) {
+			params.setValue(AVKey.FORMAT_SUFFIX, ".tif");
+		}
 
-        if (params.getValue(AVKey.MISSING_DATA_SIGNAL) == null)
-            params.setValue(AVKey.MISSING_DATA_SIGNAL, -9999d);
+        if (params.getValue(AVKey.MISSING_DATA_SIGNAL) == null) {
+			params.setValue(AVKey.MISSING_DATA_SIGNAL, -9999d);
+		}
 
-        if (params.getValue(AVKey.NUM_LEVELS) == null)
-            params.setValue(AVKey.NUM_LEVELS, 18); // approximately 20 cm per pixel
+        if (params.getValue(AVKey.NUM_LEVELS) == null) {
+			params.setValue(AVKey.NUM_LEVELS, 18); // approximately 20 cm per pixel
+		}
 
-        if (params.getValue(AVKey.NUM_EMPTY_LEVELS) == null)
-            params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);
+        if (params.getValue(AVKey.NUM_EMPTY_LEVELS) == null) {
+			params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);
+		}
 
-        if (params.getValue(AVKey.ELEVATION_MIN) == null)
-            params.setValue(AVKey.ELEVATION_MIN, -11000.0);
+        if (params.getValue(AVKey.ELEVATION_MIN) == null) {
+			params.setValue(AVKey.ELEVATION_MIN, -11000.0);
+		}
 
-        if (params.getValue(AVKey.ELEVATION_MAX) == null)
-            params.setValue(AVKey.ELEVATION_MAX, 8850.0);
+        if (params.getValue(AVKey.ELEVATION_MAX) == null) {
+			params.setValue(AVKey.ELEVATION_MAX, 8850.0);
+		}
     }
 
     // Modified by seaglassfoundry.com — guard against non-degree offset vectors.
@@ -224,8 +235,9 @@ public class WCSElevationModel extends BasicElevationModel
             double n = Math.log(level0Delta.getLatitude().degrees / (dataResolution * tileSize)) / Math.log(2);
             int numLevels = (int) (Math.ceil(n) + 1);
 
-            if (numLevels < 1)
-                numLevels = 18;
+            if (numLevels < 1) {
+				numLevels = 18;
+			}
 
             params.setValue(AVKey.NUM_LEVELS, numLevels);
         }
@@ -303,8 +315,9 @@ public class WCSElevationModel extends BasicElevationModel
             {
                 sb = new StringBuilder(tile.getLevel().getService());
 
-                if (!sb.toString().toLowerCase().contains("service=wcs"))
-                    sb.append("service=WCS");
+                if (!sb.toString().toLowerCase().contains("service=wcs")) {
+					sb.append("service=WCS");
+				}
                 sb.append("&request=GetCoverage");
                 sb.append("&version=");
                 sb.append(this.serviceVersion);
@@ -312,10 +325,11 @@ public class WCSElevationModel extends BasicElevationModel
                 sb.append("&coverage=");
                 sb.append(this.layerNames);
                 sb.append("&format=");
-                if (altImageFormat == null)
-                    sb.append(this.imageFormat);
-                else
-                    sb.append(altImageFormat);
+                if (altImageFormat == null) {
+					sb.append(this.imageFormat);
+				} else {
+					sb.append(altImageFormat);
+				}
 
                 this.URLTemplate = sb.toString();
             }
@@ -341,7 +355,7 @@ public class WCSElevationModel extends BasicElevationModel
 
             sb.append("&"); // terminate the query string
 
-            return new java.net.URL(sb.toString().replace(" ", "%20"));
+            return URI.create(sb.toString().replace(" ", "%20")).toURL();
         }
     }
 
@@ -356,8 +370,9 @@ public class WCSElevationModel extends BasicElevationModel
 	protected Document createConfigurationDocument(AVList params)
     {
         Document doc = super.createConfigurationDocument(params);
-        if (doc == null || doc.getDocumentElement() == null)
-            return doc;
+        if (doc == null || doc.getDocumentElement() == null) {
+			return doc;
+		}
 
         DataConfigurationUtils.createWCSLayerConfigElements(params, doc.getDocumentElement());
 
@@ -406,15 +421,17 @@ public class WCSElevationModel extends BasicElevationModel
         for (int i = 0; i < latlons.size(); i++)
         {
             LatLon ll = latlons.get(i);
-            if (ll == null)
-                continue;
+            if (ll == null) {
+				continue;
+			}
 
             double value = this.lookupElevation(ll.getLatitude(), ll.getLongitude(), tile);
 
             // If an elevation at the given location is available, then write that elevation to the destination buffer.
             // Otherwise do nothing.
-            if (value != this.getMissingDataSignal())
-                buffer[i] = value;
+            if (value != this.getMissingDataSignal()) {
+				buffer[i] = value;
+			}
         }
     }
 
@@ -483,25 +500,30 @@ public class WCSElevationModel extends BasicElevationModel
         restoreStateForParams(rs, null, params);
 
         String s = rs.getStateValueAsString(context, AVKey.IMAGE_FORMAT);
-        if (s != null)
-            params.setValue(AVKey.IMAGE_FORMAT, s);
+        if (s != null) {
+			params.setValue(AVKey.IMAGE_FORMAT, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.TITLE);
-        if (s != null)
-            params.setValue(AVKey.TITLE, s);
+        if (s != null) {
+			params.setValue(AVKey.TITLE, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.DISPLAY_NAME);
-        if (s != null)
-            params.setValue(AVKey.DISPLAY_NAME, s);
+        if (s != null) {
+			params.setValue(AVKey.DISPLAY_NAME, s);
+		}
 
         RestorableSupport.adjustTitleAndDisplayName(params);
 
         s = rs.getStateValueAsString(context, AVKey.COVERAGE_IDENTIFIERS);
-        if (s != null)
-            params.setValue(AVKey.COVERAGE_IDENTIFIERS, s);
+        if (s != null) {
+			params.setValue(AVKey.COVERAGE_IDENTIFIERS, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.WCS_VERSION);
-        if (s != null)
-            params.setValue(AVKey.TILE_URL_BUILDER, new URLBuilder(s, params));
+        if (s != null) {
+			params.setValue(AVKey.TILE_URL_BUILDER, new URLBuilder(s, params));
+		}
     }
 }

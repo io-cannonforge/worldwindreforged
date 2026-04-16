@@ -67,16 +67,18 @@ public class OGCOnlineResource extends AbstractXMLEventParser
     protected void doParseEventAttributes(XMLEventParserContext ctx, XMLEvent event, Object... args)
     {
         var iter = event.asStartElement().getAttributes();
-        if (iter == null)
-            return;
+        if (iter == null) {
+			return;
+		}
 
         while (iter.hasNext())
         {
             Attribute attr = iter.next();
-            if (ctx.isSameAttributeName(attr.getName(), HREF))
-                this.setHref(attr.getValue());
-            else if (ctx.isSameAttributeName(attr.getName(), TYPE))
-                this.setType(attr.getValue());
+            if (ctx.isSameAttributeName(attr.getName(), HREF)) {
+				this.setHref(attr.getValue());
+			} else if (ctx.isSameAttributeName(attr.getName(), TYPE)) {
+				this.setType(attr.getValue());
+			}
         }
     }
 

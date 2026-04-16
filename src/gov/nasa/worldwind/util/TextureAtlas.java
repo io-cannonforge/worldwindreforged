@@ -128,10 +128,11 @@ public class TextureAtlas
         @Override
 		public boolean additionFailed(Rect cause, int attemptNumber)
         {
-            if (!isEvictOldElements() || !removeLeastRecentlyUsedEntry())
-                throw new WWRuntimeException(Logging.getMessage("TextureAtlas.AtlasIsFull"));
-            else
-                return true;
+            if (!isEvictOldElements() || !removeLeastRecentlyUsedEntry()) {
+				throw new WWRuntimeException(Logging.getMessage("TextureAtlas.AtlasIsFull"));
+			} else {
+				return true;
+			}
         }
 
         /**
@@ -688,8 +689,9 @@ public class TextureAtlas
         // Compact the remaining entries if the vertical fragmentation ratio is larger than this texture atlas'
         // configured threshold. This avoids wasting texture space when many elements of different sizes are
         // subsequently added and removed.
-        if (this.rectPacker.verticalFragmentationRatio() > this.maxVerticalFragmentation)
-            this.rectPacker.compact();
+        if (this.rectPacker.verticalFragmentationRatio() > this.maxVerticalFragmentation) {
+			this.rectPacker.compact();
+		}
     }
 
     /**
@@ -733,8 +735,9 @@ public class TextureAtlas
         }
 
         Entry entry = this.entryMap.get(key);
-        if (entry == null)
-            return null;
+        if (entry == null) {
+			return null;
+		}
 
         // Mark that the entry has been used at the current time.
         this.markUsed(entry);
@@ -764,8 +767,9 @@ public class TextureAtlas
         }
 
         Entry entry = this.entryMap.get(key);
-        if (entry == null)
-            return null;
+        if (entry == null) {
+			return null;
+		}
 
         // Mark that the entry has been used at the current time.
         this.markUsed(entry);
@@ -1000,8 +1004,9 @@ public class TextureAtlas
     @SuppressWarnings("unused")
     protected void beginMoveEntries(BufferedImage oldBackingImage, BufferedImage newBackingImage)
     {
-        if (this.g != null) // This should never happen, but we check anyway.
-            this.g.dispose();
+        if (this.g != null) { // This should never happen, but we check anyway.
+			this.g.dispose();
+		}
 
         this.g = newBackingImage.createGraphics();
         this.g.setComposite(AlphaComposite.Src); // Replace destination pixels with source pixels.
@@ -1085,8 +1090,9 @@ public class TextureAtlas
      */
     protected boolean removeLeastRecentlyUsedEntry()
     {
-        if (this.entryMap.isEmpty())
-            return false;
+        if (this.entryMap.isEmpty()) {
+			return false;
+		}
 
         Entry[] timeOrderedEntries = new Entry[this.entryMap.size()];
         Arrays.sort(this.entryMap.values().toArray(timeOrderedEntries));
@@ -1122,10 +1128,11 @@ public class TextureAtlas
     {
         Rectangle rect = new Rectangle(x, y, width, height);
 
-        if (this.dirtyRect == null)
-            this.dirtyRect = rect;
-        else
-            this.dirtyRect.add(rect);
+        if (this.dirtyRect == null) {
+			this.dirtyRect = rect;
+		} else {
+			this.dirtyRect.add(rect);
+		}
     }
 
     /**
@@ -1180,8 +1187,9 @@ public class TextureAtlas
         {
             // The key may never have been be associated with a texture if this texture atlas was expanded or contracted
             // more than once between calls to bind. In this case we just ignore the disposed key and continue.
-            if (dc.getTextureCache().contains(key))
-                dc.getTextureCache().remove(key);
+            if (dc.getTextureCache().contains(key)) {
+				dc.getTextureCache().remove(key);
+			}
         }
     }
 

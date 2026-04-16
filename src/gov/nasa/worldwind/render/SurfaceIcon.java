@@ -86,8 +86,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
     public SurfaceIcon(Object imageSource, LatLon location)
     {
         this.setImageSource(imageSource);
-        if (location != null)
-            this.setLocation(location);
+        if (location != null) {
+			this.setLocation(location);
+		}
     }
 
     /**
@@ -404,8 +405,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
     public Object getStateKey(DrawContext dc)
     {
         // If the icon always redraws, return a unique object that is not equivalent to any other state key.
-        if (this.isMaintainAppearance())
-            return new Object();
+        if (this.isMaintainAppearance()) {
+			return new Object();
+		}
 
         return super.getStateKey(dc);
     }
@@ -440,8 +442,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
 	public void drawGeographic(DrawContext dc, SurfaceTileDrawContext sdc)
     {
         WWTexture texture = getTexture();
-        if (texture == null)
-            return;
+        if (texture == null) {
+			return;
+		}
 
         this.beginDraw(dc);
         try
@@ -477,8 +480,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
 
     protected List<Sector> computeSectors(DrawContext dc)
     {
-        if (this.location == null)
-            return null;
+        if (this.location == null) {
+			return null;
+		}
 
         Globe globe = dc.getGlobe();
         // Compute real world icon extent depending on distance from eye
@@ -527,8 +531,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
 
     protected Angle computeDrawHeading(DrawContext dc)
     {
-        if (this.heading != null)
-            return this.heading;
+        if (this.heading != null) {
+			return this.heading;
+		}
 
         return getViewHeading(dc);
     }
@@ -610,8 +615,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
         // Translate to lower left corner
         gl.glTranslated(-this.imageWidth / 2, -this.imageHeight / 2, 0);
         // Apply location offset if any
-        if (this.locationOffset != null)
-            gl.glTranslated(this.locationOffset.x, this.locationOffset.y, 0);
+        if (this.locationOffset != null) {
+			gl.glTranslated(this.locationOffset.x, this.locationOffset.y, 0);
+		}
     }
 
     protected double computeDrawScale(DrawContext dc, SurfaceTileDrawContext sdc, LatLon location)
@@ -619,12 +625,13 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
         // Compute scaling to maintain apparent size
         double drawPixelSize;
         double regionPixelSize = this.computeDrawPixelSize(dc, sdc);
-        if (this.isMaintainAppearance())
-            // Compute precise size depending on eye distance
+        if (this.isMaintainAppearance()) {
+			// Compute precise size depending on eye distance
             drawPixelSize = this.computeDrawDimension(dc, location).width / this.imageWidth;
-        else
-            // Compute size according to draw tile resolution
-            drawPixelSize = this.computeDrawDimension(regionPixelSize).width / this.imageWidth;
+		} else { // Compute size according to draw tile resolution
+			// Compute size according to draw tile resolution
+			            drawPixelSize = this.computeDrawDimension(regionPixelSize).width / this.imageWidth;
+		}
         return drawPixelSize / regionPixelSize;
     }
 
@@ -649,8 +656,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
 
     protected WWTexture getTexture()
     {
-        if (this.texture == null)
-            this.texture = new BasicWWTexture(this.imageSource, this.useMipMaps);
+        if (this.texture == null) {
+			this.texture = new BasicWWTexture(this.imageSource, this.useMipMaps);
+		}
 
         return this.texture;
     }
@@ -674,8 +682,9 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
         }
 
         Position referencePos = this.getReferencePosition();
-        if (referencePos == null)
-            return;
+        if (referencePos == null) {
+			return;
+		}
 
         this.moveTo(referencePos.add(delta));
     }
@@ -708,11 +717,13 @@ public class SurfaceIcon extends AbstractSurfaceRenderable implements Movable, D
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.CLAMP_TO_GROUND);
+		}
 
         this.doDrag(dragContext);
     }

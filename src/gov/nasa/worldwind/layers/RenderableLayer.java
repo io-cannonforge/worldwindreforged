@@ -98,8 +98,9 @@ public class RenderableLayer extends AbstractLayer
 
         // Attach the layer as a property change listener of the renderable. This forwards property change events from
         // the renderable to the SceneController.
-        if (renderable instanceof AVList)
-            ((AVList) renderable).addPropertyChangeListener(this);
+        if (renderable instanceof AVList) {
+			((AVList) renderable).addPropertyChangeListener(this);
+		}
     }
 
     /**
@@ -153,8 +154,9 @@ public class RenderableLayer extends AbstractLayer
 
         // Attach the layer as a property change listener of the renderable. This forwards property change events from
         // the renderable to the SceneController.
-        if (renderable instanceof AVList)
-            ((AVList) renderable).addPropertyChangeListener(this);
+        if (renderable instanceof AVList) {
+			((AVList) renderable).addPropertyChangeListener(this);
+		}
     }
 
     /**
@@ -191,13 +193,15 @@ public class RenderableLayer extends AbstractLayer
         for (Renderable renderable : renderables)
         {
             // Internal list of renderables does not accept null values.
-            if (renderable != null)
-                this.renderables.add(renderable);
+            if (renderable != null) {
+				this.renderables.add(renderable);
+			}
 
             // Attach the layer as a property change listener of the renderable. This forwards property change events
             // from the renderable to the SceneController.
-            if (renderable instanceof AVList)
-                ((AVList) renderable).addPropertyChangeListener(this);
+            if (renderable instanceof AVList) {
+				((AVList) renderable).addPropertyChangeListener(this);
+			}
         }
     }
 
@@ -236,8 +240,9 @@ public class RenderableLayer extends AbstractLayer
 
         // Remove the layer as a property change listener of the renderable. This prevents the renderable from keeping a
         // dangling reference to the layer.
-        if (renderable instanceof AVList)
-            ((AVList) renderable).removePropertyChangeListener(this);
+        if (renderable instanceof AVList) {
+			((AVList) renderable).removePropertyChangeListener(this);
+		}
     }
 
     /**
@@ -271,8 +276,9 @@ public class RenderableLayer extends AbstractLayer
             // keeping a dangling references to the layer.
             for (Renderable renderable : this.renderables)
             {
-                if (renderable instanceof AVList)
-                    ((AVList) renderable).removePropertyChangeListener(this);
+                if (renderable instanceof AVList) {
+					((AVList) renderable).removePropertyChangeListener(this);
+				}
             }
 
             this.renderables.clear();
@@ -420,11 +426,13 @@ public class RenderableLayer extends AbstractLayer
                 {
                     // Remove the layer as a property change listener of the renderable. This prevents the renderable
                     // from keeping a dangling reference to the layer.
-                    if (renderable instanceof AVList)
-                        ((AVList) renderable).removePropertyChangeListener(this);
+                    if (renderable instanceof AVList) {
+						((AVList) renderable).removePropertyChangeListener(this);
+					}
 
-                    if (renderable instanceof Disposable)
-                        ((Disposable) renderable).dispose();
+                    if (renderable instanceof Disposable) {
+						((Disposable) renderable).dispose();
+					}
                 }
                 catch (Exception e)
                 {
@@ -464,8 +472,9 @@ public class RenderableLayer extends AbstractLayer
             {
                 // If the caller has specified their own Iterable,
                 // then we cannot make any guarantees about its contents.
-                if (renderable != null && renderable instanceof PreRenderable)
-                    ((PreRenderable) renderable).preRender(dc);
+                if (renderable != null && renderable instanceof PreRenderable) {
+					((PreRenderable) renderable).preRender(dc);
+				}
             }
             catch (Exception e)
             {
@@ -537,8 +546,9 @@ public class RenderableLayer extends AbstractLayer
             {
                 // If the caller has specified their own Iterable,
                 // then we cannot make any guarantees about its contents.
-                if (renderable != null)
-                    renderable.render(dc);
+                if (renderable != null) {
+					renderable.render(dc);
+				}
             }
             catch (Exception e)
             {
@@ -569,8 +579,9 @@ public class RenderableLayer extends AbstractLayer
         {
             try
             {
-                if (renderable instanceof MessageListener)
-                    ((MessageListener) renderable).onMessage(message);
+                if (renderable instanceof MessageListener) {
+					((MessageListener) renderable).onMessage(message);
+				}
             }
             catch (Exception e)
             {

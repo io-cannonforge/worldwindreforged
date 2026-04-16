@@ -111,8 +111,9 @@ public class SurfacePolylines extends AbstractSurfaceShape
         }
 
         // SurfacePolylines does not interpolate between caller specified positions, therefore it has no path type.
-        if (this.sectors == null)
-            this.sectors = this.computeSectors(dc);
+        if (this.sectors == null) {
+			this.sectors = this.computeSectors(dc);
+		}
 
         return this.sectors;
     }
@@ -159,8 +160,9 @@ public class SurfacePolylines extends AbstractSurfaceShape
 	public Position getReferencePosition()
     {
         var iterator = this.getLocations().iterator();
-        if (iterator.hasNext())
-            return new Position(iterator.next(), 0);
+        if (iterator.hasNext()) {
+			return new Position(iterator.next(), 0);
+		}
 
         return null;
     }
@@ -233,25 +235,29 @@ public class SurfacePolylines extends AbstractSurfaceShape
 	protected void drawOutline(DrawContext dc, SurfaceTileDrawContext sdc)
     {
         // Exit immediately if the Polyline has no coordinate data.
-        if (this.buffer.size() == 0)
-            return;
+        if (this.buffer.size() == 0) {
+			return;
+		}
 
         Position referencePos = this.getReferencePosition();
-        if (referencePos == null)
-            return;
+        if (referencePos == null) {
+			return;
+		}
 
         int hemisphereSign = (int) Math.signum(sdc.getSector().getCentroid().getLongitude().degrees);
 
         // Attempt to tessellate the Polyline's outline if the Polyline's outline display list is uninitialized, or if
         // the Polyline is marked as needing tessellation.
         int[] dlResource = (int[]) dc.getGpuResourceCache().get(this.outlineDisplayListCacheKey);
-        if (dlResource == null || this.needsOutlineTessellation)
-            dlResource = this.tessellateOutline(dc, referencePos);
+        if (dlResource == null || this.needsOutlineTessellation) {
+			dlResource = this.tessellateOutline(dc, referencePos);
+		}
 
         // Exit immediately if the Polyline's interior failed to tessellate. The cause has already been logged by
         // tessellateInterior.
-        if (dlResource == null)
-            return;
+        if (dlResource == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         this.applyOutlineState(dc, this.getActiveAttributes());
@@ -287,8 +293,9 @@ public class SurfacePolylines extends AbstractSurfaceShape
             for (int i = 0; i < this.buffer.size(); i++)
             {
                 VecBuffer subBuffer = this.buffer.subBuffer(i);
-                if (this.tessellatePart(gl, subBuffer, referenceLocation))
-                    this.crossesDateLine = true;
+                if (this.tessellatePart(gl, subBuffer, referenceLocation)) {
+					this.crossesDateLine = true;
+				}
             }
         }
         finally

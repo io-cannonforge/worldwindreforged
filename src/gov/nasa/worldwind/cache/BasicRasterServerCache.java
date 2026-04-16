@@ -114,9 +114,10 @@ public class BasicRasterServerCache extends BasicMemoryCache
     {
         try
         {
-            if (this.lowMemorySemaphore == null || null == this.lowMemorySemaphore.get())
-                this.lowMemorySemaphore = new SoftReference<>(new byte[this.inaccessibleMemorySize.get()],
+            if (this.lowMemorySemaphore == null || null == this.lowMemorySemaphore.get()) {
+				this.lowMemorySemaphore = new SoftReference<>(new byte[this.inaccessibleMemorySize.get()],
                     this.queue);
+			}
         }
         catch (Throwable t)
         {
@@ -136,8 +137,9 @@ public class BasicRasterServerCache extends BasicMemoryCache
 
     protected void removeExpiredEntries()
     {
-        if (this.entries.size() == 0)
-            return;
+        if (this.entries.size() == 0) {
+			return;
+		}
 
         if (this.removalLock.tryLock())
         {
@@ -188,8 +190,9 @@ public class BasicRasterServerCache extends BasicMemoryCache
             }
             finally
             {
-                if (Thread.currentThread().isInterrupted())
-                    Thread.interrupted();
+                if (Thread.currentThread().isInterrupted()) {
+					Thread.interrupted();
+				}
             }
         }
     }
@@ -212,8 +215,9 @@ public class BasicRasterServerCache extends BasicMemoryCache
             }
             finally
             {
-                if (Thread.currentThread().isInterrupted())
-                    Thread.interrupted();
+                if (Thread.currentThread().isInterrupted()) {
+					Thread.interrupted();
+				}
             }
         }
     }

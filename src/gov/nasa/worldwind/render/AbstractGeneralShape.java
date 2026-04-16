@@ -270,12 +270,14 @@ public abstract class AbstractGeneralShape extends AbstractShape
     protected Vec4 computeReferencePoint(Terrain terrain)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return null;
+        if (refPos == null) {
+			return null;
+		}
 
         Vec4 refPt = terrain.getSurfacePoint(refPos.getLatitude(), refPos.getLongitude(), 0);
-        if (refPt == null)
-            return null;
+        if (refPt == null) {
+			return null;
+		}
 
         return refPt;
     }
@@ -296,12 +298,14 @@ public abstract class AbstractGeneralShape extends AbstractShape
 
         // TODO: compute distance using extent.getEffectiveRadius(Plane)
         Extent extent = shapeData.getExtent();
-        if (extent != null)
-            return extent.getCenter().distanceTo3(eyePoint) + extent.getRadius();
+        if (extent != null) {
+			return extent.getCenter().distanceTo3(eyePoint) + extent.getRadius();
+		}
 
         Vec4 refPt = shapeData.getReferencePoint();
-        if (refPt != null)
-            return refPt.distanceTo3(eyePoint);
+        if (refPt != null) {
+			return refPt.distanceTo3(eyePoint);
+		}
 
         return 0;
     }

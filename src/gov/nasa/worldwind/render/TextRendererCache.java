@@ -85,10 +85,12 @@ public class TextRendererCache implements Disposable
         @Override
 		public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             CacheKey that = (CacheKey) o;
 

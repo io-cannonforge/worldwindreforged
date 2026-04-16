@@ -67,12 +67,14 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
 
     protected static boolean isAnnotationValid(Annotation annotation, boolean checkPosition)
     {
-        if (annotation == null || annotation.getText() == null)
-            return false;
+        if (annotation == null || annotation.getText() == null) {
+			return false;
+		}
 
         //noinspection RedundantIfStatement,SimplifiableIfStatement
-        if (checkPosition && annotation instanceof Locatable)
-            return ((Locatable) annotation).getPosition() != null;
+        if (checkPosition && annotation instanceof Locatable) {
+			return ((Locatable) annotation).getPosition() != null;
+		}
 
         return true;
     }
@@ -86,8 +88,9 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
     @Override
 	public void pick(DrawContext dc, Annotation annotation, Vec4 annotationPoint, java.awt.Point pickPoint, Layer layer)
     {
-        if (!isAnnotationValid(annotation, false))
-            return;
+        if (!isAnnotationValid(annotation, false)) {
+			return;
+		}
 
         this.drawOne(dc, annotation, annotationPoint, layer);
     }
@@ -101,8 +104,9 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
     @Override
 	public void render(DrawContext dc, Annotation annotation, Vec4 annotationPoint, Layer layer)
     {
-        if (!isAnnotationValid(annotation, false))
-            return;
+        if (!isAnnotationValid(annotation, false)) {
+			return;
+		}
 
         this.drawOne(dc, annotation, annotationPoint, layer);
     }
@@ -116,13 +120,15 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
             throw new IllegalArgumentException(msg);
         }
 
-        if (dc.getVisibleSector() == null)
-            return;
+        if (dc.getVisibleSector() == null) {
+			return;
+		}
 
         SectorGeometryList geos = dc.getSurfaceGeometry();
         //noinspection RedundantIfStatement
-        if (geos == null)
-            return;
+        if (geos == null) {
+			return;
+		}
 
         if (annotations == null)
         {
@@ -142,8 +148,9 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
 
         var iterator = annotations.iterator();
 
-        if (!iterator.hasNext())
-            return;
+        if (!iterator.hasNext()) {
+			return;
+		}
 
         double altitude = dc.getView().getEyePosition().getElevation();
 
@@ -151,19 +158,19 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
         {
             Annotation annotation = iterator.next();
             // Do not draw the pick pass if not at pick point range;
-            if (!isAnnotationValid(annotation, true) || !annotation.getAttributes().isVisible() || (dc.isPickingMode() && !this.isAtPickRange(dc, annotation)))
-                continue;
+            if (!isAnnotationValid(annotation, true) || !annotation.getAttributes().isVisible() || (dc.isPickingMode() && !this.isAtPickRange(dc, annotation))) {
+				continue;
+			}
 
-            if (altitude < annotation.getMinActiveAltitude() || altitude > annotation.getMaxActiveAltitude())
-                continue;
+            if (altitude < annotation.getMinActiveAltitude() || altitude > annotation.getMaxActiveAltitude()) {
+				continue;
+			}
 
             if (dc.isContinuous2DGlobe() && annotation instanceof ScreenAnnotation)
             {
-                if (dc.isPickingMode() && this.currentPickAnnotations.contains(annotation))
-                    continue;
-
-                if (currentDrawAnnotations.contains(annotation))
-                    continue;
+                if ((dc.isPickingMode() && this.currentPickAnnotations.contains(annotation)) || currentDrawAnnotations.contains(annotation)) {
+					continue;
+				}
             }
 
             // TODO: cull annotations that are beyond the horizon
@@ -173,16 +180,18 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
                 // Determine Cartesian position from the surface geometry if the annotation is near the surface,
                 // otherwise draw it from the globe.
                 Vec4 annotationPoint = getAnnotationDrawPoint(dc, annotation);
-                if (annotationPoint == null)
-                    continue;
+                if (annotationPoint == null) {
+					continue;
+				}
                 eyeDistance = annotation.isAlwaysOnTop() ? 0 : dc.getView().getEyePoint().distanceTo3(annotationPoint);
             }
 
             if (annotation instanceof ScreenAnnotation)
             {
                 Rectangle screenBounds = annotation.getBounds(dc);
-                if (screenBounds != null && !dc.getView().getViewport().intersects(screenBounds))
-                    return;
+                if (screenBounds != null && !dc.getView().getViewport().intersects(screenBounds)) {
+					return;
+				}
             }
 
             // The annotations aren't drawn here, but added to the ordered queue to be drawn back-to-front.
@@ -190,10 +199,11 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
 
             if (dc.isContinuous2DGlobe() && annotation instanceof ScreenAnnotation)
             {
-                if (dc.isPickingMode())
-                    this.currentPickAnnotations.add(annotation);
-                else
-                    this.currentDrawAnnotations.add(annotation);
+                if (dc.isPickingMode()) {
+					this.currentPickAnnotations.add(annotation);
+				} else {
+					this.currentDrawAnnotations.add(annotation);
+				}
             }
         }
     }
@@ -217,27 +227,28 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
             this.currentFrameTime = dc.getFrameTimeStamp();
         }
 
-        if (dc.getVisibleSector() == null)
-            return;
+        if (dc.getVisibleSector() == null) {
+			return;
+		}
 
         SectorGeometryList geos = dc.getSurfaceGeometry();
         //noinspection RedundantIfStatement
         // Do not draw the pick pass if not at pick point range;
-        if ((geos == null) || !annotation.getAttributes().isVisible() || (dc.isPickingMode() && !this.isAtPickRange(dc, annotation)))
-            return;
+        if ((geos == null) || !annotation.getAttributes().isVisible() || (dc.isPickingMode() && !this.isAtPickRange(dc, annotation))) {
+			return;
+		}
 
         if (dc.isContinuous2DGlobe() && annotation instanceof ScreenAnnotation)
         {
-            if (dc.isPickingMode() && this.currentPickAnnotations.contains(annotation))
-                return;
-
-            if (currentDrawAnnotations.contains(annotation))
-                return;
+            if ((dc.isPickingMode() && this.currentPickAnnotations.contains(annotation)) || currentDrawAnnotations.contains(annotation)) {
+				return;
+			}
         }
 
         double altitude = dc.getView().getEyePosition().getElevation();
-        if (altitude < annotation.getMinActiveAltitude() || altitude > annotation.getMaxActiveAltitude())
-            return;
+        if (altitude < annotation.getMinActiveAltitude() || altitude > annotation.getMaxActiveAltitude()) {
+			return;
+		}
 
         double eyeDistance = 1;
         if (annotation instanceof Locatable)
@@ -246,33 +257,38 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
             {
                 Position pos = ((Locatable) annotation).getPosition();
 
-                if (!dc.getVisibleSector().contains(pos.getLatitude(), pos.getLongitude()))
-                    return;
+                if (!dc.getVisibleSector().contains(pos.getLatitude(), pos.getLongitude())) {
+					return;
+				}
 
                 // Determine Cartesian position from the surface geometry if the annotation is near the surface,
                 // otherwise draw it from the globe.
                 annotationPoint = getAnnotationDrawPoint(dc, annotation);
-                if (annotationPoint == null)
-                    return;
+                if (annotationPoint == null) {
+					return;
+				}
             }
 
-            if (!dc.getView().getFrustumInModelCoordinates().contains(annotationPoint))
-                return;
+            if (!dc.getView().getFrustumInModelCoordinates().contains(annotationPoint)) {
+				return;
+			}
 
             if (!dc.isContinuous2DGlobe())
             {
                 double horizon = dc.getView().getHorizonDistance();
                 eyeDistance = annotation.isAlwaysOnTop() ? 0 : dc.getView().getEyePoint().distanceTo3(annotationPoint);
-                if (eyeDistance > horizon)
-                    return;
+                if (eyeDistance > horizon) {
+					return;
+				}
             }
         }
 
         if (annotation instanceof ScreenAnnotation)
         {
             Rectangle screenBounds = annotation.getBounds(dc);
-            if (screenBounds != null && !dc.getView().getViewport().intersects(screenBounds))
-                return;
+            if (screenBounds != null && !dc.getView().getViewport().intersects(screenBounds)) {
+				return;
+			}
         }
 
         // The annotation isn't drawn here, but added to the ordered queue to be drawn back-to-front.
@@ -280,10 +296,11 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
 
         if (dc.isContinuous2DGlobe() && annotation instanceof ScreenAnnotation)
         {
-            if (dc.isPickingMode())
-                this.currentPickAnnotations.add(annotation);
-            else
-                this.currentDrawAnnotations.add(annotation);
+            if (dc.isPickingMode()) {
+				this.currentPickAnnotations.add(annotation);
+			} else {
+				this.currentDrawAnnotations.add(annotation);
+			}
         }
     }
 
@@ -309,11 +326,13 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
         if (annotation instanceof Locatable)
         {
             Position pos = ((Locatable) annotation).getPosition();
-            if (pos.getElevation() < dc.getGlobe().getMaxElevation())
-                drawPoint = dc.getSurfaceGeometry().getSurfacePoint(pos.getLatitude(), pos.getLongitude(),
+            if (pos.getElevation() < dc.getGlobe().getMaxElevation()) {
+				drawPoint = dc.getSurfaceGeometry().getSurfacePoint(pos.getLatitude(), pos.getLongitude(),
                     pos.getElevation());
-            if (drawPoint == null)
-                drawPoint = dc.getGlobe().computePointFromPosition(pos);
+			}
+            if (drawPoint == null) {
+				drawPoint = dc.getGlobe().computePointFromPosition(pos);
+			}
         }
         return drawPoint;
     }
@@ -449,8 +468,9 @@ public class BasicAnnotationRenderer implements AnnotationRenderer
         gl.glAlphaFunc(GL.GL_GREATER, 0.0f);
 
         // Apply the depth buffer but don't change it.
-        if ((!dc.isDeepPickingEnabled()))
-            gl.glEnable(GL.GL_DEPTH_TEST);
+        if ((!dc.isDeepPickingEnabled())) {
+			gl.glEnable(GL.GL_DEPTH_TEST);
+		}
         gl.glDepthMask(false);
 
         // Disable lighting and backface culling.

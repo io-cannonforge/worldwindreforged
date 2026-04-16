@@ -180,21 +180,27 @@ public class TileKey implements Comparable<TileKey>
         }
 
         // No need to compare Sectors because they are redundant with row and column
-        if (key.level == this.level && key.row == this.row && key.col == this.col)
-            return 0;
+        if (key.level == this.level && key.row == this.row && key.col == this.col) {
+			return 0;
+		}
 
-        if (this.level < key.level) // Lower-res levels compare lower than higher-res
-            return -1;
-        if (this.level > key.level)
-            return 1;
+        if (this.level < key.level) { // Lower-res levels compare lower than higher-res
+			return -1;
+		}
+        if (this.level > key.level) {
+			return 1;
+		}
 
-        if (this.row < key.row)
-            return -1;
-        if (this.row > key.row)
-            return 1;
+        if (this.row < key.row) {
+			return -1;
+		}
+        if (this.row > key.row) {
+			return 1;
+		}
 
-        if (this.col < key.col)
-            return -1;
+        if (this.col < key.col) {
+			return -1;
+		}
 
         return 1; // tile.col must be > this.col because equality was tested above
     }
@@ -202,16 +208,19 @@ public class TileKey implements Comparable<TileKey>
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final TileKey tileKey = (TileKey) o;
 
         //noinspection SimplifiableIfStatement
-        if ((this.col != tileKey.col) || (this.level != tileKey.level) || (this.row != tileKey.row))
-            return false;
+        if ((this.col != tileKey.col) || (this.level != tileKey.level) || (this.row != tileKey.row)) {
+			return false;
+		}
 
         return !(this.cacheName != null ? !this.cacheName.equals(tileKey.cacheName) : tileKey.cacheName != null);
     }

@@ -213,15 +213,16 @@ public abstract class AbstractBalloon extends WWObjectImpl implements Balloon
     {
         if (this.isHighlighted())
         {
-            if (this.getHighlightAttributes() != null)
-                this.activeAttributes.copy(this.getHighlightAttributes());
-            else
+            if (this.getHighlightAttributes() != null) {
+				this.activeAttributes.copy(this.getHighlightAttributes());
+			} else
             {
                 // If no highlight attributes have been specified we will use the normal attributes.
-                if (this.getAttributes() != null)
-                    this.activeAttributes.copy(this.getAttributes());
-                else
-                    this.activeAttributes.copy(defaultAttributes);
+                if (this.getAttributes() != null) {
+					this.activeAttributes.copy(this.getAttributes());
+				} else {
+					this.activeAttributes.copy(defaultAttributes);
+				}
             }
         }
         else if (this.getAttributes() != null)

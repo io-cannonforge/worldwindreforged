@@ -175,8 +175,9 @@ public class VecBufferSequence extends CompoundVecBuffer
         }
 
         int minVecCount = buffer.getSize() + this.vecCount;
-        if (minVecCount > this.buffer.getSize())
-            this.expandBufferCapacity(minVecCount);
+        if (minVecCount > this.buffer.getSize()) {
+			this.expandBufferCapacity(minVecCount);
+		}
 
         int newBufferPos = this.vecCount;
         this.buffer.putSubBuffer(newBufferPos, buffer);

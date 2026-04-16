@@ -159,8 +159,9 @@ public class CloudCeiling implements Restorable
 
     public void setPlaneOpacity(double opacity)
     {
-        if (this.planeOpacity == opacity)
-            return;
+        if (this.planeOpacity == opacity) {
+			return;
+		}
 
         this.planeOpacity = opacity;
         this.setColor(this.getColor()); // re apply color
@@ -173,8 +174,9 @@ public class CloudCeiling implements Restorable
 
     public void setPattern(String pattern)
     {
-        if (this.pattern.equals(pattern))
-                return;
+        if (this.pattern.equals(pattern)) {
+			return;
+		}
 
         this.pattern = pattern;
         this.setColor(this.getColor()); // re apply color
@@ -222,8 +224,9 @@ public class CloudCeiling implements Restorable
 
     public void setElevationBase(double elevation)
     {
-        if (this.elevationBase == elevation)
-            return;
+        if (this.elevationBase == elevation) {
+			return;
+		}
 
         this.elevationBase = elevation;
         this.updateElevations();
@@ -236,8 +239,9 @@ public class CloudCeiling implements Restorable
 
     public void setElevationDelta(double elevation)
     {
-        if (this.elevationDelta == elevation)
-            return;
+        if (this.elevationDelta == elevation) {
+			return;
+		}
 
         this.elevationDelta = elevation;
         this.updateElevations();
@@ -250,8 +254,9 @@ public class CloudCeiling implements Restorable
 
     public void setDeltaMode(String mode)
     {
-        if (this.deltaMode.equals(mode))
-            return;
+        if (this.deltaMode.equals(mode)) {
+			return;
+		}
 
         this.deltaMode = mode;
         this.updateElevations();
@@ -283,10 +288,11 @@ public class CloudCeiling implements Restorable
             lines[1].setElevation((this.elevationBase + this.elevationDelta) * unitConvertion);
         }
 
-        if (this.elevationDelta > 0)
-            lines[1].setEnabled(this.isEnabled());
-        else
-            lines[1].setEnabled(false);
+        if (this.elevationDelta > 0) {
+			lines[1].setEnabled(this.isEnabled());
+		} else {
+			lines[1].setEnabled(false);
+		}
 
         // Synchonize screen lines and planes
         screenLines[0].setElevation(lines[0].getElevation());
@@ -304,8 +310,9 @@ public class CloudCeiling implements Restorable
 
     public void setRadius(double radius)
     {
-        if (this.radius == radius)
-            return;
+        if (this.radius == radius) {
+			return;
+		}
 
         this.radius = radius;
         this.updateExtent();
@@ -321,15 +328,18 @@ public class CloudCeiling implements Restorable
         boolean changed = false;
         if (this.centerPositions != null && this.centerPositions.size() == newPositions.size())
         {
-            for (int i = 0; i < newPositions.size(); i++)
-                if (!this.centerPositions.get(i).equals(newPositions.get(i)))
-                    changed = true;
-        }
-        else
-            changed = true;
+            for (int i = 0; i < newPositions.size(); i++) {
+				if (!this.centerPositions.get(i).equals(newPositions.get(i))) {
+					changed = true;
+				}
+			}
+        } else {
+			changed = true;
+		}
 
-        if (!changed)
-            return;
+        if (!changed) {
+			return;
+		}
 
         this.centerPositions = newPositions;
         this.updateExtent();
@@ -337,8 +347,9 @@ public class CloudCeiling implements Restorable
 
     private void updateExtent()
     {
-        if (this.centerPositions == null || this.radius <= 0)
-            return;
+        if (this.centerPositions == null || this.radius <= 0) {
+			return;
+		}
 
         // Compute cloud ceiling perimeter extent positions
         this.computeExtentPositions();
@@ -379,8 +390,9 @@ public class CloudCeiling implements Restorable
         Angle heading = Angle.ZERO;
         int cpn = 0; // Current position number
         // Start cap
-        if (this.centerPositions.size() > 1)
-            heading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn), this.centerPositions.get(cpn + 1));
+        if (this.centerPositions.size() > 1) {
+			heading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn), this.centerPositions.get(cpn + 1));
+		}
         this.extentPositions.addAll(computeArcPositions(globe, this.centerPositions.get(cpn),
             heading.addDegrees(90), heading.addDegrees(270), this.radius));
         // Follow path one way
@@ -389,8 +401,9 @@ public class CloudCeiling implements Restorable
             Angle previousHeading = heading;
             heading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn), this.centerPositions.get(cpn + 1));
             Angle nextHeading = heading;
-            if (cpn < this.centerPositions.size() - 2)
-                nextHeading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn + 1), this.centerPositions.get(cpn + 2));
+            if (cpn < this.centerPositions.size() - 2) {
+				nextHeading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn + 1), this.centerPositions.get(cpn + 2));
+			}
             this.extentPositions.addAll(computeLinePositions(globe, this.centerPositions.get(cpn),
                 this.centerPositions.get(cpn + 1), previousHeading, heading, nextHeading, radius));
             cpn++;
@@ -406,8 +419,9 @@ public class CloudCeiling implements Restorable
             Angle previousHeading = heading;
             heading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn), this.centerPositions.get(cpn - 1));
             Angle nextHeading = heading;
-            if (cpn > 1)
-                nextHeading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn - 1), this.centerPositions.get(cpn - 2));
+            if (cpn > 1) {
+				nextHeading = LatLon.greatCircleAzimuth(this.centerPositions.get(cpn - 1), this.centerPositions.get(cpn - 2));
+			}
             this.extentPositions.addAll(computeLinePositions(globe, this.centerPositions.get(cpn),
                 this.centerPositions.get(cpn - 1), previousHeading, heading, nextHeading, radius));
             cpn--;
@@ -444,13 +458,14 @@ public class CloudCeiling implements Restorable
         if (isClockwiseHeadingChange(heading, nextHeading))
         {
             positions.add(LatLon.greatCircleEndPosition(p2, heading.subtractDegrees(90), radiusAngle));
-            if (!heading.equals(nextHeading))
-                positions.addAll(computeArcPositions(globe, p2, heading.subtractDegrees(90),
+            if (!heading.equals(nextHeading)) {
+				positions.addAll(computeArcPositions(globe, p2, heading.subtractDegrees(90),
                     nextHeading.subtractDegrees(90), radius));
-        }
-        else
-            positions.add(LatLon.greatCircleEndPosition(p2,
+			}
+        } else {
+			positions.add(LatLon.greatCircleEndPosition(p2,
                 computeMidHeading(heading, nextHeading).subtractDegrees(90), radiusAngle));
+		}
 
         return positions;
     }
@@ -466,18 +481,20 @@ public class CloudCeiling implements Restorable
     {
         a1 = normalizedHeading(a1);
         a2 = normalizedHeading(a2);
-        if (a1.degrees < a2.degrees && a2.degrees - a1.degrees > 180)
-            a1 = a1.addDegrees(360);
-        else if (a2.degrees < a1.degrees && a1.degrees - a2.degrees > 180)
-            a2 = a2.addDegrees(360);
+        if (a1.degrees < a2.degrees && a2.degrees - a1.degrees > 180) {
+			a1 = a1.addDegrees(360);
+		} else if (a2.degrees < a1.degrees && a1.degrees - a2.degrees > 180) {
+			a2 = a2.addDegrees(360);
+		}
         return Angle.midAngle(a1, a2);
     }
 
     private static Angle normalizedHeading(Angle heading)
     {
         double a = heading.degrees % 360;
-        while (a < 0)
-            a += 360;
+        while (a < 0) {
+			a += 360;
+		}
         return Angle.fromDegrees(a);
     }
 
@@ -513,16 +530,18 @@ public class CloudCeiling implements Restorable
     {
         RestorableSupport restorableSupport = RestorableSupport.newRestorableSupport();
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         restorableSupport.addStateValueAsString("name", this.name);
 
         if (this.color != null)
         {
             String encodedColor = RestorableSupport.encodeColor(this.color);
-            if (encodedColor != null)
-                restorableSupport.addStateValueAsString("color", encodedColor);
+            if (encodedColor != null) {
+				restorableSupport.addStateValueAsString("color", encodedColor);
+			}
         }
 
         if (this.centerPositions != null)
@@ -605,8 +624,9 @@ public class CloudCeiling implements Restorable
                         // Restore each position only if all parts are available.
                         Double latitudeState = restorableSupport.getStateValueAsDouble(pStateObj, "latitudeDegrees");
                         Double longitudeState = restorableSupport.getStateValueAsDouble(pStateObj, "longitudeDegrees");
-                        if (latitudeState != null && longitudeState != null)
-                            newPositions.add(LatLon.fromDegrees(latitudeState, longitudeState));
+                        if (latitudeState != null && longitudeState != null) {
+							newPositions.add(LatLon.fromDegrees(latitudeState, longitudeState));
+						}
                     }
                 }
             }
@@ -617,56 +637,68 @@ public class CloudCeiling implements Restorable
         }
 
         String nameState = restorableSupport.getStateValueAsString("name");
-        if (nameState != null)
-            this.name = nameState;
+        if (nameState != null) {
+			this.name = nameState;
+		}
 
         String elevationUnitState = restorableSupport.getStateValueAsString("elevationUnit");
-        if (elevationUnitState != null)
-            this.elevationUnit = elevationUnitState;
+        if (elevationUnitState != null) {
+			this.elevationUnit = elevationUnitState;
+		}
 
         String deltaModeState = restorableSupport.getStateValueAsString("deltaMode");
-        if (deltaModeState != null)
-            this.deltaMode = deltaModeState;
+        if (deltaModeState != null) {
+			this.deltaMode = deltaModeState;
+		}
 
         Double elevationDeltaState = restorableSupport.getStateValueAsDouble("elevationDelta");
-        if (elevationDeltaState != null)
-            this.elevationDelta = elevationDeltaState;
+        if (elevationDeltaState != null) {
+			this.elevationDelta = elevationDeltaState;
+		}
 
         Double elevationBaseState = restorableSupport.getStateValueAsDouble("elevationBase");
-        if (elevationBaseState != null)
-            this.elevationBase = elevationBaseState;
+        if (elevationBaseState != null) {
+			this.elevationBase = elevationBaseState;
+		}
 
         Double radiusState = restorableSupport.getStateValueAsDouble("radius");
-        if (radiusState != null)
-            this.radius = radiusState;
+        if (radiusState != null) {
+			this.radius = radiusState;
+		}
 
         Boolean enabledState = restorableSupport.getStateValueAsBoolean("enabled");
-        if (enabledState != null)
-            setEnabled(enabledState);
+        if (enabledState != null) {
+			setEnabled(enabledState);
+		}
 
         Double patternSizeState = restorableSupport.getStateValueAsDouble("patternSize");
-        if (patternSizeState != null)
-            this.setPatternSize(patternSizeState);
+        if (patternSizeState != null) {
+			this.setPatternSize(patternSizeState);
+		}
 
         Double planeOpacityState = restorableSupport.getStateValueAsDouble("planeOpacity");
-        if (patternSizeState != null)
-            this.planeOpacity = planeOpacityState;
+        if (patternSizeState != null) {
+			this.planeOpacity = planeOpacityState;
+		}
 
         String patternState = restorableSupport.getStateValueAsString("pattern");
-        if (patternState != null)
-            this.pattern = patternState;
+        if (patternState != null) {
+			this.pattern = patternState;
+		}
 
         String colorState = restorableSupport.getStateValueAsString("color");
         if (colorState != null)
         {
             Color color = RestorableSupport.decodeColor(colorState);
-            if (color != null)
-                setColor(color); // this applies the pattern and plane opacity too
+            if (color != null) {
+				setColor(color); // this applies the pattern and plane opacity too
+			}
         }
 
         Boolean showExtentState = restorableSupport.getStateValueAsBoolean("showExtent");
-        if (showExtentState != null)
-            this.showExtent = showExtentState;
+        if (showExtentState != null) {
+			this.showExtent = showExtentState;
+		}
 
 
         this.updateElevations();

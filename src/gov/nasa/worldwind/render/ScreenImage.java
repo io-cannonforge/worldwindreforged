@@ -555,10 +555,11 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
             }
 
             Point.Double overlayPoint;
-            if (this.imageOffset != null)
-                overlayPoint = this.imageOffset.computeOffset(this.width, this.height, null, null);
-            else
-                overlayPoint = new Point.Double(this.originalImageWidth / 2.0, this.originalImageHeight / 2.0);
+            if (this.imageOffset != null) {
+				overlayPoint = this.imageOffset.computeOffset(this.width, this.height, null, null);
+			} else {
+				overlayPoint = new Point.Double(this.originalImageWidth / 2.0, this.originalImageHeight / 2.0);
+			}
 
             this.dx = -overlayPoint.x;
             this.dy = -overlayPoint.y;
@@ -575,10 +576,11 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
      */
     protected BasicWWTexture getTexture()
     {
-        if (this.texture != null)
-            return this.texture;
-        else
-            return this.initializeTexture();
+        if (this.texture != null) {
+			return this.texture;
+		} else {
+			return this.initializeTexture();
+		}
     }
 
     @Override
@@ -596,16 +598,18 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
 
     protected void doRender(DrawContext dc)
     {
-        if (dc.isPickingMode())
-            this.pickLayer = dc.getCurrentLayer();
+        if (dc.isPickingMode()) {
+			this.pickLayer = dc.getCurrentLayer();
+		}
 
         dc.addOrderedRenderable(this.orderedImage);
     }
 
     protected void draw(DrawContext dc)
     {
-        if (this.screenLocation == null)
-            return;
+        if (this.screenLocation == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
@@ -665,10 +669,11 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
                 gl.glEnable(GL.GL_TEXTURE_2D);
                 if (drawImage)
                 {
-                    if (this.getTexture().bind(dc))
-                        gl.glColor4d(1d, 1d, 1d, this.opacity);
-                    else
-                        drawImage = false; // Can't bind texture, draw rectangle instead
+                    if (this.getTexture().bind(dc)) {
+						gl.glColor4d(1d, 1d, 1d, this.opacity);
+					} else {
+						drawImage = false; // Can't bind texture, draw rectangle instead
+					}
                 }
 
                 gl.glEnable(GL.GL_BLEND);
@@ -720,8 +725,9 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
                 gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
                 gl.glPopMatrix();
             }
-            if (attribsPushed)
-                gl.glPopAttrib();
+            if (attribsPushed) {
+				gl.glPopAttrib();
+			}
         }
     }
 
@@ -729,10 +735,11 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
     @Override
 	public String isExportFormatSupported(String format)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     /**
@@ -837,10 +844,11 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
 
         String imgSrcString = null;
         Object imageSource = this.getImageSource();
-        if (imageSource instanceof String)
-            imgSrcString = (String) imageSource;
-        else if (imageSource instanceof URL)
-            imgSrcString = imageSource.toString();
+        if (imageSource instanceof String) {
+			imgSrcString = (String) imageSource;
+		} else if (imageSource instanceof URL) {
+			imgSrcString = imageSource.toString();
+		}
 
         // We can only export a link to the image if the image source is a path or URL.
         if (imgSrcString != null)
@@ -881,7 +889,8 @@ public class ScreenImage extends WWObjectImpl implements Renderable, Exportable
         xmlWriter.writeEndElement(); // ScreenOverlay
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

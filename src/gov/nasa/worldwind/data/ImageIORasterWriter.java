@@ -125,8 +125,9 @@ public class ImageIORasterWriter extends AbstractDataRasterWriter
     protected String suffixForWorldFile(String suffix)
     {
         int length = suffix.length();
-        if (length < 2)
-            return "";
+        if (length < 2) {
+			return "";
+		}
 
         StringBuilder sb = new StringBuilder();
         sb.append(Character.toLowerCase(suffix.charAt(0)));

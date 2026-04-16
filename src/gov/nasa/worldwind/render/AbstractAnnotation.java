@@ -376,8 +376,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
             throw new IllegalArgumentException(message);
         }
 
-        if (!this.getAttributes().isVisible())
-            return;
+        if (!this.getAttributes().isVisible()) {
+			return;
+		}
 
         dc.getAnnotationRenderer().render(dc, this, null, dc.getCurrentLayer());
     }
@@ -397,8 +398,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
             throw new IllegalArgumentException(message);
         }
 
-        if (!this.getAttributes().isVisible() || !this.isPickEnabled())
-            return;
+        if (!this.getAttributes().isVisible() || !this.isPickEnabled()) {
+			return;
+		}
 
         dc.getAnnotationRenderer().pick(dc, this, null, pickPoint, null);
     }
@@ -420,10 +422,12 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
         // Clamp the caller specified size.
         java.awt.Dimension size = new java.awt.Dimension(this.getAttributes().getSize());
-        if (size.width < 1)
-            size.width = 1;
-        if (size.height < 0)
-            size.height = 0;
+        if (size.width < 1) {
+			size.width = 1;
+		}
+        if (size.height < 0) {
+			size.height = 0;
+		}
 
         // Compute the size of this annotation's inset region.
         java.awt.Rectangle insetBounds = this.computeInsetBounds(size.width, size.height);
@@ -452,8 +456,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
             throw new IllegalArgumentException(message);
         }
 
-        if (!this.getAttributes().isVisible() || (dc.isPickingMode() && !this.isPickEnabled()))
-            return;
+        if (!this.getAttributes().isVisible() || (dc.isPickingMode() && !this.isPickEnabled())) {
+			return;
+		}
 
         this.doRenderNow(dc);
     }
@@ -564,8 +569,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
             throw new IllegalArgumentException(message);
         }
 
-        if (dc.getView().getViewport() == null)
-            return null;
+        if (dc.getView().getViewport() == null) {
+			return null;
+		}
 
         return this.computeBounds(dc);
     }
@@ -583,8 +589,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
      */
     protected void doDraw(DrawContext dc, int width, int height, double opacity, Position pickPosition)
     {
-        if (!this.getAttributes().isVisible())
-            return;
+        if (!this.getAttributes().isVisible()) {
+			return;
+		}
 
         // If this annotation is not pickable, then do not draw any of its contents. However this annotation's children
         // may be pickable, so we still process them.
@@ -637,12 +644,14 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
     protected void drawBackgroundImage(DrawContext dc, int width, int height, double opacity, Position pickPosition)
     {
-        if (dc.isPickingMode())
-            return;
+        if (dc.isPickingMode()) {
+			return;
+		}
 
         WWTexture texture = this.getAttributes().getBackgroundTexture(dc);
-        if (texture == null)
-            return;
+        if (texture == null) {
+			return;
+		}
 
         this.doDrawBackgroundTexture(dc, width, height, opacity, pickPosition, texture);
     }
@@ -780,8 +789,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
     protected void drawBorder(DrawContext dc, int width, int height, double opacity, Position pickPosition)
     {
-        if (this.getAttributes().getBorderWidth() <= 0)
-            return;
+        if (this.getAttributes().getBorderWidth() <= 0) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
@@ -827,8 +837,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
         AnnotationAttributes attribs = this.getAttributes();
 
         String text = this.getText();
-        if (text == null || text.length() == 0)
-            return;
+        if (text == null || text.length() == 0) {
+			return;
+		}
 
         java.awt.Rectangle insetBounds = this.computeInsetBounds(width, height);
 
@@ -836,12 +847,14 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
         // then exit.
         if (dc.isPickingMode())
         {
-            if (dc.getPickPoint() == null)
-                return;
+            if (dc.getPickPoint() == null) {
+				return;
+			}
 
             java.awt.Rectangle screenInsetBounds = this.transformByModelview(dc, insetBounds);
-            if (!screenInsetBounds.contains(dc.getPickPoint()))
-                return;
+            if (!screenInsetBounds.contains(dc.getPickPoint())) {
+				return;
+			}
         }
 
         // Wrap the text to the annotation's inset bounds.
@@ -950,8 +963,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
     protected void drawChildren(DrawContext dc, int width, int height, double opacity, Position pickPosition)
     {
-        if (this.childList.isEmpty())
-            return;
+        if (this.childList.isEmpty()) {
+			return;
+		}
 
         java.awt.Rectangle insetBounds = this.computeInsetBounds(width, height);
 
@@ -1000,8 +1014,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
     protected void drawCallout(DrawContext dc, int mode, int width, int height, boolean useTexCoords)
     {
         String shape = this.getAttributes().getFrameShape();
-        if (shape == null)
-            return;
+        if (shape == null) {
+			return;
+		}
 
         java.awt.Point offset = this.getAttributes().getDrawOffset();
         java.awt.Point leaderOffset = new java.awt.Point((width / 2) - offset.x, -offset.y);
@@ -1019,11 +1034,13 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
             buffer = FrameFactory.createShapeBuffer(shape, width, height, cornerRadius, buffer);
         }
 
-        if (buffer != null)
-            vertexBuffer = buffer;
+        if (buffer != null) {
+			vertexBuffer = buffer;
+		}
 
-        if (buffer == null)
-            return;
+        if (buffer == null) {
+			return;
+		}
 
         int count = buffer.remaining() / 2;
 
@@ -1039,8 +1056,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
     protected void applyColor(DrawContext dc, java.awt.Color color, double opacity, boolean premultiplyColors)
     {
-        if (dc.isPickingMode())
-            return;
+        if (dc.isPickingMode()) {
+			return;
+		}
 
         double finalOpacity = opacity * (color.getAlpha() / 255.0);
 
@@ -1183,10 +1201,12 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
         @Override
 		public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             TextCacheKey that = (TextCacheKey) o;
             return (this.width == that.width)
@@ -1220,13 +1240,15 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
         int insetWidth = width - (insets.left + insets.right);
         int insetHeight = height - (insets.bottom + insets.top);
 
-        if (insetWidth < 0)
-            insetWidth = 0;
+        if (insetWidth < 0) {
+			insetWidth = 0;
+		}
 
-        if (insetHeight < 0 && height > 0)
-            insetHeight = 1;
-        else if (insetHeight < 0)
-            insetHeight = 0;
+        if (insetHeight < 0 && height > 0) {
+			insetHeight = 1;
+		} else if (insetHeight < 0) {
+			insetHeight = 0;
+		}
 
         return new java.awt.Rectangle(insets.left, insets.bottom, insetWidth, insetHeight);
     }
@@ -1279,10 +1301,12 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
             java.awt.Dimension preferredSize = this.layoutManager.getPreferredSize(dc, this.childList);
             if (preferredSize != null)
             {
-                if (width < preferredSize.width)
-                    width = preferredSize.width;
-                if (height < preferredSize.height)
-                    height = preferredSize.height;
+                if (width < preferredSize.width) {
+					width = preferredSize.width;
+				}
+                if (height < preferredSize.height) {
+					height = preferredSize.height;
+				}
             }
         }
 
@@ -1291,8 +1315,9 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
     protected Rectangle computeBoundingRectangle(Rectangle rect, int px, int py)
     {
-        if (rect.contains(px, py))
-            return rect;
+        if (rect.contains(px, py)) {
+			return rect;
+		}
 
         int dx = 0, dy = 0, dw = 0, dh = 0;
         if (px < rect.x)
@@ -1355,15 +1380,18 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
         }
 
         // Create our own state document from scratch.
-        if (restorableSupport == null)
-            restorableSupport = RestorableSupport.newRestorableSupport();
+        if (restorableSupport == null) {
+			restorableSupport = RestorableSupport.newRestorableSupport();
+		}
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         // Escape the text property when saving it to preserve markup characters.
-        if (this.text != null)
-            restorableSupport.addStateValueAsString("text", this.text, true);
+        if (this.text != null) {
+			restorableSupport.addStateValueAsString("text", this.text, true);
+		}
 
         restorableSupport.addStateValueAsBoolean("alwaysOnTop", this.alwaysOnTop);
 
@@ -1406,19 +1434,22 @@ public abstract class AbstractAnnotation extends AVListImpl implements Annotatio
 
         AnnotationAttributes attribs = this.attributes;
         // Annotation's attributes should not be null. Therefore we assign it a new one as a fallback.
-        if (attribs == null)
-            attribs = new AnnotationAttributes();
+        if (attribs == null) {
+			attribs = new AnnotationAttributes();
+		}
         // Restore any AnnotationAttributes state found in "stateInXml".
         attribs.restoreState(stateInXml);
         setAttributes(attribs);
 
         // No special processing is required to restore the escaped text property.
         String textState = restorableSupport.getStateValueAsString("text");
-        if (textState != null)
-            setText(textState);
+        if (textState != null) {
+			setText(textState);
+		}
 
         Boolean booleanState = restorableSupport.getStateValueAsBoolean("alwaysOnTop");
-        if (booleanState != null)
-            setAlwaysOnTop(booleanState);
+        if (booleanState != null) {
+			setAlwaysOnTop(booleanState);
+		}
     }
 }

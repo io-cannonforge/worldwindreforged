@@ -92,11 +92,13 @@ public class Pedestal extends UserFacingIcon
         }
 
         // Create our own state document from scratch.
-        if (restorableSupport == null)
-            restorableSupport = RestorableSupport.newRestorableSupport();
+        if (restorableSupport == null) {
+			restorableSupport = RestorableSupport.newRestorableSupport();
+		}
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         restorableSupport.addStateValueAsDouble("spacingPixels", this.spacingPixels);
         restorableSupport.addStateValueAsDouble("scale", this.scale);
@@ -148,11 +150,13 @@ public class Pedestal extends UserFacingIcon
         }
 
         Double spacingPixelsState = restorableSupport.getStateValueAsDouble("spacingPixels");
-        if (spacingPixelsState != null)
-            setSpacingPixels(spacingPixelsState);
+        if (spacingPixelsState != null) {
+			setSpacingPixels(spacingPixelsState);
+		}
 
         Double scaleState = restorableSupport.getStateValueAsDouble("scale");
-        if (scaleState != null)
-            setScale(scaleState);
+        if (scaleState != null) {
+			setScale(scaleState);
+		}
     }
 }

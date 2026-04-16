@@ -93,79 +93,98 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         this(new LevelSet(params));
 
         String s = params.getStringValue(AVKey.DISPLAY_NAME);
-        if (s != null)
-            this.setName(s);
+        if (s != null) {
+			this.setName(s);
+		}
 
         String[] strings = (String[]) params.getValue(AVKey.AVAILABLE_IMAGE_FORMATS);
-        if (strings != null && strings.length > 0)
-            this.setAvailableImageFormats(strings);
+        if (strings != null && strings.length > 0) {
+			this.setAvailableImageFormats(strings);
+		}
 
         s = params.getStringValue(AVKey.TEXTURE_FORMAT);
-        if (s != null)
-            this.setTextureFormat(s);
+        if (s != null) {
+			this.setTextureFormat(s);
+		}
 
         Double d = (Double) params.getValue(AVKey.OPACITY);
-        if (d != null)
-            this.setOpacity(d);
+        if (d != null) {
+			this.setOpacity(d);
+		}
 
         d = (Double) params.getValue(AVKey.MAX_ACTIVE_ALTITUDE);
-        if (d != null)
-            this.setMaxActiveAltitude(d);
+        if (d != null) {
+			this.setMaxActiveAltitude(d);
+		}
 
         d = (Double) params.getValue(AVKey.MIN_ACTIVE_ALTITUDE);
-        if (d != null)
-            this.setMinActiveAltitude(d);
+        if (d != null) {
+			this.setMinActiveAltitude(d);
+		}
 
         d = (Double) params.getValue(AVKey.MAP_SCALE);
-        if (d != null)
-            this.setValue(AVKey.MAP_SCALE, d);
+        if (d != null) {
+			this.setValue(AVKey.MAP_SCALE, d);
+		}
 
         d = (Double) params.getValue(AVKey.DETAIL_HINT);
-        if (d != null)
-            this.setDetailHint(d);
+        if (d != null) {
+			this.setDetailHint(d);
+		}
 
         Boolean b = (Boolean) params.getValue(AVKey.FORCE_LEVEL_ZERO_LOADS);
-        if (b != null)
-            this.setForceLevelZeroLoads(b);
+        if (b != null) {
+			this.setForceLevelZeroLoads(b);
+		}
 
         b = (Boolean) params.getValue(AVKey.RETAIN_LEVEL_ZERO_TILES);
-        if (b != null)
-            this.setRetainLevelZeroTiles(b);
+        if (b != null) {
+			this.setRetainLevelZeroTiles(b);
+		}
 
         b = (Boolean) params.getValue(AVKey.NETWORK_RETRIEVAL_ENABLED);
-        if (b != null)
-            this.setNetworkRetrievalEnabled(b);
+        if (b != null) {
+			this.setNetworkRetrievalEnabled(b);
+		}
 
         b = (Boolean) params.getValue(AVKey.USE_MIP_MAPS);
-        if (b != null)
-            this.setUseMipMaps(b);
+        if (b != null) {
+			this.setUseMipMaps(b);
+		}
 
         b = (Boolean) params.getValue(AVKey.USE_TRANSPARENT_TEXTURES);
-        if (b != null)
-            this.setUseTransparentTextures(b);
+        if (b != null) {
+			this.setUseTransparentTextures(b);
+		}
 
         Object o = params.getValue(AVKey.URL_CONNECT_TIMEOUT);
-        if (o != null)
-            this.setValue(AVKey.URL_CONNECT_TIMEOUT, o);
+        if (o != null) {
+			this.setValue(AVKey.URL_CONNECT_TIMEOUT, o);
+		}
 
         o = params.getValue(AVKey.URL_READ_TIMEOUT);
-        if (o != null)
-            this.setValue(AVKey.URL_READ_TIMEOUT, o);
+        if (o != null) {
+			this.setValue(AVKey.URL_READ_TIMEOUT, o);
+		}
 
         o = params.getValue(AVKey.RETRIEVAL_QUEUE_STALE_REQUEST_LIMIT);
-        if (o != null)
-            this.setValue(AVKey.RETRIEVAL_QUEUE_STALE_REQUEST_LIMIT, o);
+        if (o != null) {
+			this.setValue(AVKey.RETRIEVAL_QUEUE_STALE_REQUEST_LIMIT, o);
+		}
 
         ScreenCredit sc = (ScreenCredit) params.getValue(AVKey.SCREEN_CREDIT);
-        if (sc != null)
-            this.setScreenCredit(sc);
+        if (sc != null) {
+			this.setScreenCredit(sc);
+		}
 
-        if (params.getValue(AVKey.TRANSPARENCY_COLORS) != null)
-            this.setValue(AVKey.TRANSPARENCY_COLORS, params.getValue(AVKey.TRANSPARENCY_COLORS));
+        if (params.getValue(AVKey.TRANSPARENCY_COLORS) != null) {
+			this.setValue(AVKey.TRANSPARENCY_COLORS, params.getValue(AVKey.TRANSPARENCY_COLORS));
+		}
 
         b = (Boolean) params.getValue(AVKey.DELETE_CACHE_ON_EXIT);
-        if (b != null)
-            this.setValue(AVKey.DELETE_CACHE_ON_EXIT, true);
+        if (b != null) {
+			this.setValue(AVKey.DELETE_CACHE_ON_EXIT, true);
+		}
 
         this.setValue(AVKey.CONSTRUCTION_PARAMETERS, params.copy());
 
@@ -216,8 +235,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         getTiledImageLayerConfigParams(domElement, params);
         setFallbacks(params);
@@ -233,20 +253,25 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
             params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, new LatLon(delta, delta));
         }
 
-        if (params.getValue(AVKey.TILE_WIDTH) == null)
-            params.setValue(AVKey.TILE_WIDTH, 512);
+        if (params.getValue(AVKey.TILE_WIDTH) == null) {
+			params.setValue(AVKey.TILE_WIDTH, 512);
+		}
 
-        if (params.getValue(AVKey.TILE_HEIGHT) == null)
-            params.setValue(AVKey.TILE_HEIGHT, 512);
+        if (params.getValue(AVKey.TILE_HEIGHT) == null) {
+			params.setValue(AVKey.TILE_HEIGHT, 512);
+		}
 
-        if (params.getValue(AVKey.FORMAT_SUFFIX) == null)
-            params.setValue(AVKey.FORMAT_SUFFIX, ".dds");
+        if (params.getValue(AVKey.FORMAT_SUFFIX) == null) {
+			params.setValue(AVKey.FORMAT_SUFFIX, ".dds");
+		}
 
-        if (params.getValue(AVKey.NUM_LEVELS) == null)
-            params.setValue(AVKey.NUM_LEVELS, 19); // approximately 0.1 meters per pixel
+        if (params.getValue(AVKey.NUM_LEVELS) == null) {
+			params.setValue(AVKey.NUM_LEVELS, 19); // approximately 0.1 meters per pixel
+		}
 
-        if (params.getValue(AVKey.NUM_EMPTY_LEVELS) == null)
-            params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);
+        if (params.getValue(AVKey.NUM_EMPTY_LEVELS) == null) {
+			params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);
+		}
     }
 
     @Override
@@ -265,8 +290,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
     {
         Vec4 centroid = tile.getCentroidPoint(dc.getGlobe());
         Vec4 referencePoint = this.getReferencePoint(dc);
-        if (referencePoint != null)
-            tile.setPriority(centroid.distanceTo3(referencePoint));
+        if (referencePoint != null) {
+			tile.setPriority(centroid.distanceTo3(referencePoint));
+		}
 
         RequestTask task = this.createRequestTask(tile);
         this.getRequestQ().add(task);
@@ -291,8 +317,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         @Override
 		public void run()
         {
-            if (Thread.currentThread().isInterrupted())
-                return; // the task was cancelled because it's a duplicate or for some other reason
+            if (Thread.currentThread().isInterrupted()) {
+				return; // the task was cancelled because it's a duplicate or for some other reason
+			}
 
             final java.net.URL textureURL = this.layer.getDataFileStore().findFile(tile.getPath(), false);
             if (textureURL != null && !this.layer.isTextureFileExpired(tile, textureURL, this.layer.getDataFileStore()))
@@ -338,10 +365,12 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         @Override
 		public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
             final RequestTask that = (RequestTask) o;
 
@@ -364,8 +393,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
 
     protected boolean isTextureFileExpired(TextureTile tile, java.net.URL textureURL, FileStore fileStore)
     {
-        if (!WWIO.isFileOutOfDate(textureURL, tile.getLevel().getExpiryTime()))
-            return false;
+        if (!WWIO.isFileOutOfDate(textureURL, tile.getLevel().getExpiryTime())) {
+			return false;
+		}
 
         // The file has expired. Delete it.
         fileStore.removeFile(textureURL);
@@ -383,12 +413,14 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
             textureData = readTexture(textureURL, this.getTextureFormat(), this.isUseMipMaps());
         }
 
-        if (textureData == null)
-            return false;
+        if (textureData == null) {
+			return false;
+		}
 
         tile.setTextureData(textureData);
-        if (tile.getLevelNumber() != 0 || !this.isRetainLevelZeroTiles())
-            this.addTileToCache(tile);
+        if (tile.getLevelNumber() != 0 || !this.isRetainLevelZeroTiles()) {
+			this.addTileToCache(tile);
+		}
 
         return true;
     }
@@ -504,8 +536,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         BulkRetrievalListener listener)
     {
         Sector targetSector = sector != null ? getLevels().getSector().intersection(sector) : null;
-        if (targetSector == null)
-            return null;
+        if (targetSector == null) {
+			return null;
+		}
 
         BasicTiledImageLayerBulkDownloader thread = new BasicTiledImageLayerBulkDownloader(this, targetSector,
             resolution, fileStore != null ? fileStore : this.getDataFileStore(), listener);
@@ -553,8 +586,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
 	public long getEstimatedMissingDataSize(Sector sector, double resolution, FileStore fileStore)
     {
         Sector targetSector = sector != null ? getLevels().getSector().intersection(sector) : null;
-        if (targetSector == null)
-            return 0;
+        if (targetSector == null) {
+			return 0;
+		}
 
         BasicTiledImageLayerBulkDownloader downloader = new BasicTiledImageLayerBulkDownloader(this, sector, resolution,
             fileStore != null ? fileStore : this.getDataFileStore(), null);
@@ -568,21 +602,24 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
 
     protected void retrieveTexture(TextureTile tile, DownloadPostProcessor postProcessor)
     {
-        if (this.getValue(AVKey.RETRIEVER_FACTORY_LOCAL) != null)
-            this.retrieveLocalTexture(tile, postProcessor);
-        else
-            // Assume it's remote, which handles the legacy cases.
-            this.retrieveRemoteTexture(tile, postProcessor);
+        if (this.getValue(AVKey.RETRIEVER_FACTORY_LOCAL) != null) {
+			this.retrieveLocalTexture(tile, postProcessor);
+		} else { // Assume it's remote, which handles the legacy cases.
+			// Assume it's remote, which handles the legacy cases.
+			            this.retrieveRemoteTexture(tile, postProcessor);
+		}
     }
 
     protected void retrieveLocalTexture(TextureTile tile, DownloadPostProcessor postProcessor)
     {
-        if (!WorldWind.getLocalRetrievalService().isAvailable())
-            return;
+        if (!WorldWind.getLocalRetrievalService().isAvailable()) {
+			return;
+		}
 
         RetrieverFactory retrieverFactory = (RetrieverFactory) this.getValue(AVKey.RETRIEVER_FACTORY_LOCAL);
-        if (retrieverFactory == null)
-            return;
+        if (retrieverFactory == null) {
+			return;
+		}
 
         AVListImpl avList = new AVListImpl();
         avList.setValue(AVKey.SECTOR, tile.getSector());
@@ -603,15 +640,17 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
             return;
         }
 
-        if (!WorldWind.getRetrievalService().isAvailable())
-            return;
+        if (!WorldWind.getRetrievalService().isAvailable()) {
+			return;
+		}
 
         java.net.URL url;
         try
         {
             url = tile.getResourceURL();
-            if (url == null)
-                return;
+            if (url == null) {
+				return;
+			}
 
             if (WorldWind.getNetworkStatus().isHostUnavailable(url))
             {
@@ -628,8 +667,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
 
         Retriever retriever;
 
-        if (postProcessor == null)
-            postProcessor = this.createDownloadPostProcessor(tile);
+        if (postProcessor == null) {
+			postProcessor = this.createDownloadPostProcessor(tile);
+		}
         retriever = URLRetriever.createRetriever(url, postProcessor);
         if (retriever == null)
         {
@@ -641,14 +681,17 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
 
         // Apply any overridden timeouts.
         Integer cto = AVListImpl.getIntegerValue(this, AVKey.URL_CONNECT_TIMEOUT);
-        if (cto != null && cto > 0)
-            retriever.setConnectTimeout(cto);
+        if (cto != null && cto > 0) {
+			retriever.setConnectTimeout(cto);
+		}
         Integer cro = AVListImpl.getIntegerValue(this, AVKey.URL_READ_TIMEOUT);
-        if (cro != null && cro > 0)
-            retriever.setReadTimeout(cro);
+        if (cro != null && cro > 0) {
+			retriever.setReadTimeout(cro);
+		}
         Integer srl = AVListImpl.getIntegerValue(this, AVKey.RETRIEVAL_QUEUE_STALE_REQUEST_LIMIT);
-        if (srl != null && srl > 0)
-            retriever.setStaleRequestLimit(srl);
+        if (srl != null && srl > 0) {
+			retriever.setStaleRequestLimit(srl);
+		}
 
         WorldWind.getRetrievalService().runRetriever(retriever, tile.getPriority());
     }
@@ -776,18 +819,20 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         // of hashCode() and equals() perform blocking IO calls. WorldWind does not perform blocking calls during
         // rendering, and this method is likely to be called from the rendering thread.
         WMSCapabilities caps;
-        if (this.isNetworkRetrievalEnabled())
-            caps = SessionCacheUtils.getOrRetrieveSessionCapabilities(url, WorldWind.getSessionCache(),
+        if (this.isNetworkRetrievalEnabled()) {
+			caps = SessionCacheUtils.getOrRetrieveSessionCapabilities(url, WorldWind.getSessionCache(),
                 url.toString(), null, RESOURCE_ID_OGC_CAPABILITIES, null, null);
-        else
-            caps = SessionCacheUtils.getSessionCapabilities(WorldWind.getSessionCache(), url.toString(),
+		} else {
+			caps = SessionCacheUtils.getSessionCapabilities(WorldWind.getSessionCache(), url.toString(),
                 url.toString());
+		}
 
         // The OGC Capabilities resource retrieval is either currently running in another thread, or has failed. In
         // either case, return null indicating that that the retrieval was not successful, and we should try again
         // later.
-        if (caps == null)
-            return null;
+        if (caps == null) {
+			return null;
+		}
 
         // We have successfully retrieved this Layer's OGC Capabilities resource. Initialize this Layer using the
         // Capabilities document, and return a key indicating the retrieval has succeeded.
@@ -823,12 +868,14 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         }
 
         String[] names = DataConfigurationUtils.getOGCLayerNames(params);
-        if (names == null || names.length == 0)
-            return;
+        if (names == null || names.length == 0) {
+			return;
+		}
 
         final Long expiryTime = caps.getLayerLatestLastUpdateTime(names);
-        if (expiryTime == null)
-            return;
+        if (expiryTime == null) {
+			return;
+		}
 
         // Synchronize changes to this Layer with the Event Dispatch Thread.
         SwingUtilities.invokeLater(() ->
@@ -847,8 +894,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
     protected boolean isRetrieveResources()
     {
         AVList params = (AVList) this.getValue(AVKey.CONSTRUCTION_PARAMETERS);
-        if (params == null)
-            return false;
+        if (params == null) {
+			return false;
+		}
 
         Boolean b = (Boolean) params.getValue(AVKey.RETRIEVE_PROPERTIES_FROM_SERVICE);
         return b != null && b;
@@ -898,16 +946,18 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         // to improve multithreaded performance for the common case: the configuration file already exists, this just
         // need to check that it's there and return. If the file exists but is expired, do not remove it -  this
         // removes the file inside the synchronized block below.
-        if (!this.needsConfigurationFile(fileStore, fileName, params, false))
-            return;
+        if (!this.needsConfigurationFile(fileStore, fileName, params, false)) {
+			return;
+		}
 
         synchronized (this.fileLock)
         {
             // Check again if the component needs to write a configuration file, potentially removing any existing file
             // which has expired. This additional check is necessary because the file could have been created by
             // another thread while we were waiting for the lock.
-            if (!this.needsConfigurationFile(fileStore, fileName, params, true))
-                return;
+            if (!this.needsConfigurationFile(fileStore, fileName, params, true)) {
+				return;
+			}
 
             this.doWriteConfigurationParams(fileStore, fileName, params);
         }
@@ -934,21 +984,24 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         boolean removeIfExpired)
     {
         long expiryTime = this.getExpiryTime();
-        if (expiryTime <= 0)
-            expiryTime = AVListImpl.getLongValue(params, AVKey.EXPIRY_TIME, 0L);
+        if (expiryTime <= 0) {
+			expiryTime = AVListImpl.getLongValue(params, AVKey.EXPIRY_TIME, 0L);
+		}
 
         return !DataConfigurationUtils.hasDataConfigFile(fileStore, fileName, removeIfExpired, expiryTime);
     }
 
     protected AVList getConfigurationParams(AVList params)
     {
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         // Gather all the construction parameters if they are available.
         AVList constructionParams = (AVList) this.getValue(AVKey.CONSTRUCTION_PARAMETERS);
-        if (constructionParams != null)
-            params.setValues(constructionParams);
+        if (constructionParams != null) {
+			params.setValues(constructionParams);
+		}
 
         // Gather any missing LevelSet parameters from the LevelSet itself.
         DataConfigurationUtils.getLevelSetConfigParams(this.getLevels(), params);
@@ -970,13 +1023,15 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
     {
         // We only create a restorable state XML if this elevation model was constructed with an AVList.
         AVList constructionParams = (AVList) this.getValue(AVKey.CONSTRUCTION_PARAMETERS);
-        if (constructionParams == null)
-            return null;
+        if (constructionParams == null) {
+			return null;
+		}
 
         RestorableSupport rs = RestorableSupport.newRestorableSupport();
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (rs == null)
-            return null;
+        if (rs == null) {
+			return null;
+		}
 
         this.doGetRestorableState(rs, null);
         return rs.getStateAsXml();
@@ -1021,8 +1076,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
 	public void getRestorableStateForAVPair(String key, Object value,
         RestorableSupport rs, RestorableSupport.StateObject context)
     {
-        if ((value == null) || key.equals(AVKey.CONSTRUCTION_PARAMETERS) || key.equals(AVKey.FRAME_TIMESTAMP))
-            return; // frame timestamp is a runtime property and must not be saved/restored
+        if ((value == null) || key.equals(AVKey.CONSTRUCTION_PARAMETERS) || key.equals(AVKey.FRAME_TIMESTAMP)) {
+			return; // frame timestamp is a runtime property and must not be saved/restored
+		}
 
         if (value instanceof LatLon)
         {
@@ -1045,36 +1101,44 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
     protected void doRestoreState(RestorableSupport rs, RestorableSupport.StateObject context)
     {
         Boolean b = rs.getStateValueAsBoolean(context, "Layer.Enabled");
-        if (b != null)
-            this.setEnabled(b);
+        if (b != null) {
+			this.setEnabled(b);
+		}
 
         Double d = rs.getStateValueAsDouble(context, "Layer.Opacity");
-        if (d != null)
-            this.setOpacity(d);
+        if (d != null) {
+			this.setOpacity(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "Layer.MinActiveAltitude");
-        if (d != null)
-            this.setMinActiveAltitude(d);
+        if (d != null) {
+			this.setMinActiveAltitude(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "Layer.MaxActiveAltitude");
-        if (d != null)
-            this.setMaxActiveAltitude(d);
+        if (d != null) {
+			this.setMaxActiveAltitude(d);
+		}
 
         b = rs.getStateValueAsBoolean(context, "Layer.NetworkRetrievalEnabled");
-        if (b != null)
-            this.setNetworkRetrievalEnabled(b);
+        if (b != null) {
+			this.setNetworkRetrievalEnabled(b);
+		}
 
         String s = rs.getStateValueAsString(context, "Layer.Name");
-        if (s != null)
-            this.setName(s);
+        if (s != null) {
+			this.setName(s);
+		}
 
         b = rs.getStateValueAsBoolean(context, "TiledImageLayer.UseMipMaps");
-        if (b != null)
-            this.setUseMipMaps(b);
+        if (b != null) {
+			this.setUseMipMaps(b);
+		}
 
         b = rs.getStateValueAsBoolean(context, "TiledImageLayer.UseTransparentTextures");
-        if (b != null)
-            this.setUseTransparentTextures(b);
+        if (b != null) {
+			this.setUseTransparentTextures(b);
+		}
 
         RestorableSupport.StateObject so = rs.getStateObject(context, "avlist");
         if (so != null)
@@ -1084,8 +1148,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
             {
                 for (RestorableSupport.StateObject avp : avpairs)
                 {
-                    if (avp != null)
-                        this.doRestoreStateForObject(rs, avp);
+                    if (avp != null) {
+						this.doRestoreStateForObject(rs, avp);
+					}
                 }
             }
         }
@@ -1094,8 +1159,9 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
     @SuppressWarnings("unused")
     protected void doRestoreStateForObject(RestorableSupport rs, RestorableSupport.StateObject so)
     {
-        if ((so == null) || so.getName().equals(AVKey.FRAME_TIMESTAMP))
-            return; // frame timestamp is a runtime property and must not be saved/restored
+        if ((so == null) || so.getName().equals(AVKey.FRAME_TIMESTAMP)) {
+			return; // frame timestamp is a runtime property and must not be saved/restored
+		}
 
         this.setValue(so.getName(), so.getValue());
     }
@@ -1131,51 +1197,63 @@ public class BasicTiledImageLayer extends TiledImageLayer implements BulkRetriev
         AVList params)
     {
         String s = rs.getStateValueAsString(context, AVKey.DATA_CACHE_NAME);
-        if (s != null)
-            params.setValue(AVKey.DATA_CACHE_NAME, s);
+        if (s != null) {
+			params.setValue(AVKey.DATA_CACHE_NAME, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.SERVICE);
-        if (s != null)
-            params.setValue(AVKey.SERVICE, s);
+        if (s != null) {
+			params.setValue(AVKey.SERVICE, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.DATASET_NAME);
-        if (s != null)
-            params.setValue(AVKey.DATASET_NAME, s);
+        if (s != null) {
+			params.setValue(AVKey.DATASET_NAME, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.FORMAT_SUFFIX);
-        if (s != null)
-            params.setValue(AVKey.FORMAT_SUFFIX, s);
+        if (s != null) {
+			params.setValue(AVKey.FORMAT_SUFFIX, s);
+		}
 
         Integer i = rs.getStateValueAsInteger(context, AVKey.NUM_EMPTY_LEVELS);
-        if (i != null)
-            params.setValue(AVKey.NUM_EMPTY_LEVELS, i);
+        if (i != null) {
+			params.setValue(AVKey.NUM_EMPTY_LEVELS, i);
+		}
 
         i = rs.getStateValueAsInteger(context, AVKey.NUM_LEVELS);
-        if (i != null)
-            params.setValue(AVKey.NUM_LEVELS, i);
+        if (i != null) {
+			params.setValue(AVKey.NUM_LEVELS, i);
+		}
 
         i = rs.getStateValueAsInteger(context, AVKey.TILE_WIDTH);
-        if (i != null)
-            params.setValue(AVKey.TILE_WIDTH, i);
+        if (i != null) {
+			params.setValue(AVKey.TILE_WIDTH, i);
+		}
 
         i = rs.getStateValueAsInteger(context, AVKey.TILE_HEIGHT);
-        if (i != null)
-            params.setValue(AVKey.TILE_HEIGHT, i);
+        if (i != null) {
+			params.setValue(AVKey.TILE_HEIGHT, i);
+		}
 
         Long lo = rs.getStateValueAsLong(context, AVKey.EXPIRY_TIME);
-        if (lo != null)
-            params.setValue(AVKey.EXPIRY_TIME, lo);
+        if (lo != null) {
+			params.setValue(AVKey.EXPIRY_TIME, lo);
+		}
 
         LatLon ll = rs.getStateValueAsLatLon(context, AVKey.LEVEL_ZERO_TILE_DELTA);
-        if (ll != null)
-            params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, ll);
+        if (ll != null) {
+			params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, ll);
+		}
 
         ll = rs.getStateValueAsLatLon(context, AVKey.TILE_ORIGIN);
-        if (ll != null)
-            params.setValue(AVKey.TILE_ORIGIN, ll);
+        if (ll != null) {
+			params.setValue(AVKey.TILE_ORIGIN, ll);
+		}
 
         Sector sector = rs.getStateValueAsSector(context, AVKey.SECTOR);
-        if (sector != null)
-            params.setValue(AVKey.SECTOR, sector);
+        if (sector != null) {
+			params.setValue(AVKey.SECTOR, sector);
+		}
     }
 }

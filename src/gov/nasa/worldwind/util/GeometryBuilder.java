@@ -897,8 +897,9 @@ public class GeometryBuilder
         if (face == 0 || face == 1)     // top or bottom cylinder face
         {
             int isTop = 1;
-            if (face == 1)
-                isTop = -1;
+            if (face == 1) {
+				isTop = -1;
+			}
 
             // top center point
             vertexBuffer.put(0, 0f);
@@ -1273,8 +1274,9 @@ public class GeometryBuilder
         {
 
             int isTop = 1;
-            if (face == 1)
-                isTop = -1;
+            if (face == 1) {
+				isTop = -1;
+			}
 
             // center point
             vertexBuffer.put(0, 0f);
@@ -1990,10 +1992,11 @@ public class GeometryBuilder
         int i, j;
         int index;
 
-        if (stacks != 0.0f)
-            dz = height / stacks;
-        else
-            dz = 0.0f;
+        if (stacks != 0.0f) {
+			dz = height / stacks;
+		} else {
+			dz = 0.0f;
+		}
         da = 2.0f * (float) Math.PI / slices;
 
         for (i = 0; i < slices; i++)
@@ -2160,19 +2163,21 @@ public class GeometryBuilder
         {
             if (j != 0)
             {
-                if (this.orientation == INSIDE)
-                    vertex = j + 1;
-                else // (this.orientation == OUTSIDE)
-                    vertex = j;
+                if (this.orientation == INSIDE) {
+					vertex = j + 1;
+				} else { // (this.orientation == OUTSIDE)
+					vertex = j;
+				}
                 dest[index++] = vertex;
                 dest[index++] = vertex;
             }
             for (i = 0; i <= slices; i++)
             {
-                if (i == slices)
-                    vertex = j;
-                else
-                    vertex = j + i * (stacks + 1);
+                if (i == slices) {
+					vertex = j;
+				} else {
+					vertex = j + i * (stacks + 1);
+				}
                 if (this.orientation == INSIDE)
                 {
                     dest[index++] = vertex + 1;
@@ -2392,10 +2397,11 @@ public class GeometryBuilder
         int i, j;
         int index;
 
-        if (stacks != 0.0f)
-            dz = height / stacks;
-        else
-            dz = 0.0f;
+        if (stacks != 0.0f) {
+			dz = height / stacks;
+		} else {
+			dz = 0.0f;
+		}
         da = sweep / slices;
 
         for (i = 0; i <= slices; i++)
@@ -2991,8 +2997,9 @@ public class GeometryBuilder
                     {
                         index = l + s * (loops + 1);
                         nextSlice = l + (s + 1) * (loops + 1);
-                        if (s == slices - 1)
-                            nextSlice = l;
+                        if (s == slices - 1) {
+							nextSlice = l;
+						}
                         adjacentLoop = index + 1;
                         this.facenorm(srcVerts, index, nextSlice + 1, adjacentLoop, tmp);
                         this.add3AndSet(norm, 0, tmp, 0);
@@ -3017,29 +3024,33 @@ public class GeometryBuilder
                         prevSlice = l + (s - 1) * (loops + 1);
                         nextSlice = l + (s + 1) * (loops + 1);
 
-                        if (s == 0)
-                            prevSlice = l + (slices - 1) * (loops + 1);
-                        else if (s == slices - 1)
-                            nextSlice = l;
+                        if (s == 0) {
+							prevSlice = l + (slices - 1) * (loops + 1);
+						} else if (s == slices - 1) {
+							nextSlice = l;
+						}
 
-                        if (l == 0)
-                            adjacentLoop = index + 1;
-                        else
-                            adjacentLoop = index - 1;
+                        if (l == 0) {
+							adjacentLoop = index + 1;
+						} else {
+							adjacentLoop = index - 1;
+						}
 
                         System.arraycopy(zero, 0, norm, 0, 3);
 
                         // Add clockwise adjacent face.
-                        if (l == 0)
-                            this.facenorm(srcVerts, index, nextSlice, adjacentLoop, tmp);
-                        else
-                            this.facenorm(srcVerts, index, adjacentLoop, nextSlice, tmp);
+                        if (l == 0) {
+							this.facenorm(srcVerts, index, nextSlice, adjacentLoop, tmp);
+						} else {
+							this.facenorm(srcVerts, index, adjacentLoop, nextSlice, tmp);
+						}
                         this.add3AndSet(norm, 0, tmp, 0);
                         // Add counter-clockwise adjacent face.
-                        if (l == 0)
-                            this.facenorm(srcVerts, index, adjacentLoop, prevSlice, tmp);
-                        else
-                            this.facenorm(srcVerts, index, prevSlice, adjacentLoop, tmp);
+                        if (l == 0) {
+							this.facenorm(srcVerts, index, adjacentLoop, prevSlice, tmp);
+						} else {
+							this.facenorm(srcVerts, index, prevSlice, adjacentLoop, tmp);
+						}
                         this.add3AndSet(norm, 0, tmp, 0);
 
                         // Normalize and place in output.
@@ -3060,10 +3071,11 @@ public class GeometryBuilder
                     prevSlice = l + (s - 1) * (loops + 1);
                     nextSlice = l + (s + 1) * (loops + 1);
 
-                    if (s == 0)
-                        prevSlice = l + (slices - 1) * (loops + 1);
-                    else if (s == slices - 1)
-                        nextSlice = l;
+                    if (s == 0) {
+						prevSlice = l + (slices - 1) * (loops + 1);
+					} else if (s == slices - 1) {
+						nextSlice = l;
+					}
 
                     prevLoop = index - 1;
                     nextLoop = index + 1;
@@ -3147,10 +3159,11 @@ public class GeometryBuilder
             }
             for (s = 0; s <= slices; s++)
             {
-                if (s == slices)
-                    vertex = l;
-                else
-                    vertex = l + s * (loops + 1);
+                if (s == slices) {
+					vertex = l;
+				} else {
+					vertex = l + s * (loops + 1);
+				}
                 if (this.orientation == INSIDE)
                 {
                     dest[index++] = vertex;
@@ -3472,10 +3485,11 @@ public class GeometryBuilder
                         int adjacentLoop;
                         index = l + s * (loops + 1);
 
-                        if (l == 0)
-                            adjacentLoop = index + 1;
-                        else
-                            adjacentLoop = index - 1;
+                        if (l == 0) {
+							adjacentLoop = index + 1;
+						} else {
+							adjacentLoop = index - 1;
+						}
 
                         System.arraycopy(zero, 0, norm, 0, 3);
 
@@ -3483,20 +3497,22 @@ public class GeometryBuilder
                         {
                             prevSlice = l + (s - 1) * (loops + 1);
                             // Add counter-clockwise adjacent face.
-                            if (l == 0)
-                                this.facenorm(srcVerts, index, adjacentLoop, prevSlice, tmp);
-                            else
-                                this.facenorm(srcVerts, index, prevSlice, adjacentLoop, tmp);
+                            if (l == 0) {
+								this.facenorm(srcVerts, index, adjacentLoop, prevSlice, tmp);
+							} else {
+								this.facenorm(srcVerts, index, prevSlice, adjacentLoop, tmp);
+							}
                             this.add3AndSet(norm, 0, tmp, 0);
                         }
                         if (s < slices)
                         {
                             nextSlice = l + (s + 1) * (loops + 1);
                             // Add clockwise adjacent face.
-                            if (l == 0)
-                                this.facenorm(srcVerts, index, nextSlice, adjacentLoop, tmp);
-                            else
-                                this.facenorm(srcVerts, index, adjacentLoop, nextSlice, tmp);
+                            if (l == 0) {
+								this.facenorm(srcVerts, index, nextSlice, adjacentLoop, tmp);
+							} else {
+								this.facenorm(srcVerts, index, adjacentLoop, nextSlice, tmp);
+							}
                             this.add3AndSet(norm, 0, tmp, 0);
                         }
 
@@ -3748,10 +3764,11 @@ public class GeometryBuilder
         y = (float) Math.cos(a);
         z = 0.0f;
 
-        if (stacks != 0.0f)
-            dz = height / stacks;
-        else
-            dz = 0.0f;
+        if (stacks != 0.0f) {
+			dz = height / stacks;
+		} else {
+			dz = 0.0f;
+		}
         dr = (outerRadius - innerRadius) / pillars;
 
         for (s = 0; s <= stacks; s++)
@@ -4166,10 +4183,11 @@ public class GeometryBuilder
 
         da = (float) Math.PI / arcSlices;
         dy = length / lengthSlices;
-        if (stacks != 0.0f)
-            dz = height / stacks;
-        else
-            dz = 0.0f;
+        if (stacks != 0.0f) {
+			dz = height / stacks;
+		} else {
+			dz = 0.0f;
+		}
         z = 0.0f;
         index = 0;
 
@@ -4340,10 +4358,11 @@ public class GeometryBuilder
             }
             for (i = 0; i <= slices; i++)
             {
-                if (i == slices)
-                    vertex = j * slices;
-                else
-                    vertex = i + j * slices;
+                if (i == slices) {
+					vertex = j * slices;
+				} else {
+					vertex = i + j * slices;
+				}
                 if (this.orientation == INSIDE)
                 {
                     dest[index++] = vertex + slices;
@@ -4829,11 +4848,12 @@ public class GeometryBuilder
                             this.add3AndSet(norm, 0, tmp, 0);
                             this.facenorm(srcVerts, index, index + 1, index + slices, tmp);
                             this.add3AndSet(norm, 0, tmp, 0);
-                            if (s == 1)
-                                this.facenorm(srcVerts, leftSideIndex, leftSideIndex - slices + 1,
+                            if (s == 1) {
+								this.facenorm(srcVerts, leftSideIndex, leftSideIndex - slices + 1,
                                     leftSideIndex + slices, tmp);
-                            else
-                                this.facenorm(srcVerts, leftSideIndex, leftSideIndex + 1, leftSideIndex + slices, tmp);
+							} else {
+								this.facenorm(srcVerts, leftSideIndex, leftSideIndex + 1, leftSideIndex + slices, tmp);
+							}
                             this.add3AndSet(norm, 0, tmp, 0);
                             this.facenorm(srcVerts, leftSideIndex, leftSideIndex + slices, leftSideIndex - 1, tmp);
                             this.add3AndSet(norm, 0, tmp, 0);
@@ -4881,29 +4901,33 @@ public class GeometryBuilder
                         prevSlice = index - 1;
                         nextSlice = index + 1;
 
-                        if (s == 0)
-                            prevSlice = l * slices;
-                        else if (s == slices - 1)
-                            nextSlice = l;
+                        if (s == 0) {
+							prevSlice = l * slices;
+						} else if (s == slices - 1) {
+							nextSlice = l;
+						}
 
-                        if (l == 0)
-                            adjacentLoop = index + slices;
-                        else
-                            adjacentLoop = index - slices;
+                        if (l == 0) {
+							adjacentLoop = index + slices;
+						} else {
+							adjacentLoop = index - slices;
+						}
 
                         System.arraycopy(zero, 0, norm, 0, 3);
 
                         // Add clockwise adjacent face.
-                        if (l == 0)
-                            this.facenorm(srcVerts, index, nextSlice, adjacentLoop, tmp);
-                        else
-                            this.facenorm(srcVerts, index, adjacentLoop, nextSlice, tmp);
+                        if (l == 0) {
+							this.facenorm(srcVerts, index, nextSlice, adjacentLoop, tmp);
+						} else {
+							this.facenorm(srcVerts, index, adjacentLoop, nextSlice, tmp);
+						}
                         this.add3AndSet(norm, 0, tmp, 0);
                         // Add counter-clockwise adjacent face.
-                        if (l == 0)
-                            this.facenorm(srcVerts, index, adjacentLoop, prevSlice, tmp);
-                        else
-                            this.facenorm(srcVerts, index, prevSlice, adjacentLoop, tmp);
+                        if (l == 0) {
+							this.facenorm(srcVerts, index, adjacentLoop, prevSlice, tmp);
+						} else {
+							this.facenorm(srcVerts, index, prevSlice, adjacentLoop, tmp);
+						}
                         this.add3AndSet(norm, 0, tmp, 0);
 
                         // Normalize and place in output.
@@ -4924,10 +4948,11 @@ public class GeometryBuilder
                     prevSlice = index - 1;
                     nextSlice = index + 1;
 
-                    if (s == 0)
-                        prevSlice = (slices - 1) + l * slices;
-                    else if (s == slices - 1)
-                        nextSlice = l * slices;
+                    if (s == 0) {
+						prevSlice = (slices - 1) + l * slices;
+					} else if (s == slices - 1) {
+						nextSlice = l * slices;
+					}
 
                     prevLoop = index - slices;
                     nextLoop = index + slices;
@@ -5016,10 +5041,11 @@ public class GeometryBuilder
             }
             for (s = 0; s <= slices; s++)
             {
-                if (s == slices)
-                    vertex = l * slices;
-                else
-                    vertex = s + l * slices;
+                if (s == slices) {
+					vertex = l * slices;
+				} else {
+					vertex = s + l * slices;
+				}
                 if (this.orientation == INSIDE)
                 {
                     dest[index++] = vertex;
@@ -5044,10 +5070,11 @@ public class GeometryBuilder
         int order;
 
         area = this.computePolygonArea2(pos, count, points);
-        if (area < 0.0f)
-            order = CLOCKWISE;
-        else
-            order = COUNTER_CLOCKWISE;
+        if (area < 0.0f) {
+			order = CLOCKWISE;
+		} else {
+			order = COUNTER_CLOCKWISE;
+		}
 
         return order;
     }
@@ -5123,8 +5150,9 @@ public class GeometryBuilder
         int i;
         int srcIndex, destIndex;
 
-        if (normal == null)
-            normal = Vec4.UNIT_Z;
+        if (normal == null) {
+			normal = Vec4.UNIT_Z;
+		}
 
         cb = new TessellatorCallback(this, count, vertices);
         glts = new GLUTessellatorSupport();
@@ -5287,18 +5315,20 @@ public class GeometryBuilder
             {
                 for (i = 2; i < this.primIndexCount; i++)
                 {
-                    if (((i + 1) % 3) == 0)
-                        this.addTriangle(i - 2, i - 1, i);
+                    if (((i + 1) % 3) == 0) {
+						this.addTriangle(i - 2, i - 1, i);
+					}
                 }
             }
             else if (this.type == GL.GL_TRIANGLE_STRIP)
             {
                 for (i = 2; i < this.primIndexCount; i++)
                 {
-                    if ((i % 2) == 0)
-                        this.addTriangle(i - 2, i - 1, i);
-                    else
-                        this.addTriangle(i - 1, i - 2, i);
+                    if ((i % 2) == 0) {
+						this.addTriangle(i - 2, i - 1, i);
+					} else {
+						this.addTriangle(i - 1, i - 2, i);
+					}
                 }
             }
             else if (this.type == GL.GL_TRIANGLE_FAN)
@@ -5719,10 +5749,11 @@ public class GeometryBuilder
         // first copy all the vertices to the normals buffer
         for (i = 0; i < 3 * vertexCount; i++)
         {
-            if (i % 3 == 2)    // set z coord to zero
-                dest.put(i, 0);
-            else
-                dest.put(i, -vertices.get(i));
+            if (i % 3 == 2) { // set z coord to zero
+				dest.put(i, 0);
+			} else {
+				dest.put(i, -vertices.get(i));
+			}
         }
 
         // Scale and normalize each vertex normal.
@@ -5811,36 +5842,41 @@ public class GeometryBuilder
 
             // compute phi of each of the three vertices of the face
             phi0 = Math.atan2(y0, x0);
-            if (phi0 < 0.0d)
-                phi0 += 2.0d * Math.PI;
+            if (phi0 < 0.0d) {
+				phi0 += 2.0d * Math.PI;
+			}
 
             phi1 = Math.atan2(y1, x1);
-            if (phi1 < 0.0d)
-                phi1 += 2.0d * Math.PI;
+            if (phi1 < 0.0d) {
+				phi1 += 2.0d * Math.PI;
+			}
 
             phi2 = Math.atan2(y2, x2);
-            if (phi2 < 0.0d)
-                phi2 += 2.0d * Math.PI;
+            if (phi2 < 0.0d) {
+				phi2 += 2.0d * Math.PI;
+			}
 
             // check if face spans phi = 0 (the texture seam), and determine which is the "wrapped" vertex
             if (Math.abs(phi0 - phi1) > wrapThreshold)
             {
-                if (Math.abs(phi0 - phi2) > wrapThreshold)
-                    wrapIndex = i;    // vertex0 is the wrapped vertex
-                else
-                    wrapIndex = i + 1;   // vertex1 is the wrapped vertex
+                if (Math.abs(phi0 - phi2) > wrapThreshold) {
+					wrapIndex = i;    // vertex0 is the wrapped vertex
+				} else {
+					wrapIndex = i + 1;   // vertex1 is the wrapped vertex
+				}
             }
-            else if (Math.abs(phi1 - phi2) > wrapThreshold)
-                wrapIndex = i + 2;   // vertex2 is the wrapped vertex
+            else if (Math.abs(phi1 - phi2) > wrapThreshold) {
+				wrapIndex = i + 2;   // vertex2 is the wrapped vertex
+			}
 
             if (wrapIndex >= 0)  // check if one of the vertices on this face wrapped across 2PI
             {
                 wrapVertex = itb.indices.get(wrapIndex);
                 //look to see if this vertex has been duplicated already
                 newVertex = duplicates.get(wrapVertex);
-                if (newVertex != null)
-                    itb.indices.put(wrapIndex, newVertex);   // replace the old vertex with the duplicate
-                else
+                if (newVertex != null) {
+					itb.indices.put(wrapIndex, newVertex);   // replace the old vertex with the duplicate
+				} else
                 {
                     // create a duplicate of the wrapIndex vertex and get its index newVertex
                     newVertex = duplicateVertex(itb, wrapVertex);
@@ -5995,8 +6031,9 @@ public class GeometryBuilder
             phi = Math.atan2(y, x);
             theta = Math.acos(z);
 
-            if (phi < 0.0d)
-                phi += 2.0d * Math.PI;  // shift phi to be in [0, 2*PI]
+            if (phi < 0.0d) {
+				phi += 2.0d * Math.PI;  // shift phi to be in [0, 2*PI]
+			}
 
             u = phi / (2.0d * Math.PI);
             v = (Math.PI - theta) / Math.PI;
@@ -6011,10 +6048,11 @@ public class GeometryBuilder
             {
                 // wrap u (phi) texCoord for all the duplicated vertices
                 u = texCoords.get(2 * i);
-                if (u < 0.5)
-                    texCoords.put(2 * i, (float) u + 1);
-                else
-                    texCoords.put(2 * i, (float) u - 1);
+                if (u < 0.5) {
+					texCoords.put(2 * i, (float) u + 1);
+				} else {
+					texCoords.put(2 * i, (float) u - 1);
+				}
             }
         }
         texCoords.rewind();
@@ -6263,8 +6301,9 @@ public class GeometryBuilder
                 u = x / 2 + 0.5f;
                 v = y / 2 + 0.5f;
 
-                if (face == 1)   // Cylinder bottom
-                    u = 1 - u;
+                if (face == 1) { // Cylinder bottom
+					u = 1 - u;
+				}
 
                 texCoords.put(2 * (i + 1), u);
                 texCoords.put(2 * (i + 1) + 1, v);
@@ -6404,8 +6443,9 @@ public class GeometryBuilder
                 u = x / 2 + 0.5f;
                 v = y / 2 + 0.5f;
 
-                if (face == 1)   // wedge bottom
-                    u = 1 - u;
+                if (face == 1) { // wedge bottom
+					u = 1 - u;
+				}
 
                 // rim point
                 texCoords.put(2 * (i + 1), u);
@@ -7007,10 +7047,12 @@ public class GeometryBuilder
         @Override
 		public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
             // Compares a non directed edge between two points. Therefore we must treat edge equivalence as
             // edge(ab)=edge(ab) OR edge(ab)=edge(ba).
@@ -7087,8 +7129,9 @@ public class GeometryBuilder
         float x, y, z;
         int mid, index;
 
-        if (subdivisions <= 0)
-            return;
+        if (subdivisions <= 0) {
+			return;
+		}
 
         x = (x1 + x2) / 2.0f;
         y = (y1 + y2) / 2.0f;
@@ -7119,14 +7162,18 @@ public class GeometryBuilder
     public int getBilinearSurfaceOutlineIndexCount(int uStacks, int vStacks, int mask)
     {
         int count = 0;
-        if ((mask & TOP) != 0)
-            count += 2 * uStacks;
-        if ((mask & BOTTOM) != 0)
-            count += 2 * uStacks;
-        if ((mask & LEFT) != 0)
-            count += 2 * vStacks;
-        if ((mask & RIGHT) != 0)
-            count += 2 * vStacks;
+        if ((mask & TOP) != 0) {
+			count += 2 * uStacks;
+		}
+        if ((mask & BOTTOM) != 0) {
+			count += 2 * uStacks;
+		}
+        if ((mask & LEFT) != 0) {
+			count += 2 * vStacks;
+		}
+        if ((mask & RIGHT) != 0) {
+			count += 2 * vStacks;
+		}
 
         return count;
     }
@@ -7592,15 +7639,17 @@ public class GeometryBuilder
         }
 
         // Return an ellipse without a leader if the leader width is zero.
-        if (leaderWidth == 0)
-            return this.makeEllipse(x, y, majorRadius, minorRadius, slices);
+        if (leaderWidth == 0) {
+			return this.makeEllipse(x, y, majorRadius, minorRadius, slices);
+		}
 
         int leaderCode = this.computeLeaderLocationCode(x - majorRadius, y - minorRadius, x + majorRadius,
             y + minorRadius, leaderX, leaderY);
 
         // Return an ellipse without a leader if the leader point is inside the rectangle.
-        if (leaderCode == LEADER_LOCATION_INSIDE)
-            return this.makeEllipse(x, y, majorRadius, minorRadius, slices);
+        if (leaderCode == LEADER_LOCATION_INSIDE) {
+			return this.makeEllipse(x, y, majorRadius, minorRadius, slices);
+		}
 
         // Return a buffer with only the first point at angle 0 if the number of slices is zero or one.
         if (slices <= 1)
@@ -7622,8 +7671,9 @@ public class GeometryBuilder
         {
             // Limit the leader's width by the ellipse's major radius.
             float maxLeaderWidth = 2f * majorRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             leaderAngle = leaderWidth / majorRadius;
             startAngle = 3f * (float) Math.PI / 2f;
@@ -7632,8 +7682,9 @@ public class GeometryBuilder
         {
             // Limit the leader's width by the ellipse's major radius.
             float maxLeaderWidth = 2f * majorRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             leaderAngle = leaderWidth / majorRadius;
             startAngle = (float) Math.PI / 2f;
@@ -7642,8 +7693,9 @@ public class GeometryBuilder
         {
             // Limit the leader's width by the ellipse's minor radius.
             float maxLeaderWidth = 2f * minorRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             leaderAngle = leaderWidth / minorRadius;
             startAngle = (float) Math.PI;
@@ -7652,8 +7704,9 @@ public class GeometryBuilder
         {
             // Limit the leader's width by the ellipse's minor radius.
             float maxLeaderWidth = 2f * minorRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             leaderAngle = leaderWidth / minorRadius;
             startAngle = 0f;
@@ -7808,12 +7861,14 @@ public class GeometryBuilder
 
         // Limit the corner radius to half of the rectangles width or height, whichever is smaller.
         float maxCornerRadius = Math.min(width, height) / 2f;
-        if (cornerRadius > maxCornerRadius)
-            cornerRadius = maxCornerRadius;
+        if (cornerRadius > maxCornerRadius) {
+			cornerRadius = maxCornerRadius;
+		}
 
         // Create a rectangle with sharp corners if either the corner radius or the number of corner slices is 0.
-        if (cornerRadius == 0f || cornerSlices == 0)
-            return this.makeRectangle(x, y, width, height);
+        if (cornerRadius == 0f || cornerSlices == 0) {
+			return this.makeRectangle(x, y, width, height);
+		}
 
         float piOver2 = (float) Math.PI / 2f;
 
@@ -7907,20 +7962,23 @@ public class GeometryBuilder
         }
 
         // Return a rectangle without a leader if the leader width is zero.
-        if (leaderWidth == 0)
-            return this.makeRectangle(x, y, width, height);
+        if (leaderWidth == 0) {
+			return this.makeRectangle(x, y, width, height);
+		}
 
         int leaderCode = this.computeLeaderLocationCode(x, y, x + width, y + height, leaderX, leaderY);
 
         // Return a rectangle without a leader if the leader point is inside the rectangle.
-        if (leaderCode == LEADER_LOCATION_INSIDE)
-            return this.makeRectangle(x, y, width, height);
+        if (leaderCode == LEADER_LOCATION_INSIDE) {
+			return this.makeRectangle(x, y, width, height);
+		}
 
         if ((leaderCode & LEADER_LOCATION_BOTTOM) != 0)
         {
             // Limit the leader's width by the rectangle's width.
-            if (leaderWidth > width)
-                leaderWidth = width;
+            if (leaderWidth > width) {
+				leaderWidth = width;
+			}
 
             // The buffer contains seven xy coordinate pairs: two pairs for each corner and three pairs for the leader.
             FloatBuffer buffer = Buffers.newDirectFloatBuffer(14);
@@ -7952,8 +8010,9 @@ public class GeometryBuilder
         else if ((leaderCode & LEADER_LOCATION_TOP) != 0)
         {
             // Limit the leader's width by the rectangle's width.
-            if (leaderWidth > width)
-                leaderWidth = width;
+            if (leaderWidth > width) {
+				leaderWidth = width;
+			}
 
             // The buffer contains seven xy coordinate pairs: two pairs for each corner and three pairs for the leader.
             FloatBuffer buffer = Buffers.newDirectFloatBuffer(14);
@@ -8143,22 +8202,26 @@ public class GeometryBuilder
 
         // Limit the corner radius to half of the rectangles width or height, whichever is smaller.
         float maxCornerRadius = Math.min(width, height) / 2f;
-        if (cornerRadius > maxCornerRadius)
-            cornerRadius = maxCornerRadius;
+        if (cornerRadius > maxCornerRadius) {
+			cornerRadius = maxCornerRadius;
+		}
 
         // Create a rectangle with sharp corners if either the corner radius or the number of corner slices is 0.
-        if (cornerRadius == 0f || cornerSlices == 0)
-            return this.makeRectangleWithLeader(x, y, width, height, leaderX, leaderY, leaderWidth);
+        if (cornerRadius == 0f || cornerSlices == 0) {
+			return this.makeRectangleWithLeader(x, y, width, height, leaderX, leaderY, leaderWidth);
+		}
 
         // Return a rectangle without a leader if the leader width is zero.
-        if (leaderWidth == 0)
-            return this.makeRectangle(x, y, width, height, cornerRadius, cornerSlices);
+        if (leaderWidth == 0) {
+			return this.makeRectangle(x, y, width, height, cornerRadius, cornerSlices);
+		}
 
         int leaderCode = this.computeLeaderLocationCode(x, y, x + width, y + height, leaderX, leaderY);
 
         // Return a rectangle without a leader if the leader point is inside the rectangle.
-        if (leaderCode == LEADER_LOCATION_INSIDE)
-            return this.makeRectangle(x, y, width, height, cornerRadius, cornerSlices);
+        if (leaderCode == LEADER_LOCATION_INSIDE) {
+			return this.makeRectangle(x, y, width, height, cornerRadius, cornerSlices);
+		}
 
         float piOver2 = (float) Math.PI / 2f;
 
@@ -8166,8 +8229,9 @@ public class GeometryBuilder
         {
             // Limit the leader width by the rectangle's width minus any width used by the rounded corners.
             float maxLeaderWidth = width - 2f * cornerRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             // The buffer contains two coordinate pairs for each corner, three coordinate pairs for the leader, and two
             // coordinate pairs per corner vertex.
@@ -8218,8 +8282,9 @@ public class GeometryBuilder
         {
             // Limit the leader width by the rectangle's width minus any width used by the rounded corners.
             float maxLeaderWidth = width - 2f * cornerRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             // The buffer contains two coordinate pairs for each corner, three coordinate pairs for the leader, and two
             // coordinate pairs per corner vertex.
@@ -8270,8 +8335,9 @@ public class GeometryBuilder
         {
             // Limit the leader width by the rectangle's height minus any width used by the rounded corners.
             float maxLeaderWidth = height - 2f * cornerRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             // The buffer contains two coordinate pairs for each corner, three coordinate pairs for the leader, and two
             // coordinate pairs per corner vertex.
@@ -8322,8 +8388,9 @@ public class GeometryBuilder
         {
             // Limit the leader width by the rectangle's height minus any width used by the rounded corners.
             float maxLeaderWidth = height - 2f * cornerRadius;
-            if (leaderWidth > maxLeaderWidth)
-                leaderWidth = maxLeaderWidth;
+            if (leaderWidth > maxLeaderWidth) {
+				leaderWidth = maxLeaderWidth;
+			}
 
             // The buffer contains two coordinate pairs for each corner, three coordinate pairs for the leader, and two
             // coordinate pairs per corner vertex.
@@ -8395,8 +8462,9 @@ public class GeometryBuilder
     protected void addRectangleRoundedCorner(float x, float y, float radius, float start, float sweep, int slices,
         FloatBuffer buffer)
     {
-        if (slices == 0f)
-            return;
+        if (slices == 0f) {
+			return;
+		}
 
         float step = sweep / slices;
         float angle = start + step;

@@ -228,12 +228,14 @@ public class TextureAtlasElement implements Disposable
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.isImageInitializationFailed())
-            return false;
+        if (this.isImageInitializationFailed()) {
+			return false;
+		}
 
         // The atlas already contains an entry for this element then just return true.
-        if (this.getTextureAtlas().contains(this.getImageSource()))
-            return true;
+        if (this.getTextureAtlas().contains(this.getImageSource())) {
+			return true;
+		}
 
         // The atlas does not contain an entry for this element. Issue a request for this element's image if it does not
         // exist, or load it into the atlas if it does. In this case we return true if this element was successfully
@@ -248,8 +250,9 @@ public class TextureAtlasElement implements Disposable
     @Override
 	public void dispose()
     {
-        if (this.getTextureAtlas().contains(this.getImageSource()))
-            this.getTextureAtlas().remove(this.getImageSource());
+        if (this.getTextureAtlas().contains(this.getImageSource())) {
+			this.getTextureAtlas().remove(this.getImageSource());
+		}
 
         this.setImage(null);
     }
@@ -266,10 +269,12 @@ public class TextureAtlasElement implements Disposable
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || this.getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || this.getClass() != o.getClass()) {
+			return false;
+		}
 
         TextureAtlasElement that = (TextureAtlasElement) o;
         return this.imageSource != null ? this.imageSource.equals(that.imageSource) : that.imageSource == null;
@@ -305,18 +310,22 @@ public class TextureAtlasElement implements Disposable
     {
         // If the image source is already a buffered image, assign it to this element's image and let the subsequent
         // logic in this method take care of adding it to the atlas.
-        if (this.isBufferedImageSource())
-            this.setImage((BufferedImage) this.getImageSource());
+        if (this.isBufferedImageSource()) {
+			this.setImage((BufferedImage) this.getImageSource());
+		}
 
-        if (this.getImage() != null && !this.getTextureAtlas().contains(this.getImageSource()))
-            return this.addAtlasImage();
+        if (this.getImage() != null && !this.getTextureAtlas().contains(this.getImageSource())) {
+			return this.addAtlasImage();
+		}
 
-        if (WorldWind.getTaskService().isFull())
-            return false;
+        if (WorldWind.getTaskService().isFull()) {
+			return false;
+		}
 
         Runnable task = this.createRequestTask();
-        if (WorldWind.getTaskService().contains(task))
-            return false;
+        if (WorldWind.getTaskService().contains(task)) {
+			return false;
+		}
 
         // Use either the current layer or the layer list as the listener to notify when the request completes. The
         // latter is used when the image source is requested during ordered rendering mode, and the current layer is
@@ -384,8 +393,9 @@ public class TextureAtlasElement implements Disposable
         if (fileUrl != null)
         {
             BufferedImage image = this.readImage(fileUrl);
-            if (image != null)
-                this.setImage(image);
+            if (image != null) {
+				this.setImage(image);
+			}
         }
 
         return this.getImage() != null;
@@ -464,11 +474,13 @@ public class TextureAtlasElement implements Disposable
         @Override
 		public void run()
         {
-            if (Thread.currentThread().isInterrupted())
-                return; // The task was cancelled because it's a duplicate or for some other reason.
+            if (Thread.currentThread().isInterrupted()) {
+				return; // The task was cancelled because it's a duplicate or for some other reason.
+			}
 
-            if (this.elem.loadImage())
-                this.elem.notifyImageLoaded();
+            if (this.elem.loadImage()) {
+				this.elem.notifyImageLoaded();
+			}
         }
 
         /**
@@ -483,10 +495,12 @@ public class TextureAtlasElement implements Disposable
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             RequestTask that = (RequestTask) o;
             return this.elem.equals(that.elem);

@@ -137,8 +137,9 @@ abstract public class OGCCapabilities extends AbstractXMLEventParser
 
         XMLEventParser defaultParser = null;
 
-        if (ctx.isStartElement(event, SERVICE))
-            defaultParser = new OGCServiceInformation(this.getNamespaceURI());
+        if (ctx.isStartElement(event, SERVICE)) {
+			defaultParser = new OGCServiceInformation(this.getNamespaceURI());
+		}
 
         return ctx.allocate(event, defaultParser);
     }
@@ -159,8 +160,9 @@ abstract public class OGCCapabilities extends AbstractXMLEventParser
 
         for (XMLEvent event = ctx.nextEvent(); ctx.hasNext(); event = ctx.nextEvent())
         {
-            if (event == null)
-                continue;
+            if (event == null) {
+				continue;
+			}
 
             if (event.isStartElement() && this.isRootElementName(event.asStartElement().getName()))
             {
@@ -182,8 +184,9 @@ abstract public class OGCCapabilities extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCServiceInformation)
-                    this.setServiceInformation((OGCServiceInformation) o);
+                if (o != null && o instanceof OGCServiceInformation) {
+					this.setServiceInformation((OGCServiceInformation) o);
+				}
             }
         }
         else if (ctx.isStartElement(event, CAPABILITY))
@@ -192,8 +195,9 @@ abstract public class OGCCapabilities extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCCapabilityInformation)
-                    this.setCapabilityInformation((OGCCapabilityInformation) o);
+                if (o != null && o instanceof OGCCapabilityInformation) {
+					this.setCapabilityInformation((OGCCapabilityInformation) o);
+				}
             }
         }
     }
@@ -202,16 +206,18 @@ abstract public class OGCCapabilities extends AbstractXMLEventParser
     protected void doParseEventAttributes(XMLEventParserContext ctx, XMLEvent event, Object... args)
     {
         var iter = event.asStartElement().getAttributes();
-        if (iter == null)
-            return;
+        if (iter == null) {
+			return;
+		}
 
         while (iter.hasNext())
         {
             Attribute attr = iter.next();
-            if (ctx.isSameAttributeName(attr.getName(), VERSION))
-                this.setVersion(attr.getValue());
-            else if (ctx.isSameAttributeName(attr.getName(), UPDATE_SEQUENCE))
-                this.setUpdateSequence(attr.getValue());
+            if (ctx.isSameAttributeName(attr.getName(), VERSION)) {
+				this.setVersion(attr.getValue());
+			} else if (ctx.isSameAttributeName(attr.getName(), UPDATE_SEQUENCE)) {
+				this.setUpdateSequence(attr.getValue());
+			}
         }
     }
 

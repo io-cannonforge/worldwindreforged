@@ -85,8 +85,9 @@ public class OGCContactInformation extends AbstractXMLEventParser
     {
         XMLEventParser defaultParser = null;
 
-        if (ctx.isStartElement(event, CONTACT_ADDRESS))
-            defaultParser = new OGCAddress(this.getNamespaceURI());
+        if (ctx.isStartElement(event, CONTACT_ADDRESS)) {
+			defaultParser = new OGCAddress(this.getNamespaceURI());
+		}
 
         return ctx.allocate(event, defaultParser);
     }
@@ -123,8 +124,9 @@ public class OGCContactInformation extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCAddress)
-                    this.setContactAddress((OGCAddress) o);
+                if (o != null && o instanceof OGCAddress) {
+					this.setContactAddress((OGCAddress) o);
+				}
             }
         }
     }
@@ -135,8 +137,9 @@ public class OGCContactInformation extends AbstractXMLEventParser
 
         for (XMLEvent event = ctx.nextEvent(); event != null; event = ctx.nextEvent())
         {
-            if (ctx.isEndElement(event, cppEvent))
-                return items;
+            if (ctx.isEndElement(event, cppEvent)) {
+				return items;
+			}
 
             if (ctx.isStartElement(event, CONTACT_PERSON))
             {

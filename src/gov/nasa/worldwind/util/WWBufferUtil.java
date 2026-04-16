@@ -577,16 +577,17 @@ public class WWBufferUtil
             throw new IllegalArgumentException(message);
         }
 
-        if (AVKey.INT8.equals(dataType))
-            return 1;
-        else if (AVKey.INT16.equals(dataType))
-            return SIZEOF_SHORT;
-        else if (AVKey.INT32.equals(dataType))
-            return SIZEOF_INT;
-        else if (AVKey.FLOAT32.equals(dataType))
-            return SIZEOF_FLOAT;
-        else if (AVKey.FLOAT64.equals(dataType))
-            return SIZEOF_DOUBLE;
+        if (AVKey.INT8.equals(dataType)) {
+			return 1;
+		} else if (AVKey.INT16.equals(dataType)) {
+			return SIZEOF_SHORT;
+		} else if (AVKey.INT32.equals(dataType)) {
+			return SIZEOF_INT;
+		} else if (AVKey.FLOAT32.equals(dataType)) {
+			return SIZEOF_FLOAT;
+		} else if (AVKey.FLOAT64.equals(dataType)) {
+			return SIZEOF_DOUBLE;
+		}
 
         return -1;
     }
@@ -620,17 +621,21 @@ public class WWBufferUtil
         {
             double value = buffer.getDouble(i);
 
-            if (Double.compare(value, missingDataSignal) == 0)
-                continue;
+            if (Double.compare(value, missingDataSignal) == 0) {
+				continue;
+			}
 
-            if (min > value)
-                min = value;
-            if (max < value)
-                max = value;
+            if (min > value) {
+				min = value;
+			}
+            if (max < value) {
+				max = value;
+			}
         }
 
-        if (Double.compare(min, Double.MAX_VALUE) == 0 || Double.compare(max, -Double.MAX_VALUE) == 0)
-            return null;
+        if (Double.compare(min, Double.MAX_VALUE) == 0 || Double.compare(max, -Double.MAX_VALUE) == 0) {
+			return null;
+		}
 
         return new double[] {min, max};
     }

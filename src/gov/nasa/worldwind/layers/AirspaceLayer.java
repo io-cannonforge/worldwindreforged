@@ -48,7 +48,8 @@ public class AirspaceLayer extends AbstractLayer
     private Iterable<Airspace> airspacesOverride;
 
     /** Creates a new <code>Airspace</code> with an empty collection of Airspaces. */
-    public AirspaceLayer()
+    @Deprecated
+	public AirspaceLayer()
     {
     }
 
@@ -112,8 +113,9 @@ public class AirspaceLayer extends AbstractLayer
         for (Airspace airspace : airspaces)
         {
             // Internal list of airspaces does not accept null values.
-            if (airspace != null)
-                this.airspaces.add(airspace);
+            if (airspace != null) {
+				this.airspaces.add(airspace);
+			}
         }
     }
 
@@ -170,8 +172,9 @@ public class AirspaceLayer extends AbstractLayer
 
     private void clearAirspaces()
     {
-        if (this.airspaces != null && this.airspaces.size() > 0)
-            this.airspaces.clear();
+        if (this.airspaces != null && this.airspaces.size() > 0) {
+			this.airspaces.clear();
+		}
     }
 
     /**
@@ -516,15 +519,17 @@ public class AirspaceLayer extends AbstractLayer
         // deprecated method
     }
 
-    @Override
+    @Deprecated
+	@Override
     protected void doPick(DrawContext dc, java.awt.Point pickPoint)
     {
         for (Airspace airspace : this.getActiveAirspaces())
         {
             try
             {
-                if (airspace != null) // caller-specified Iterables can include null elements
-                    airspace.render(dc);
+                if (airspace != null) { // caller-specified Iterables can include null elements
+					airspace.render(dc);
+				}
             }
             catch (Exception e)
             {
@@ -535,15 +540,17 @@ public class AirspaceLayer extends AbstractLayer
         }
     }
 
-    @Override
+    @Deprecated
+	@Override
     protected void doRender(DrawContext dc)
     {
         for (Airspace airspace : this.getActiveAirspaces())
         {
             try
             {
-                if (airspace != null) // caller-specified Iterables can include null elements
-                    airspace.render(dc);
+                if (airspace != null) { // caller-specified Iterables can include null elements
+					airspace.render(dc);
+				}
             }
             catch (Exception e)
             {
@@ -554,7 +561,8 @@ public class AirspaceLayer extends AbstractLayer
         }
     }
 
-    @Override
+    @Deprecated
+	@Override
     public String toString()
     {
         return Logging.getMessage("layers.AirspaceLayer.Name");

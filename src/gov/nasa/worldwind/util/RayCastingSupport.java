@@ -105,17 +105,20 @@ public class RayCastingSupport
             // Sort out intersection points and direction
             Vec4 p1 = inters[0].getIntersectionPoint();
             Vec4 p2 = null;
-            if (p1.subtract3(origin).dot3(direction) < 0)
-                p1 = null; // wrong direction
+            if (p1.subtract3(origin).dot3(direction) < 0) {
+				p1 = null; // wrong direction
+			}
             if (inters.length == 2)
             {
                 p2 = inters[1].getIntersectionPoint();
-                if (p2.subtract3(origin).dot3(direction) < 0)
-                    p2 = null; // wrong direction
+                if (p2.subtract3(origin).dot3(direction) < 0) {
+					p2 = null; // wrong direction
+				}
             }
 
-            if (p1 == null && p2 == null)   // both points in wrong direction
-                return null;
+            if (p1 == null && p2 == null) { // both points in wrong direction
+				return null;
+			}
 
             if (p1 != null && p2 != null)
             {
@@ -137,8 +140,9 @@ public class RayCastingSupport
 
             // Sample between p1 and p2
             Vec4 point = intersectSegmentWithTerrain(globe, p1, p2, sampleLength, precision);
-            if (point != null)
-                pos = globe.computePositionFromPoint(point);
+            if (point != null) {
+				pos = globe.computePositionFromPoint(point);
+			}
 
         }
         return pos;
@@ -211,8 +215,9 @@ public class RayCastingSupport
                 point = sample;
                 break;
             }
-            if (sampledDistance >= rayLength)
-                break;    // break after last sample
+            if (sampledDistance >= rayLength) {
+				break;    // break after last sample
+			}
             // Keep sampling
             lastSample = sample;
             sampledDistance = Math.min(sampledDistance + sampleLength, rayLength);
@@ -220,8 +225,9 @@ public class RayCastingSupport
         }
 
         // Recurse for more precision if needed
-        if (point != null && sampleLength > precision && lastSample != null)
-            point = intersectSegmentWithTerrain(globe, lastSample, point, sampleLength / 10, precision);
+        if (point != null && sampleLength > precision && lastSample != null) {
+			point = intersectSegmentWithTerrain(globe, lastSample, point, sampleLength / 10, precision);
+		}
 
         return point;
     }

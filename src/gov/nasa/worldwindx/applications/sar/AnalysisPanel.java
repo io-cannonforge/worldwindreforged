@@ -113,8 +113,9 @@ public class AnalysisPanel extends JPanel implements Restorable
                 terrainProfilePanel.updatePath(currentTrack.getPositions());
                 cloudCeilingPanel.setTrack(currentTrack);
                 // If track is being extended goto track end
-                if (getTrackController().isExtending() && trackViewPanel.isFreeViewMode())
-                    gotoTrackEnd();
+                if (getTrackController().isExtending() && trackViewPanel.isFreeViewMode()) {
+					gotoTrackEnd();
+				}
             }
             else if (propertyChangeEvent.getPropertyName() == AVKey.ELEVATION_MODEL
                 && trackViewPanel.isExamineViewMode() && !wwd.getView().isAnimating())
@@ -304,8 +305,9 @@ public class AnalysisPanel extends JPanel implements Restorable
             this.terrainProfilePanel.updatePath(currentTrack.getPositions());
             this.cloudCeilingPanel.setTrack(this.currentTrack);
             String stateInXML = (String) this.currentTrack.getValue(ANALYSIS_PANEL_STATE);
-            if (stateInXML != null)
-                this.restoreState(stateInXML);
+            if (stateInXML != null) {
+				this.restoreState(stateInXML);
+			}
         }
     }
 
@@ -376,8 +378,9 @@ public class AnalysisPanel extends JPanel implements Restorable
                 // Set the view center point to the current track position on the ground - spheroid.
                 // This gets the eye looking at the cross section.
                 Position groundPos = getSmoothedGroundPositionAlongSegment();
-                if (groundPos == null)
-                    groundPos = getGroundPositionAlongSegment();
+                if (groundPos == null) {
+					groundPos = getGroundPositionAlongSegment();
+				}
 
                 if (goSmoothly)
                 {
@@ -528,14 +531,16 @@ public class AnalysisPanel extends JPanel implements Restorable
 
     public Position getSegmentStartPosition(int startPositionNumber)
     {
-        if (this.currentTrack == null || this.currentTrack.size() == 0)
-            return null;
+        if (this.currentTrack == null || this.currentTrack.size() == 0) {
+			return null;
+		}
 
         Position pos;
-        if (isLastPosition(startPositionNumber))
-            pos = this.currentTrack.get(this.currentTrack.size() - 1);
-        else
-            pos = this.currentTrack.get(startPositionNumber);
+        if (isLastPosition(startPositionNumber)) {
+			pos = this.currentTrack.get(this.currentTrack.size() - 1);
+		} else {
+			pos = this.currentTrack.get(startPositionNumber);
+		}
 
         return new Position(pos.getLatitude(), pos.getLongitude(), pos.getElevation() + this.currentTrack.getOffset());
     }
@@ -548,14 +553,16 @@ public class AnalysisPanel extends JPanel implements Restorable
 
     public Position getSegmentEndPosition(int startPositionNumber)
     {
-        if (this.currentTrack == null || this.currentTrack.size() == 0)
-            return null;
+        if (this.currentTrack == null || this.currentTrack.size() == 0) {
+			return null;
+		}
 
         Position pos;
-        if (isLastPosition(startPositionNumber + 1))
-            pos = this.currentTrack.get(this.currentTrack.size() - 1);
-        else
-            pos = this.currentTrack.get(startPositionNumber + 1);
+        if (isLastPosition(startPositionNumber + 1)) {
+			pos = this.currentTrack.get(this.currentTrack.size() - 1);
+		} else {
+			pos = this.currentTrack.get(startPositionNumber + 1);
+		}
 
         return new Position(pos.getLatitude(), pos.getLongitude(), pos.getElevation() + this.currentTrack.getOffset());
     }
@@ -576,11 +583,13 @@ public class AnalysisPanel extends JPanel implements Restorable
     private Position getPositionAlongSegment(double t)
     {
         Position pa = this.getCurrentSegmentStartPosition();
-        if (pa == null)
-            return null;
+        if (pa == null) {
+			return null;
+		}
         Position pb = this.getCurrentSegmentEndPosition();
-        if (pb == null)
-            return pa;
+        if (pb == null) {
+			return pa;
+		}
 
         return interpolateTrackPosition(t, pa, pb);
     }
@@ -595,9 +604,9 @@ public class AnalysisPanel extends JPanel implements Restorable
         Position pA;
         Position pB;
 
-        if ((cpn < 1) && (this.isLastPosition(cpn))) //handle first position
-            return Angle.ZERO;
-        else if (!this.isLastPosition(cpn))
+        if ((cpn < 1) && (this.isLastPosition(cpn))) { //handle first position
+			return Angle.ZERO;
+		} else if (!this.isLastPosition(cpn))
         {
             pA = this.currentTrack.get(cpn);
             pB = this.currentTrack.get(cpn + 1);
@@ -629,9 +638,9 @@ public class AnalysisPanel extends JPanel implements Restorable
         {
             heading2 = getHeading(cpn + 1);
             t = (1 - (1 - t1) / dt) * .5;
-        }
-        else
-            return heading1;
+        } else {
+			return heading1;
+		}
 
         return Angle.mix(t, heading1, heading2);
     }
@@ -639,12 +648,14 @@ public class AnalysisPanel extends JPanel implements Restorable
     @SuppressWarnings("unused")
     private Position getGroundPositionAlongSegment()
     {
-        if (this.wwd == null)
-            return null;
+        if (this.wwd == null) {
+			return null;
+		}
 
         Position pos = getPositionAlongSegment();
-        if (pos == null)
-            return null;
+        if (pos == null) {
+			return null;
+		}
 
         return getGroundPosition(pos);
     }
@@ -658,23 +669,27 @@ public class AnalysisPanel extends JPanel implements Restorable
     // TODO: weighted average should be over actual polyline track points
     private Position getSmoothedGroundPositionAlongSegment()
     {
-        if (this.currentTrack == null || this.currentTrack.size() == 0)
-            return null;
+        if (this.currentTrack == null || this.currentTrack.size() == 0) {
+			return null;
+		}
 
         Position start = getCurrentSegmentStartPosition();
         Position end = getCurrentSegmentEndPosition();
-        if (start == null || end == null)
-            return null;
+        if (start == null || end == null) {
+			return null;
+		}
 
         Globe globe = this.wwd.getModel().getGlobe();
-        if (globe == null)
-            return null;
+        if (globe == null) {
+			return null;
+		}
 
         int n = this.getCurrentPositionNumber();
         double t = this.trackViewPanel.getPositionDelta();
         // Limit t to 0 if this is the last position.
-        if (isLastPosition(n))
-            t = 0;
+        if (isLastPosition(n)) {
+			t = 0;
+		}
 
         double tstep = 1 / 100.0;
         int numWeights = 15; // TODO: extract to configurable property
@@ -690,10 +705,11 @@ public class AnalysisPanel extends JPanel implements Restorable
             // Previous ground positions.
             tt = t - i * tstep;
             pos = null;
-            if (tt >= 0) // Position is in the current track segment.
-                pos = interpolateTrackPosition(tt, start, end);
-            else if (tt < 0 && n > 0) // Position is in the previous track segment.
-                pos = interpolateTrackPosition(tt + 1, this.currentTrack.get(n - 1), start);
+            if (tt >= 0) { // Position is in the current track segment.
+				pos = interpolateTrackPosition(tt, start, end);
+			} else if (tt < 0 && n > 0) { // Position is in the previous track segment.
+				pos = interpolateTrackPosition(tt + 1, this.currentTrack.get(n - 1), start);
+			}
             if (pos != null)
             {
                 double e = globe.getElevation(pos.getLatitude(), pos.getLongitude());
@@ -707,10 +723,11 @@ public class AnalysisPanel extends JPanel implements Restorable
             {
                 tt = t + i * tstep;
                 pos = null;
-                if (tt <= 1) // Position is in the current track segment.
-                    pos = interpolateTrackPosition(tt, start, end);
-                else if (tt > 1 && !isLastPosition(n + 1)) // Position is in the next track segment.
-                    pos = interpolateTrackPosition(tt - 1, end, this.currentTrack.get(n + 2));
+                if (tt <= 1) { // Position is in the current track segment.
+					pos = interpolateTrackPosition(tt, start, end);
+				} else if (tt > 1 && !isLastPosition(n + 1)) { // Position is in the next track segment.
+					pos = interpolateTrackPosition(tt - 1, end, this.currentTrack.get(n + 2));
+				}
                 if (pos != null)
                 {
                     double e = globe.getElevation(pos.getLatitude(), pos.getLongitude());
@@ -738,8 +755,9 @@ public class AnalysisPanel extends JPanel implements Restorable
      */
     private Position interpolateTrackPosition(double t, Position begin, Position end)
     {
-        if (begin == null || end == null)
-            return null;
+        if (begin == null || end == null) {
+			return null;
+		}
 
         // The track is drawn as a rhumb line, therefore we use rhumb computations to interpolate between the track's
         // geographic positions.
@@ -840,11 +858,11 @@ public class AnalysisPanel extends JPanel implements Restorable
         Position p1 = null, p2;
         for (double s = 0; s <= 1; s += step)
         {
-            if (s == 0)
-                p2 = posA;
-            else if (s >= 1)
-                p2 = posB;
-            else
+            if (s == 0) {
+				p2 = posA;
+			} else if (s >= 1) {
+				p2 = posB;
+			} else
             {
                 Angle distance = Angle.fromRadians(s * segmentDistance.radians);
                 latLon = LatLon.rhumbEndPosition(posA, segmentAzimuth, distance);
@@ -921,8 +939,9 @@ public class AnalysisPanel extends JPanel implements Restorable
     protected void doGetRestorableState(RestorableSupport rs, RestorableSupport.StateObject context)
     {
         // Save examine view mode state if view is currently in examine mode.
-        if (TrackViewPanel.VIEW_MODE_EXAMINE.equals(this.trackViewPanel.getViewMode()))
-            this.saveExamineViewState();
+        if (TrackViewPanel.VIEW_MODE_EXAMINE.equals(this.trackViewPanel.getViewMode())) {
+			this.saveExamineViewState();
+		}
         // Add state values
         if (this.examineViewState != null)
         {
@@ -932,14 +951,17 @@ public class AnalysisPanel extends JPanel implements Restorable
             rs.addStateValueAsDouble(context, "examineZoom", this.examineViewState.zoom);
             rs.addStateValueAsLatLon(context, "examineCenter", this.examineViewState.relativeCenterLocation);
         }
-        if (this.trackViewPanel != null)
-            this.trackViewPanel.doGetRestorableState(rs, rs.addStateObject(context, "trackView"));
+        if (this.trackViewPanel != null) {
+			this.trackViewPanel.doGetRestorableState(rs, rs.addStateObject(context, "trackView"));
+		}
 
-        if (this.terrainProfilePanel != null)
-            this.terrainProfilePanel.doGetRestorableState(rs, rs.addStateObject(context, "terrainProfile"));
+        if (this.terrainProfilePanel != null) {
+			this.terrainProfilePanel.doGetRestorableState(rs, rs.addStateObject(context, "terrainProfile"));
+		}
 
-        if (this.cloudCeilingPanel != null)
-            this.cloudCeilingPanel.doGetRestorableState(rs, rs.addStateObject(context, "cloudCeiling"));
+        if (this.cloudCeilingPanel != null) {
+			this.cloudCeilingPanel.doGetRestorableState(rs, rs.addStateObject(context, "cloudCeiling"));
+		}
     }
 
     protected void doRestoreState(RestorableSupport rs, RestorableSupport.StateObject context)
@@ -959,18 +981,22 @@ public class AnalysisPanel extends JPanel implements Restorable
         }
 
         RestorableSupport.StateObject trackViewState = rs.getStateObject(context, "trackView");
-        if (trackViewState != null && this.trackViewPanel != null)
-            this.trackViewPanel.doRestoreState(rs, trackViewState);
+        if (trackViewState != null && this.trackViewPanel != null) {
+			this.trackViewPanel.doRestoreState(rs, trackViewState);
+		}
 
         RestorableSupport.StateObject terrainProfileState = rs.getStateObject(context, "terrainProfile");
-        if (terrainProfileState != null && this.terrainProfilePanel != null)
-            this.terrainProfilePanel.doRestoreState(rs, terrainProfileState);
+        if (terrainProfileState != null && this.terrainProfilePanel != null) {
+			this.terrainProfilePanel.doRestoreState(rs, terrainProfileState);
+		}
 
-        if (this.cloudCeilingPanel != null && this.currentTrack != null)
-            this.cloudCeilingPanel.setTrackCurrentPositionNumber(this.getCurrentPositionNumber());
+        if (this.cloudCeilingPanel != null && this.currentTrack != null) {
+			this.cloudCeilingPanel.setTrackCurrentPositionNumber(this.getCurrentPositionNumber());
+		}
 
         RestorableSupport.StateObject cloudCeilingState = rs.getStateObject(context, "cloudCeiling");
-        if (cloudCeilingState != null && this.cloudCeilingPanel != null)
-            this.cloudCeilingPanel.doRestoreState(rs, cloudCeilingState);
+        if (cloudCeilingState != null && this.cloudCeilingPanel != null) {
+			this.cloudCeilingPanel.doRestoreState(rs, cloudCeilingState);
+		}
     }
 }

@@ -162,16 +162,18 @@ public class ContourList extends WWObjectImpl implements Combinable
             throw new IllegalArgumentException(msg);
         }
 
-        if (cc.isBoundingSectorMode())
-            this.combineBounds(cc);
-        else
-            this.combineContours(cc);
+        if (cc.isBoundingSectorMode()) {
+			this.combineBounds(cc);
+		} else {
+			this.combineContours(cc);
+		}
     }
 
     protected void combineBounds(CombineContext cc)
     {
-        if (this.sector == null)
-            return; // no contours
+        if (this.sector == null) {
+			return; // no contours
+		}
 
         cc.addBoundingSector(this.sector);
     }
@@ -180,8 +182,9 @@ public class ContourList extends WWObjectImpl implements Combinable
     {
          // no contours
 
-        if ((this.sector == null) || !cc.getSector().intersects(this.sector))
-            return;  // this contour list does not intersect the region of interest
+        if ((this.sector == null) || !cc.getSector().intersects(this.sector)) {
+			return;  // this contour list does not intersect the region of interest
+		}
 
         this.doCombineContours(cc);
     }

@@ -102,8 +102,9 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
 	public boolean canRead(Object source, AVList params)
     {
         //noinspection SimplifiableIfStatement
-        if ((source == null) || !this.canReadSuffix(source))
-            return false;
+        if ((source == null) || !this.canReadSuffix(source)) {
+			return false;
+		}
 
         return this.doCanRead(source, params);
     }
@@ -112,8 +113,9 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
     {
         // If the source has no path, we cannot return failure, so return that the test passed.
         String path = WWIO.getSourcePath(source);
-        if (path == null)
-            return true;
+        if (path == null) {
+			return true;
+		}
 
         // If the source has a suffix, then we return success if this reader supports the suffix.
         String pathSuffix = WWIO.getSuffix(path);
@@ -153,14 +155,16 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         this.doReadMetadata(source, params);
 
         String message = this.validateMetadata(source, params);
-        if (message != null)
-            throw new java.io.IOException(message);
+        if (message != null) {
+			throw new java.io.IOException(message);
+		}
 
         return params;
     }
@@ -170,19 +174,23 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
         StringBuilder sb = new StringBuilder();
 
         Object o = (params != null) ? params.getValue(AVKey.WIDTH) : null;
-        if (o == null || !(o instanceof Integer))
-            sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSizeSpecified", source));
+        if (o == null || !(o instanceof Integer)) {
+			sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSizeSpecified", source));
+		}
 
         o = (params != null) ? params.getValue(AVKey.HEIGHT) : null;
-        if (o == null || !(o instanceof Integer))
-            sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSizeSpecified", source));
+        if (o == null || !(o instanceof Integer)) {
+			sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSizeSpecified", source));
+		}
 
         o = (params != null) ? params.getValue(AVKey.SECTOR) : null;
-        if (o == null || !(o instanceof Sector))
-            sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSectorSpecified", source));
+        if (o == null || !(o instanceof Sector)) {
+			sb.append(sb.length() > 0 ? ", " : "").append(Logging.getMessage("WorldFile.NoSectorSpecified", source));
+		}
 
-        if (sb.length() == 0)
-            return null;
+        if (sb.length() == 0) {
+			return null;
+		}
 
         return sb.toString();
     }
@@ -191,8 +199,9 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
     @Override
 	public boolean isImageryRaster(Object source, AVList params)
     {
-        if (params != null && AVKey.IMAGE.equals(params.getStringValue(AVKey.PIXEL_FORMAT)))
-            return true;
+        if (params != null && AVKey.IMAGE.equals(params.getStringValue(AVKey.PIXEL_FORMAT))) {
+			return true;
+		}
 
         try
         {
@@ -209,8 +218,9 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
     @Override
 	public boolean isElevationsRaster(Object source, AVList params)
     {
-        if (params != null && AVKey.ELEVATION.equals(params.getStringValue(AVKey.PIXEL_FORMAT)))
-            return true;
+        if (params != null && AVKey.ELEVATION.equals(params.getStringValue(AVKey.PIXEL_FORMAT))) {
+			return true;
+		}
 
         try
         {
@@ -232,8 +242,9 @@ public abstract class AbstractDataRasterReader extends AVListImpl implements Dat
         StringBuilder sb = new StringBuilder();
         for (String suffix : suffixes)
         {
-            if (sb.length() > 0)
-                sb.append(", ");
+            if (sb.length() > 0) {
+				sb.append(", ");
+			}
             sb.append("*.").append(suffix.toLowerCase());
         }
         return sb.toString();

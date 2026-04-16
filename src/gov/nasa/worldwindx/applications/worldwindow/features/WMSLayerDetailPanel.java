@@ -43,6 +43,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -463,7 +464,7 @@ public class WMSLayerDetailPanel extends JPanel
             @Override
             protected BufferedImage doInBackground() throws Exception
             {
-                return ImageIO.read(new URL(legendUrl));
+                return ImageIO.read(URI.create(legendUrl).toURL());
             }
 
             @Override

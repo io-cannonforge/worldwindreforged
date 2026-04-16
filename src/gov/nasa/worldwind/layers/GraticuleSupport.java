@@ -67,15 +67,18 @@ public class GraticuleSupport
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
             Pair pair = (Pair) o;
 
-            if ((a != null ? !a.equals(pair.a) : pair.a != null) || (b != null ? !b.equals(pair.b) : pair.b != null))
-                return false;
+            if ((a != null ? !a.equals(pair.a) : pair.a != null) || (b != null ? !b.equals(pair.b) : pair.b != null)) {
+				return false;
+			}
 
             return true;
         }
@@ -183,8 +186,9 @@ public class GraticuleSupport
         {
             value = new GraticuleRenderingParams();
             initRenderingParams(value);
-            if (this.defaultParams != null)
-                value.setValues(this.defaultParams);
+            if (this.defaultParams != null) {
+				value.setValues(this.defaultParams);
+			}
 
             this.namedParams.put(key, value);
         }
@@ -229,27 +233,34 @@ public class GraticuleSupport
             throw new IllegalArgumentException(message);
         }
 
-        if (params.getValue(GraticuleRenderingParams.KEY_DRAW_LINES) == null)
-            params.setValue(GraticuleRenderingParams.KEY_DRAW_LINES, Boolean.TRUE);
+        if (params.getValue(GraticuleRenderingParams.KEY_DRAW_LINES) == null) {
+			params.setValue(GraticuleRenderingParams.KEY_DRAW_LINES, Boolean.TRUE);
+		}
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LINE_COLOR) == null)
-            params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, Color.WHITE);
+        if (params.getValue(GraticuleRenderingParams.KEY_LINE_COLOR) == null) {
+			params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, Color.WHITE);
+		}
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LINE_WIDTH) == null)
-            //noinspection UnnecessaryBoxing
+        if (params.getValue(GraticuleRenderingParams.KEY_LINE_WIDTH) == null) {
+			//noinspection UnnecessaryBoxing
             params.setValue(GraticuleRenderingParams.KEY_LINE_WIDTH, Double.valueOf(1));
+		}
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LINE_STYLE) == null)
-            params.setValue(GraticuleRenderingParams.KEY_LINE_STYLE, GraticuleRenderingParams.VALUE_LINE_STYLE_SOLID);
+        if (params.getValue(GraticuleRenderingParams.KEY_LINE_STYLE) == null) {
+			params.setValue(GraticuleRenderingParams.KEY_LINE_STYLE, GraticuleRenderingParams.VALUE_LINE_STYLE_SOLID);
+		}
 
-        if (params.getValue(GraticuleRenderingParams.KEY_DRAW_LABELS) == null)
-            params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, Boolean.TRUE);
+        if (params.getValue(GraticuleRenderingParams.KEY_DRAW_LABELS) == null) {
+			params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, Boolean.TRUE);
+		}
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_COLOR) == null)
-            params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, Color.WHITE);
+        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_COLOR) == null) {
+			params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, Color.WHITE);
+		}
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT) == null)
-            params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-12"));
+        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT) == null) {
+			params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-12"));
+		}
 
         return params;
     }
@@ -345,8 +356,9 @@ public class GraticuleSupport
 
     private Color applyOpacity(Color color, double opacity)
     {
-        if (opacity >= 1)
-            return color;
+        if (opacity >= 1) {
+			return color;
+		}
 
         float[] compArray = color.getRGBComponents(null);
         return new Color(compArray[0], compArray[1], compArray[2], compArray[3] * (float) opacity);

@@ -132,8 +132,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
 	public String getDataSourceDescription()
     {
         DataRasterReader[] readers = this.getDataRasterReaders();
-        if (readers == null || readers.length < 1)
-            return "";
+        if (readers == null || readers.length < 1) {
+			return "";
+		}
 
         // Collect all the unique format suffixes available in all readers. If a reader does not publish any
         // format suffixes, then collect it's description.
@@ -144,10 +145,11 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
             String description = reader.getDescription();
             String[] names = reader.getSuffixes();
 
-            if (names != null && names.length > 0)
-                suffixSet.addAll(java.util.Arrays.asList(names));
-            else
-                descriptionSet.add(description);
+            if (names != null && names.length > 0) {
+				suffixSet.addAll(java.util.Arrays.asList(names));
+			} else {
+				descriptionSet.add(description);
+			}
         }
 
         // Create a string representation of the format suffixes (or description if no suffixes are available) for
@@ -155,14 +157,16 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         StringBuilder sb = new StringBuilder();
         for (String suffix : suffixSet)
         {
-            if (sb.length() > 0)
-                sb.append(", ");
+            if (sb.length() > 0) {
+				sb.append(", ");
+			}
             sb.append("*.").append(suffix);
         }
         for (String description : descriptionSet)
         {
-            if (sb.length() > 0)
-                sb.append(", ");
+            if (sb.length() > 0) {
+				sb.append(", ");
+			}
             sb.append(description);
         }
         return sb.toString();
@@ -251,19 +255,23 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         StringBuilder sb = new StringBuilder();
 
         Object o = parameters.getValue(AVKey.FILE_STORE_LOCATION);
-        if (o == null || !(o instanceof String) || ((String) o).length() < 1)
-            sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreLocation"));
+        if (o == null || !(o instanceof String) || ((String) o).length() < 1) {
+			sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreLocation"));
+		}
 
         o = parameters.getValue(AVKey.DATA_CACHE_NAME);
-        if (o == null || !(o instanceof String) || ((String) o).length() == 0)
-            sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreFolder"));
+        if (o == null || !(o instanceof String) || ((String) o).length() == 0) {
+			sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreFolder"));
+		}
 
         o = parameters.getValue(AVKey.DATASET_NAME);
-        if (o == null || !(o instanceof String) || ((String) o).length() < 1)
-            sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.datasetName"));
+        if (o == null || !(o instanceof String) || ((String) o).length() < 1) {
+			sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.datasetName"));
+		}
 
-        if (sb.length() == 0)
-            return null;
+        if (sb.length() == 0) {
+			return null;
+		}
 
         return Logging.getMessage("DataStoreProducer.InvalidDataStoreParamters", sb.toString());
     }
@@ -272,12 +280,14 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
     {
         String fileStoreLocation = params.getStringValue(AVKey.FILE_STORE_LOCATION);
         String dataCacheName = params.getStringValue(AVKey.DATA_CACHE_NAME);
-        if (fileStoreLocation == null || dataCacheName == null)
-            return null;
+        if (fileStoreLocation == null || dataCacheName == null) {
+			return null;
+		}
 
         String path = WWIO.appendPathPart(fileStoreLocation, dataCacheName);
-        if (path == null || path.length() == 0)
-            return null;
+        if (path == null || path.length() == 0) {
+			return null;
+		}
 
         return new java.io.File(path);
     }
@@ -300,8 +310,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
             // Compute a sector that bounds the data rasters. Make sure the sector does not exceed the limits of
             // latitude and longitude.
             sector = this.computeBoundingSector(this.dataRasterList);
-            if (sector != null)
-                sector = sector.intersection(Sector.FULL_SPHERE);
+            if (sector != null) {
+				sector = sector.intersection(Sector.FULL_SPHERE);
+			}
             params.setValue(AVKey.SECTOR, sector);
         }
 
@@ -460,10 +471,12 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         for (DataRaster raster : rasters)
         {
             LatLon curSize = this.computeRasterPixelSize(raster);
-            if (smallestLat > curSize.getLatitude().degrees)
-                smallestLat = curSize.getLatitude().degrees;
-            if (smallestLon > curSize.getLongitude().degrees)
-                smallestLon = curSize.getLongitude().degrees;
+            if (smallestLat > curSize.getLatitude().degrees) {
+				smallestLat = curSize.getLatitude().degrees;
+			}
+            if (smallestLon > curSize.getLongitude().degrees) {
+				smallestLon = curSize.getLongitude().degrees;
+			}
         }
         return LatLon.fromDegrees(smallestLat, smallestLon);
     }
@@ -480,8 +493,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         // Compute the maximum number of levels needed, but limit the number of levels to positive integers greater
         // than or equal to one.
         int numLevels = (int) Math.ceil(Math.max(numLatLevels, numLonLevels));
-        if (numLevels < 1)
-            numLevels = 1;
+        if (numLevels < 1) {
+			numLevels = 1;
+		}
 
         return numLevels;
     }
@@ -493,14 +507,16 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
     protected void assembleDataRasters() throws Exception
     {
         // Exit if the caller has instructed us to stop production.
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         for (SourceInfo info : this.getDataSourceList())
         {
             // Exit if the caller has instructed us to stop production.
-            if (this.isStopped())
-                break;
+            if (this.isStopped()) {
+				break;
+			}
 
             Thread.sleep(0);
 
@@ -537,8 +553,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
     protected void installLevelSet(LevelSet levelSet, AVList params) throws java.io.IOException
     {
         // Exit if the caller has instructed us to stop production.
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         // Setup the progress parameters.
         this.calculateTileCount(levelSet, params);
@@ -567,16 +584,18 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
                 {
                     // Exit if the caller has instructed us to stop production.
                     Thread.yield();
-                    if (this.isStopped())
-                        break buildLoop;
+                    if (this.isStopped()) {
+						break buildLoop;
+					}
 
                     Angle t2 = t1.add(dLon);
 
                     Tile tile = new Tile(new Sector(p1, p2, t1, t2), level, row, col);
                     DataRaster tileRaster = this.createTileRaster(levelSet, tile, params);
                     // Write the top-level tile raster to disk.
-                    if (tileRaster != null)
-                        this.installTileRasterLater(levelSet, tile, tileRaster, params);
+                    if (tileRaster != null) {
+						this.installTileRasterLater(levelSet, tile, tileRaster, params);
+					}
 
                     t1 = t2;
                 }
@@ -588,8 +607,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
     protected DataRaster createTileRaster(LevelSet levelSet, Tile tile, AVList params) throws java.io.IOException
     {
         // Exit if the caller has instructed us to stop production.
-        if (this.isStopped())
-            return null;
+        if (this.isStopped()) {
+			return null;
+		}
 
         DataRaster tileRaster;
 
@@ -618,8 +638,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         java.util.ArrayList<DataRaster> intersectingRasters = new java.util.ArrayList<>();
         for (DataRaster raster : dataRasters)
         {
-            if (raster.getSector().intersects(tile.getSector()) && raster.getSector().intersects(levelSet.getSector()))
-                intersectingRasters.add(raster);
+            if (raster.getSector().intersects(tile.getSector()) && raster.getSector().intersects(levelSet.getSector())) {
+				intersectingRasters.add(raster);
+			}
         }
 
         // If any data sources intersect this tile, and the tile's level is not empty, then we attempt to read those
@@ -669,8 +690,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         }
 
         // Exit if the caller has instructed us to stop production.
-        if (this.isStopped())
-            return null;
+        if (this.isStopped()) {
+			return null;
+		}
 
         // If any of the sub-tiles successfully created a data raster, then we potentially create this tile's raster,
         // then write the sub-tiles to disk.
@@ -697,8 +719,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         // Write the sub-rasters to disk.
         for (int index = 0; index < subTiles.length; index++)
         {
-            if (subRasters[index] != null)
-                this.installTileRasterLater(levelSet, subTiles[index], subRasters[index], params);
+            if (subRasters[index] != null) {
+				this.installTileRasterLater(levelSet, subTiles[index], subRasters[index], params);
+			}
         }
 
         return tileRaster;
@@ -728,8 +751,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
 
     protected boolean isFinalLevel(LevelSet levelSet, int levelNumber, AVList params)
     {
-        if (levelSet.isFinalLevel(levelNumber))
-            return true;
+        if (levelSet.isFinalLevel(levelNumber)) {
+			return true;
+		}
 
         int maxNumOfLevels = levelSet.getLastLevel().getLevelNumber();
         int limit = this.extractMaxLevelLimit(params, maxNumOfLevels);
@@ -824,7 +848,7 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
             // This value is irrelevant, as threads only terminated when the executor is shutdown.
             0L, java.util.concurrent.TimeUnit.MILLISECONDS,
             // Provide an unbounded work queue.
-            new java.util.concurrent.LinkedBlockingQueue<Runnable>())
+            new java.util.concurrent.LinkedBlockingQueue<>())
         {
             @Override
 			protected void afterExecute(Runnable runnable, Throwable t)
@@ -849,8 +873,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
             {
                 installTileRaster(tile, tileRaster, params);
                 // Dispose the data raster.
-                if (tileRaster instanceof Disposable)
-                    ((Disposable) tileRaster).dispose();
+                if (tileRaster instanceof Disposable) {
+					tileRaster.dispose();
+				}
             }
             catch (Throwable t)
             {
@@ -943,15 +968,18 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         String path = null;
 
         String s = installParams.getStringValue(AVKey.FILE_STORE_LOCATION);
-        if (s != null)
-            path = WWIO.appendPathPart(path, s);
+        if (s != null) {
+			path = WWIO.appendPathPart(path, s);
+		}
 
         s = tile.getPath();
-        if (s != null)
-            path = WWIO.appendPathPart(path, s);
+        if (s != null) {
+			path = WWIO.appendPathPart(path, s);
+		}
 
-        if (path == null || path.length() < 1)
-            return Logging.getMessage("TiledRasterProducer.InvalidTile", tile);
+        if (path == null || path.length() < 1) {
+			return Logging.getMessage("TiledRasterProducer.InvalidTile", tile);
+		}
 
         return new java.io.File(path);
     }
@@ -961,8 +989,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
     {
         for (DataRasterWriter writer : writers)
         {
-            if (writer.canWrite(raster, formatSuffix, destination))
-                return writer;
+            if (writer.canWrite(raster, formatSuffix, destination)) {
+				return writer;
+			}
         }
 
         // No writer maching this DataRaster/formatSuffix.
@@ -1013,8 +1042,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
         }
 
         // Exit if the caller has instructed us to stop production.
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         File configFile = this.getConfigFileInstallLocation(params);
         if (configFile == null)
@@ -1080,22 +1110,27 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
      */
     protected File getConfigFileInstallLocation(AVList params)
     {
-        if (params == null)
-            return null;
+        if (params == null) {
+			return null;
+		}
 
         String fileStoreLocation = params.getStringValue(AVKey.FILE_STORE_LOCATION);
-        if (fileStoreLocation != null)
-            fileStoreLocation = WWIO.stripTrailingSeparator(fileStoreLocation);
+        if (fileStoreLocation != null) {
+			fileStoreLocation = WWIO.stripTrailingSeparator(fileStoreLocation);
+		}
 
-        if (WWUtil.isEmpty(fileStoreLocation))
-            return null;
+        if (WWUtil.isEmpty(fileStoreLocation)) {
+			return null;
+		}
 
         String cacheName = DataConfigurationUtils.getDataConfigFilename(params, ".xml");
-        if (cacheName != null)
-            cacheName = WWIO.stripLeadingSeparator(cacheName);
+        if (cacheName != null) {
+			cacheName = WWIO.stripLeadingSeparator(cacheName);
+		}
 
-        if (WWUtil.isEmpty(cacheName))
-            return null;
+        if (WWUtil.isEmpty(cacheName)) {
+			return null;
+		}
 
         return new File(fileStoreLocation + File.separator + cacheName);
     }
@@ -1260,8 +1295,9 @@ public abstract class TiledRasterProducer extends AbstractDataStoreProducer
             int lastCol = Tile.computeColumn(dLon, sector.getMaxLongitude(), lonOrigin);
             this.tileCount += (lastRow - firstRow + 1) * (lastCol - firstCol + 1);
 
-            if (this.isFinalLevel(levelSet, level.getLevelNumber(), params))
-                break;
+            if (this.isFinalLevel(levelSet, level.getLevelNumber(), params)) {
+				break;
+			}
         }
     }
 

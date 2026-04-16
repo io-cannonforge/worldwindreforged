@@ -93,14 +93,15 @@ public class ByteBufferRaster extends BufferWrapperRaster
         Object dataType = params.getValue(AVKey.DATA_TYPE);
 
         int sizeOfDataType = 0;
-        if (AVKey.INT8.equals(dataType))
-            sizeOfDataType = (Byte.SIZE / 8);
-        else if (AVKey.INT16.equals(dataType))
-            sizeOfDataType = (Short.SIZE / 8);
-        else if (AVKey.INT32.equals(dataType))
-            sizeOfDataType = (Integer.SIZE / 8);
-        else if (AVKey.FLOAT32.equals(dataType))
-            sizeOfDataType = (Float.SIZE / 8);
+        if (AVKey.INT8.equals(dataType)) {
+			sizeOfDataType = (Byte.SIZE / 8);
+		} else if (AVKey.INT16.equals(dataType)) {
+			sizeOfDataType = (Short.SIZE / 8);
+		} else if (AVKey.INT32.equals(dataType)) {
+			sizeOfDataType = (Integer.SIZE / 8);
+		} else if (AVKey.FLOAT32.equals(dataType)) {
+			sizeOfDataType = (Float.SIZE / 8);
+		}
 
         int sizeInBytes = sizeOfDataType * width * height;
         return java.nio.ByteBuffer.allocate(sizeInBytes);

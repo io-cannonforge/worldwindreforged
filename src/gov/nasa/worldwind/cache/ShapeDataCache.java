@@ -144,8 +144,9 @@ public class ShapeDataCache implements Iterable<ShapeDataCache.ShapeDataCacheEnt
          */
         public void adjustTimer(DrawContext dc, double newEyeDistance)
         {
-            if ((this.timerAdjustedEyeDistance == 0) || this.timer.isExpired(dc)) // do nothing, the timer has already expired
-                return;
+            if ((this.timerAdjustedEyeDistance == 0) || this.timer.isExpired(dc)) { // do nothing, the timer has already expired
+				return;
+			}
 
             double oldPixelSize = dc.getView().computePixelSizeAtDistance(this.timerAdjustedEyeDistance);
             double newPixelSize = dc.getView().computePixelSizeAtDistance(newEyeDistance);
@@ -285,8 +286,9 @@ public class ShapeDataCache implements Iterable<ShapeDataCache.ShapeDataCacheEnt
      */
     public void addEntry(ShapeDataCacheEntry entry)
     {
-        if (entry == null)
-            return;
+        if (entry == null) {
+			return;
+		}
 
         this.entries.put(entry.globeStateKey, entry);
         entry.lastUsed = System.currentTimeMillis();
@@ -307,12 +309,14 @@ public class ShapeDataCache implements Iterable<ShapeDataCache.ShapeDataCacheEnt
         long now = System.currentTimeMillis();
 //        this.removeDeadEntries(now);
 
-        if (globe == null)
-            return null;
+        if (globe == null) {
+			return null;
+		}
 
         ShapeDataCacheEntry entry = this.entries.get(globe.getGlobeStateKey());
-        if (entry != null)
-            entry.lastUsed = now;
+        if (entry != null) {
+			entry.lastUsed = now;
+		}
 
         return entry;
     }

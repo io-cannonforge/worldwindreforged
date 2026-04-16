@@ -76,9 +76,11 @@ public class ScalebarHint
     {
         this.wwd = worldWindow;
         // Enable picking on the scalebar layer
-        for (Layer l : this.wwd.getModel().getLayers())
-            if (l instanceof ScalebarLayer)
-                l.setPickEnabled(true);
+        for (Layer l : this.wwd.getModel().getLayers()) {
+			if (l instanceof ScalebarLayer) {
+				l.setPickEnabled(true);
+			}
+		}
         // Add our layer
         this.wwd.getModel().getLayers().add(this.layer);
 
@@ -94,8 +96,9 @@ public class ScalebarHint
                     return;
                 }
 
-                if (!event.getEventAction().equals(SelectEvent.ROLLOVER))
-                    return;
+                if (!event.getEventAction().equals(SelectEvent.ROLLOVER)) {
+					return;
+				}
 
                 marker.setPosition(event.getTopPickedObject().getPosition());
                 layer.setEnabled(true);

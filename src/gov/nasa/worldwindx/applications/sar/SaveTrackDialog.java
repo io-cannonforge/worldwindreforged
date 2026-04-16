@@ -62,12 +62,14 @@ public class SaveTrackDialog
     public File getSelectedFile()
     {
         File file = this.fileChooser.getSelectedFile();
-        if (file == null)
-            return null;
+        if (file == null) {
+			return null;
+		}
 
         SaveTrackFilter filter = this.getSelectedSaveFilter();
-        if (filter != null)
-            file = filter.appendSuffix(file);
+        if (filter != null) {
+			file = filter.appendSuffix(file);
+		}
 
         return file;
     }
@@ -81,10 +83,11 @@ public class SaveTrackDialog
     {
         if (track != null)
         {
-            if (track.getFile() != null)
-                this.fileChooser.setSelectedFile(track.getFile());
-            else if (track.getName() != null && this.fileChooser.getCurrentDirectory() != null)
-                this.fileChooser.setSelectedFile(new File(this.fileChooser.getCurrentDirectory(), track.getName()));
+            if (track.getFile() != null) {
+				this.fileChooser.setSelectedFile(track.getFile());
+			} else if (track.getName() != null && this.fileChooser.getCurrentDirectory() != null) {
+				this.fileChooser.setSelectedFile(new File(this.fileChooser.getCurrentDirectory(), track.getName()));
+			}
         }
     }
 
@@ -113,8 +116,9 @@ public class SaveTrackDialog
     public void setFileFormat(int format)
     {
         FileFilter ff = filterForFormat(format);
-        if (ff != null)
-            this.fileChooser.setFileFilter(ff);
+        if (ff != null) {
+			this.fileChooser.setFileFilter(ff);
+		}
     }
 
     public void setFileFormat(SARTrack track)
@@ -122,10 +126,12 @@ public class SaveTrackDialog
         if (track != null)
         {
             FileFilter ff = filterForFormat(track.getFormat());
-            if (ff == null) // If the track format is invalid, default to CSV.
-                ff = filterForFormat(SARTrack.FORMAT_CSV);
-            if (ff != null)
-                this.fileChooser.setFileFilter(ff);
+            if (ff == null) { // If the track format is invalid, default to CSV.
+				ff = filterForFormat(SARTrack.FORMAT_CSV);
+			}
+            if (ff != null) {
+				this.fileChooser.setFileFilter(ff);
+			}
         }
     }
 
@@ -153,13 +159,15 @@ public class SaveTrackDialog
     {
         String title = null;
         String formatString = "Save \"%s\" As";
-        if (track.getName() != null)
-            title = String.format(formatString, track.getName());
-        else if (track.getFile() != null)
-            title = String.format(formatString, track.getFile().getName());
+        if (track.getName() != null) {
+			title = String.format(formatString, track.getName());
+		} else if (track.getFile() != null) {
+			title = String.format(formatString, track.getFile().getName());
+		}
 
-        if (title != null)
-            this.fileChooser.setDialogTitle(title);
+        if (title != null) {
+			this.fileChooser.setDialogTitle(title);
+		}
     }
 
     public int showSaveDialog(Component parent) throws HeadlessException
@@ -169,16 +177,18 @@ public class SaveTrackDialog
 
     public static int showSaveChangesPrompt(Component parent, String title, String message, SARTrack track)
     {
-        if (title == null)
-            title = "Save";
+        if (title == null) {
+			title = "Save";
+		}
 
         String formatString = "Save changes to the Track\n\"%s\" before closing?";
         if (message == null)
         {
-            if (track != null && track.getName() != null)
-                message = String.format(formatString, track.getName());
-            else if (track != null && track.getFile() != null)
-                message = String.format(formatString, track.getFile().getName());
+            if (track != null && track.getName() != null) {
+				message = String.format(formatString, track.getName());
+			} else if (track != null && track.getFile() != null) {
+				message = String.format(formatString, track.getFile().getName());
+			}
         }
 
         return JOptionPane.showOptionDialog(
@@ -194,15 +204,17 @@ public class SaveTrackDialog
 
     public static int showOverwritePrompt(Component parent, String title, String message, File file)
     {
-        if (title == null)
-            title = "Save";
+        if (title == null) {
+			title = "Save";
+		}
 
         if (message == null)
         {
-            if (file != null)
-                message = String.format("Overwrite existing file\n\"%s\"?", file.getPath());
-            else
-                message = "Overwrite existing file?";
+            if (file != null) {
+				message = String.format("Overwrite existing file\n\"%s\"?", file.getPath());
+			} else {
+				message = "Overwrite existing file?";
+			}
         }
 
         return JOptionPane.showOptionDialog(
@@ -224,8 +236,9 @@ public class SaveTrackDialog
             @Override
 			public void approveSelection()
             {
-                if (doApproveSelection())
-                    super.approveSelection();
+                if (doApproveSelection()) {
+					super.approveSelection();
+				}
             }
         };
         this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -240,8 +253,9 @@ public class SaveTrackDialog
         if (f != null && f.exists())
         {
             int state = showOverwritePrompt(this.fileChooser, null, null, f);
-            if (state != JOptionPane.YES_OPTION)
-                return false;
+            if (state != JOptionPane.YES_OPTION) {
+				return false;
+			}
         }
 
         return true;

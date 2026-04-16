@@ -93,8 +93,9 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
         }
 
         // Clear the texture cache
-        if (this.getGpuResourceCache() != null)
-            this.getGpuResourceCache().clear();
+        if (this.getGpuResourceCache() != null) {
+			this.getGpuResourceCache().clear();
+		}
 
         // Dispose all the layers //  TODO: Need per-window dispose for layers
         if (this.getModel() != null && this.getModel().getLayers() != null)
@@ -114,8 +115,9 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
         }
 
         SceneController sc = this.getSceneController();
-        if (sc != null)
-            sc.dispose();
+        if (sc != null) {
+			sc.dispose();
+		}
     }
 
     @Override
@@ -134,8 +136,9 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
     public void setModel(Model model)
     {
         // model can be null, that's ok - it indicates no model.
-        if (this.sceneController != null)
-            this.sceneController.setModel(model);
+        if (this.sceneController != null) {
+			this.sceneController.setModel(model);
+		}
     }
 
     @Override
@@ -148,8 +151,9 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
     public void setView(View view)
     {
         // view can be null, that's ok - it indicates no view.
-        if (this.sceneController != null)
-            this.sceneController.setView(view);
+        if (this.sceneController != null) {
+			this.sceneController.setView(view);
+		}
     }
 
     @Override
@@ -207,15 +211,17 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
     @Override
     public void setPerFrameStatisticsKeys(Set<String> keys)
     {
-        if (this.sceneController != null)
-            this.sceneController.setPerFrameStatisticsKeys(keys);
+        if (this.sceneController != null) {
+			this.sceneController.setPerFrameStatisticsKeys(keys);
+		}
     }
 
     @Override
     public Collection<PerformanceStatistic> getPerFrameStatistics()
     {
-        if (this.sceneController == null || this.sceneController.getPerFrameStatistics() == null)
-            return new ArrayList<>(0);
+        if (this.sceneController == null || this.sceneController.getPerFrameStatistics() == null) {
+			return new ArrayList<>(0);
+		}
 
         return this.sceneController.getPerFrameStatistics();
     }
@@ -235,31 +241,36 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
     @Override
     public Position getCurrentPosition()
     {
-        if (this.sceneController == null)
-            return null;
+        if (this.sceneController == null) {
+			return null;
+		}
 
         PickedObjectList pol = this.getSceneController().getPickedObjectList();
-        if (pol == null || pol.size() < 1)
-            return null;
+        if (pol == null || pol.size() < 1) {
+			return null;
+		}
 
         Position p = null;
         PickedObject top = pol.getTopPickedObject();
-        if (top != null && top.hasPosition())
-            p = top.getPosition();
-        else if (pol.getTerrainObject() != null)
-            p = pol.getTerrainObject().getPosition();
+        if (top != null && top.hasPosition()) {
+			p = top.getPosition();
+		} else if (pol.getTerrainObject() != null) {
+			p = pol.getTerrainObject().getPosition();
+		}
 
         return p;
     }
 
     protected PickedObject getCurrentSelection()
     {
-        if (this.sceneController == null)
-            return null;
+        if (this.sceneController == null) {
+			return null;
+		}
 
         PickedObjectList pol = this.getSceneController().getPickedObjectList();
-        if (pol == null || pol.size() < 1)
-            return null;
+        if (pol == null || pol.size() < 1) {
+			return null;
+		}
 
         PickedObject top = pol.getTopPickedObject();
         return top.isTerrain() ? null : top;
@@ -267,8 +278,9 @@ public abstract class WorldWindowImpl extends WWObjectImpl implements WorldWindo
 
     protected PickedObjectList getCurrentBoxSelection()
     {
-        if (this.sceneController == null)
-            return null;
+        if (this.sceneController == null) {
+			return null;
+		}
 
         PickedObjectList pol = this.sceneController.getObjectsInPickRectangle();
         return pol != null && pol.size() > 0 ? pol : null;

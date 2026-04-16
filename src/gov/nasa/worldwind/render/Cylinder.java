@@ -236,8 +236,9 @@ public class Cylinder extends RigidShape
             for (int divisions = minDivisions; divisions <= maxDivisions; divisions++)
             {
                 this.subdivisions = divisions;
-                if (this.sufficientDetail(dc, divisions, shapeData))
-                    break;
+                if (this.sufficientDetail(dc, divisions, shapeData)) {
+					break;
+				}
             }
         }
     }
@@ -257,12 +258,14 @@ public class Cylinder extends RigidShape
             throw new IllegalArgumentException(message);
         }
 
-        if (shapeData == null)
-            return false;
+        if (shapeData == null) {
+			return false;
+		}
 
         Extent extent = shapeData.getExtent();
-        if (extent == null)
-            return true;
+        if (extent == null) {
+			return true;
+		}
 
         double thresholdDensity = this.computeDetailThreshold();
 
@@ -281,8 +284,9 @@ public class Cylinder extends RigidShape
         // check if current LOD is sufficient
         int oldDivisions = this.subdivisions;
         computeSubdivisions(dc, this.getCurrentShapeData());
-        if (oldDivisions != this.subdivisions)
-            return true;
+        if (oldDivisions != this.subdivisions) {
+			return true;
+		}
 
         return super.mustRegenerateGeometry(dc);
     }
@@ -309,8 +313,9 @@ public class Cylinder extends RigidShape
             makeUnitCylinder(this.subdivisions, shapeData.getMeshes());
             for (int piece = 0; piece < getFaceCount(); piece++)
             {
-                if (offsets.get(piece) == null)  // if texture offsets don't exist, set default values to 0
-                    offsets.put(piece, new OffsetsList());
+                if (offsets.get(piece) == null) { // if texture offsets don't exist, set default values to 0
+					offsets.put(piece, new OffsetsList());
+				}
                 // add the new mesh pieces to the cache
                 cacheKey = new Geometry.CacheKey(this.getClass(), "Cylinder" + piece, this.subdivisions);
                 this.getGeometryCache().add(cacheKey, shapeData.getMesh(piece));
@@ -321,8 +326,9 @@ public class Cylinder extends RigidShape
             // otherwise, just use the one from the cache
             for (int piece = 0; piece < getFaceCount(); piece++)
             {
-                if (offsets.get(piece) == null)  // if texture offsets don't exist, set default values to 0
-                    offsets.put(piece, new OffsetsList());
+                if (offsets.get(piece) == null) { // if texture offsets don't exist, set default values to 0
+					offsets.put(piece, new OffsetsList());
+				}
                 cacheKey = new Geometry.CacheKey(this.getClass(), "Cylinder" + piece, this.subdivisions);
                 geom = (Geometry) this.getGeometryCache().getObject(cacheKey);
                 shapeData.addMesh(piece, geom);
@@ -384,10 +390,11 @@ public class Cylinder extends RigidShape
                 gb.tessellateCylinderBuffer(face, radius, subdivisions);
 
             FloatBuffer normalBuffer = Buffers.newDirectFloatBuffer(3 * itb.getVertexCount());
-            if (face == 0 || face == 1)   // Cylinder top or bottom
-                gb.makeIndexedTriangleBufferNormals(itb, normalBuffer);
-            else    // round Cylinder core
-                gb.makeCylinderNormals(itb, normalBuffer);
+            if (face == 0 || face == 1) { // Cylinder top or bottom
+				gb.makeIndexedTriangleBufferNormals(itb, normalBuffer);
+			} else { // round Cylinder core
+				gb.makeCylinderNormals(itb, normalBuffer);
+			}
 
             FloatBuffer textureCoordBuffer = Buffers.newDirectFloatBuffer(2 * itb.getVertexCount());
             gb.makeUnitCylinderTextureCoordinates(face, textureCoordBuffer, subdivisions);
@@ -504,8 +511,9 @@ public class Cylinder extends RigidShape
             if (mustApplyLighting(dc, null))
             {
                 // re-enable normals if we temporarily turned them off earlier
-                if (normalBuffer == null)
-                    gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+                if (normalBuffer == null) {
+					gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+				}
             }
             // this.logGeometryStatistics(dc, geom);
         }

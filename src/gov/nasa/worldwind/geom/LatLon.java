@@ -234,8 +234,9 @@ public class LatLon
             throw new IllegalArgumentException(message);
         }
 
-        if (LatLon.equals(value1, value2))
-            return value1;
+        if (LatLon.equals(value1, value2)) {
+			return value1;
+		}
 
         Line line;
         try
@@ -280,8 +281,9 @@ public class LatLon
             throw new IllegalArgumentException(message);
         }
 
-        if (LatLon.equals(value1, value2))
-            return value1;
+        if (LatLon.equals(value1, value2)) {
+			return value1;
+		}
 
         double t = WWMath.clamp(amount, 0d, 1d);
         Angle azimuth = LatLon.greatCircleAzimuth(value1, value2);
@@ -316,8 +318,9 @@ public class LatLon
             throw new IllegalArgumentException(message);
         }
 
-        if (LatLon.equals(value1, value2))
-            return value1;
+        if (LatLon.equals(value1, value2)) {
+			return value1;
+		}
 
         double t = WWMath.clamp(amount, 0d, 1d);
         Angle azimuth = LatLon.rhumbAzimuth(value1, value2);
@@ -401,8 +404,9 @@ public class LatLon
         double lat2 = p2.getLatitude().radians;
         double lon2 = p2.getLongitude().radians;
 
-        if (lat1 == lat2 && lon1 == lon2)
-            return Angle.ZERO;
+        if (lat1 == lat2 && lon1 == lon2) {
+			return Angle.ZERO;
+		}
 
         // "Haversine formula," taken from http://en.wikipedia.org/wiki/Great-circle_distance#Formul.C3.A6
         double a = Math.sin((lat2 - lat1) / 2.0);
@@ -438,11 +442,13 @@ public class LatLon
         double lat2 = p2.getLatitude().radians;
         double lon2 = p2.getLongitude().radians;
 
-        if (lat1 == lat2 && lon1 == lon2)
-            return Angle.ZERO;
+        if (lat1 == lat2 && lon1 == lon2) {
+			return Angle.ZERO;
+		}
 
-        if (lon1 == lon2)
-            return lat1 > lat2 ? Angle.POS180 : Angle.ZERO;
+        if (lon1 == lon2) {
+			return lat1 > lat2 ? Angle.POS180 : Angle.ZERO;
+		}
 
         // Taken from "Map Projections - A Working Manual", page 30, equation 5-4b.
         // The atan2() function is used in place of the traditional atan(y/x) to simplify the case when x==0.
@@ -483,8 +489,9 @@ public class LatLon
         double azimuth = greatCircleAzimuth.radians;
         double distance = pathLength.radians;
 
-        if (distance == 0)
-            return p;
+        if (distance == 0) {
+			return p;
+		}
 
         // Taken from "Map Projections - A Working Manual", page 31, equation 5-5 and 5-6.
         double endLatRadians = Math.asin(Math.sin(lat) * Math.cos(distance)
@@ -493,8 +500,9 @@ public class LatLon
             Math.sin(distance) * Math.sin(azimuth),
             Math.cos(lat) * Math.cos(distance) - Math.sin(lat) * Math.sin(distance) * Math.cos(azimuth));
 
-        if (Double.isNaN(endLatRadians) || Double.isNaN(endLonRadians))
-            return p;
+        if (Double.isNaN(endLatRadians) || Double.isNaN(endLonRadians)) {
+			return p;
+		}
 
         return new LatLon(
             Angle.fromRadians(endLatRadians).normalizedLatitude(),
@@ -703,13 +711,16 @@ public class LatLon
             if (lastLocation != null)
             {
                 LatLon[] extremes = LatLon.greatCircleArcExtremeLocations(lastLocation, ll);
-                if (extremes == null)
-                    continue;
+                if (extremes == null) {
+					continue;
+				}
 
-                if (minLatLocation == null || minLatLocation.getLatitude().degrees > extremes[0].getLatitude().degrees)
-                    minLatLocation = extremes[0];
-                if (maxLatLocation == null || maxLatLocation.getLatitude().degrees < extremes[1].getLatitude().degrees)
-                    maxLatLocation = extremes[1];
+                if (minLatLocation == null || minLatLocation.getLatitude().degrees > extremes[0].getLatitude().degrees) {
+					minLatLocation = extremes[0];
+				}
+                if (maxLatLocation == null || maxLatLocation.getLatitude().degrees < extremes[1].getLatitude().degrees) {
+					maxLatLocation = extremes[1];
+				}
             }
 
             lastLocation = ll;
@@ -745,8 +756,9 @@ public class LatLon
         double lat2 = p2.getLatitude().radians;
         double lon2 = p2.getLongitude().radians;
 
-        if (lat1 == lat2 && lon1 == lon2)
-            return Angle.ZERO;
+        if (lat1 == lat2 && lon1 == lon2) {
+			return Angle.ZERO;
+		}
 
         // Taken from http://www.movable-type.co.uk/scripts/latlong.html
         double dLat = lat2 - lat1;
@@ -798,8 +810,9 @@ public class LatLon
         double lat2 = p2.getLatitude().radians;
         double lon2 = p2.getLongitude().radians;
 
-        if (lat1 == lat2 && lon1 == lon2)
-            return Angle.ZERO;
+        if (lat1 == lat2 && lon1 == lon2) {
+			return Angle.ZERO;
+		}
 
         // Taken from http://www.movable-type.co.uk/scripts/latlong.html
         double dLon = lon2 - lon1;
@@ -845,8 +858,9 @@ public class LatLon
         double azimuth = rhumbAzimuth.radians;
         double distance = pathLength.radians;
 
-        if (distance == 0)
-            return p;
+        if (distance == 0) {
+			return p;
+		}
 
         // Taken from http://www.movable-type.co.uk/scripts/latlong.html
         double dLat = distance * Math.cos(azimuth);
@@ -870,8 +884,9 @@ public class LatLon
         }
         double lon2 = (lon1 + dLon + Math.PI) % (2 * Math.PI) - Math.PI;
 
-        if (Double.isNaN(lat2) || Double.isNaN(lon2))
-            return p;
+        if (Double.isNaN(lat2) || Double.isNaN(lon2)) {
+			return p;
+		}
 
         return new LatLon(
             Angle.fromRadians(lat2).normalizedLatitude(),
@@ -927,8 +942,9 @@ public class LatLon
         double lat2 = p2.getLatitude().radians;
         double lon2 = p2.getLongitude().radians;
 
-        if (lat1 == lat2 && lon1 == lon2)
-            return Angle.ZERO;
+        if (lat1 == lat2 && lon1 == lon2) {
+			return Angle.ZERO;
+		}
 
         double dLat = lat2 - lat1;
         double dLon = lon2 - lon1;
@@ -966,8 +982,9 @@ public class LatLon
         double lat2 = p2.getLatitude().radians;
         double lon2 = p2.getLongitude().radians;
 
-        if (lat1 == lat2 && lon1 == lon2)
-            return Angle.ZERO;
+        if (lat1 == lat2 && lon1 == lon2) {
+			return Angle.ZERO;
+		}
 
         double dLon = lon2 - lon1;
         double dLat = lat2 - lat1;
@@ -1013,8 +1030,9 @@ public class LatLon
         double azimuth = linearAzimuth.radians;
         double distance = pathLength.radians;
 
-        if (distance == 0)
-            return p;
+        if (distance == 0) {
+			return p;
+		}
 
         double lat2 = lat1 + distance * Math.cos(azimuth);
 
@@ -1025,8 +1043,9 @@ public class LatLon
         }
         double lon2 = (lon1 + distance * Math.sin(azimuth) + Math.PI) % (2 * Math.PI) - Math.PI;
 
-        if (Double.isNaN(lat2) || Double.isNaN(lon2))
-            return p;
+        if (Double.isNaN(lat2) || Double.isNaN(lon2)) {
+			return p;
+		}
 
         return new LatLon(
             Angle.fromRadians(lat2).normalizedLatitude(),
@@ -1145,8 +1164,9 @@ public class LatLon
         for (LatLon location : locations)
         {
             double lon = location.getLongitude().radians;
-            if (lon < 0)
-                lon += 2 * Math.PI;
+            if (lon < 0) {
+				lon += 2 * Math.PI;
+			}
             longitude += lon;
 
             latitude += location.getLatitude().radians;
@@ -1160,8 +1180,9 @@ public class LatLon
             longitude /= count;
         }
 
-        if (longitude > Math.PI)
-            longitude -= 2 * Math.PI;
+        if (longitude > Math.PI) {
+			longitude -= 2 * Math.PI;
+		}
 
         return LatLon.fromRadians(latitude, longitude);
     }
@@ -1277,7 +1298,9 @@ public class LatLon
         LatLon pos = null;
         for (LatLon posNext : locations)
         {
-        	if (posNext == null) break;
+        	if (posNext == null) {
+				break;
+			}
             if (pos != null)
             {
                 // A segment cross the line if end pos have different longitude signs
@@ -1285,8 +1308,9 @@ public class LatLon
                 if (Math.signum(pos.getLongitude().degrees) != Math.signum(posNext.getLongitude().degrees))
                 {
                     double delta = Math.abs(pos.getLongitude().degrees - posNext.getLongitude().degrees);
-                    if (delta > 180 && delta < 360)
-                        return true;
+                    if (delta > 180 && delta < 360) {
+						return true;
+					}
                 }
             }
             pos = posNext;
@@ -1309,8 +1333,9 @@ public class LatLon
         if (Math.signum(p1.getLongitude().degrees) != Math.signum(p2.getLongitude().degrees))
         {
             double delta = Math.abs(p1.getLongitude().degrees - p2.getLongitude().degrees);
-            if (delta > 180 && delta < 360)
-                return true;
+            if (delta > 180 && delta < 360) {
+				return true;
+			}
         }
 
         return false;
@@ -1349,40 +1374,47 @@ public class LatLon
         LatLon prev = null;
         for (LatLon ll : locations)
         {
-            if (first == null)
-                first = ll;
+            if (first == null) {
+				first = ll;
+			}
 
-            if (prev != null && LatLon.locationsCrossDateline(prev, ll))
-                containsPole = !containsPole;
+            if (prev != null && LatLon.locationsCrossDateline(prev, ll)) {
+				containsPole = !containsPole;
+			}
 
-            if (ll.latitude.degrees < minLatitude)
-                minLatitude = ll.latitude.degrees;
+            if (ll.latitude.degrees < minLatitude) {
+				minLatitude = ll.latitude.degrees;
+			}
 
-            if (ll.latitude.degrees > maxLatitude)
-                maxLatitude = ll.latitude.degrees;
+            if (ll.latitude.degrees > maxLatitude) {
+				maxLatitude = ll.latitude.degrees;
+			}
 
             prev = ll;
         }
 
         // Close the loop by connecting the last position to the first. If the loop is already closed then the following
         // test will always fail, and will not affect the result.
-        if (first != null && LatLon.locationsCrossDateline(first, prev))
-            containsPole = !containsPole;
+        if (first != null && LatLon.locationsCrossDateline(first, prev)) {
+			containsPole = !containsPole;
+		}
 
-        if (!containsPole)
-            return null;
+        if (!containsPole) {
+			return null;
+		}
 
         // Determine which pole is enclosed. If the shape is entirely in one hemisphere, then assume that it encloses
         // the pole in that hemisphere. Otherwise, assume that it encloses the pole that is closest to the shape's
         // extreme latitude.
-        if (minLatitude > 0)
-            return AVKey.NORTH; // Entirely in Northern Hemisphere
-        else if (maxLatitude < 0)
-            return AVKey.SOUTH; // Entirely in Southern Hemisphere
-        else if (Math.abs(maxLatitude) >= Math.abs(minLatitude))
-            return AVKey.NORTH; // Spans equator, but more north than south
-        else
-            return AVKey.SOUTH;
+        if (minLatitude > 0) {
+			return AVKey.NORTH; // Entirely in Northern Hemisphere
+		} else if (maxLatitude < 0) {
+			return AVKey.SOUTH; // Entirely in Southern Hemisphere
+		} else if (Math.abs(maxLatitude) >= Math.abs(minLatitude)) {
+			return AVKey.NORTH; // Spans equator, but more north than south
+		} else {
+			return AVKey.SOUTH;
+		}
     }
 
     /**
@@ -1418,8 +1450,9 @@ public class LatLon
         {
             if (prev != null && LatLon.locationsCrossDateline(prev, cur))
             {
-                if (lonOffset == 0)
-                    lonOffset = (prev.longitude.degrees < 0 ? -360 : 360);
+                if (lonOffset == 0) {
+					lonOffset = (prev.longitude.degrees < 0 ? -360 : 360);
+				}
 
                 applyLonOffset = !applyLonOffset;
             }
@@ -1542,15 +1575,17 @@ public class LatLon
         }
 
         var iter = locations.iterator();
-        if (!iter.hasNext())
-            return Collections.emptyList();
+        if (!iter.hasNext()) {
+			return Collections.emptyList();
+		}
 
         ArrayList<LatLon> newLocations = new ArrayList<>();
 
         for (LatLon location : locations)
         {
-            if (location == null)
-                continue;
+            if (location == null) {
+				continue;
+			}
 
             if (location.getLongitude().degrees < 0)
             {
@@ -1613,8 +1648,9 @@ public class LatLon
         Plane plane = Plane.fromPoints(northPole, pointOnEquator, Vec4.ZERO);
 
         Vec4 intersectionPoint = plane.intersect(Line.fromSegment(pt1, pt2));
-        if (intersectionPoint == null)
-            return null;
+        if (intersectionPoint == null) {
+			return null;
+		}
 
         Position intersectionPos = globe.computePositionFromPoint(intersectionPoint);
 
@@ -1654,8 +1690,9 @@ public class LatLon
         // y = mx + b case after normalizing negative angles.
         double lon1 = p1.getLongitude().degrees < 0 ? p1.getLongitude().degrees + 360 : p1.getLongitude().degrees;
         double lon2 = p2.getLongitude().degrees < 0 ? p2.getLongitude().degrees + 360 : p2.getLongitude().degrees;
-        if (lon1 == lon2)
-            return null;
+        if (lon1 == lon2) {
+			return null;
+		}
 
         double med = meridian.degrees < 0 ? meridian.degrees + 360 : meridian.degrees;
         double slope = (p2.latitude.degrees - p1.latitude.degrees) / (lon2 - lon1);
@@ -1699,16 +1736,19 @@ public class LatLon
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final gov.nasa.worldwind.geom.LatLon latLon = (gov.nasa.worldwind.geom.LatLon) o;
 
         //noinspection RedundantIfStatement
-        if (!latitude.equals(latLon.latitude) || !longitude.equals(latLon.longitude))
-            return false;
+        if (!latitude.equals(latLon.latitude) || !longitude.equals(latLon.longitude)) {
+			return false;
+		}
 
         return true;
     }

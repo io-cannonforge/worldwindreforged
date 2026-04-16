@@ -451,16 +451,18 @@ public class SurfaceObjectTileBuilder
         this.currentSurfaceObjects.clear();
         this.currentInfo.tiles.clear();
 
-        if (iterable == null)
-            return;
+        if (iterable == null) {
+			return;
+		}
 
         // Assemble the list of current surface renderables from the specified iterable.
         this.assembleSurfaceObjects(iterable);
 
         // We've cleared any tile assembly state from the last rendering pass. Determine if we can assemble and update
         // the tiles. If not, we're done.
-        if (this.currentSurfaceObjects.isEmpty() || !this.canAssembleTiles(dc))
-            return;
+        if (this.currentSurfaceObjects.isEmpty() || !this.canAssembleTiles(dc)) {
+			return;
+		}
 
         // Assemble the current visible tiles and update their associated textures if necessary.
         this.assembleTiles(dc);
@@ -563,8 +565,9 @@ public class SurfaceObjectTileBuilder
      */
     protected void updateTiles(DrawContext dc)
     {
-        if (this.currentInfo.tiles.isEmpty())
-            return;
+        if (this.currentInfo.tiles.isEmpty()) {
+			return;
+		}
 
         // The tile drawing rectangle has the same dimension as the current tile viewport, but it's lower left corner
         // is placed at the origin. This is because the orthographic projection setup by OGLRenderToTextureSupport
@@ -622,8 +625,9 @@ public class SurfaceObjectTileBuilder
         if (!this.isForceTileUpdates())
         {
             Object tileStateKey = tile.getStateKey(dc);
-            if (texture != null && tileStateKey.equals(tile.lastUpdateStateKey))
-                return;
+            if (texture != null && tileStateKey.equals(tile.lastUpdateStateKey)) {
+				return;
+			}
 
             // If the tile needs to be updated, then assign its lastUpdateStateKey before its texture is created. This
             // ensures that the lastUpdateStateKey is current when the tile is added to the cache.
@@ -692,12 +696,14 @@ public class SurfaceObjectTileBuilder
     protected Texture createTileTexture(DrawContext dc, int width, int height)
     {
         int internalFormat = this.tileTextureFormat;
-        if (internalFormat == 0)
-            internalFormat = DEFAULT_TEXTURE_INTERNAL_FORMAT;
+        if (internalFormat == 0) {
+			internalFormat = DEFAULT_TEXTURE_INTERNAL_FORMAT;
+		}
 
         int pixelFormat = OGLUtil.computeTexturePixelFormat(internalFormat);
-        if (pixelFormat == 0)
-            pixelFormat = DEFAULT_TEXTURE_PIXEL_FORMAT;
+        if (pixelFormat == 0) {
+			pixelFormat = DEFAULT_TEXTURE_PIXEL_FORMAT;
+		}
 
         Texture t;
         GL gl = dc.getGL();
@@ -723,8 +729,9 @@ public class SurfaceObjectTileBuilder
             {
                 int sizeInBytes = OGLUtil.estimateTextureMemorySize(this.getInternalFormat(), this.getWidth(),
                     this.getHeight(), this.getMipmap());
-                if (sizeInBytes > 0)
-                    return sizeInBytes;
+                if (sizeInBytes > 0) {
+					return sizeInBytes;
+				}
 
                 return super.getEstimatedMemorySize();
             }
@@ -779,8 +786,9 @@ public class SurfaceObjectTileBuilder
         // Gather up all the SurfaceRenderables, ignoring null references and non SurfaceRenderables.
         for (Object o : iterable)
         {
-            if (o instanceof SurfaceRenderable)
-                this.currentSurfaceObjects.add((SurfaceRenderable) o);
+            if (o instanceof SurfaceRenderable) {
+				this.currentSurfaceObjects.add((SurfaceRenderable) o);
+			}
         }
     }
 
@@ -911,8 +919,9 @@ public class SurfaceObjectTileBuilder
         for (SurfaceRenderable so : this.currentSurfaceObjects)
         {
             List<Sector> sectors = so.getSectors(dc);
-            if (sectors == null)
-                continue;
+            if (sectors == null) {
+				continue;
+			}
 
             for (Sector s : sectors)
             {
@@ -940,8 +949,9 @@ public class SurfaceObjectTileBuilder
 
                         // Ignore this tile if the surface renderable has already been added to it. This handles
                         // dateline spanning surface renderables which have two sectors that share a common boundary.
-                        if (intersectingTileKeys.contains(tileKey))
-                            continue;
+                        if (intersectingTileKeys.contains(tileKey)) {
+							continue;
+						}
 
                         SurfaceObjectTile tile = (SurfaceObjectTile) TextureTile.getMemoryCache().getObject(tileKey);
                         if (tile == null)
@@ -999,12 +1009,14 @@ public class SurfaceObjectTileBuilder
         }
 
         // If the parent tile is not null, add any parent surface renderables that intersect this tile.
-        if (parent != null)
-            this.addIntersectingObjects(dc, parent, tile);
+        if (parent != null) {
+			this.addIntersectingObjects(dc, parent, tile);
+		}
 
         // Ignore tiles that do not intersect any surface renderables.
-        if (!tile.hasObjects())
-            return;
+        if (!tile.hasObjects()) {
+			return;
+		}
 
         // If this tile meets the current rendering criteria, add it to the current tile list. This tile's object list
         // is cleared after the tile update operation.
@@ -1039,8 +1051,9 @@ public class SurfaceObjectTileBuilder
         // If the parent has no objects, then there's nothing to add to this tile and we exit immediately.
         // If this tile does not intersect the parent's object bounding sector, then none of the parent's objects
         // intersect this tile. Therefore we exit immediately, and do not add any objects to this tile.
-        if (!parent.hasObjects() || !tile.getSector().intersects(parent.getObjectSector()))
-            return;
+        if (!parent.hasObjects() || !tile.getSector().intersects(parent.getObjectSector())) {
+			return;
+		}
 
         // If this tile contains the parent's object bounding sector, then all of the parent's objects intersect this
         // tile. Therefore we just add all of the parent's objects to this tile. Additionally, the parent's object
@@ -1056,8 +1069,9 @@ public class SurfaceObjectTileBuilder
             for (SurfaceRenderable so : parent.getObjectList())
             {
                 List<Sector> sectors = so.getSectors(dc);
-                if (sectors == null)
-                    continue;
+                if (sectors == null) {
+					continue;
+				}
 
                 // Test intersection against each of the surface renderable's sectors. We break after finding an
                 // intersection to avoid adding the same object to the tile more than once.
@@ -1097,11 +1111,13 @@ public class SurfaceObjectTileBuilder
     protected boolean intersectsFrustum(DrawContext dc, TextureTile tile)
     {
         Extent extent = tile.getExtent(dc);
-        if (extent == null)
-            return false;
+        if (extent == null) {
+			return false;
+		}
 
-        if (dc.isPickingMode())
-            return dc.getPickFrustums().intersectsAny(extent);
+        if (dc.isPickingMode()) {
+			return dc.getPickFrustums().intersectsAny(extent);
+		}
 
         return dc.getView().getFrustumInModelCoordinates().intersects(extent);
     }
@@ -1240,10 +1256,12 @@ public class SurfaceObjectTileBuilder
         // The viewport may be smaller than the desired dimension. For that reason, we constrain the desired tile
         // dimension by the viewport width and height.
         Rectangle viewport = dc.getView().getViewport();
-        if (maxSize > viewport.width)
-            maxSize = viewport.width;
-        if (maxSize > viewport.height)
-            maxSize = viewport.height;
+        if (maxSize > viewport.width) {
+			maxSize = viewport.width;
+		}
+        if (maxSize > viewport.height) {
+			maxSize = viewport.height;
+		}
 
         // The final dimension used to render all surface tiles will be the power of two which is less than or equal to
         // the preferred dimension, and which fits into the viewport.
@@ -1283,10 +1301,12 @@ public class SurfaceObjectTileBuilder
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             TileInfoKey that = (TileInfoKey) o;
             return this.globeOffset == that.globeOffset
@@ -1404,10 +1424,11 @@ public class SurfaceObjectTileBuilder
         {
             long size = super.getSizeInBytes();
 
-            if (this.lastUpdateStateKey instanceof Cacheable)
-                size += ((Cacheable) this.lastUpdateStateKey).getSizeInBytes();
-            else if (this.lastUpdateStateKey != null)
-                size += 4; // If the object doesn't implement Cacheable, just account for the reference to it.
+            if (this.lastUpdateStateKey instanceof Cacheable) {
+				size += ((Cacheable) this.lastUpdateStateKey).getSizeInBytes();
+			} else if (this.lastUpdateStateKey != null) {
+				size += 4; // If the object doesn't implement Cacheable, just account for the reference to it.
+			}
 
             return size;
         }
@@ -1475,8 +1496,9 @@ public class SurfaceObjectTileBuilder
          */
         public void addSurfaceObject(SurfaceRenderable so, Sector sector)
         {
-            if (this.intersectingObjects == null)
-                this.intersectingObjects = new ArrayList<>();
+            if (this.intersectingObjects == null) {
+				this.intersectingObjects = new ArrayList<>();
+			}
 
             this.intersectingObjects.add(so);
             this.objectSector = (this.objectSector != null) ? this.objectSector.union(sector) : sector;
@@ -1490,8 +1512,9 @@ public class SurfaceObjectTileBuilder
          */
         public void addAllSurfaceObjects(List<SurfaceRenderable> c, Sector sector)
         {
-            if (this.intersectingObjects == null)
-                this.intersectingObjects = new ArrayList<>();
+            if (this.intersectingObjects == null) {
+				this.intersectingObjects = new ArrayList<>();
+			}
 
             this.intersectingObjects.addAll(c);
             this.objectSector = (this.objectSector != null) ? this.objectSector.union(sector) : sector;
@@ -1561,10 +1584,12 @@ public class SurfaceObjectTileBuilder
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || this.getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || this.getClass() != o.getClass()) {
+				return false;
+			}
 
             // Compare the tile keys and each state key in the array. The state keys are equal if the tile keys are
             // equal, the arrays equivalent length, and each array element is equivalent. Arrays.equals() correctly
@@ -1592,17 +1617,19 @@ public class SurfaceObjectTileBuilder
         @Override
 		public long getSizeInBytes()
         {
-            if (this.intersectingObjectKeys == null)
-                return 0;
+            if (this.intersectingObjectKeys == null) {
+				return 0;
+			}
 
             long size = 4 * this.intersectingObjectKeys.length; // For the array references.
 
             for (Object o : this.intersectingObjectKeys)
             {
-                if (o instanceof Cacheable)
-                    size += ((Cacheable) o).getSizeInBytes();
-                else if (o != null)
-                    size += 4; // If the object doesn't implement Cacheable, just account for the reference to it.
+                if (o instanceof Cacheable) {
+					size += ((Cacheable) o).getSizeInBytes();
+				} else if (o != null) {
+					size += 4; // If the object doesn't implement Cacheable, just account for the reference to it.
+				}
             }
 
             return size;

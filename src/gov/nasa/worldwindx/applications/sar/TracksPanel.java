@@ -94,8 +94,9 @@ public class TracksPanel extends JPanel
     public void setCurrentTrack(SARTrack track)
     {
         int index = this.getTrackPanelIndex(track);
-        if (index < 0)
-            return;
+        if (index < 0) {
+			return;
+		}
 
         this.tracksTabbedPane.setSelectedIndex(index);
     }
@@ -106,8 +107,9 @@ public class TracksPanel extends JPanel
         for (int i = 0; i < this.tracksTabbedPane.getTabCount(); i++)
         {
             TrackPanel tp = (TrackPanel) this.tracksTabbedPane.getComponentAt(i);
-            if (tp.getTrack() != null)
-                tracks.add(tp.getTrack());
+            if (tp.getTrack() != null) {
+				tracks.add(tp.getTrack());
+			}
         }
         return tracks;
     }
@@ -125,12 +127,13 @@ public class TracksPanel extends JPanel
             @Override
             public void propertyChange(PropertyChangeEvent propertyChangeEvent)
             {
-                if (propertyChangeEvent.getPropertyName() == TrackController.TRACK_REMOVE)
-                    removeTrack((SARTrack) propertyChangeEvent.getSource());
-                else if (propertyChangeEvent.getPropertyName() == TrackController.TRACK_NAME)
-                    renameTrack((SARTrack) propertyChangeEvent.getSource());
-                else if (propertyChangeEvent.getPropertyName() == TrackController.TRACK_DIRTY_BIT)
-                    updateTrackDirty((SARTrack) propertyChangeEvent.getSource());
+                if (propertyChangeEvent.getPropertyName() == TrackController.TRACK_REMOVE) {
+					removeTrack((SARTrack) propertyChangeEvent.getSource());
+				} else if (propertyChangeEvent.getPropertyName() == TrackController.TRACK_NAME) {
+					renameTrack((SARTrack) propertyChangeEvent.getSource());
+				} else if (propertyChangeEvent.getPropertyName() == TrackController.TRACK_DIRTY_BIT) {
+					updateTrackDirty((SARTrack) propertyChangeEvent.getSource());
+				}
             }
         });
         this.tracksTabbedPane.setSelectedComponent(tp);
@@ -171,22 +174,25 @@ public class TracksPanel extends JPanel
     private void removeTrack(SARTrack track)
     {
         TrackPanel tp = this.getTrackPanel(track);
-        if (tp != null)
-            this.tracksTabbedPane.remove(tp);
+        if (tp != null) {
+			this.tracksTabbedPane.remove(tp);
+		}
     }
 
     private void renameTrack(SARTrack track)
     {
         int index = getTrackPanelIndex(track);
-        if (index != -1)
-            this.tracksTabbedPane.setTitleAt(index, track.getName());
+        if (index != -1) {
+			this.tracksTabbedPane.setTitleAt(index, track.getName());
+		}
     }
 
     private void updateTrackDirty(SARTrack track)
     {
         int index = getTrackPanelIndex(track);
-        if (index != -1)
-            this.tracksTabbedPane.setTitleAt(index, track.getName() + (track.isDirty() ? "*" : ""));
+        if (index != -1) {
+			this.tracksTabbedPane.setTitleAt(index, track.getName() + (track.isDirty() ? "*" : ""));
+		}
     }
 
     public TrackPanel getTrackPanel(SARTrack track)
@@ -194,8 +200,9 @@ public class TracksPanel extends JPanel
         for (int i = 0; i < this.tracksTabbedPane.getTabCount(); i++)
         {
             TrackPanel tp = (TrackPanel) this.tracksTabbedPane.getComponentAt(i);
-            if (tp.getTrack() == track)
-                return tp;
+            if (tp.getTrack() == track) {
+				return tp;
+			}
         }
         return null;
     }
@@ -205,8 +212,9 @@ public class TracksPanel extends JPanel
         for (int i = 0; i < this.tracksTabbedPane.getTabCount(); i++)
         {
             TrackPanel tp = (TrackPanel) this.tracksTabbedPane.getComponentAt(i);
-            if (tp.getTrack() == track)
-                return i;
+            if (tp.getTrack() == track) {
+				return i;
+			}
         }
         return -1;
     }
@@ -215,8 +223,9 @@ public class TracksPanel extends JPanel
     private void tracksTabbedPaneStateChanged(ChangeEvent e)
     {
         SARTrack track = this.getCurrentTrack();
-        if (track == null)
-            return;
+        if (track == null) {
+			return;
+		}
 
         track.firePropertyChange(TrackController.TRACK_CURRENT, null, track);
     }

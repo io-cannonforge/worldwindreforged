@@ -59,10 +59,12 @@ public class Quaternion
     @Override
 	public final boolean equals(Object obj)
     {
-        if (this == obj)
-            return true;
-        if (obj == null || obj.getClass() != this.getClass())
-            return false;
+        if (this == obj) {
+			return true;
+		}
+        if (obj == null || obj.getClass() != this.getClass()) {
+			return false;
+		}
 
         Quaternion that = (Quaternion) obj;
         return (this.x == that.x)
@@ -607,10 +609,11 @@ public class Quaternion
             throw new IllegalArgumentException(msg);
         }
 
-        if (amount < 0.0)
-            return value1;
-        else if (amount > 1.0)
-            return value2;
+        if (amount < 0.0) {
+			return value1;
+		} else if (amount > 1.0) {
+			return value2;
+		}
 
         double t1 = 1.0 - amount;
         return new Quaternion(
@@ -629,10 +632,11 @@ public class Quaternion
             throw new IllegalArgumentException(msg);
         }
 
-        if (amount < 0.0)
-            return value1;
-        else if (amount > 1.0)
-            return value2;
+        if (amount < 0.0) {
+			return value1;
+		} else if (amount > 1.0) {
+			return value2;
+		}
 
         double dot = value1.dot(value2);
         double x2, y2, z2, w2;
@@ -684,12 +688,14 @@ public class Quaternion
         double w = this.w;
 
         double length = this.getLength();
-        if (!isZero(length) && (length != 1.0))
-            w /= length;
+        if (!isZero(length) && (length != 1.0)) {
+			w /= length;
+		}
 
         double radians = 2.0 * Math.acos(w);
-        if (Double.isNaN(radians))
-            return null;
+        if (Double.isNaN(radians)) {
+			return null;
+		}
 
         return Angle.fromRadians(radians);
     }
@@ -723,8 +729,9 @@ public class Quaternion
     {
         double radians = Math.atan2((2.0 * this.x * this.w) - (2.0 * this.y * this.z),
                                     1.0 - 2.0 * (this.x * this.x) - 2.0 * (this.z * this.z));
-        if (Double.isNaN(radians))
-            return null;
+        if (Double.isNaN(radians)) {
+			return null;
+		}
 
         return Angle.fromRadians(radians);
     }
@@ -733,8 +740,9 @@ public class Quaternion
     {
         double radians = Math.atan2((2.0 * this.y * this.w) - (2.0 * this.x * this.z),
                                     1.0 - (2.0 * this.y * this.y) - (2.0 * this.z * this.z));
-        if (Double.isNaN(radians))
-            return null;
+        if (Double.isNaN(radians)) {
+			return null;
+		}
 
         return Angle.fromRadians(radians);
     }
@@ -742,8 +750,9 @@ public class Quaternion
     public final Angle getRotationZ()
     {
         double radians = Math.asin((2.0 * this.x * this.y) + (2.0 * this.z * this.w));
-        if (Double.isNaN(radians))
-            return null;
+        if (Double.isNaN(radians)) {
+			return null;
+		}
 
         return Angle.fromRadians(radians);
     }
@@ -753,8 +762,9 @@ public class Quaternion
         double latRadians = Math.asin((2.0 * this.y * this.w) - (2.0 * this.x * this.z));
         double lonRadians = Math.atan2((2.0 * this.y * this.z) + (2.0 * this.x * this.w),
                                        (this.w * this.w) - (this.x * this.x) - (this.y * this.y) + (this.z * this.z));
-        if (Double.isNaN(latRadians) || Double.isNaN(lonRadians))
-            return null;
+        if (Double.isNaN(latRadians) || Double.isNaN(lonRadians)) {
+			return null;
+		}
 
         return LatLon.fromRadians(latRadians, lonRadians);
     }

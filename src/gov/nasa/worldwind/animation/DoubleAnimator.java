@@ -93,16 +93,18 @@ public class DoubleAnimator extends BasicAnimator
 	protected void setImpl(double interpolant)
     {
        Double newValue = this.nextDouble(interpolant);
-       if (newValue == null)
-           return;
+       if (newValue == null) {
+		return;
+	   }
 
        boolean success = this.propertyAccessor.setDouble(newValue);
        if (!success)
        {
            this.flagLastStateInvalid();
        }
-       if (interpolant >= 1.0)
-           this.stop();
+       if (interpolant >= 1.0) {
+		this.stop();
+	   }
     }
 
     @SuppressWarnings("unused")

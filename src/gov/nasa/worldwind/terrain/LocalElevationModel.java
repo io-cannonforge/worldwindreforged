@@ -85,8 +85,9 @@ public class LocalElevationModel extends AbstractElevationModel
      */
     public Sector getSector()
     {
-        if (this.tiles.size() < 1)
-            return null;
+        if (this.tiles.size() < 1) {
+			return null;
+		}
 
         Sector sector = null;
 
@@ -109,8 +110,9 @@ public class LocalElevationModel extends AbstractElevationModel
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.tiles.size() == 0)
-            return new double[] {this.getMinElevation(), this.getMaxElevation()};
+        if (this.tiles.size() == 0) {
+			return new double[] {this.getMinElevation(), this.getMaxElevation()};
+		}
 
         double min = Double.MAX_VALUE;
         double max = -min;
@@ -119,10 +121,12 @@ public class LocalElevationModel extends AbstractElevationModel
         {
             if (tile.sector.contains(latitude, longitude))
             {
-                if (tile.minElevation < min)
-                    min = tile.minElevation;
-                if (tile.maxElevation > max)
-                    max = tile.maxElevation;
+                if (tile.minElevation < min) {
+					min = tile.minElevation;
+				}
+                if (tile.maxElevation > max) {
+					max = tile.maxElevation;
+				}
             }
         }
 
@@ -141,8 +145,9 @@ public class LocalElevationModel extends AbstractElevationModel
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.tiles.size() == 0)
-            return new double[] {this.getMinElevation(), this.getMaxElevation()};
+        if (this.tiles.size() == 0) {
+			return new double[] {this.getMinElevation(), this.getMaxElevation()};
+		}
 
         double min = Double.MAX_VALUE;
         double max = -min;
@@ -151,10 +156,12 @@ public class LocalElevationModel extends AbstractElevationModel
         {
             if (tile.sector.intersects(sector))
             {
-                if (tile.minElevation < min)
-                    min = tile.minElevation;
-                if (tile.maxElevation > max)
-                    max = tile.maxElevation;
+                if (tile.minElevation < min) {
+					min = tile.minElevation;
+				}
+                if (tile.maxElevation > max) {
+					max = tile.maxElevation;
+				}
             }
         }
 
@@ -170,12 +177,14 @@ public class LocalElevationModel extends AbstractElevationModel
 
         for (LocalTile tile : tiles)
         {
-            if (sector != null && !sector.intersects(tile.sector))
-                continue;
+            if (sector != null && !sector.intersects(tile.sector)) {
+				continue;
+			}
 
             double r = tile.sector.getDeltaLatRadians() / tile.tileHeight;
-            if (r < res)
-                res = r;
+            if (r < res) {
+				res = r;
+			}
         }
 
         return res;
@@ -202,8 +211,9 @@ public class LocalElevationModel extends AbstractElevationModel
             throw new IllegalArgumentException(msg);
         }
 
-        if (!this.contains(latitude, longitude))
-            return this.missingDataFlag;
+        if (!this.contains(latitude, longitude)) {
+			return this.missingDataFlag;
+		}
 
         Double e = this.lookupElevation(latitude.radians, longitude.radians);
 
@@ -279,8 +289,9 @@ public class LocalElevationModel extends AbstractElevationModel
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.intersects(sector) == -1)
-            return Double.MAX_VALUE; // as stated in the javadoc above, this is the sentinel for "not in my domain"
+        if (this.intersects(sector) == -1) {
+			return Double.MAX_VALUE; // as stated in the javadoc above, this is the sentinel for "not in my domain"
+		}
 
         // Mark the model as used this frame.
         this.setValue(AVKey.FRAME_TIMESTAMP, System.currentTimeMillis());
@@ -288,20 +299,23 @@ public class LocalElevationModel extends AbstractElevationModel
         for (int i = 0; i < latlons.size(); i++)
         {
             LatLon ll = latlons.get(i);
-            if ((ll == null) || !this.contains(ll.getLatitude(), ll.getLongitude()))
-                continue;
+            if ((ll == null) || !this.contains(ll.getLatitude(), ll.getLongitude())) {
+				continue;
+			}
 
             // If an elevation at the given location is available, write that elevation to the destination buffer.
             // If an elevation is not available but the location is within the elevation model's coverage, write the
             // elevation models extreme elevation at the location. Do nothing if the location is not within the
             // elevation model's coverage.
             Double e = this.lookupElevation(ll.getLatitude().radians, ll.getLongitude().radians);
-            if (e != null && e != this.missingDataFlag)
-                buffer[i] = e;
-            if (e == null)
-                buffer[i] = this.getExtremeElevations(sector)[0];
-            else if (mapMissingData && e == this.missingDataFlag)
-                buffer[i] = this.getMissingDataReplacement();
+            if (e != null && e != this.missingDataFlag) {
+				buffer[i] = e;
+			}
+            if (e == null) {
+				buffer[i] = this.getExtremeElevations(sector)[0];
+			} else if (mapMissingData && e == this.missingDataFlag) {
+				buffer[i] = this.getMissingDataReplacement();
+			}
         }
 
         return this.getBestResolution(sector);
@@ -480,18 +494,21 @@ public class LocalElevationModel extends AbstractElevationModel
         bufferParams.setValues(parameters.copy());
 
         Double tileMissingDataFlag = AVListImpl.getDoubleValue(bufferParams, AVKey.MISSING_DATA_SIGNAL);
-        if (tileMissingDataFlag == null)
-            tileMissingDataFlag = this.getMissingDataSignal();
+        if (tileMissingDataFlag == null) {
+			tileMissingDataFlag = this.getMissingDataSignal();
+		}
 
         // Check params for ELEVATION_MIN and ELEVATION_MAX and don't have the tile compute them if present.
         Double minElevation = null;
         Double maxElevation = null;
         Object o = bufferParams.getValue(AVKey.ELEVATION_MIN);
-        if (o instanceof Double)
-            minElevation = (Double) o;
+        if (o instanceof Double) {
+			minElevation = (Double) o;
+		}
         o = bufferParams.getValue(AVKey.ELEVATION_MAX);
-        if (o instanceof Double)
-            maxElevation = (Double) o;
+        if (o instanceof Double) {
+			maxElevation = (Double) o;
+		}
 
         String dataType = bufferParams.getStringValue(AVKey.DATA_TYPE);
         if (WWUtil.isEmpty(dataType))
@@ -515,11 +532,13 @@ public class LocalElevationModel extends AbstractElevationModel
 
         for (LocalTile tile : this.tiles)
         {
-            if (tile.sector.contains(sector))
-                return 0;
+            if (tile.sector.contains(sector)) {
+				return 0;
+			}
 
-            if (tile.sector.intersects(sector))
-                intersects = true;
+            if (tile.sector.intersects(sector)) {
+				intersects = true;
+			}
         }
 
         return intersects ? 1 : -1;
@@ -530,8 +549,9 @@ public class LocalElevationModel extends AbstractElevationModel
     {
         for (LocalTile tile : this.tiles)
         {
-            if (tile.sector.contains(latitude, longitude))
-                return true;
+            if (tile.sector.contains(latitude, longitude)) {
+				return true;
+			}
         }
 
         return false;
@@ -550,10 +570,12 @@ public class LocalElevationModel extends AbstractElevationModel
         }
         else if (tile != null) // adjust for just the input tile
         {
-            if (tile.minElevation < this.extremeElevations[0])
-                this.extremeElevations[0] = tile.minElevation;
-            if (tile.maxElevation > this.extremeElevations[1])
-                this.extremeElevations[1] = tile.maxElevation;
+            if (tile.minElevation < this.extremeElevations[0]) {
+				this.extremeElevations[0] = tile.minElevation;
+			}
+            if (tile.maxElevation > this.extremeElevations[1]) {
+				this.extremeElevations[1] = tile.maxElevation;
+			}
         }
         else // Find the min and max among all the tiles
         {
@@ -562,10 +584,12 @@ public class LocalElevationModel extends AbstractElevationModel
 
             for (LocalTile t : this.tiles)
             {
-                if (t.minElevation < min)
-                    min = t.minElevation;
-                if (t.maxElevation > max)
-                    max = t.maxElevation;
+                if (t.minElevation < min) {
+					min = t.minElevation;
+				}
+                if (t.maxElevation > max) {
+					max = t.maxElevation;
+				}
             }
 
             this.extremeElevations =
@@ -585,8 +609,9 @@ public class LocalElevationModel extends AbstractElevationModel
     protected Double lookupElevation(final double latRadians, final double lonRadians)
     {
         LocalTile tile = this.findTile(latRadians, lonRadians);
-        if (tile == null)
-            return null;
+        if (tile == null) {
+			return null;
+		}
 
         final double sectorDeltaLat = tile.sector.getDeltaLat().radians;
         final double sectorDeltaLon = tile.sector.getDeltaLon().radians;
@@ -603,8 +628,9 @@ public class LocalElevationModel extends AbstractElevationModel
         double eRight = i < (tile.tileWidth - 1) ? tile.elevations.getDouble(k + 1) : eLeft;
 
         // Notice that the below test is against the tile flag, but the value returned is the model's flag.
-        if (tile.isMissingData(eLeft) || tile.isMissingData(eRight))
-            return this.missingDataFlag;
+        if (tile.isMissingData(eLeft) || tile.isMissingData(eRight)) {
+			return this.missingDataFlag;
+		}
 
         double dw = sectorDeltaLon / (tile.tileWidth - 1);
         double dh = sectorDeltaLat / (tile.tileHeight - 1);
@@ -619,8 +645,9 @@ public class LocalElevationModel extends AbstractElevationModel
             eRight = tile.elevations.getDouble(k + tile.tileWidth + 1);
 
             // Notice that the below test is against the tile flag, but the value returned is the model's flag.
-            if (tile.isMissingData(eLeft) || tile.isMissingData(eRight))
-                return this.missingDataFlag;
+            if (tile.isMissingData(eLeft) || tile.isMissingData(eRight)) {
+				return this.missingDataFlag;
+			}
         }
 
         double eBot = eLeft + ssLon * (eRight - eLeft);
@@ -639,8 +666,9 @@ public class LocalElevationModel extends AbstractElevationModel
     {
         for (LocalTile tile : this.tiles)
         {
-            if (tile.sector.containsRadians(latRadians, lonRadians))
-                return tile;
+            if (tile.sector.containsRadians(latRadians, lonRadians)) {
+				return tile;
+			}
         }
 
         return null;
@@ -687,13 +715,16 @@ public class LocalElevationModel extends AbstractElevationModel
             this.elevations = elevations;
 
             // One or both of the min/max elevations may have been specified in the metadata.
-            if (minEl != null)
-                this.minElevation = minEl;
-            if (maxEl != null)
-                this.maxElevation = maxEl;
+            if (minEl != null) {
+				this.minElevation = minEl;
+			}
+            if (maxEl != null) {
+				this.maxElevation = maxEl;
+			}
 
-            if (minEl == null || maxEl == null)
-                this.computeMinMaxElevations();
+            if (minEl == null || maxEl == null) {
+				this.computeMinMaxElevations();
+			}
 
             return;
         }
@@ -715,13 +746,16 @@ public class LocalElevationModel extends AbstractElevationModel
             for (int i = 0; i < len; i++)
             {
                 double v = this.elevations.getDouble(i);
-                if (v == this.missingDataFlag)
-                    continue;
+                if (v == this.missingDataFlag) {
+					continue;
+				}
 
-                if (v < min)
-                    min = v;
-                if (v > max)
-                    max = v;
+                if (v < min) {
+					min = v;
+				}
+                if (v > max) {
+					max = v;
+				}
             }
 
             this.minElevation = min;

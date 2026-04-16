@@ -154,9 +154,10 @@ public class StarsConvertor
                 }
             }
 
-            if (starsStream == null)
-                // TODO: logger error
+            if (starsStream == null) {
+				// TODO: logger error
                 return null;
+			}
 
             BufferedReader starsReader = new BufferedReader(new InputStreamReader(starsStream));
 
@@ -174,8 +175,9 @@ public class StarsConvertor
 
             while ((line = starsReader.readLine()) != null)
             {
-                if ((line.length() < 3) || line.substring(0, 1).equals("#"))
-                    continue;
+                if ((line.length() < 3) || line.substring(0, 1).equals("#")) {
+					continue;
+				}
                 if (isData) // Star data here
                 {
                     // Split data in ';' separated values
@@ -198,13 +200,15 @@ public class StarsConvertor
                     double DEm = Double.parseDouble(DEdms.substring(4, 6));
                     double DEs = Double.parseDouble(DEdms.substring(7));
                     latitude = DEd + (DEm / 60) + (DEs / 3600);
-                    if (DEsign.equals("-"))
-                        latitude *= -1;
+                    if (DEsign.equals("-")) {
+						latitude *= -1;
+					}
                     // compute aparent magnitude -1.5 - 10 to grayscale 0 - 255
                     double VM = Double.parseDouble(Vmag);
                     double Vdec = 255 - ((VM + 1.5) * 255 / 10);
-                    if (Vdec > 255)
-                        Vdec = 255;
+                    if (Vdec > 255) {
+						Vdec = 255;
+					}
                     Vdec /= 255;    // scale back to 0.0 - 1.0
                     // convert B-V  -0.5 - 4 for rgb color select
                     double BVdec;
@@ -231,8 +235,9 @@ public class StarsConvertor
                 }
 
                 // Data starting next line
-                if (line.substring(0, 3).equals("---"))
-                    isData = true;
+                if (line.substring(0, 3).equals("---")) {
+					isData = true;
+				}
             }
 
             starsReader.close();
@@ -298,16 +303,17 @@ public class StarsConvertor
     private static Color BVColor(double BV)
     {
         // TODO: interpolate between values
-        if (BV < 0)
-            return new Color(.635f, .764f, .929f);            // Light blue
-        else if (BV < .5)
-            return new Color(1f, 1f, 1f);                // White
-        else if (BV < 1)
-            return new Color(1f, .984f, .266f);            // Yellow
-        else if (BV < 1.5)
-            return new Color(.964f, .725f, .0784f);    // Orange
-        else
-            return new Color(.921f, .376f, .0392f);                // Redish
+        if (BV < 0) {
+			return new Color(.635f, .764f, .929f);            // Light blue
+		} else if (BV < .5) {
+			return new Color(1f, 1f, 1f);                // White
+		} else if (BV < 1) {
+			return new Color(1f, .984f, .266f);            // Yellow
+		} else if (BV < 1.5) {
+			return new Color(.964f, .725f, .0784f);    // Orange
+		} else {
+			return new Color(.921f, .376f, .0392f);                // Redish
+		}
     }
 
     public static void main(String[] args)
@@ -318,8 +324,9 @@ public class StarsConvertor
         fileChooser.setMultiSelectionEnabled(true);
 
         int status = fileChooser.showOpenDialog(null);
-        if (status != JFileChooser.APPROVE_OPTION)
-            return;
+        if (status != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
 
         File[] files = fileChooser.getSelectedFiles();
         if (files == null)

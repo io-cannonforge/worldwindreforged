@@ -220,10 +220,11 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
             throw new IllegalArgumentException(message);
         }
 
-        if (this.boundaries.size() > 0)
-            this.boundaries.set(0, iterable);
-        else
-            this.boundaries.add(iterable);
+        if (this.boundaries.size() > 0) {
+			this.boundaries.set(0, iterable);
+		} else {
+			this.boundaries.add(iterable);
+		}
 
         this.onShapeChanged();
     }
@@ -306,12 +307,14 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
     @Override
 	public Position getReferencePosition()
     {
-        if (this.getOuterBoundary() == null)
-            return null;
+        if (this.getOuterBoundary() == null) {
+			return null;
+		}
 
         var iterator = this.getOuterBoundary().iterator();
-        if (!iterator.hasNext())
-            return null;
+        if (!iterator.hasNext()) {
+			return null;
+		}
 
         return new Position(iterator.next(), 0);
     }
@@ -325,26 +328,30 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
     @Override
     protected InteriorVBOData buildInteriorVBOs(DrawContext dc, SurfaceTileDrawContext sdc)
     {
-        if (this.boundaries.isEmpty())
-            return null;
+        if (this.boundaries.isEmpty()) {
+			return null;
+		}
 
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return null;
+        if (refPos == null) {
+			return null;
+		}
 
         boolean hasHoles = this.boundaries.size() > 1;
         boolean hasTexCoords = this.explicitTextureCoords != null;
 
         // For simple polygons without holes or explicit textures, delegate to parent
-        if (!hasHoles && !hasTexCoords)
-            return super.buildInteriorVBOs(dc, sdc);
+        if (!hasHoles && !hasTexCoords) {
+			return super.buildInteriorVBOs(dc, sdc);
+		}
 
         // Use assembleContours() to get edge-interpolated contours with texture coordinates
         Angle degreesPerInterval = Angle.fromDegrees(1.0 / this.computeEdgeIntervalsPerDegree(sdc));
         List<List<Vertex>> contours = this.assembleContours(degreesPerInterval);
 
-        if (contours.isEmpty())
-            return null;
+        if (contours.isEmpty()) {
+			return null;
+		}
 
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;
@@ -352,11 +359,13 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 
         // Flatten all contour vertices into a single array
         int totalVertices = 0;
-        for (List<Vertex> contour : contours)
-            totalVertices += contour.size();
+        for (List<Vertex> contour : contours) {
+			totalVertices += contour.size();
+		}
 
-        if (totalVertices < 3)
-            return null;
+        if (totalVertices < 3) {
+			return null;
+		}
 
         float[] allVertices = new float[totalVertices * floatsPerVertex];
         int vi = 0;
@@ -429,8 +438,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
                 posContourStarts[0], posContourCounts[0],
                 holeStarts, holeCounts);
 
-            if (mergedRing == null || mergedRing.length < 3)
-                return null;
+            if (mergedRing == null || mergedRing.length < 3) {
+				return null;
+			}
 
             triangles = GpuTriangulator.triangulateCPU(posOnly, mergedRing);
         }
@@ -460,11 +470,13 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
             {
                 int start = contourStarts[c];
                 int count = contourCounts[c];
-                if (count < 3)
-                    continue;
+                if (count < 3) {
+					continue;
+				}
                 int[] ring = new int[count];
-                for (int i = 0; i < count; i++)
-                    ring[i] = start + i;
+                for (int i = 0; i < count; i++) {
+					ring[i] = start + i;
+				}
                 int[] tri = GpuTriangulator.triangulateCPU(posOnly, ring);
                 if (tri.length > 0)
                 {
@@ -473,8 +485,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
                 }
             }
 
-            if (totalIndices == 0)
-                return null;
+            if (totalIndices == 0) {
+				return null;
+			}
 
             triangles = new int[totalIndices];
             int off = 0;
@@ -485,8 +498,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
             }
         }
 
-        if (triangles.length == 0)
-            return null;
+        if (triangles.length == 0) {
+			return null;
+		}
 
         // Upload to VBOs
         GL gl = dc.getGL();
@@ -701,8 +715,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
         {
             if (prev != null && LatLon.locationsCrossDateline(prev, cur))
             {
-                if (offset == null)
-                    offset = (prev.longitude.degrees < 0 ? Angle.NEG360 : Angle.POS360);
+                if (offset == null) {
+					offset = (prev.longitude.degrees < 0 ? Angle.NEG360 : Angle.POS360);
+				}
                 applyOffset = !applyOffset;
             }
 
@@ -730,8 +745,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
     @Override
 	protected List<List<LatLon>> createGeometry(Globe globe, double edgeIntervalsPerDegree)
     {
-        if (this.boundaries.isEmpty())
-            return null;
+        if (this.boundaries.isEmpty()) {
+			return null;
+		}
 
         ArrayList<List<LatLon>> geom = new ArrayList<>();
 
@@ -743,14 +759,16 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 
             // Ensure all contours have counter-clockwise winding order for consistent dateline/pole handling.
             //noinspection StringEquality
-            if (WWMath.computeWindingOrderOfLocations(drawLocations) != AVKey.COUNTER_CLOCKWISE)
-                Collections.reverse(drawLocations);
+            if (WWMath.computeWindingOrderOfLocations(drawLocations) != AVKey.COUNTER_CLOCKWISE) {
+				Collections.reverse(drawLocations);
+			}
 
             geom.add(drawLocations);
         }
 
-        if (geom.isEmpty() || geom.get(0).size() < 3)
-            return null;
+        if (geom.isEmpty() || geom.get(0).size() < 3) {
+			return null;
+		}
 
         return geom;
     }
@@ -758,8 +776,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
     @Override
 	protected void doMoveTo(Position oldReferencePosition, Position newReferencePosition)
     {
-        if (this.boundaries.isEmpty())
-            return;
+        if (this.boundaries.isEmpty()) {
+			return;
+		}
 
         for (int i = 0; i < this.boundaries.size(); i++)
         {
@@ -782,8 +801,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
     @Override
 	protected void doMoveTo(Globe globe, Position oldReferencePosition, Position newReferencePosition)
     {
-        if (this.boundaries.isEmpty())
-            return;
+        if (this.boundaries.isEmpty()) {
+			return;
+		}
 
         for (int i = 0; i < this.boundaries.size(); i++)
         {
@@ -853,12 +873,14 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
             {
                 for (RestorableSupport.StateObject boundary : sos)
                 {
-                    if (boundary == null)
-                        continue;
+                    if (boundary == null) {
+						continue;
+					}
 
                     Iterable<LatLon> locations = rs.getStateObjectAsLatLonList(boundary);
-                    if (locations != null)
-                        this.boundaries.add(locations);
+                    if (locations != null) {
+						this.boundaries.add(locations);
+					}
                 }
             }
 
@@ -874,11 +896,13 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 
         Iterable<LatLon> locations = rs.getStateValueAsLatLonList(context, "locationList");
 
-        if (locations == null)
-            locations = rs.getStateValueAsLatLonList(context, "locations");
+        if (locations == null) {
+			locations = rs.getStateValueAsLatLonList(context, "locations");
+		}
 
-        if (locations != null)
-            this.setOuterBoundary(locations);
+        if (locations != null) {
+			this.setOuterBoundary(locations);
+		}
     }
 
     /**
@@ -984,8 +1008,9 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
 
         // Inner boundaries
         Iterator<Iterable<? extends LatLon>> boundaryIterator = boundaries.iterator();
-        if (boundaryIterator.hasNext())
-            boundaryIterator.next(); // Skip outer boundary, we already dealt with it above
+        if (boundaryIterator.hasNext()) {
+			boundaryIterator.next(); // Skip outer boundary, we already dealt with it above
+		}
 
         while (boundaryIterator.hasNext())
         {
@@ -1000,7 +1025,8 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
         xmlWriter.writeEndElement(); // Placemark
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

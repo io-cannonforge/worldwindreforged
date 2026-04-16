@@ -61,8 +61,9 @@ public class ElevationsUtil
        {
            for(double signal : knownMissingSignals )
            {
-               if( value == signal )
-                   return true;
+               if( value == signal ) {
+				return true;
+			   }
            }
        }
        return false;
@@ -189,14 +190,16 @@ public class ElevationsUtil
                }
            }
 
-           if( commitChanges )
-               bufferWrapper.putDouble( j * width, array, 0, width );
+           if( commitChanges ) {
+			bufferWrapper.putDouble( j * width, array, 0, width );
+		   }
        }
 
        if( rasterHasVoids )
        {
-           if( missingDataSignal != null )
-               raster.setValue(AVKey.MISSING_DATA_SIGNAL, missingDataSignal );
+           if( missingDataSignal != null ) {
+			raster.setValue(AVKey.MISSING_DATA_SIGNAL, missingDataSignal );
+		   }
        }
        else
        {

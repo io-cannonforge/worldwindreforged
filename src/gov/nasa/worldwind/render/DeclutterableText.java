@@ -97,11 +97,13 @@ public class DeclutterableText implements Declutterable
 	public Rectangle2D getBounds(DrawContext dc)
     {
         Font font = this.getText().getFont();
-        if (font == null)
-            font = this.textRenderer.getDefaultFont();
+        if (font == null) {
+			font = this.textRenderer.getDefaultFont();
+		}
 
-        if (this.textBounds != null && this.boundsFont == font)
-            return this.textBounds;
+        if (this.textBounds != null && this.boundsFont == font) {
+			return this.textBounds;
+		}
 
         try
         {
@@ -122,8 +124,9 @@ public class DeclutterableText implements Declutterable
     {
         try
         {
-            if (this.getBounds(dc) == null)
-                return;
+            if (this.getBounds(dc) == null) {
+				return;
+			}
 
             this.textRenderer.drawText(dc, this, 1, 1);
         }

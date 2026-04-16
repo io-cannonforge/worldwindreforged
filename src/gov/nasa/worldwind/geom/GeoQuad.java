@@ -72,8 +72,9 @@ public class GeoQuad
                 throw new IllegalArgumentException(message);
             }
 
-            if (++numCorners > 3)
-                break;
+            if (++numCorners > 3) {
+				break;
+			}
         }
 
         if (numCorners < 4)

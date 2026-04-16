@@ -100,13 +100,15 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         // Set the progress parameters for the current data sources.
         this.setProgressParameters(dataSources, productionState);
 
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         for (SourceInfo info : dataSources)
         {
-            if (this.isStopped())
-                return;
+            if (this.isStopped()) {
+				return;
+			}
 
             productionState.curSource++;
             this.convertLayerSet(info.source, productionState);
@@ -129,8 +131,9 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         }
 
         // Use the default image format if none exists.
-        if (params.getValue(AVKey.IMAGE_FORMAT) == null)
-            params.setValue(AVKey.IMAGE_FORMAT, DEFAULT_IMAGE_FORMAT);
+        if (params.getValue(AVKey.IMAGE_FORMAT) == null) {
+			params.setValue(AVKey.IMAGE_FORMAT, DEFAULT_IMAGE_FORMAT);
+		}
 
         // Compute the available image formats if none exists.
         if (params.getValue(AVKey.AVAILABLE_IMAGE_FORMATS) == null)
@@ -155,16 +158,19 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         StringBuilder sb = new StringBuilder();
 
         Object o = parameters.getValue(AVKey.FILE_STORE_LOCATION);
-        if (o == null || !(o instanceof String) || ((String) o).length() < 1)
-            sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreLocation"));
+        if (o == null || !(o instanceof String) || ((String) o).length() < 1) {
+			sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreLocation"));
+		}
 
         o = parameters.getValue(AVKey.DATA_CACHE_NAME);
         // It's okay if the cache path is empty, but if specified it must be a String.
-        if (o != null && !(o instanceof String))
-            sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreFolder"));
+        if (o != null && !(o instanceof String)) {
+			sb.append((sb.length() > 0 ? ", " : "")).append(Logging.getMessage("term.fileStoreFolder"));
+		}
 
-        if (sb.length() == 0)
-            return null;
+        if (sb.length() == 0) {
+			return null;
+		}
 
         return Logging.getMessage("DataStoreProducer.InvalidDataStoreParamters", sb.toString());
     }
@@ -173,8 +179,9 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
 	protected String validateDataSource(Object source, AVList params)
     {
         File file = this.getSourceConfigFile(source);
-        if (file == null)
-            return Logging.getMessage("WWDotNetLayerSetConverter.NoSourceLocation");
+        if (file == null) {
+			return Logging.getMessage("WWDotNetLayerSetConverter.NoSourceLocation");
+		}
 
         // Open the document in question as an XML event stream. Since we're only interested in testing the document
         // element, we avoiding any unecessary overhead incurred from parsing the entire document as a DOM.
@@ -182,14 +189,16 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         try
         {
             eventReader = WWXML.openEventReader(file);
-            if (eventReader == null)
-                return Logging.getMessage("WWDotNetLayerSetConverter.CannotReadLayerSetConfigFile", file);
+            if (eventReader == null) {
+				return Logging.getMessage("WWDotNetLayerSetConverter.CannotReadLayerSetConfigFile", file);
+			}
 
             // Get the first start element event, if any exists, then determine if it represents a LayerSet
             // configuration document.
             XMLEvent event = WWXML.nextStartElementEvent(eventReader);
-            if (event == null || !DataConfigurationUtils.isWWDotNetLayerSetConfigEvent(event))
-                return Logging.getMessage("WWDotNetLayerSetConverter.FileNotLayerSet", file);
+            if (event == null || !DataConfigurationUtils.isWWDotNetLayerSetConfigEvent(event)) {
+				return Logging.getMessage("WWDotNetLayerSetConverter.FileNotLayerSet", file);
+			}
         }
         catch (Exception e)
         {
@@ -282,8 +291,9 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
             throw new WWRuntimeException(message);
         }
 
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         Document sourceConfigDoc = this.readLayerSetDocument(sourceConfigFile);
 
@@ -304,8 +314,9 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
             throw new WWRuntimeException(message);
         }
 
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         Document destConfigDoc;
         try
@@ -325,8 +336,9 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
             throw new WWRuntimeException(message);
         }
 
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         this.getProductionResultsList().add(destConfigDoc);
     }
@@ -348,18 +360,22 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
     protected File getDestConfigFile(AVList installParams)
     {
         String fileStoreLocation = installParams.getStringValue(AVKey.FILE_STORE_LOCATION);
-        if (fileStoreLocation != null)
-            fileStoreLocation = WWIO.stripTrailingSeparator(fileStoreLocation);
+        if (fileStoreLocation != null) {
+			fileStoreLocation = WWIO.stripTrailingSeparator(fileStoreLocation);
+		}
 
-        if (WWUtil.isEmpty(fileStoreLocation))
-            return null;
+        if (WWUtil.isEmpty(fileStoreLocation)) {
+			return null;
+		}
 
         String cacheName = DataConfigurationUtils.getDataConfigFilename(installParams, ".xml");
-        if (cacheName != null)
-            cacheName = WWIO.stripLeadingSeparator(cacheName);
+        if (cacheName != null) {
+			cacheName = WWIO.stripLeadingSeparator(cacheName);
+		}
 
-        if (WWUtil.isEmpty(cacheName))
-            return null;
+        if (WWUtil.isEmpty(cacheName)) {
+			return null;
+		}
 
         return new File(fileStoreLocation + File.separator + cacheName);
     }
@@ -372,22 +388,27 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         DataConfigurationUtils.getWWDotNetLayerSetConfigParams(layerSetDoc.getDocumentElement(), params);
 
         // Override the LayerSet's display name with the name used by the converter.
-        if (installParams.getValue(AVKey.DISPLAY_NAME) != null)
-            params.setValue(AVKey.DISPLAY_NAME, installParams.getValue(AVKey.DISPLAY_NAME));
+        if (installParams.getValue(AVKey.DISPLAY_NAME) != null) {
+			params.setValue(AVKey.DISPLAY_NAME, installParams.getValue(AVKey.DISPLAY_NAME));
+		}
 
         // Override the LayerSet's cache name with the cache name used by the converter.
-        if (installParams.getValue(AVKey.DATA_CACHE_NAME) != null)
-            params.setValue(AVKey.DATA_CACHE_NAME, installParams.getValue(AVKey.DATA_CACHE_NAME));
+        if (installParams.getValue(AVKey.DATA_CACHE_NAME) != null) {
+			params.setValue(AVKey.DATA_CACHE_NAME, installParams.getValue(AVKey.DATA_CACHE_NAME));
+		}
 
         // Override the LayerSet's image format and available image format parameters with values used by the converter.
-        if (installParams.getValue(AVKey.IMAGE_FORMAT) != null)
-            params.setValue(AVKey.IMAGE_FORMAT, installParams.getValue(AVKey.IMAGE_FORMAT));
-        if (installParams.getValue(AVKey.AVAILABLE_IMAGE_FORMATS) != null)
-            params.setValue(AVKey.AVAILABLE_IMAGE_FORMATS, installParams.getValue(AVKey.AVAILABLE_IMAGE_FORMATS));
+        if (installParams.getValue(AVKey.IMAGE_FORMAT) != null) {
+			params.setValue(AVKey.IMAGE_FORMAT, installParams.getValue(AVKey.IMAGE_FORMAT));
+		}
+        if (installParams.getValue(AVKey.AVAILABLE_IMAGE_FORMATS) != null) {
+			params.setValue(AVKey.AVAILABLE_IMAGE_FORMATS, installParams.getValue(AVKey.AVAILABLE_IMAGE_FORMATS));
+		}
 
         // Override the LayerSet's format suffix with the suffix used by the converter.
-        if (installParams.getValue(AVKey.FORMAT_SUFFIX) != null)
-            params.setValue(AVKey.FORMAT_SUFFIX, installParams.getValue(AVKey.FORMAT_SUFFIX));
+        if (installParams.getValue(AVKey.FORMAT_SUFFIX) != null) {
+			params.setValue(AVKey.FORMAT_SUFFIX, installParams.getValue(AVKey.FORMAT_SUFFIX));
+		}
 
         // Set the texture format to DDS. If the texture data is already in DDS format, this parameter is benign.
         params.setValue(AVKey.TEXTURE_FORMAT, DEFAULT_TEXTURE_FORMAT);
@@ -402,8 +423,9 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
     private void copyWWDotNetDiretory(java.io.File source, java.io.File destination, String installMimeType,
         ProductionState productionState) throws java.io.IOException
     {
-        if (this.isStopped())
-            return;
+        if (this.isStopped()) {
+			return;
+		}
 
         if (!destination.exists())
         {
@@ -419,29 +441,34 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         }
 
         java.io.File[] fileList = source.listFiles();
-        if (fileList == null)
-            return;
+        if (fileList == null) {
+			return;
+		}
 
         java.util.List<java.io.File> childFiles = new java.util.ArrayList<>();
         java.util.List<java.io.File> childDirs = new java.util.ArrayList<>();
         for (java.io.File child : fileList)
         {
-            if ((child == null) || child.isHidden()) // Ignore hidden files.
-                continue;
+            if ((child == null) || child.isHidden()) { // Ignore hidden files.
+				continue;
+			}
 
-            if (child.isDirectory())
-                childDirs.add(child);
-            else
-                childFiles.add(child);
+            if (child.isDirectory()) {
+				childDirs.add(child);
+			} else {
+				childFiles.add(child);
+			}
         }
 
         for (java.io.File childFile : childFiles)
         {
-            if (this.isStopped())
-                break;
+            if (this.isStopped()) {
+				break;
+			}
 
-            if (!isWWDotNetFile(childFile))
-                continue;
+            if (!isWWDotNetFile(childFile)) {
+				continue;
+			}
 
             java.io.File destFile = makeWWJavaFile(destination, childFile.getName(), installMimeType);
             this.installWWDotNetFile(childFile, destFile, productionState);
@@ -456,11 +483,13 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
 
         for (java.io.File childDir : childDirs)
         {
-            if (this.isStopped())
-                break;
+            if (this.isStopped()) {
+				break;
+			}
 
-            if (!isWWDotNetDirectory(childDir))
-                continue;
+            if (!isWWDotNetDirectory(childDir)) {
+				continue;
+			}
 
             java.io.File destDir = makeWWJavaDirectory(destination, childDir.getName());
             this.copyWWDotNetDiretory(childDir, destDir, installMimeType, productionState);
@@ -514,15 +543,16 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
     {
         // If the filename does not match the standard pattern, then return a file with that name.
         String[] tokens = filename.split("[._]");
-        if (tokens == null || tokens.length < 3 || tokens[0].length() < 1 || tokens[1].length() < 1)
-            return new java.io.File(dir, filename);
+        if (tokens == null || tokens.length < 3 || tokens[0].length() < 1 || tokens[1].length() < 1) {
+			return new java.io.File(dir, filename);
+		}
 
         // If an installation type is specified, override the file extension with the new type.
-        if (installMimeType != null)
-            tokens[2] = WWIO.makeSuffixForMimeType(installMimeType);
-            // Otherwise keep the existing extension. Add a leading '.' so that both cases can be handled transparently.
-        else if (tokens[2].length() > 1)
-            tokens[2] = "." + tokens[2];
+        if (installMimeType != null) {
+			tokens[2] = WWIO.makeSuffixForMimeType(installMimeType);
+		} else if (tokens[2].length() > 1) {
+			tokens[2] = "." + tokens[2];
+		}
 
         // If the filename is "000n_000m.foo", then the contents of tokens[] are:
         // tokens[0] = "000n"
@@ -555,34 +585,39 @@ public class WWDotNetLayerSetConverter extends AbstractDataStoreProducer
         int count = 0;
 
         java.io.File[] fileList = source.listFiles();
-        if (fileList == null)
-            return count;
+        if (fileList == null) {
+			return count;
+		}
 
         java.util.List<java.io.File> childFiles = new java.util.ArrayList<>();
         java.util.List<java.io.File> childDirs = new java.util.ArrayList<>();
         for (java.io.File child : fileList)
         {
-            if ((child == null) || child.isHidden()) // Ignore hidden files.
-                continue;
+            if ((child == null) || child.isHidden()) { // Ignore hidden files.
+				continue;
+			}
 
-            if (child.isDirectory())
-                childDirs.add(child);
-            else
-                childFiles.add(child);
+            if (child.isDirectory()) {
+				childDirs.add(child);
+			} else {
+				childFiles.add(child);
+			}
         }
 
         for (java.io.File childFile : childFiles)
         {
-            if (!isWWDotNetFile(childFile))
-                continue;
+            if (!isWWDotNetFile(childFile)) {
+				continue;
+			}
 
             count++;
         }
 
         for (java.io.File childDir : childDirs)
         {
-            if (!isWWDotNetDirectory(childDir))
-                continue;
+            if (!isWWDotNetDirectory(childDir)) {
+				continue;
+			}
 
             count += countWWDotNetFiles(childDir);
         }

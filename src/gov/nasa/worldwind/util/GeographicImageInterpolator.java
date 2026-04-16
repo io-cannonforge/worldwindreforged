@@ -158,15 +158,19 @@ public class GeographicImageInterpolator extends ImageInterpolator
                     float x = xs[k];
                     float y = ys[k];
 
-                    if (this.minx > x && x > 0f)
-                        this.minx = x;
-                    if (this.maxx < x && x < 0f)
-                        this.maxx = x;
+                    if (this.minx > x && x > 0f) {
+						this.minx = x;
+					}
+                    if (this.maxx < x && x < 0f) {
+						this.maxx = x;
+					}
 
-                    if (this.miny > y)
-                        this.miny = y;
-                    if (this.maxy < y)
-                        this.maxy = y;
+                    if (this.miny > y) {
+						this.miny = y;
+					}
+                    if (this.maxy < y) {
+						this.maxy = y;
+					}
                 }
             }
         }
@@ -203,10 +207,12 @@ public class GeographicImageInterpolator extends ImageInterpolator
                 // cell, so a simple comparison determines this cell's extreme x values.
                 if (((GeographicCell) t).isCrossesDateline())
                 {
-                    if (this.minx > t.minx)
-                        this.minx = t.minx;
-                    if (this.maxx < t.maxx)
-                        this.maxx = t.maxx;
+                    if (this.minx > t.minx) {
+						this.minx = t.minx;
+					}
+                    if (this.maxx < t.maxx) {
+						this.maxx = t.maxx;
+					}
                 }
                 // The child cell doesn't cross the dateline. This cell's minx and maxx have different meaning than the
                 // child cell. If the child cell is entirely contained within either the eastern or western hemisphere,
@@ -214,18 +220,23 @@ public class GeographicImageInterpolator extends ImageInterpolator
                 // cell's minx and maxx must extent to the prime meridian to include it.
                 else
                 {
-                    if (this.minx > t.minx && t.minx > 0f) // Cell is entirely within the eastern hemisphere.
-                        this.minx = t.minx;
-                    if (this.maxx < t.maxx && t.maxx < 0f) // Cell is entirely within the western hemisphere.
-                        this.maxx = t.maxx;
-                    if (t.minx <= 0f && t.maxx >= 0f) // Cell is in both the western and eastern hemispheres.
-                        this.minx = this.maxx = 0f;
+                    if (this.minx > t.minx && t.minx > 0f) { // Cell is entirely within the eastern hemisphere.
+						this.minx = t.minx;
+					}
+                    if (this.maxx < t.maxx && t.maxx < 0f) { // Cell is entirely within the western hemisphere.
+						this.maxx = t.maxx;
+					}
+                    if (t.minx <= 0f && t.maxx >= 0f) { // Cell is in both the western and eastern hemispheres.
+						this.minx = this.maxx = 0f;
+					}
                 }
 
-                if (this.miny > t.miny)
-                    this.miny = t.miny;
-                if (this.maxy < t.maxy)
-                    this.maxy = t.maxy;
+                if (this.miny > t.miny) {
+					this.miny = t.miny;
+				}
+                if (this.maxy < t.maxy) {
+					this.maxy = t.maxy;
+				}
             }
         }
 
@@ -257,8 +268,9 @@ public class GeographicImageInterpolator extends ImageInterpolator
                         if (Math.signum(x1) != Math.signum(x2))
                         {
                             float delta = Math.abs(x1 - x2);
-                            if (delta > 180f && delta < 360f)
-                                return true;
+                            if (delta > 180f && delta < 360f) {
+								return true;
+							}
                         }
                     }
 
@@ -277,13 +289,15 @@ public class GeographicImageInterpolator extends ImageInterpolator
          */
         protected boolean childrenCrossDateline()
         {
-            if (this.children == null || this.children.length == 0)
-                return false;
+            if (this.children == null || this.children.length == 0) {
+				return false;
+			}
 
             for (Cell t : this.children)
             {
-                if (((GeographicCell) t).isCrossesDateline())
-                    return true;
+                if (((GeographicCell) t).isCrossesDateline()) {
+					return true;
+				}
             }
 
             return false;
@@ -373,10 +387,11 @@ public class GeographicImageInterpolator extends ImageInterpolator
             double lon = this.xs[indices[i]];
             double lat = this.ys[indices[i]];
 
-            if (x < 0f && lon >= 0f)
-                lon -= 360f;
-            else if (x >= 0f && lon < 0f)
-                lon += 360f;
+            if (x < 0f && lon >= 0f) {
+				lon -= 360f;
+			} else if (x >= 0f && lon < 0f) {
+				lon += 360f;
+			}
 
             points[i] = new Vec4(lon, lat);
         }

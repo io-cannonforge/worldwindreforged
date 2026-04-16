@@ -216,17 +216,21 @@ public class ScreenRelativeAnnotation extends ScreenAnnotation
             double dE = (vp.x + vp.getWidth()) - (xx + size.x + this.xMargin);
             double dN = (vp.y + vp.getHeight()) - (yy + size.y + this.yMargin);
 
-            if (dE < 0)
-                x += dE;
+            if (dE < 0) {
+				x += dE;
+			}
 
-            if (xx < vp.x + xMargin)
-                x = vp.x + this.xMargin + size.x / 2;
+            if (xx < vp.x + xMargin) {
+				x = vp.x + this.xMargin + size.x / 2;
+			}
 
-            if (dN < 0)
-                y += dN;
+            if (dN < 0) {
+				y += dN;
+			}
 
-            if (yy < vp.y + this.yMargin)
-                y = vp.y + this.yMargin;
+            if (yy < vp.y + this.yMargin) {
+				y = vp.y + this.yMargin;
+			}
         }
 
         Point p = new Point((int) x, (int) y);
@@ -266,11 +270,13 @@ public class ScreenRelativeAnnotation extends ScreenAnnotation
         }
 
         // Create our own state document from scratch.
-        if (restorableSupport == null)
-            restorableSupport = RestorableSupport.newRestorableSupport();
+        if (restorableSupport == null) {
+			restorableSupport = RestorableSupport.newRestorableSupport();
+		}
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (restorableSupport == null)
-            return null;
+        if (restorableSupport == null) {
+			return null;
+		}
 
         restorableSupport.addStateValueAsDouble("xFraction", this.getXFraction());
         restorableSupport.addStateValueAsDouble("yFraction", this.getYFraction());
@@ -328,23 +334,28 @@ public class ScreenRelativeAnnotation extends ScreenAnnotation
         }
 
         Double xFractionRS = restorableSupport.getStateValueAsDouble("xFraction");
-        if (xFractionRS != null)
-            this.setXFraction(xFractionRS);
+        if (xFractionRS != null) {
+			this.setXFraction(xFractionRS);
+		}
 
         Double yFractionRS = restorableSupport.getStateValueAsDouble("yFraction");
-        if (xFractionRS != null)
-            this.setYFraction(yFractionRS);
+        if (xFractionRS != null) {
+			this.setYFraction(yFractionRS);
+		}
 
         Integer xMarginRS = restorableSupport.getStateValueAsInteger("xMargin");
-        if (xFractionRS != null)
-            this.setXMargin(xMarginRS);
+        if (xFractionRS != null) {
+			this.setXMargin(xMarginRS);
+		}
 
         Integer yMarginRS = restorableSupport.getStateValueAsInteger("yMargin");
-        if (xFractionRS != null)
-            this.setYMargin(yMarginRS);
+        if (xFractionRS != null) {
+			this.setYMargin(yMarginRS);
+		}
 
         Boolean keepVisibleRS = restorableSupport.getStateValueAsBoolean("keepFullyVisible");
-        if (keepVisibleRS != null)
-            this.setKeepFullyVisible(keepVisibleRS);
+        if (keepVisibleRS != null) {
+			this.setKeepFullyVisible(keepVisibleRS);
+		}
     }
 }

@@ -464,10 +464,11 @@ public class Angle implements Comparable<Angle>
         }
 
         double differenceDegrees = angle.subtract(this).degrees;
-        if (differenceDegrees < -180)
-            differenceDegrees += 360;
-        else if (differenceDegrees > 180)
-            differenceDegrees -= 360;
+        if (differenceDegrees < -180) {
+			differenceDegrees += 360;
+		} else if (differenceDegrees > 180) {
+			differenceDegrees -= 360;
+		}
 
         double absAngle = Math.abs(differenceDegrees);
         return Angle.fromDegrees(absAngle);
@@ -645,10 +646,11 @@ public class Angle implements Comparable<Angle>
             throw new IllegalArgumentException(message);
         }
 
-        if (amount < 0)
-            return value1;
-        else if (amount > 1)
-            return value2;
+        if (amount < 0) {
+			return value1;
+		} else if (amount > 1) {
+			return value2;
+		}
 
         Quaternion quat = Quaternion.slerp(
             amount,
@@ -656,8 +658,9 @@ public class Angle implements Comparable<Angle>
             Quaternion.fromAxisAngle(value2, Vec4.UNIT_X));
 
         Angle angle = quat.getRotationX();
-        if (Double.isNaN(angle.degrees))
-            return null;
+        if (Double.isNaN(angle.degrees)) {
+			return null;
+		}
 
         return angle;
     }
@@ -682,11 +685,13 @@ public class Angle implements Comparable<Angle>
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.degrees < angle.degrees)
-            return -1;
+        if (this.degrees < angle.degrees) {
+			return -1;
+		}
 
-        if (this.degrees > angle.degrees)
-            return 1;
+        if (this.degrees > angle.degrees) {
+			return 1;
+		}
 
         return 0;
     }
@@ -955,16 +960,19 @@ public class Angle implements Comparable<Angle>
     @Override
 	public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         Angle angle = (Angle) o;
 
         //noinspection RedundantIfStatement
-        if (angle.degrees != this.degrees)
-            return false;
+        if (angle.degrees != this.degrees) {
+			return false;
+		}
 
         return true;
     }

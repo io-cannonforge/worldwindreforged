@@ -53,7 +53,8 @@ public class ScreenBrowserBalloon extends AbstractBrowserBalloon implements Scre
      * left corner of the <code>WorldWindow</code>, with the y-axis pointing right and the x-axis pointing down.
      * Initialized to a non-<code>null</code> value at construction.
      */
-    protected Point screenLocation;
+    @Deprecated
+	protected Point screenLocation;
 
     /**
      * Constructs a new <code>ScreenBrowserBalloon</code> with the specified text content and screen location.
@@ -64,7 +65,8 @@ public class ScreenBrowserBalloon extends AbstractBrowserBalloon implements Scre
      *
      * @throws IllegalArgumentException if either <code>text</code> or <code>point</code> are <code>null</code>.
      */
-    public ScreenBrowserBalloon(String text, Point point)
+    @Deprecated
+	public ScreenBrowserBalloon(String text, Point point)
     {
         super(text);
 
@@ -78,21 +80,24 @@ public class ScreenBrowserBalloon extends AbstractBrowserBalloon implements Scre
         this.screenLocation = point;
     }
 
-    @Override
+    @Deprecated
+	@Override
     protected OrderedBrowserBalloon createOrderedRenderable()
     {
         return new OrderedBrowserBalloon();
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	public Point getScreenLocation()
     {
         return this.screenLocation;
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	public void setScreenLocation(Point point)
     {
         if (point == null)
@@ -116,7 +121,8 @@ public class ScreenBrowserBalloon extends AbstractBrowserBalloon implements Scre
      *
      * @param dc the current draw context.
      */
-    @Override
+    @Deprecated
+	@Override
 	protected void computeBalloonPoints(DrawContext dc, OrderedBrowserBalloon obb)
     {
         this.screenOffset = null;
@@ -152,7 +158,8 @@ public class ScreenBrowserBalloon extends AbstractBrowserBalloon implements Scre
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	protected void setupDepthTest(DrawContext dc, OrderedBrowserBalloon obb)
     {
         dc.getGL().glDisable(GL.GL_DEPTH_TEST);

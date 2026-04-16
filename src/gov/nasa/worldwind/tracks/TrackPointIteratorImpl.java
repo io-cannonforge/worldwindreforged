@@ -69,8 +69,9 @@ public class TrackPointIteratorImpl implements TrackPointIterator
     @Override
 	public boolean hasNext()
     {
-        if (this.positions != null && this.positions.hasNext())
-            return true;
+        if (this.positions != null && this.positions.hasNext()) {
+			return true;
+		}
 
         this.loadNextPositions();
 
@@ -118,8 +119,9 @@ public class TrackPointIteratorImpl implements TrackPointIterator
     public int getNumPoints()
     {
         int numPoints;
-        for (numPoints = 0; this.hasNext(); this.next())
-            ++numPoints;
+        for (numPoints = 0; this.hasNext(); this.next()) {
+			++numPoints;
+		}
 
         return numPoints;
     }

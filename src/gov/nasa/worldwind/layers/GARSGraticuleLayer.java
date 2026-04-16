@@ -110,8 +110,9 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (this.angleFormat.equals(format))
-            return;
+        if (this.angleFormat.equals(format)) {
+			return;
+		}
 
         this.angleFormat = format;
         this.clearTiles();
@@ -219,14 +220,15 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
 
     protected String getTypeFor(double resolution)
     {
-        if (resolution >= 10)
-            return GRATICULE_GARS_LEVEL_0;
-        else if (resolution >= 0.5)
-            return GRATICULE_GARS_LEVEL_1;
-        else if (resolution >= .25)
-            return GRATICULE_GARS_LEVEL_2;
-        else if (resolution >= 5.0 / 60.0)
-            return GRATICULE_GARS_LEVEL_3;
+        if (resolution >= 10) {
+			return GRATICULE_GARS_LEVEL_0;
+		} else if (resolution >= 0.5) {
+			return GRATICULE_GARS_LEVEL_1;
+		} else if (resolution >= .25) {
+			return GRATICULE_GARS_LEVEL_2;
+		} else if (resolution >= 5.0 / 60.0) {
+			return GRATICULE_GARS_LEVEL_3;
+		}
 
         return null;
     }
@@ -284,12 +286,14 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
                     for (int col = (int) gridRectangle.getX(); col <= gridRectangle.getX() + gridRectangle.getWidth();
                         col++)
                     {
-                        if (gridTiles[row][col] == null)
-                            gridTiles[row][col] = new GraticuleTile(getGridSector(row, col), 20, 0);
-                        if (gridTiles[row][col].isInView(dc))
-                            tileList.add(gridTiles[row][col]);
-                        else
-                            gridTiles[row][col].clearRenderables();
+                        if (gridTiles[row][col] == null) {
+							gridTiles[row][col] = new GraticuleTile(getGridSector(row, col), 20, 0);
+						}
+                        if (gridTiles[row][col].isInView(dc)) {
+							tileList.add(gridTiles[row][col]);
+						} else {
+							gridTiles[row][col].clearRenderables();
+						}
                     }
                 }
             }
@@ -348,46 +352,49 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
         String label;
         if (this.getAngleFormat().equals(Angle.ANGLE_FORMAT_DMS))
         {
-            if (resolution >= 1)
-                label = angle.toDecimalDegreesString(0);
-            else
+            if (resolution >= 1) {
+				label = angle.toDecimalDegreesString(0);
+			} else
             {
                 double[] dms = angle.toDMS();
-                if (dms[1] < epsilon && dms[2] < epsilon)
-                    label = String.format("%4d\u00B0", (int) dms[0]);
-                else if (dms[2] < epsilon)
-                    label = String.format("%4d\u00B0 %2d\u2019", (int) dms[0], (int) dms[1]);
-                else
-                    label = angle.toDMSString();
+                if (dms[1] < epsilon && dms[2] < epsilon) {
+					label = String.format("%4d\u00B0", (int) dms[0]);
+				} else if (dms[2] < epsilon) {
+					label = String.format("%4d\u00B0 %2d\u2019", (int) dms[0], (int) dms[1]);
+				} else {
+					label = angle.toDMSString();
+				}
             }
         }
         else if (this.getAngleFormat().equals(Angle.ANGLE_FORMAT_DM))
         {
-            if (resolution >= 1)
-                label = angle.toDecimalDegreesString(0);
-            else
+            if (resolution >= 1) {
+				label = angle.toDecimalDegreesString(0);
+			} else
             {
                 double[] dms = angle.toDMS();
-                if (dms[1] < epsilon && dms[2] < epsilon)
-                    label = String.format("%4d\u00B0", (int) dms[0]);
-                else if (dms[2] < epsilon)
-                    label = String.format("%4d\u00B0 %2d\u2019", (int) dms[0], (int) dms[1]);
-                else
-                    label = angle.toDMString();
+                if (dms[1] < epsilon && dms[2] < epsilon) {
+					label = String.format("%4d\u00B0", (int) dms[0]);
+				} else if (dms[2] < epsilon) {
+					label = String.format("%4d\u00B0 %2d\u2019", (int) dms[0], (int) dms[1]);
+				} else {
+					label = angle.toDMString();
+				}
             }
         }
         else // default to decimal degrees
         {
-            if (resolution >= 1)
-                label = angle.toDecimalDegreesString(0);
-            else if (resolution >= .1)
-                label = angle.toDecimalDegreesString(1);
-            else if (resolution >= .01)
-                label = angle.toDecimalDegreesString(2);
-            else if (resolution >= .001)
-                label = angle.toDecimalDegreesString(3);
-            else
-                label = angle.toDecimalDegreesString(4);
+            if (resolution >= 1) {
+				label = angle.toDecimalDegreesString(0);
+			} else if (resolution >= .1) {
+				label = angle.toDecimalDegreesString(1);
+			} else if (resolution >= .01) {
+				label = angle.toDecimalDegreesString(2);
+			} else if (resolution >= .001) {
+				label = angle.toDecimalDegreesString(3);
+			} else {
+				label = angle.toDecimalDegreesString(4);
+			}
         }
 
         return label;
@@ -494,13 +501,15 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
         public boolean isInView(DrawContext dc)
         {
             if (!dc.getView().getFrustumInModelCoordinates().intersects(
-                this.getExtent(dc.getGlobe(), dc.getVerticalExaggeration())))
-                return false;
+                this.getExtent(dc.getGlobe(), dc.getVerticalExaggeration()))) {
+				return false;
+			}
 
             if (this.level != 0)
             {
-                if (dc.getView().getEyePosition().getAltitude() > thresholds[this.level - 1])
-                    return false;
+                if (dc.getView().getEyePosition().getAltitude() > thresholds[this.level - 1]) {
+					return false;
+				}
             }
 
             return true;
@@ -518,8 +527,9 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
 
         public void selectRenderables(DrawContext dc)
         {
-            if (this.gridElements == null)
-                this.createRenderables();
+            if (this.gridElements == null) {
+				this.createRenderables();
+			}
 
             String graticuleType = getTypeFor(this.sector.getDeltaLatDegrees());
             if (this.level == 0 && dc.getView().getEyePosition().getAltitude() > thresholds[0])
@@ -544,8 +554,9 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
                     }
                 }
 
-                if (dc.getView().getEyePosition().getAltitude() > thresholds[0])
-                    return;
+                if (dc.getView().getEyePosition().getAltitude() > thresholds[0]) {
+					return;
+				}
             }
 
             // Select tile grid elements
@@ -566,24 +577,26 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
                 }
             }
 
-            if (this.level == 0 && eyeDistance > thresholds[1])
-                return;
-            else if (this.level == 1 && eyeDistance > thresholds[2])
-                return;
-            else if (this.level == 2)
-                return;
+            if (this.level == 0 && eyeDistance > thresholds[1]) {
+				return;
+			} else if (this.level == 1 && eyeDistance > thresholds[2]) {
+				return;
+			} else if (this.level == 2) {
+				return;
+			}
 
             // Select child elements
-            if (this.subTiles == null)
-                createSubTiles();
+            if (this.subTiles == null) {
+				createSubTiles();
+			}
             for (GraticuleTile gt : this.subTiles)
             {
                 if (gt.isInView(dc))
                 {
                     gt.selectRenderables(dc);
-                }
-                else
-                    gt.clearRenderables();
+                } else {
+					gt.clearRenderables();
+				}
             }
         }
 
@@ -611,10 +624,11 @@ public class GARSGraticuleLayer extends AbstractGraticuleLayer
             Sector[] sectors = this.sector.subdivide(this.divisions);
             int nextLevel = this.level + 1;
             int subDivisions = 10;
-            if (nextLevel == 1)
-                subDivisions = 2;
-            else if (nextLevel == 2)
-                subDivisions = 3;
+            if (nextLevel == 1) {
+				subDivisions = 2;
+			} else if (nextLevel == 2) {
+				subDivisions = 3;
+			}
             for (Sector s : sectors)
             {
                 this.subTiles.add(new GraticuleTile(s, subDivisions, nextLevel));

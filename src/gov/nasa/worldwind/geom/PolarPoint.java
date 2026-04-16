@@ -196,16 +196,19 @@ public class PolarPoint
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final gov.nasa.worldwind.geom.PolarPoint that = (gov.nasa.worldwind.geom.PolarPoint) o;
 
         //noinspection RedundantIfStatement
-        if ((Double.compare(that.radius, radius) != 0) || !latitude.equals(that.latitude) || !longitude.equals(that.longitude))
-            return false;
+        if ((Double.compare(that.radius, radius) != 0) || !latitude.equals(that.latitude) || !longitude.equals(that.longitude)) {
+			return false;
+		}
 
         return true;
     }

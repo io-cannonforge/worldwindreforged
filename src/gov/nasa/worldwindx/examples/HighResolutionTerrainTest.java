@@ -78,27 +78,25 @@ public class HighResolutionTerrainTest
     protected static void writeReferencePositions(String filePath, ArrayList<Position> positions)
         throws FileNotFoundException
     {
-        PrintStream os = new PrintStream(new File(filePath));
-
-        for (Position pos : positions)
-        {
-            os.format("%.5f %.5f %.4f\n", pos.getLatitude().degrees, pos.getLongitude().degrees, pos.getElevation());
+        try (PrintStream os = new PrintStream(new File(filePath))) {
+            for (Position pos : positions)
+            {
+                os.format("%.5f %.5f %.4f\n", pos.getLatitude().degrees, pos.getLongitude().degrees, pos.getElevation());
+            }
         }
-
-        os.flush();
     }
 
     protected static ArrayList<Position> readReferencePositions(String filePath) throws FileNotFoundException
     {
         ArrayList<Position> positions = new ArrayList<>();
-        Scanner scanner = new Scanner(new File(filePath));
-
-        while (scanner.hasNextDouble())
-        {
-            double lat = scanner.nextDouble();
-            double lon = scanner.nextDouble();
-            double elevation = scanner.nextDouble();
-            positions.add(Position.fromDegrees(lat, lon, elevation));
+        try (Scanner scanner = new Scanner(new File(filePath))) {
+            while (scanner.hasNextDouble())
+            {
+                double lat = scanner.nextDouble();
+                double lon = scanner.nextDouble();
+                double elevation = scanner.nextDouble();
+                positions.add(Position.fromDegrees(lat, lon, elevation));
+            }
         }
 
         return positions;

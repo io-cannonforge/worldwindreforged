@@ -249,8 +249,9 @@ public class ViewUtil
 
     public static Point subtract(Point a, Point b)
     {
-        if (a == null || b == null)
-            return null;
+        if (a == null || b == null) {
+			return null;
+		}
         return new Point((int) (a.getX() - b.getX()), (int) (a.getY() - b.getY()));
     }
 
@@ -415,8 +416,9 @@ public class ViewUtil
         // Extract the heading, pitch, and zoom values from the transform.
         Angle heading = ViewUtil.computeHeading(hpzTransform);
         Angle pitch = ViewUtil.computePitch(hpzTransform);
-        if (heading == null || pitch == null)
-            return null;
+        if (heading == null || pitch == null) {
+			return null;
+		}
         Position viewPosition = globe.computePositionFromPoint(eyePoint);
         return new ViewState(viewPosition, heading, pitch, Angle.ZERO);
     }
@@ -443,8 +445,9 @@ public class ViewUtil
         }
 
         Angle a = transform.getRotationX();
-        if (a != null)
-            a = a.multiply(-1.0);
+        if (a != null) {
+			a = a.multiply(-1.0);
+		}
         return a;
     }
 
@@ -562,17 +565,20 @@ public class ViewUtil
         // http://www.opengl.org/resources/faq/technical/selection.htm#sele0010
 
         Matrix modelViewInv = modelview.getInverse();
-        if (modelViewInv == null)
-            return null;
+        if (modelViewInv == null) {
+			return null;
+		}
 
         Vec4 eye = Vec4.UNIT_W.transformBy4(modelViewInv);
-        if (eye == null)
-            return null;
+        if (eye == null) {
+			return null;
+		}
 
         Vec4 a = view.unProject(new Vec4(x, y, 0, 0));
         Vec4 b = view.unProject(new Vec4(x, y, 1, 0));
-        if (a == null || b == null)
-            return null;
+        if (a == null || b == null) {
+			return null;
+		}
 
         return new Line(eye, b.subtract3(a).normalize3());
     }
@@ -608,8 +614,9 @@ public class ViewUtil
             throw new IllegalArgumentException(message);
         }
 
-        if (elevation <= 0)
-            return 0;
+        if (elevation <= 0) {
+			return 0;
+		}
 
         double radius = globe.getMaximumRadius();
         return Math.sqrt(elevation * (2 * radius + elevation));
@@ -676,13 +683,15 @@ public class ViewUtil
         Position surfacePosition = null;
         // Look for the surface geometry point at 'position'.
         Vec4 pointOnGlobe = dc.getPointOnTerrain(position.getLatitude(), position.getLongitude());
-        if (pointOnGlobe != null)
-            surfacePosition = globe.computePositionFromPoint(pointOnGlobe);
+        if (pointOnGlobe != null) {
+			surfacePosition = globe.computePositionFromPoint(pointOnGlobe);
+		}
         // Fallback to using globe elevation values.
-        if (surfacePosition == null)
-            surfacePosition = new Position(
+        if (surfacePosition == null) {
+			surfacePosition = new Position(
                 position,
                 globe.getElevation(position.getLatitude(), position.getLongitude()) * dc.getVerticalExaggeration());
+		}
 
         return position.getElevation() - surfacePosition.getElevation();
     }

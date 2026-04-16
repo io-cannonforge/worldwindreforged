@@ -92,10 +92,11 @@ public class BarycentricQuadrilateral extends BarycentricTriangle
         if (Math.abs(alpha11 - 1) < eps) // if alpha11 == 1
         {
             u = alpha;
-            if (Math.abs(beta11 - 1) < eps) // if beta == 1
-                v = beta;
-            else
-                v = beta / (u * (beta11 - 1) + 1);
+            if (Math.abs(beta11 - 1) < eps) { // if beta == 1
+				v = beta;
+			} else {
+				v = beta / (u * (beta11 - 1) + 1);
+			}
         }
         else if (Math.abs(beta11 - 1) < eps) // if beta = 1
         {
@@ -109,15 +110,17 @@ public class BarycentricQuadrilateral extends BarycentricTriangle
             double c = alpha;
             double b24ac = b * b - 4 * a * c;
 
-            if (a == 0 || b24ac < 0)
-                return new double[] {-1, -1}; // TODO: Warn.
+            if (a == 0 || b24ac < 0) {
+				return new double[] {-1, -1}; // TODO: Warn.
+			}
 
             double q = -0.5 * (b + (b != 0 ? Math.signum(b) : 1) * Math.sqrt(b24ac));
             u = q / a;
             double ualt = c / q;
             u = Math.abs(u) <= Math.abs(ualt) ? u : ualt;
-            if (u < 0 || u > 1)
-                u = c / q;
+            if (u < 0 || u > 1) {
+				u = c / q;
+			}
 
             v = u * (beta11 - 1) + 1;
             v = Math.abs(v) >= eps ? beta / v : -1;
@@ -150,8 +153,9 @@ public class BarycentricQuadrilateral extends BarycentricTriangle
         double C = UminX.cross3(UminY).dot3(normal);
 
         double descriminant = B * B - 4d * A * C;
-        if (descriminant < 0)
-            return null;
+        if (descriminant < 0) {
+			return null;
+		}
         descriminant = Math.sqrt(descriminant);
 
         double beta = B > 0 ? (-B - descriminant) / (2d * A) : 2d * C / (-B + descriminant);

@@ -795,8 +795,9 @@ public class DataConfigurationUtils
                 }
             }
 
-            if (!WWUtil.isEmpty(coordinateSystem))
-                params.setValue(AVKey.COORDINATE_SYSTEM, coordinateSystem);
+            if (!WWUtil.isEmpty(coordinateSystem)) {
+				params.setValue(AVKey.COORDINATE_SYSTEM, coordinateSystem);
+			}
         }
 
         // Define the DISPLAY_NAME and DATASET_NAME from the WMS layer names and styles.

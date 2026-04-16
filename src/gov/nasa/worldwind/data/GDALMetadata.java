@@ -150,8 +150,9 @@ public class GDALMetadata
             if (!WWUtil.isEmpty(o) && o instanceof String)
             {
                 Integer abpp = WWUtil.convertStringToInteger((String) o);
-                if (null != abpp)
-                    params.setValue(AVKey.RASTER_BAND_ACTUAL_BITS_PER_PIXEL, abpp);
+                if (null != abpp) {
+					params.setValue(AVKey.RASTER_BAND_ACTUAL_BITS_PER_PIXEL, abpp);
+				}
             }
         }
 
@@ -161,8 +162,9 @@ public class GDALMetadata
             if (!WWUtil.isEmpty(o) && o instanceof String)
             {
                 Double maxPixelValue = WWUtil.convertStringToDouble((String) o);
-                if (null != maxPixelValue)
-                    params.setValue(AVKey.RASTER_BAND_MAX_PIXEL_VALUE, maxPixelValue);
+                if (null != maxPixelValue) {
+					params.setValue(AVKey.RASTER_BAND_MAX_PIXEL_VALUE, maxPixelValue);
+				}
             }
         }
 

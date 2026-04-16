@@ -133,15 +133,17 @@ public class EGM96
 
         // Return 0 for all offsets if the file failed to load. A log message of the failure will have been generated
         // by the load method.
-        if (this.deltas == null)
-            return 0;
+        if (this.deltas == null) {
+			return 0;
+		}
 
         double lat = latitude.degrees;
         double lon = longitude.degrees >= 0 ? longitude.degrees : longitude.degrees + 360;
 
         int topRow = (int) ((90 - lat) / INTERVAL.degrees);
-        if (lat <= -90)
-            topRow = NUM_ROWS - 2;
+        if (lat <= -90) {
+			topRow = NUM_ROWS - 2;
+		}
         int bottomRow = topRow + 1;
 
         // Note that the number of columns does not repeat the column at 0 longitude, so we must force the right
@@ -180,8 +182,9 @@ public class EGM96
     {
         int k = row * NUM_COLS + col;
 
-        if (k >= this.deltas.length())
-            System.out.println(k);
+        if (k >= this.deltas.length()) {
+			System.out.println(k);
+		}
 
         return this.deltas.getInt(k);
     }

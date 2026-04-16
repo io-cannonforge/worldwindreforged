@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -945,7 +946,7 @@ public class Shapefile extends AVListImpl implements Closeable, Exportable {
 
     protected URLConnection getURLConnection(String urlString) {
         try {
-            URL url = new URL(urlString);
+            URL url = URI.create(urlString).toURL();
             return url.openConnection();
         } catch (Exception e) {
             return null;

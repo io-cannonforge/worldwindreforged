@@ -88,8 +88,9 @@ public class SessionCacheUtils
 
         if (WorldWind.getNetworkStatus().isHostUnavailable(url))
         {
-            if (absentResourceList != null)
-                absentResourceList.markResourceAbsent(resourceID);
+            if (absentResourceList != null) {
+				absentResourceList.markResourceAbsent(resourceID);
+			}
             return;
         }
 
@@ -187,8 +188,9 @@ public class SessionCacheUtils
         }
 
         WMSCapabilities caps = getSessionCapabilities(cache, cacheKey, url.toString());
-        if (caps != null)
-            return caps;
+        if (caps != null) {
+			return caps;
+		}
 
         retrieveSessionData(url, cache, cacheKey, absentResourceList, resourceID, propertyListener, propertyName);
 

@@ -371,8 +371,9 @@ public class WorldMapLayer extends AbstractLayer
     public void doRender(DrawContext dc)
     {
         // Ensure that this shape isn't added to the ordered renderable list more than once per frame.
-        if (dc.isContinuous2DGlobe() && this.frameStampForDrawing == dc.getFrameTimeStamp())
-            return;
+        if (dc.isContinuous2DGlobe() && this.frameStampForDrawing == dc.getFrameTimeStamp()) {
+			return;
+		}
 
         // Delegate drawing to the ordered renderable list
         dc.addOrderedRenderable(this.orderedImage);
@@ -384,8 +385,9 @@ public class WorldMapLayer extends AbstractLayer
     public void doPick(DrawContext dc, Point pickPoint)
     {
         // Ensure that this shape isn't added to the ordered renderable list more than once per frame.
-        if (dc.isContinuous2DGlobe() && this.frameStampForPicking == dc.getFrameTimeStamp())
-            return;
+        if (dc.isContinuous2DGlobe() && this.frameStampForPicking == dc.getFrameTimeStamp()) {
+			return;
+		}
 
         // Delegate drawing to the ordered renderable list
         dc.addOrderedRenderable(this.orderedImage);
@@ -395,8 +397,9 @@ public class WorldMapLayer extends AbstractLayer
 
     protected void drawIcon(DrawContext dc)
     {
-        if (this.getIconFilePath() == null)
-            return;
+        if (this.getIconFilePath() == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         OGLStackHandler ogsh = new OGLStackHandler();
@@ -546,8 +549,9 @@ public class WorldMapLayer extends AbstractLayer
         {
             dc.restoreDefaultDepthTesting();
             dc.restoreDefaultCurrentColor();
-            if (dc.isPickingMode())
-                dc.restoreDefaultBlending();
+            if (dc.isPickingMode()) {
+				dc.restoreDefaultBlending();
+			}
             ogsh.pop(gl);
         }
     }
@@ -636,8 +640,9 @@ public class WorldMapLayer extends AbstractLayer
     protected void initializeTexture(DrawContext dc)
     {
         Texture iconTexture = dc.getTextureCache().getTexture(this.getIconFilePath());
-        if (iconTexture != null)
-            return;
+        if (iconTexture != null) {
+			return;
+		}
 
         GL gl = dc.getGL();
 
@@ -687,13 +692,15 @@ public class WorldMapLayer extends AbstractLayer
      */
     protected Position computeGroundPosition(DrawContext dc, View view)
     {
-        if (view == null)
-            return null;
+        if (view == null) {
+			return null;
+		}
 
         Position groundPos = view.computePositionFromScreenPoint(
             view.getViewport().getWidth() / 2, view.getViewport().getHeight() / 2);
-        if (groundPos == null)
-            return null;
+        if (groundPos == null) {
+			return null;
+		}
 
         double elevation = dc.getGlobe().getElevation(groundPos.getLatitude(), groundPos.getLongitude());
         return new Position(
@@ -757,9 +764,9 @@ public class WorldMapLayer extends AbstractLayer
                 heading = heading.addDegrees(headStep);
             }
             return positions;
-        }
-        else
-            return null;
+        } else {
+			return null;
+		}
     }
 
     @Override

@@ -69,8 +69,9 @@ public class DataConfigurationFilter implements java.io.FileFilter, FileStoreFil
         }
 
         // First check the file path, optionally returning false if the path cannot be accepted for any reason.
-        if (!this.acceptFilePath(file.getPath()))
-            return false;
+        if (!this.acceptFilePath(file.getPath())) {
+			return false;
+		}
 
         Document doc = null;
         try
@@ -183,14 +184,16 @@ public class DataConfigurationFilter implements java.io.FileFilter, FileStoreFil
         // Attempt to locate the named path in the FileStore, optionally checking the class path. If a file with that
         // name cannot be located, then return false.
         java.net.URL url = fileStore.findFile(fileName, true);
-        if (url == null)
-            return false;
+        if (url == null) {
+			return false;
+		}
 
         // Attempt to convert the URL to a local file path. If that succeeds, then continue treating the URL as if
         // it were a File.
         java.io.File file = WWIO.convertURLToFile(url);
-        if (file != null)
-            return this.accept(file);
+        if (file != null) {
+			return this.accept(file);
+		}
 
         return this.accept(url);
     }

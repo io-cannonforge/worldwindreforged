@@ -175,12 +175,14 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
     @Override
 	public Position getReferencePosition()
     {
-        if (this.locations == null)
-            return null;
+        if (this.locations == null) {
+			return null;
+		}
 
         var iterator = this.locations.iterator();
-        if (!iterator.hasNext())
-            return null;
+        if (!iterator.hasNext()) {
+			return null;
+		}
 
         return new Position(iterator.next(), 0);
     }
@@ -188,14 +190,16 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
     @Override
 	protected List<List<LatLon>> createGeometry(Globe globe, double edgeIntervalsPerDegree)
     {
-        if (this.locations == null)
-            return null;
+        if (this.locations == null) {
+			return null;
+		}
 
         ArrayList<LatLon> drawLocations = new ArrayList<>();
         this.generateIntermediateLocations(this.locations, edgeIntervalsPerDegree, this.isClosed(), drawLocations);
 
-        if (drawLocations.size() < 2)
-            return null;
+        if (drawLocations.size() < 2) {
+			return null;
+		}
 
         ArrayList<List<LatLon>> geom = new ArrayList<>();
         geom.add(drawLocations);
@@ -206,8 +210,9 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
     @Override
 	protected void doMoveTo(Position oldReferencePosition, Position newReferencePosition)
     {
-        if (this.locations == null)
-            return;
+        if (this.locations == null) {
+			return;
+		}
 
         ArrayList<LatLon> newLocations = new ArrayList<>();
 
@@ -224,8 +229,9 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
     @Override
 	protected void doMoveTo(Globe globe, Position oldReferencePosition, Position newReferencePosition)
     {
-        if (this.locations == null)
-            return;
+        if (this.locations == null) {
+			return;
+		}
 
         List<LatLon> newLocations = LatLon.computeShiftedLocations(globe, oldReferencePosition, newReferencePosition,
             this.getLocations());
@@ -256,8 +262,9 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
         super.doGetRestorableState(rs, context);
 
         Iterable<? extends LatLon> iterable = this.getLocations();
-        if (iterable != null)
-            rs.addStateValueAsLatLonList(context, "locationList", iterable);
+        if (iterable != null) {
+			rs.addStateValueAsLatLonList(context, "locationList", iterable);
+		}
 
         rs.addStateValueAsBoolean(context, "closed", this.isClosed());
     }
@@ -268,12 +275,14 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
         super.doRestoreState(rs, context);
 
         Iterable<LatLon> iterable = rs.getStateValueAsLatLonList(context, "locationList");
-        if (iterable != null)
-            this.setLocations(iterable);
+        if (iterable != null) {
+			this.setLocations(iterable);
+		}
 
         Boolean b = rs.getStateValueAsBoolean(context, "closed");
-        if (b != null)
-            this.setClosed(b);
+        if (b != null) {
+			this.setClosed(b);
+		}
     }
 
     @Override
@@ -282,8 +291,9 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
         super.legacyRestoreState(rs, context);
 
         List<LatLon> locations = rs.getStateValueAsLatLonList(context, "locations");
-        if (locations != null)
-            this.setLocations(locations);
+        if (locations != null) {
+			this.setLocations(locations);
+		}
     }
 
     //**************************************************************//
@@ -399,7 +409,8 @@ public class SurfacePolyline extends AbstractSurfaceShape implements Exportable
         xmlWriter.writeEndElement(); // Placemark
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

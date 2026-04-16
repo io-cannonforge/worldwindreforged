@@ -260,10 +260,11 @@ public class TacticalGraphicLabel
      */
     public void setText(String text)
     {
-        if (text != null)
-            this.lines = text.split("\n");
-        else
-            this.lines = null;
+        if (text != null) {
+			this.lines = text.split("\n");
+		} else {
+			this.lines = null;
+		}
 
         this.bounds = null; // Need to recompute
     }
@@ -739,8 +740,9 @@ public class TacticalGraphicLabel
     {
         // Do not compute bounds if they are available. Computing text bounds is expensive, so only do this
         // calculation if necessary.
-        if (this.bounds != null)
-            return;
+        if (this.bounds != null) {
+			return;
+		}
 
         TextRenderer textRenderer = OGLTextRenderer.getOrCreateTextRenderer(dc.getTextRendererCache(),
             this.getFont());
@@ -776,8 +778,9 @@ public class TacticalGraphicLabel
     {
         // Project the label position onto the viewport
         Position pos = this.getPosition();
-        if (pos == null)
-            return;
+        if (pos == null) {
+			return;
+		}
 
         olbl.placePoint = dc.computeTerrainPoint(pos.getLatitude(), pos.getLongitude(), 0);
         olbl.screenPlacePoint = dc.getView().project(olbl.placePoint);
@@ -857,10 +860,11 @@ public class TacticalGraphicLabel
             return false;
         }
 
-        if (dc.isPickingMode())
-            return dc.getPickFrustums().intersectsAny(olbl.screenExtent);
-        else
-            return view.getViewport().intersects(olbl.screenExtent);
+        if (dc.isPickingMode()) {
+			return dc.getPickFrustums().intersectsAny(olbl.screenExtent);
+		} else {
+			return view.getViewport().intersects(olbl.screenExtent);
+		}
     }
 
     /**
@@ -943,21 +947,25 @@ public class TacticalGraphicLabel
      */
     protected void makeOrderedRenderable(DrawContext dc)
     {
-        if (this.lines == null || this.position == null)
-            return;
+        if (this.lines == null || this.position == null) {
+			return;
+		}
 
         this.computeGeometryIfNeeded(dc);
 
         // Don't draw if beyond the horizon.
         double horizon = dc.getView().getHorizonDistance();
-        if (!dc.is2DGlobe() && this.thisFramesOrderedLabel.eyeDistance > horizon)
-            return;
+        if (!dc.is2DGlobe() && this.thisFramesOrderedLabel.eyeDistance > horizon) {
+			return;
+		}
 
-        if (this.intersectsFrustum(dc, this.thisFramesOrderedLabel))
-            dc.addOrderedRenderable(this.thisFramesOrderedLabel);
+        if (this.intersectsFrustum(dc, this.thisFramesOrderedLabel)) {
+			dc.addOrderedRenderable(this.thisFramesOrderedLabel);
+		}
 
-        if (dc.isPickingMode())
-            this.pickLayer = dc.getCurrentLayer();
+        if (dc.isPickingMode()) {
+			this.pickLayer = dc.getCurrentLayer();
+		}
     }
 
     /**
@@ -973,8 +981,9 @@ public class TacticalGraphicLabel
         {
             this.doDrawOrderedRenderable(dc, this.pickSupport, olbl);
 
-            if (this.isEnableBatchRendering())
-                this.drawBatched(dc, olbl);
+            if (this.isEnableBatchRendering()) {
+				this.drawBatched(dc, olbl);
+			}
         }
         finally
         {
@@ -1065,10 +1074,11 @@ public class TacticalGraphicLabel
         Angle heading = olbl.rotation;
 
         double headingDegrees;
-        if (heading != null)
-            headingDegrees = heading.degrees;
-        else
-            headingDegrees = 0;
+        if (heading != null) {
+			headingDegrees = heading.degrees;
+		} else {
+			headingDegrees = 0;
+		}
 
         int x = olbl.screenPoint.x;
         int y = olbl.screenPoint.y;
@@ -1093,10 +1103,11 @@ public class TacticalGraphicLabel
                 double height = bounds.getHeight();
 
                 x = olbl.screenPoint.x;
-                if (this.textAlign.equals(AVKey.CENTER))
-                    x = x - (int) (width / 2.0);
-                else if (this.textAlign.equals(AVKey.RIGHT))
-                    x = x - (int) width;
+                if (this.textAlign.equals(AVKey.CENTER)) {
+					x = x - (int) (width / 2.0);
+				} else if (this.textAlign.equals(AVKey.RIGHT)) {
+					x = x - (int) width;
+				}
                 y -= this.lineHeight;
 
                 Color color = dc.getUniquePickColor();
@@ -1148,10 +1159,11 @@ public class TacticalGraphicLabel
         Angle heading = olbl.rotation;
 
         double headingDegrees;
-        if (heading != null)
-            headingDegrees = heading.degrees;
-        else
-            headingDegrees = 0;
+        if (heading != null) {
+			headingDegrees = heading.degrees;
+		} else {
+			headingDegrees = 0;
+		}
 
         boolean matrixPushed = false;
         try
@@ -1169,8 +1181,9 @@ public class TacticalGraphicLabel
                 gl.glTranslated(-x, -y, 0);
             }
 
-            if (this.isDrawInterior())
-                this.drawInterior(dc, olbl);
+            if (this.isDrawInterior()) {
+				this.drawInterior(dc, olbl);
+			}
 
             textRenderer.begin3DRendering();
             try
@@ -1178,8 +1191,9 @@ public class TacticalGraphicLabel
                 this.doDrawText(textRenderer, olbl);
 
                 // Draw other labels that share the same text renderer configuration, if possible.
-                if (this.isEnableBatchRendering())
-                    this.drawBatchedText(dc, textRenderer, olbl);
+                if (this.isEnableBatchRendering()) {
+					this.drawBatchedText(dc, textRenderer, olbl);
+				}
             }
             finally
             {
@@ -1213,10 +1227,11 @@ public class TacticalGraphicLabel
 
         // Adjust x to account for text alignment
         int xAligned = x;
-        if (AVKey.CENTER.equals(textAlign))
-            xAligned = x - (int) (width / 2);
-        else if (AVKey.RIGHT.equals(textAlign))
-            xAligned = x - (int) width;
+        if (AVKey.CENTER.equals(textAlign)) {
+			xAligned = x - (int) (width / 2);
+		} else if (AVKey.RIGHT.equals(textAlign)) {
+			xAligned = x - (int) width;
+		}
 
         // We draw text top-down, so adjust y to compensate.
         int yAligned = (int) (y - height);
@@ -1294,10 +1309,11 @@ public class TacticalGraphicLabel
             Rectangle2D bounds = this.lineBounds[i];
 
             int xAligned = x;
-            if (this.textAlign.equals(AVKey.CENTER))
-                xAligned = x - (int) (bounds.getWidth() / 2);
-            else if (this.textAlign.equals(AVKey.RIGHT))
-                xAligned = x - (int) (bounds.getWidth());
+            if (this.textAlign.equals(AVKey.CENTER)) {
+				xAligned = x - (int) (bounds.getWidth() / 2);
+			} else if (this.textAlign.equals(AVKey.RIGHT)) {
+				xAligned = x - (int) (bounds.getWidth());
+			}
 
             y -= this.lineHeight;
             textRenderer.draw3D(line, xAligned, y, 0, 1);
@@ -1327,8 +1343,9 @@ public class TacticalGraphicLabel
             while (nextItem != null && nextItem instanceof OrderedLabel)
             {
                 OrderedLabel nextLabel = (OrderedLabel) nextItem;
-                if (!nextLabel.isEnableBatchRendering())
-                    break;
+                if (!nextLabel.isEnableBatchRendering()) {
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 nextLabel.doDrawOrderedRenderable(dc, this.pickSupport);
@@ -1341,8 +1358,9 @@ public class TacticalGraphicLabel
             while (nextItem != null && nextItem instanceof OrderedLabel)
             {
                 OrderedLabel nextLabel = (OrderedLabel) nextItem;
-                if (!nextLabel.isEnableBatchRendering() || !nextLabel.isEnableBatchPicking() || (nextLabel.getPickLayer() != firstLabel.getPickLayer())) // batch pick only within a single layer
-                    break;
+                if (!nextLabel.isEnableBatchRendering() || !nextLabel.isEnableBatchPicking() || (nextLabel.getPickLayer() != firstLabel.getPickLayer())) { // batch pick only within a single layer
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 nextLabel.doDrawOrderedRenderable(dc, this.pickSupport);
@@ -1374,8 +1392,9 @@ public class TacticalGraphicLabel
             while (nextItem != null && nextItem instanceof OrderedLabel)
             {
                 OrderedLabel nextLabel = (OrderedLabel) nextItem;
-                if (!nextLabel.isEnableBatchRendering())
-                    break;
+                if (!nextLabel.isEnableBatchRendering()) {
+					break;
+				}
 
                 boolean sameFont = firstLabel.getFont().equals(nextLabel.getFont());
                 boolean sameRotation = (firstLabel.rotation == null && nextLabel.rotation == null)
@@ -1385,8 +1404,9 @@ public class TacticalGraphicLabel
                 // We've already set up the text renderer state, so we can can't change the font or text rotation.
                 // Also can't batch render if the next label needs an interior since that will require tearing down the
                 // text renderer context.
-                if (!sameFont || !sameRotation || drawInterior)
-                    break;
+                if (!sameFont || !sameRotation || drawInterior) {
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 nextLabel.doDrawText(textRenderer);
@@ -1427,10 +1447,11 @@ public class TacticalGraphicLabel
         String textAlign = this.getTextAlign();
 
         int xAligned = x;
-        if (AVKey.CENTER.equals(textAlign))
-            xAligned = x - (int) (width / 2);
-        else if (AVKey.RIGHT.equals(textAlign))
-            xAligned = x - (int) width;
+        if (AVKey.CENTER.equals(textAlign)) {
+			xAligned = x - (int) (width / 2);
+		} else if (AVKey.RIGHT.equals(textAlign)) {
+			xAligned = x - (int) width;
+		}
 
         int yAligned = (int) (y - height);
 
@@ -1485,17 +1506,21 @@ public class TacticalGraphicLabel
 
         for (Vec4 v : corners)
         {
-            if (v.x > maxX)
-                maxX = (int) v.x;
+            if (v.x > maxX) {
+				maxX = (int) v.x;
+			}
 
-            if (v.x < minX)
-                minX = (int) v.x;
+            if (v.x < minX) {
+				minX = (int) v.x;
+			}
 
-            if (v.y > maxY)
-                maxY = (int) v.y;
+            if (v.y > maxY) {
+				maxY = (int) v.y;
+			}
 
-            if (v.y < minY)
-                minY = (int) v.y;
+            if (v.y < minY) {
+				minY = (int) v.y;
+			}
         }
 
         // Set bounds and translate the rectangle back to where it started.
@@ -1517,9 +1542,10 @@ public class TacticalGraphicLabel
         float[] colorArray = new float[4];
         Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), colorArray);
 
-        if (colorArray[2] > 0.5)
-            return new Color(0, 0, 0, 0.7f);
-        else
-            return new Color(1, 1, 1, 0.7f);
+        if (colorArray[2] > 0.5) {
+			return new Color(0, 0, 0, 0.7f);
+		} else {
+			return new Color(1, 1, 1, 0.7f);
+		}
     }
 }

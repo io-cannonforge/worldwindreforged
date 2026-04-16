@@ -142,8 +142,9 @@ public abstract class TiledImageLayer extends AbstractLayer
     public Object setValue(String key, Object value)
     {
         // Offer it to the level set
-        if (this.getLevels() != null)
-            this.getLevels().setValue(key, value);
+        if (this.getLevels() != null) {
+			this.getLevels().setValue(key, value);
+		}
 
         return super.setValue(key, value);
     }
@@ -332,14 +333,16 @@ public abstract class TiledImageLayer extends AbstractLayer
     {
         super.setExpiryTime(expiryTime);
 
-        if (expiryTime > 0)
-            this.levels.setExpiryTime(expiryTime); // remove this in sub-class to use level-specific expiry times
+        if (expiryTime > 0) {
+			this.levels.setExpiryTime(expiryTime); // remove this in sub-class to use level-specific expiry times
+		}
     }
 
     public List<TextureTile> getTopLevels()
     {
-        if (this.topLevels == null)
-            this.createTopLevelTiles();
+        if (this.topLevels == null) {
+			this.createTopLevelTiles();
+		}
 
         return topLevels;
     }
@@ -388,8 +391,9 @@ public abstract class TiledImageLayer extends AbstractLayer
     {
         for (TextureTile tile : this.getTopLevels())
         {
-            if (!tile.isTextureInMemory(dc.getTextureCache()))
-                this.forceTextureLoad(tile);
+            if (!tile.isTextureInMemory(dc.getTextureCache())) {
+				this.forceTextureLoad(tile);
+			}
         }
 
         this.levelZeroLoaded = true;
@@ -470,14 +474,16 @@ public abstract class TiledImageLayer extends AbstractLayer
             TextureTile[] subTiles = tile.createSubTiles(this.levels.getLevel(tile.getLevelNumber() + 1));
             for (TextureTile child : subTiles)
             {
-                if (this.getLevels().getSector().intersects(child.getSector()) && this.isTileVisible(dc, child))
-                    this.addTileOrDescendants(dc, child);
+                if (this.getLevels().getSector().intersects(child.getSector()) && this.isTileVisible(dc, child)) {
+					this.addTileOrDescendants(dc, child);
+				}
             }
         }
         finally
         {
-            if (ancestorResource != null) // Pop this tile as the currentResource ancestor
-                this.currentResourceTile = ancestorResource;
+            if (ancestorResource != null) { // Pop this tile as the currentResource ancestor
+				this.currentResourceTile = ancestorResource;
+			}
         }
     }
 
@@ -508,16 +514,18 @@ public abstract class TiledImageLayer extends AbstractLayer
         if (tile.getLevelNumber() < this.levels.getNumLevels())
         {
             // Request only tiles with data associated at this level
-            if (!this.levels.isResourceAbsent(tile))
-                this.requestTexture(dc, tile);
+            if (!this.levels.isResourceAbsent(tile)) {
+				this.requestTexture(dc, tile);
+			}
         }
 
         // Set up to use the currentResource tile's texture
         if (this.currentResourceTile != null)
         {
             if (this.currentResourceTile.getLevelNumber() == 0 && this.forceLevelZeroLoads &&
-                !this.currentResourceTile.isTextureInMemory(dc.getTextureCache()))
-                this.forceTextureLoad(this.currentResourceTile);
+                !this.currentResourceTile.isTextureInMemory(dc.getTextureCache())) {
+				this.forceTextureLoad(this.currentResourceTile);
+			}
 
             if (this.currentResourceTile.isTextureInMemory(dc.getTextureCache()))
             {
@@ -564,8 +572,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         // 50% has the same effect on object size as decreasing the distance between the eye and the object by 50%.
         // The detail hint is reduced for tiles above 75 degrees north and below 75 degrees south.
         double s = this.getDetailFactor();
-        if (sector.getMinLatitude().degrees >= 75 || sector.getMaxLatitude().degrees <= -75)
-            s *= 0.9;
+        if (sector.getMinLatitude().degrees >= 75 || sector.getMaxLatitude().degrees <= -75) {
+			s *= 0.9;
+		}
         double detailScale = Math.pow(10, -s);
         double fieldOfViewScale = dc.getView().getFieldOfView().tanHalfAngle() / DEFAULT_FOV_TAN_HALF_ANGLE;
         fieldOfViewScale = WWMath.clamp(fieldOfViewScale, 0, 1);
@@ -587,8 +596,9 @@ public abstract class TiledImageLayer extends AbstractLayer
     @Override
 	public Double getMinEffectiveAltitude(Double radius)
     {
-        if (radius == null)
-            radius = Earth.WGS84_EQUATORIAL_RADIUS;
+        if (radius == null) {
+			radius = Earth.WGS84_EQUATORIAL_RADIUS;
+		}
 
         // Get the texel size in meters for the highest-resolution level.
         double texelSizeRadians = this.getLevels().getLastLevel().getTexelSize();
@@ -601,14 +611,16 @@ public abstract class TiledImageLayer extends AbstractLayer
     @Override
 	public Double getMaxEffectiveAltitude(Double radius)
     {
-        if (radius == null)
-            radius = Earth.WGS84_EQUATORIAL_RADIUS;
+        if (radius == null) {
+			radius = Earth.WGS84_EQUATORIAL_RADIUS;
+		}
 
         // Find first non-empty level. Compute altitude at which it comes into effect.
         for (int i = 0; i < this.getLevels().getLastLevel().getLevelNumber(); i++)
         {
-            if (this.levels.isLevelEmpty(i))
-                continue;
+            if (this.levels.isLevelEmpty(i)) {
+				continue;
+			}
 
             // Compute altitude associated with the texel size at which it would switch if it had a lower-res level.
             // That texel size is twice that of the current lowest-res level.
@@ -624,15 +636,18 @@ public abstract class TiledImageLayer extends AbstractLayer
     protected boolean atMaxLevel(DrawContext dc)
     {
         Position vpc = dc.getViewportCenterPosition();
-        if (dc.getView() == null || this.getLevels() == null || vpc == null)
-            return false;
+        if (dc.getView() == null || this.getLevels() == null || vpc == null) {
+			return false;
+		}
 
-        if (!this.getLevels().getSector().contains(vpc.getLatitude(), vpc.getLongitude()))
-            return true;
+        if (!this.getLevels().getSector().contains(vpc.getLatitude(), vpc.getLongitude())) {
+			return true;
+		}
 
         Level nextToLast = this.getLevels().getNextToLastLevel();
-        if (nextToLast == null)
-            return true;
+        if (nextToLast == null) {
+			return true;
+		}
 
         Sector centerSector = nextToLast.computeSectorForPosition(vpc.getLatitude(), vpc.getLongitude(),
             this.levels.getTileOrigin());
@@ -654,10 +669,12 @@ public abstract class TiledImageLayer extends AbstractLayer
     @Override
     protected final void doRender(DrawContext dc)
     {
-        if (this.forceLevelZeroLoads && !this.levelZeroLoaded)
-            this.loadAllTopLevelTextures(dc);
-        if (dc.getSurfaceGeometry() == null || dc.getSurfaceGeometry().size() < 1)
-            return;
+        if (this.forceLevelZeroLoads && !this.levelZeroLoaded) {
+			this.loadAllTopLevelTextures(dc);
+		}
+        if (dc.getSurfaceGeometry() == null || dc.getSurfaceGeometry().size() < 1) {
+			return;
+		}
 
         dc.getGeographicSurfaceTileRenderer().setShowImageTileOutlines(this.isDrawTileBoundaries());
 
@@ -704,18 +721,21 @@ public abstract class TiledImageLayer extends AbstractLayer
 
             gl.glPopAttrib();
 
-            if (this.drawTileIDs)
-                this.drawTileIDs(dc, this.currentTiles);
+            if (this.drawTileIDs) {
+				this.drawTileIDs(dc, this.currentTiles);
+			}
 
-            if (this.drawBoundingVolumes)
-                this.drawBoundingVolumes(dc, this.currentTiles);
+            if (this.drawBoundingVolumes) {
+				this.drawBoundingVolumes(dc, this.currentTiles);
+			}
 
             // Check texture expiration. Memory-cached textures are checked for expiration only when an explicit,
             // non-zero expiry time has been set for the layer. If none has been set, the expiry times of the layer's
             // individual levels are used, but only for images in the local file cache, not textures in memory. This is
             // to avoid incurring the overhead of checking expiration of in-memory textures, a very rarely used feature.
-            if (this.getExpiryTime() > 0 && this.getExpiryTime() <= System.currentTimeMillis())
-                this.checkTextureExpiration(dc, this.currentTiles);
+            if (this.getExpiryTime() > 0 && this.getExpiryTime() <= System.currentTimeMillis()) {
+				this.checkTextureExpiration(dc, this.currentTiles);
+			}
 
             this.currentTiles.clear();
         }
@@ -728,8 +748,9 @@ public abstract class TiledImageLayer extends AbstractLayer
     {
         for (TextureTile tile : tiles)
         {
-            if (tile.isTextureExpired())
-                this.requestTexture(dc, tile);
+            if (tile.isTextureExpired()) {
+				this.requestTexture(dc, tile);
+			}
         }
     }
 
@@ -783,16 +804,18 @@ public abstract class TiledImageLayer extends AbstractLayer
 
     protected Vec4 computeReferencePoint(DrawContext dc)
     {
-        if (dc.getViewportCenterPosition() != null)
-            return dc.getGlobe().computePointFromPosition(dc.getViewportCenterPosition());
+        if (dc.getViewportCenterPosition() != null) {
+			return dc.getGlobe().computePointFromPosition(dc.getViewportCenterPosition());
+		}
 
         java.awt.geom.Rectangle2D viewport = dc.getView().getViewport();
         int x = (int) viewport.getWidth() / 2;
         for (int y = (int) (0.5 * viewport.getHeight()); y >= 0; y--)
         {
             Position pos = dc.getView().computePositionFromScreenPoint(x, y);
-            if (pos == null)
-                continue;
+            if (pos == null) {
+				continue;
+			}
 
             return dc.getGlobe().computePointFromPosition(pos.getLatitude(), pos.getLongitude(), 0d);
         }
@@ -834,8 +857,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         {
             String tileLabel = tile.getLabel();
 
-            if (tile.getFallbackTile() != null)
-                tileLabel += "/" + tile.getFallbackTile().getLabel();
+            if (tile.getFallbackTile() != null) {
+				tileLabel += "/" + tile.getFallbackTile().getLabel();
+			}
 
             LatLon ll = tile.getSector().getCentroid();
             Vec4 pt = dc.getGlobe().computePointFromPosition(ll.getLatitude(), ll.getLongitude(),
@@ -857,8 +881,9 @@ public abstract class TiledImageLayer extends AbstractLayer
 
         for (TextureTile tile : tiles)
         {
-            if (tile.getExtent(dc) instanceof Renderable)
-                ((Renderable) tile.getExtent(dc)).render(dc);
+            if (tile.getExtent(dc) instanceof Renderable) {
+				((Renderable) tile.getExtent(dc)).render(dc);
+			}
         }
 
         Box c = Sector.computeBoundingBox(dc.getGlobe(), dc.getVerticalExaggeration(), this.levels.getSector());
@@ -951,8 +976,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         {
             // The service element may already exist, in which case we want to append to it.
             Element el = WWXML.getElement(context, "Service", xpath);
-            if (el == null)
-                el = WWXML.appendElementPath(context, "Service");
+            if (el == null) {
+				el = WWXML.appendElementPath(context, "Service");
+			}
             WWXML.setTextAttribute(el, "serviceName", s);
         }
 
@@ -972,8 +998,9 @@ public abstract class TiledImageLayer extends AbstractLayer
                 // The available image formats element may already exists, in which case we want to append to it, rather
                 // than create entirely separate paths.
                 Element el = WWXML.getElement(context, "AvailableImageFormats", xpath);
-                if (el == null)
-                    el = WWXML.appendElementPath(context, "AvailableImageFormats");
+                if (el == null) {
+					el = WWXML.appendElementPath(context, "AvailableImageFormats");
+				}
                 WWXML.appendTextArray(el, "ImageFormat", strings);
             }
         }
@@ -991,8 +1018,9 @@ public abstract class TiledImageLayer extends AbstractLayer
             params.getValue(AVKey.RETRIEVAL_QUEUE_STALE_REQUEST_LIMIT) != null)
         {
             Element el = WWXML.getElement(context, "RetrievalTimeouts", xpath);
-            if (el == null)
-                el = WWXML.appendElementPath(context, "RetrievalTimeouts");
+            if (el == null) {
+				el = WWXML.appendElementPath(context, "RetrievalTimeouts");
+			}
 
             WWXML.checkAndAppendTimeElement(params, AVKey.URL_CONNECT_TIMEOUT, el, "ConnectTimeout/Time");
             WWXML.checkAndAppendTimeElement(params, AVKey.URL_READ_TIMEOUT, el, "ReadTimeout/Time");
@@ -1041,8 +1069,9 @@ public abstract class TiledImageLayer extends AbstractLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         XPath xpath = WWXML.makeXPath();
 
@@ -1114,8 +1143,9 @@ public abstract class TiledImageLayer extends AbstractLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         XPath xpath = WWXML.makeXPath();
 
@@ -1123,8 +1153,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         if (o == null)
         {
             Boolean b = WWXML.getBoolean(domElement, "CompressTextures", xpath);
-            if (b != null && b)
-                params.setValue(AVKey.TEXTURE_FORMAT, "image/dds");
+            if (b != null && b) {
+				params.setValue(AVKey.TEXTURE_FORMAT, "image/dds");
+			}
         }
 
         return params;
@@ -1153,8 +1184,9 @@ public abstract class TiledImageLayer extends AbstractLayer
     {
         this.supportedImageFormats.clear();
 
-        if (formats != null)
-            this.supportedImageFormats.addAll(Arrays.asList(formats));
+        if (formats != null) {
+			this.supportedImageFormats.addAll(Arrays.asList(formats));
+		}
     }
 
     protected BufferedImage requestImage(TextureTile tile, String mimeType)
@@ -1165,13 +1197,15 @@ public abstract class TiledImageLayer extends AbstractLayer
         String path = pathBase + suffix;
         File f = new File(path);
         URL url;
-        if (f.isAbsolute() && f.exists())
-            url = f.toURI().toURL();
-        else
-            url = this.getDataFileStore().findFile(path, false);
+        if (f.isAbsolute() && f.exists()) {
+			url = f.toURI().toURL();
+		} else {
+			url = this.getDataFileStore().findFile(path, false);
+		}
 
-        if (url == null) // image is not local
-            return null;
+        if (url == null) { // image is not local
+			return null;
+		}
 
         if (WWIO.isFileOutOfDate(url, tile.getLevel().getExpiryTime()))
         {
@@ -1214,19 +1248,21 @@ public abstract class TiledImageLayer extends AbstractLayer
 
     protected void downloadImage(final TextureTile tile, String mimeType, int timeout) throws Exception
     {
-        if (this.getValue(AVKey.RETRIEVER_FACTORY_LOCAL) != null)
-            this.retrieveLocalImage(tile, mimeType, timeout);
-        else
-            // Assume it's remote.
-            this.retrieveRemoteImage(tile, mimeType, timeout);
+        if (this.getValue(AVKey.RETRIEVER_FACTORY_LOCAL) != null) {
+			this.retrieveLocalImage(tile, mimeType, timeout);
+		} else { // Assume it's remote.
+			// Assume it's remote.
+			            this.retrieveRemoteImage(tile, mimeType, timeout);
+		}
     }
 
     protected void retrieveRemoteImage(final TextureTile tile, String mimeType, int timeout) throws Exception
     {
         // TODO: apply retriever-factory pattern for remote retrieval case.
         final URL resourceURL = tile.getResourceURL(mimeType);
-        if (resourceURL == null)
-            return;
+        if (resourceURL == null) {
+			return;
+		}
 
         Retriever retriever;
 
@@ -1251,12 +1287,14 @@ public abstract class TiledImageLayer extends AbstractLayer
 
     protected void retrieveLocalImage(TextureTile tile, String mimeType, int timeout) throws Exception
     {
-        if (!WorldWind.getLocalRetrievalService().isAvailable())
-            return;
+        if (!WorldWind.getLocalRetrievalService().isAvailable()) {
+			return;
+		}
 
         RetrieverFactory retrieverFactory = (RetrieverFactory) this.getValue(AVKey.RETRIEVER_FACTORY_LOCAL);
-        if (retrieverFactory == null)
-            return;
+        if (retrieverFactory == null) {
+			return;
+		}
 
         AVListImpl avList = new AVListImpl();
         avList.setValue(AVKey.SECTOR, tile.getSector());
@@ -1286,12 +1324,14 @@ public abstract class TiledImageLayer extends AbstractLayer
         Level targetLevel = this.levels.getLastLevel();
         for (int i = 0; i < this.getLevels().getLastLevel().getLevelNumber(); i++)
         {
-            if (this.levels.isLevelEmpty(i))
-                continue;
+            if (this.levels.isLevelEmpty(i)) {
+				continue;
+			}
 
             texelSize = this.levels.getLevel(i).getTexelSize();
-            if (texelSize > resolution)
-                continue;
+            if (texelSize > resolution) {
+				continue;
+			}
 
             targetLevel = this.levels.getLevel(i);
             break;
@@ -1303,8 +1343,9 @@ public abstract class TiledImageLayer extends AbstractLayer
             Level nextLowerLevel = this.levels.getLevel(targetLevel.getLevelNumber() - 1);
             double dless = Math.abs(nextLowerLevel.getTexelSize() - resolution);
             double dmore = Math.abs(targetLevel.getTexelSize() - resolution);
-            if (dless < dmore)
-                targetLevel = nextLowerLevel;
+            if (dless < dmore) {
+				targetLevel = nextLowerLevel;
+			}
         }
 
         Logging.logger().fine(Logging.getMessage("layers.TiledImageLayer.LevelSelection",
@@ -1388,16 +1429,18 @@ public abstract class TiledImageLayer extends AbstractLayer
             return image;
         }
 
-        if (image == null)
-            image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+        if (image == null) {
+			image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+		}
 
         double tileCount = 0;
         for (TextureTile[] row : tiles)
         {
             for (TextureTile tile : row)
             {
-                if (tile == null)
-                    continue;
+                if (tile == null) {
+					continue;
+				}
 
                 BufferedImage tileImage;
                 try
@@ -1405,8 +1448,9 @@ public abstract class TiledImageLayer extends AbstractLayer
                     tileImage = this.getImage(tile, mimeType, timeout);
                     Thread.sleep(1); // generates InterruptedException if thread has been interupted
 
-                    if (tileImage != null)
-                        ImageUtil.mergeImage(sector, tile.getSector(), aspectRatio, tileImage, image);
+                    if (tileImage != null) {
+						ImageUtil.mergeImage(sector, tile.getSector(), aspectRatio, tileImage, image);
+					}
 
                     this.firePropertyChange(AVKey.PROGRESS, tileCount / numTiles, ++tileCount / numTiles);
                 }
@@ -1420,8 +1464,9 @@ public abstract class TiledImageLayer extends AbstractLayer
                 }
                 catch (Exception e)
                 {
-                    if (abortOnError)
-                        throw e;
+                    if (abortOnError) {
+						throw e;
+					}
 
                     String message = Logging.getMessage("generic.ExceptionWhileRequestingImage", tile.getPath());
                     Logging.logger().log(java.util.logging.Level.WARNING, message, e);
@@ -1437,8 +1482,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         long count = 0;
         for (int i = 0; i <= this.getLevels().getLastLevel().getLevelNumber(); i++)
         {
-            if (!this.levels.isLevelEmpty(i))
-                count += countImagesInSector(sector, i);
+            if (!this.levels.isLevelEmpty(i)) {
+				count += countImagesInSector(sector, i);
+			}
         }
         return count;
     }
@@ -1457,8 +1503,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         {
             for (int i = levelNumber; i < this.getLevels().getLastLevel().getLevelNumber(); i++)
             {
-                if (this.levels.isLevelEmpty(i))
-                    continue;
+                if (this.levels.isLevelEmpty(i)) {
+					continue;
+				}
 
                 targetLevel = this.levels.getLevel(i);
                 break;
@@ -1493,8 +1540,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         {
             for (int i = levelNumber; i < this.getLevels().getLastLevel().getLevelNumber(); i++)
             {
-                if (this.levels.isLevelEmpty(i))
-                    continue;
+                if (this.levels.isLevelEmpty(i)) {
+					continue;
+				}
 
                 targetLevel = this.levels.getLevel(i);
                 break;
@@ -1531,8 +1579,9 @@ public abstract class TiledImageLayer extends AbstractLayer
         // Read the image from disk.
         BufferedImage image = this.requestImage(tile, mimeType);
         Thread.sleep(1); // generates InterruptedException if thread has been interrupted
-        if (image != null)
-            return image;
+        if (image != null) {
+			return image;
+		}
 
         // Retrieve it from the net since it's not on disk.
         this.downloadImage(tile, mimeType, timeout);
@@ -1575,8 +1624,9 @@ public abstract class TiledImageLayer extends AbstractLayer
 
             File f = new File(path);
             final File outFile = f.isAbsolute() ? f : getDataFileStore().newFile(path);
-            if (outFile == null)
-                return null;
+            if (outFile == null) {
+				return null;
+			}
 
             return outFile;
         }

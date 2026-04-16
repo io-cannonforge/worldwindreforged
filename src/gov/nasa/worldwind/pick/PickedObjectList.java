@@ -54,8 +54,9 @@ public class PickedObjectList extends ArrayList<PickedObject>
         {
             for (PickedObject po : this)
             {
-                if (po.isOnTop())
-                    return po;
+                if (po.isOnTop()) {
+					return po;
+				}
             }
         }
 
@@ -77,8 +78,9 @@ public class PickedObjectList extends ArrayList<PickedObject>
     {
         for (PickedObject po : this)
         {
-            if (po.isTerrain())
-                return po;
+            if (po.isTerrain()) {
+				return po;
+			}
         }
 
         return null;
@@ -103,8 +105,9 @@ public class PickedObjectList extends ArrayList<PickedObject>
         {
             if (po.isOnTop())
             {
-                if (list == null)
-                    list = new ArrayList<>();
+                if (list == null) {
+					list = new ArrayList<>();
+				}
                 list.add(po);
             }
         }
@@ -127,8 +130,9 @@ public class PickedObjectList extends ArrayList<PickedObject>
         {
             if (po.isOnTop())
             {
-                if (list == null)
-                    list = new ArrayList<>();
+                if (list == null) {
+					list = new ArrayList<>();
+				}
                 list.add(po.getObject());
             }
         }

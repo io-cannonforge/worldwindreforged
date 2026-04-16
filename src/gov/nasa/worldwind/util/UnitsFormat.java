@@ -636,10 +636,11 @@ public class UnitsFormat extends AVListImpl
     public String getLengthUnitsSystem()
     {
         if (this.getLengthUnits().equals(UnitsFormat.METERS)
-            || this.getLengthUnits().equals(UnitsFormat.KILOMETERS))
-            return UnitsFormat.METRIC_SYSTEM;
-        else
-            return UnitsFormat.IMPERIAL_SYSTEM;
+            || this.getLengthUnits().equals(UnitsFormat.KILOMETERS)) {
+			return UnitsFormat.METRIC_SYSTEM;
+		} else {
+			return UnitsFormat.IMPERIAL_SYSTEM;
+		}
     }
 
     /**
@@ -653,10 +654,11 @@ public class UnitsFormat extends AVListImpl
         if (this.getAreaUnits().equals(UnitsFormat.SQUARE_METERS)
             || this.getAreaUnits().equals(UnitsFormat.SQUARE_KILOMETERS)
             || this.getAreaUnits().equals(UnitsFormat.HECTARE)
-            )
-            return UnitsFormat.METRIC_SYSTEM;
-        else
-            return UnitsFormat.IMPERIAL_SYSTEM;
+            ) {
+			return UnitsFormat.METRIC_SYSTEM;
+		} else {
+			return UnitsFormat.IMPERIAL_SYSTEM;
+		}
     }
 
     /**
@@ -960,10 +962,11 @@ public class UnitsFormat extends AVListImpl
         }
 
         String s;
-        if (this.isShowDMS())
-            s = String.format("%s", angle.toFormattedDMSString()).trim();
-        else
-            s = String.format(this.getFormat(FORMAT_DECIMAL_DEGREES), angle.degrees).trim();
+        if (this.isShowDMS()) {
+			s = String.format("%s", angle.toFormattedDMSString()).trim();
+		} else {
+			s = String.format(this.getFormat(FORMAT_DECIMAL_DEGREES), angle.degrees).trim();
+		}
 
         return label != null ? label + " " + s : s;
     }
@@ -995,14 +998,15 @@ public class UnitsFormat extends AVListImpl
      */
     public String eyeAltitude(double metersAltitude)
     {
-        if (this.getFormat(FORMAT_EYE_ALTITUDE).contains("f"))
-            return String.format(this.getLabel(LABEL_EYE_ALTITUDE) + this.getFormat(FORMAT_EYE_ALTITUDE),
+        if (this.getFormat(FORMAT_EYE_ALTITUDE).contains("f")) {
+			return String.format(this.getLabel(LABEL_EYE_ALTITUDE) + this.getFormat(FORMAT_EYE_ALTITUDE),
                 metersAltitude * this.getAltitudeUnitsMultiplier(),
                 this.getAltitudeUnitsSymbol());
-        else
-            return String.format(this.getLabel(LABEL_EYE_ALTITUDE) + this.getFormat(FORMAT_EYE_ALTITUDE),
+		} else {
+			return String.format(this.getLabel(LABEL_EYE_ALTITUDE) + this.getFormat(FORMAT_EYE_ALTITUDE),
                 (int) Math.round(metersAltitude * this.getAltitudeUnitsMultiplier()),
                 this.getAltitudeUnitsSymbol());
+		}
     }
 
     /**

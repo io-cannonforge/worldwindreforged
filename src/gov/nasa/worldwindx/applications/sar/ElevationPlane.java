@@ -154,14 +154,16 @@ public class ElevationPlane extends Polygon
     protected void applyTextureState(DrawContext dc)
     {
         WWTexture texture = getTexture();
-        if ((texture == null) || !texture.bind(dc))
-            return;
+        if ((texture == null) || !texture.bind(dc)) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         // Texture coordinates generation
         double[][] planes = this.computePlanes(dc);
-        if (planes == null)
-            return;
+        if (planes == null) {
+			return;
+		}
 
         gl.glTexGeni(GL2.GL_S, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
         gl.glTexGeni(GL2.GL_T, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
@@ -198,8 +200,9 @@ public class ElevationPlane extends Polygon
         double[][] planes = new double[2][4];
         // Compute two planes perpendicular to the polygon at its reference position.
         Position center = this.getReferencePosition();
-        if (center == null)
-            return null;
+        if (center == null) {
+			return null;
+		}
 
         Vec4 north = dc.getGlobe().computeNorthPointingTangentAtLocation(center.latitude, center.longitude);
         Vec4 normal = dc.getGlobe().computeSurfaceNormalAtLocation(center.latitude, center.longitude);
@@ -212,8 +215,9 @@ public class ElevationPlane extends Polygon
 
     protected WWTexture getTexture()
     {
-        if (this.texture == null && this.imageSource != null)
-            this.texture = new BasicWWTexture(this.imageSource);
+        if (this.texture == null && this.imageSource != null) {
+			this.texture = new BasicWWTexture(this.imageSource);
+		}
 
         return this.texture;
     }

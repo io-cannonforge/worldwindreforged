@@ -96,8 +96,9 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
     public WorldWindowGLAutoDrawable()
     {
         SceneController sc = this.getSceneController();
-        if (sc != null)
-            sc.addPropertyChangeListener(this);
+        if (sc != null) {
+			sc.addPropertyChangeListener(this);
+		}
     }
 
     /**
@@ -187,10 +188,12 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
     {
         super.shutdown();
         this.drawable.removeGLEventListener(this);
-        if (this.dashboard != null)
-            this.dashboard.dispose();
-        if (this.viewRefreshTask != null)
-            this.viewRefreshTask.cancel(false);
+        if (this.dashboard != null) {
+			this.dashboard.dispose();
+		}
+        if (this.viewRefreshTask != null) {
+			this.viewRefreshTask.cancel(false);
+		}
         this.shuttingDown = false;
     }
 
@@ -261,10 +264,11 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
             }
         }
 
-        if (this.firstInit)
-            this.firstInit = false;
-        else if (this.enableGpuCacheReinitialization)
-            this.reinitialize(glAutoDrawable);
+        if (this.firstInit) {
+			this.firstInit = false;
+		} else if (this.enableGpuCacheReinitialization) {
+			this.reinitialize(glAutoDrawable);
+		}
 
         // Disables use of the OpenGL extension GL_ARB_texture_rectangle by JOGL's Texture creation utility.
         //
@@ -287,8 +291,9 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
     protected void reinitialize(GLAutoDrawable glAutoDrawable)
     {
         // Clear the gpu resource cache if the window is reinitializing, most likely with a new gl hardware context.
-        if (this.getGpuResourceCache() != null)
-            this.getGpuResourceCache().clear();
+        if (this.getGpuResourceCache() != null) {
+			this.getGpuResourceCache().clear();
+		}
 
         this.getSceneController().reinitialize();
     }
@@ -395,12 +400,14 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
             this.doSwapBuffers(this.drawable);
 
             Double frameTime = sc.getFrameTime();
-            if (frameTime != null)
-                this.setValue(PerformanceStatistic.FRAME_TIME, frameTime);
+            if (frameTime != null) {
+				this.setValue(PerformanceStatistic.FRAME_TIME, frameTime);
+			}
 
             Double frameRate = sc.getFramesPerSecond();
-            if (frameRate != null)
-                this.setValue(PerformanceStatistic.FRAME_RATE, frameRate);
+            if (frameRate != null) {
+				this.setValue(PerformanceStatistic.FRAME_RATE, frameRate);
+			}
 
             // Dispatch the rendering exceptions accumulated by the SceneController during this frame to our
             // RenderingExceptionListeners.
@@ -409,8 +416,9 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
             {
                 for (Throwable t : renderingExceptions)
                 {
-                    if (t != null)
-                        this.callRenderingExceptionListeners(t);
+                    if (t != null) {
+						this.callRenderingExceptionListeners(t);
+					}
                 }
             }
 
@@ -429,9 +437,10 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
                 // call the listener if both are not null or positions are the same
                 if (positionAtStart != null && positionAtEnd != null)
                 {
-                    if (!positionAtStart.equals(positionAtEnd))
-                        this.callPositionListeners(new PositionEvent(this.drawable, sc.getPickPoint(),
+                    if (!positionAtStart.equals(positionAtEnd)) {
+						this.callPositionListeners(new PositionEvent(this.drawable, sc.getPickPoint(),
                             positionAtStart, positionAtEnd));
+					}
                 }
                 else
                 {
@@ -519,15 +528,17 @@ public class WorldWindowGLAutoDrawable extends WorldWindowImpl implements WorldW
     @Override
     public void redraw()
     {
-        if (this.drawable != null)
-            ((AWTGLAutoDrawable) this.drawable).repaint();
+        if (this.drawable != null) {
+			((AWTGLAutoDrawable) this.drawable).repaint();
+		}
     }
 
     @Override
 	public void redrawNow()
     {
-        if (this.drawable != null)
-            this.drawable.display();
+        if (this.drawable != null) {
+			this.drawable.display();
+		}
     }
 
     /**

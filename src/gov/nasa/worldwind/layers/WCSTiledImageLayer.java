@@ -18,6 +18,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -85,14 +86,17 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
      */
     public static WCSTiledImageLayer fromWCS(WCS100Capabilities caps, AVList params)
     {
-        if (caps == null)
-            throw new IllegalArgumentException(Logging.getMessage("nullValue.WCSCapabilities"));
-        if (params == null)
-            throw new IllegalArgumentException(Logging.getMessage("nullValue.ParametersIsNull"));
+        if (caps == null) {
+			throw new IllegalArgumentException(Logging.getMessage("nullValue.WCSCapabilities"));
+		}
+        if (params == null) {
+			throw new IllegalArgumentException(Logging.getMessage("nullValue.ParametersIsNull"));
+		}
 
         WCS100DescribeCoverage coverage = (WCS100DescribeCoverage) params.getValue(AVKey.DOCUMENT);
-        if (coverage == null)
-            throw new IllegalArgumentException(Logging.getMessage("nullValue.WCSDescribeCoverage"));
+        if (coverage == null) {
+			throw new IllegalArgumentException(Logging.getMessage("nullValue.WCSDescribeCoverage"));
+		}
 
         // Reuse the same config-extraction pipeline as WCSElevationModel.
         DataConfigurationUtils.getWCSConfigParameters(caps, coverage, params);
@@ -119,18 +123,24 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
             Angle delta = Angle.fromDegrees(20);
             params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, new LatLon(delta, delta));
         }
-        if (params.getValue(AVKey.TILE_WIDTH) == null)
-            params.setValue(AVKey.TILE_WIDTH, 150);
-        if (params.getValue(AVKey.TILE_HEIGHT) == null)
-            params.setValue(AVKey.TILE_HEIGHT, 150);
-        if (params.getValue(AVKey.FORMAT_SUFFIX) == null)
-            params.setValue(AVKey.FORMAT_SUFFIX, ".tif");
-        if (params.getValue(AVKey.MISSING_DATA_SIGNAL) == null)
-            params.setValue(AVKey.MISSING_DATA_SIGNAL, -9999d);
-        if (params.getValue(AVKey.NUM_LEVELS) == null)
-            params.setValue(AVKey.NUM_LEVELS, 18);
-        if (params.getValue(AVKey.NUM_EMPTY_LEVELS) == null)
-            params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);
+        if (params.getValue(AVKey.TILE_WIDTH) == null) {
+			params.setValue(AVKey.TILE_WIDTH, 150);
+		}
+        if (params.getValue(AVKey.TILE_HEIGHT) == null) {
+			params.setValue(AVKey.TILE_HEIGHT, 150);
+		}
+        if (params.getValue(AVKey.FORMAT_SUFFIX) == null) {
+			params.setValue(AVKey.FORMAT_SUFFIX, ".tif");
+		}
+        if (params.getValue(AVKey.MISSING_DATA_SIGNAL) == null) {
+			params.setValue(AVKey.MISSING_DATA_SIGNAL, -9999d);
+		}
+        if (params.getValue(AVKey.NUM_LEVELS) == null) {
+			params.setValue(AVKey.NUM_LEVELS, 18);
+		}
+        if (params.getValue(AVKey.NUM_EMPTY_LEVELS) == null) {
+			params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);
+		}
     }
 
     // ── Texture loading — convert scalar GeoTIFF to ARGB ─────────────────────
@@ -145,21 +155,25 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
             {
                 image = readTiffWithBuiltInReader(new File(textureURL.toURI()));
             }
-            if (image == null)
-                return false;
+            if (image == null) {
+				return false;
+			}
 
             BufferedImage coloured = colourize(image);
-            if (coloured == null)
-                return false;
+            if (coloured == null) {
+				return false;
+			}
 
             TextureData td = AWTTextureIO.newTextureData(
                 Configuration.getMaxCompatibleGLProfile(), coloured, this.isUseMipMaps());
-            if (td == null)
-                return false;
+            if (td == null) {
+				return false;
+			}
 
             tile.setTextureData(td);
-            if (tile.getLevelNumber() != 0 || !this.isRetainLevelZeroTiles())
-                this.addTileToCache(tile);
+            if (tile.getLevelNumber() != 0 || !this.isRetainLevelZeroTiles()) {
+				this.addTileToCache(tile);
+			}
 
             return true;
         }
@@ -192,20 +206,27 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
             for (int x = 0; x < w; x++)
             {
                 float v = raster.getSampleFloat(x, y, 0);
-                if (!Float.isFinite(v) || v == signal || v < -1e7f || v > 1e7f)
-                    continue;
-                if (v < min) min = v;
-                if (v > max) max = v;
+                if (!Float.isFinite(v) || v == signal || v < -1e7f || v > 1e7f) {
+					continue;
+				}
+                if (v < min) {
+					min = v;
+				}
+                if (v > max) {
+					max = v;
+				}
                 hasData = true;
             }
         }
 
-        if (!hasData)
-            return null; // entirely missing — skip this tile
+        if (!hasData) {
+			return null; // entirely missing — skip this tile
+		}
 
         float range = max - min;
-        if (range < 1e-6f)
-            range = 1.0f; // flat tile — avoid division by zero
+        if (range < 1e-6f) {
+			range = 1.0f; // flat tile — avoid division by zero
+		}
 
         // Second pass: map values to colours.
         BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -223,8 +244,12 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
                 }
 
                 float t = (v - min) / range;
-                if (t < 0f) t = 0f;
-                if (t > 1f) t = 1f;
+                if (t < 0f) {
+					t = 0f;
+				}
+                if (t > 1f) {
+					t = 1f;
+				}
                 int idx = (int) (t * rampMax);
                 dst.setRGB(x, y, RAMP[idx]);
             }
@@ -242,13 +267,15 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
         {
             ImageReader reader = readers.next();
             // Skip WorldWind's GeotiffImageReader — it can't handle tiled/compressed TIFFs.
-            if (reader.getClass().getName().contains("GeotiffImageReader"))
-                continue;
+            if (reader.getClass().getName().contains("GeotiffImageReader")) {
+				continue;
+			}
 
             try (javax.imageio.stream.ImageInputStream iis = ImageIO.createImageInputStream(file))
             {
-                if (iis == null)
-                    return null;
+                if (iis == null) {
+					return null;
+				}
                 reader.setInput(iis);
                 return reader.read(0);
             }
@@ -348,8 +375,9 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
             {
                 sb = new StringBuilder(tile.getLevel().getService());
 
-                if (!sb.toString().toLowerCase().contains("service=wcs"))
-                    sb.append("service=WCS");
+                if (!sb.toString().toLowerCase().contains("service=wcs")) {
+					sb.append("service=WCS");
+				}
                 sb.append("&request=GetCoverage");
                 sb.append("&version=").append(this.serviceVersion);
                 sb.append("&crs=EPSG:4326");
@@ -376,7 +404,7 @@ public class WCSTiledImageLayer extends BasicTiledImageLayer
 
             sb.append("&"); // terminate the query string
 
-            return new URL(sb.toString().replace(" ", "%20"));
+            return URI.create(sb.toString().replace(" ", "%20")).toURL();
         }
     }
 

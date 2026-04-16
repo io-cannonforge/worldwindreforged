@@ -51,8 +51,9 @@ public class WorldWindow
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
             String s = Configuration.getStringValue(Constants.APPLICATION_DISPLAY_NAME);
-            if (s == null)
-                s = "WorldWindow";
+            if (s == null) {
+				s = "WorldWindow";
+			}
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", s);
         }
         else if (Configuration.isWindowsOS())
@@ -69,8 +70,9 @@ public class WorldWindow
         Controller controller = new Controller();
 
         Dimension appSize = null;
-        if (args.length >= 2) // The first two arguments are the application width and height.
-            appSize = new Dimension(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+        if (args.length >= 2) { // The first two arguments are the application width and height.
+			appSize = new Dimension(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+		}
 
         try
         {

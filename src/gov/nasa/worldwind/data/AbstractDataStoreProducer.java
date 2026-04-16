@@ -48,8 +48,9 @@ public abstract class AbstractDataStoreProducer extends WWObjectImpl implements 
         public SourceInfo(Object source, AVList params)
         {
             this.source = source;
-            if (null != params)
-                this.setValues(params);
+            if (null != params) {
+				this.setValues(params);
+			}
         }
     }
 
@@ -113,8 +114,9 @@ public abstract class AbstractDataStoreProducer extends WWObjectImpl implements 
     @Override
 	public boolean acceptsDataSource(Object source, AVList params)
     {
-        if (source == null || this.isStopped())
-            return false;
+        if (source == null || this.isStopped()) {
+			return false;
+		}
 
         String message = this.validateDataSource(source, params);
         //noinspection RedundantIfStatement
@@ -133,8 +135,9 @@ public abstract class AbstractDataStoreProducer extends WWObjectImpl implements 
     {
         for (SourceInfo info : this.dataSourceList)
         {
-            if (info.source != null ? info.source.equals(source) : (source == null))
-                return true;
+            if (info.source != null ? info.source.equals(source) : (source == null)) {
+				return true;
+			}
         }
 
         return false;
@@ -188,13 +191,15 @@ public abstract class AbstractDataStoreProducer extends WWObjectImpl implements 
         }
 
         var iter = this.dataSourceList.iterator();
-        if (!iter.hasNext())
-            return;
+        if (!iter.hasNext()) {
+			return;
+		}
 
         for (SourceInfo info = iter.next(); iter.hasNext(); info = iter.next())
         {
-            if (info.source != null && info.source.equals(source))
-                iter.remove();
+            if (info.source != null && info.source.equals(source)) {
+				iter.remove();
+			}
         }
     }
 

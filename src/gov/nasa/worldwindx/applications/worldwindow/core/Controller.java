@@ -36,6 +36,7 @@ import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.logging.Level;
 
@@ -411,7 +412,7 @@ public class Controller
             try
             {
                 // See if the link is a URL, and invoke the browser if it is
-                URL url = new URL(link.replace(" ", "%20"));
+                URL url = URI.create(link.replace(" ", "%20")).toURL();
                 Desktop.getDesktop().browse(url.toURI());
                 return;
             }

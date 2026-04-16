@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -84,7 +85,7 @@ public final class McpStdioBridge {
      */
     private static String[] forward(String urlStr, String jsonBody, String sessionId)
             throws IOException {
-        URL url = new URL(urlStr);
+        URL url = URI.create(urlStr).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);

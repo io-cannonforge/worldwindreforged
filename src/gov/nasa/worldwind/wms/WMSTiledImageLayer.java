@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -111,8 +112,9 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
     {
         this(wmsGetParamsFromCapsDoc(caps, params));
         this.liveData = detectLiveData(caps, params);
-        if (this.liveData)
-            setAutoRefresh(true);
+        if (this.liveData) {
+			setAutoRefresh(true);
+		}
     }
 
     public WMSTiledImageLayer(String stateInXml)
@@ -164,14 +166,16 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
      */
     public synchronized void setAutoRefresh(boolean enabled)
     {
-        if (this.autoRefresh == enabled)
-            return;
+        if (this.autoRefresh == enabled) {
+			return;
+		}
 
         this.autoRefresh = enabled;
-        if (enabled)
-            startRefreshTimer();
-        else
-            stopRefreshTimer();
+        if (enabled) {
+			startRefreshTimer();
+		} else {
+			stopRefreshTimer();
+		}
     }
 
     /** Returns the auto-refresh interval in milliseconds. */
@@ -188,8 +192,9 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
      */
     public synchronized void setAutoRefreshInterval(long intervalMs)
     {
-        if (intervalMs < 30_000)
-            intervalMs = 30_000;
+        if (intervalMs < 30_000) {
+			intervalMs = 30_000;
+		}
 
         this.autoRefreshIntervalMs = intervalMs;
         if (this.autoRefresh)
@@ -209,18 +214,20 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
         {
             if (this.autoRefresh)
             {
-                if (enabled)
-                    startRefreshTimer();
-                else
-                    stopRefreshTimer();
+                if (enabled) {
+					startRefreshTimer();
+				} else {
+					stopRefreshTimer();
+				}
             }
         }
     }
 
     private void startRefreshTimer()
     {
-        if (this.refreshTask != null)
-            return; // already running
+        if (this.refreshTask != null) {
+			return; // already running
+		}
 
         if (refreshExecutor == null)
         {
@@ -255,27 +262,32 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
      */
     private static boolean detectLiveData(WMSCapabilities caps, AVList params)
     {
-        if (caps == null || params == null)
-            return false;
+        if (caps == null || params == null) {
+			return false;
+		}
 
         String layerNames = params.getStringValue(AVKey.LAYER_NAMES);
-        if (layerNames == null)
-            return false;
+        if (layerNames == null) {
+			return false;
+		}
 
         for (String name : layerNames.split(","))
         {
             WMSLayerCapabilities layerCaps = caps.getLayerByName(name.trim());
-            if (layerCaps == null)
-                continue;
+            if (layerCaps == null) {
+				continue;
+			}
 
             Set<WMSLayerDimension> dims = layerCaps.getDimensions();
-            if (dims == null)
-                continue;
+            if (dims == null) {
+				continue;
+			}
 
             for (WMSLayerDimension d : dims)
             {
-                if ("time".equalsIgnoreCase(d.getName()) && Boolean.TRUE.equals(d.isCurrent()))
-                    return true;
+                if ("time".equalsIgnoreCase(d.getName()) && Boolean.TRUE.equals(d.isCurrent())) {
+					return true;
+				}
             }
         }
         return false;
@@ -306,8 +318,9 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         DataConfigurationUtils.getWMSLayerConfigParams(domElement, params);
         BasicTiledImageLayer.getParamsFromDocument(domElement, params);
@@ -338,8 +351,9 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         try
         {
@@ -418,16 +432,18 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
             {
                 sb = new StringBuilder(WWXML.fixGetMapString(tile.getLevel().getService()));
 
-                if (!sb.toString().toLowerCase().contains("service=wms"))
-                    sb.append("service=WMS");
+                if (!sb.toString().toLowerCase().contains("service=wms")) {
+					sb.append("service=WMS");
+				}
                 sb.append("&request=GetMap");
                 sb.append("&version=").append(this.wmsVersion);
                 sb.append(this.crs);
                 sb.append("&layers=").append(this.layerNames);
                 sb.append("&styles=").append(this.styleNames != null ? this.styleNames : "");
                 sb.append("&transparent=TRUE");
-                if (this.backgroundColor != null)
-                    sb.append("&bgcolor=").append(this.backgroundColor);
+                if (this.backgroundColor != null) {
+					sb.append("&bgcolor=").append(this.backgroundColor);
+				}
 
                 this.URLTemplate = sb.toString();
             }
@@ -436,12 +452,14 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
                 sb = new StringBuilder(this.URLTemplate);
             }
 
-            if (this.timeString != null)
-                sb.append("&time=").append(this.timeString);
+            if (this.timeString != null) {
+				sb.append("&time=").append(this.timeString);
+			}
 
             String format = (altImageFormat != null) ? altImageFormat : this.imageFormat;
-            if (null != format)
-                sb.append("&format=").append(format);
+            if (null != format) {
+				sb.append("&format=").append(format);
+			}
 
             sb.append("&width=").append(tile.getWidth());
             sb.append("&height=").append(tile.getHeight());
@@ -472,7 +490,7 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
                 sb.append(s.getMaxLongitude().getDegrees());
             }
 
-            return new java.net.URL(sb.toString().replace(" ", "%20"));
+            return URI.create(sb.toString().replace(" ", "%20")).toURL();
         }
 
         public String getTimeString()
@@ -539,16 +557,18 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
         }
 
         Level requestedLevel;
-        if ((levelNumber >= 0) && (levelNumber < this.getLevels().getNumLevels()))
-            requestedLevel = this.getLevels().getLevel(levelNumber);
-        else
-            requestedLevel = this.getLevels().getLastLevel();
+        if ((levelNumber >= 0) && (levelNumber < this.getLevels().getNumLevels())) {
+			requestedLevel = this.getLevels().getLevel(levelNumber);
+		} else {
+			requestedLevel = this.getLevels().getLastLevel();
+		}
         ComposeImageTile tile =
             new ComposeImageTile(sector, mimeType, requestedLevel, canvasWidth, canvasHeight);
         try
         {
-            if (image == null)
-                image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+            if (image == null) {
+				image = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
+			}
 
             downloadImage(tile, mimeType, timeout);
             Thread.sleep(1); // generates InterruptedException if thread has been interupted
@@ -567,8 +587,9 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
         }
         catch (Exception e)
         {
-            if (abortOnError)
-                throw e;
+            if (abortOnError) {
+				throw e;
+			}
 
             String message = Logging.getMessage("generic.ExceptionWhileRequestingImage", tile.getPath());
             Logging.logger().log(java.util.logging.Level.WARNING, message, e);
@@ -592,8 +613,9 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
 	protected Document createConfigurationDocument(AVList params)
     {
         Document doc = super.createConfigurationDocument(params);
-        if (doc == null || doc.getDocumentElement() == null)
-            return doc;
+        if (doc == null || doc.getDocumentElement() == null) {
+			return doc;
+		}
 
         DataConfigurationUtils.createWMSLayerConfigElements(params, doc.getDocumentElement());
 
@@ -664,30 +686,36 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
         legacyWmsRestoreStateToParams(rs, context, params);
 
         String s = rs.getStateValueAsString(context, AVKey.IMAGE_FORMAT);
-        if (s != null)
-            params.setValue(AVKey.IMAGE_FORMAT, s);
+        if (s != null) {
+			params.setValue(AVKey.IMAGE_FORMAT, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.TITLE);
-        if (s != null)
-            params.setValue(AVKey.TITLE, s);
+        if (s != null) {
+			params.setValue(AVKey.TITLE, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.DISPLAY_NAME);
-        if (s != null)
-            params.setValue(AVKey.DISPLAY_NAME, s);
+        if (s != null) {
+			params.setValue(AVKey.DISPLAY_NAME, s);
+		}
 
         RestorableSupport.adjustTitleAndDisplayName(params);
 
         s = rs.getStateValueAsString(context, AVKey.LAYER_NAMES);
-        if (s != null)
-            params.setValue(AVKey.LAYER_NAMES, s);
+        if (s != null) {
+			params.setValue(AVKey.LAYER_NAMES, s);
+		}
 
         s = rs.getStateValueAsString(context, AVKey.STYLE_NAMES);
-        if (s != null)
-            params.setValue(AVKey.STYLE_NAMES, s);
+        if (s != null) {
+			params.setValue(AVKey.STYLE_NAMES, s);
+		}
 
         s = rs.getStateValueAsString(context, "wms.Version");
-        if (s != null)
-            params.setValue(AVKey.WMS_VERSION, s);
+        if (s != null) {
+			params.setValue(AVKey.WMS_VERSION, s);
+		}
         params.setValue(AVKey.TILE_URL_BUILDER, new URLBuilder(params));
     }
 
@@ -699,14 +727,16 @@ public class WMSTiledImageLayer extends BasicTiledImageLayer
         // we must provide support for reading them here.
         Double lat = rs.getStateValueAsDouble(context, AVKey.LEVEL_ZERO_TILE_DELTA + ".Latitude");
         Double lon = rs.getStateValueAsDouble(context, AVKey.LEVEL_ZERO_TILE_DELTA + ".Longitude");
-        if (lat != null && lon != null)
-            params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, LatLon.fromDegrees(lat, lon));
+        if (lat != null && lon != null) {
+			params.setValue(AVKey.LEVEL_ZERO_TILE_DELTA, LatLon.fromDegrees(lat, lon));
+		}
 
         Double minLat = rs.getStateValueAsDouble(context, AVKey.SECTOR + ".MinLatitude");
         Double minLon = rs.getStateValueAsDouble(context, AVKey.SECTOR + ".MinLongitude");
         Double maxLat = rs.getStateValueAsDouble(context, AVKey.SECTOR + ".MaxLatitude");
         Double maxLon = rs.getStateValueAsDouble(context, AVKey.SECTOR + ".MaxLongitude");
-        if (minLat != null && minLon != null && maxLat != null && maxLon != null)
-            params.setValue(AVKey.SECTOR, Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
+        if (minLat != null && minLon != null && maxLat != null && maxLon != null) {
+			params.setValue(AVKey.SECTOR, Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
+		}
     }
 }

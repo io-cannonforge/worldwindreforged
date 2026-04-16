@@ -398,8 +398,9 @@ public class PointPlacemark extends WWObjectImpl
      */
     public void setAttributes(PointPlacemarkAttributes attrs)
     {
-        if (this.normalAttrs != null && this.normalAttrs.getImageAddress() != null)
-            this.textures.remove(this.normalAttrs.getImageAddress());
+        if (this.normalAttrs != null && this.normalAttrs.getImageAddress() != null) {
+			this.textures.remove(this.normalAttrs.getImageAddress());
+		}
 
         this.normalAttrs = attrs;
     }
@@ -421,8 +422,9 @@ public class PointPlacemark extends WWObjectImpl
      */
     public void setHighlightAttributes(PointPlacemarkAttributes attrs)
     {
-        if (this.highlightAttrs != null && this.highlightAttrs.getImageAddress() != null)
-            this.textures.remove(this.highlightAttrs.getImageAddress());
+        if (this.highlightAttrs != null && this.highlightAttrs.getImageAddress() != null) {
+			this.textures.remove(this.highlightAttrs.getImageAddress());
+		}
 
         this.highlightAttrs = attrs;
     }
@@ -742,14 +744,16 @@ public class PointPlacemark extends WWObjectImpl
             throw new IllegalArgumentException(msg);
         }
 
-        if ((dc.getSurfaceGeometry() == null) || !this.isVisible())
-            return;
+        if ((dc.getSurfaceGeometry() == null) || !this.isVisible()) {
+			return;
+		}
 
         if (dc.is2DGlobe())
         {
             Sector limits = ((Globe2D) dc.getGlobe()).getProjection().getProjectionLimits();
-            if (limits != null && !limits.contains(this.getPosition()))
-                return;
+            if (limits != null && !limits.contains(this.getPosition())) {
+				return;
+			}
         }
 
         this.makeOrderedRenderable(dc);
@@ -776,15 +780,18 @@ public class PointPlacemark extends WWObjectImpl
         if (dc.getFrameTimeStamp() != this.frameNumber || dc.isContinuous2DGlobe())
         {
             this.computePlacemarkPoints(dc, opm);
-            if (opm.placePoint == null || opm.screenPoint == null)
-                return;
+            if (opm.placePoint == null || opm.screenPoint == null) {
+				return;
+			}
 
-            if (this.getLODSelector() != null)
-                this.getLODSelector().selectLOD(dc, this, opm.placePoint.distanceTo3(dc.getView().getEyePoint()));
+            if (this.getLODSelector() != null) {
+				this.getLODSelector().selectLOD(dc, this, opm.placePoint.distanceTo3(dc.getView().getEyePoint()));
+			}
 
             this.determineActiveAttributes();
-            if (this.activeTexture == null && !this.getActiveAttributes().isUsePointAsDefaultImage())
-                return;
+            if (this.activeTexture == null && !this.getActiveAttributes().isUsePointAsDefaultImage()) {
+				return;
+			}
 
             this.computeImageOffset(dc); // calculates offsets to align the image with the hotspot
 
@@ -802,8 +809,9 @@ public class PointPlacemark extends WWObjectImpl
         {
             // Don't draw if beyond the horizon.
             double horizon = dc.getView().getHorizonDistance();
-            if (this.eyeDistance > horizon)
-                return;
+            if (this.eyeDistance > horizon) {
+				return;
+			}
         }
 
         this.computeImageBounds(dc, opm);
@@ -813,8 +821,9 @@ public class PointPlacemark extends WWObjectImpl
             dc.addOrderedRenderable(opm); // add the image ordered renderable
         }
 
-        if (dc.isPickingMode())
-            this.pickLayer = dc.getCurrentLayer();
+        if (dc.isPickingMode()) {
+			this.pickLayer = dc.getCurrentLayer();
+		}
     }
 
     /**
@@ -848,15 +857,17 @@ public class PointPlacemark extends WWObjectImpl
             else
             {
                 // Test image rect against pick frustums.
-                if (dc.getPickFrustums().intersectsAny(rect))
-                    return true;
+                if (dc.getPickFrustums().intersectsAny(rect)) {
+					return true;
+				}
 
                 if (this.getLabelText() != null && this.isEnableLabelPicking())
                 {
                     rect = this.getLabelBounds(dc, opm);
                     rect = new Rectangle(rect.x, rect.y + PICK_Y_OFFSET, rect.width, rect.height + PICK_Y_SIZE_DELTA);
-                    if (dc.getPickFrustums().intersectsAny(rect))
-                        return true;
+                    if (dc.getPickFrustums().intersectsAny(rect)) {
+						return true;
+					}
                 }
             }
         }
@@ -927,8 +938,9 @@ public class PointPlacemark extends WWObjectImpl
         {
             this.doDrawOrderedRenderable(dc, this.pickSupport, opm);
 
-            if (this.isEnableBatchRendering())
-                this.drawBatched(dc);
+            if (this.isEnableBatchRendering()) {
+				this.drawBatched(dc);
+			}
         }
         finally
         {
@@ -952,8 +964,9 @@ public class PointPlacemark extends WWObjectImpl
             while (nextItem != null && nextItem instanceof OrderedPlacemark)
             {
                 OrderedPlacemark opm = (OrderedPlacemark) nextItem;
-                if (!opm.isEnableBatchRendering())
-                    break;
+                if (!opm.isEnableBatchRendering()) {
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 opm.doDrawOrderedRenderable(dc, this.pickSupport);
@@ -966,8 +979,9 @@ public class PointPlacemark extends WWObjectImpl
             while (nextItem != null && nextItem instanceof OrderedPlacemark)
             {
                 OrderedPlacemark opm = (OrderedPlacemark) nextItem;
-                if (!opm.isEnableBatchRendering() || !opm.isEnableBatchPicking() || (opm.getPickLayer() != this.pickLayer)) // batch pick only within a single layer
-                    break;
+                if (!opm.isEnableBatchRendering() || !opm.isEnableBatchPicking() || (opm.getPickLayer() != this.pickLayer)) { // batch pick only within a single layer
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 opm.doDrawOrderedRenderable(dc, this.pickSupport);
@@ -989,13 +1003,15 @@ public class PointPlacemark extends WWObjectImpl
      */
     protected void doDrawOrderedRenderable(DrawContext dc, PickSupport pickCandidates, OrderedPlacemark opm)
     {
-        if (this.isDrawLine(dc, opm))
-            this.drawLine(dc, pickCandidates, opm);
+        if (this.isDrawLine(dc, opm)) {
+			this.drawLine(dc, pickCandidates, opm);
+		}
 
         if (this.activeTexture == null)
         {
-            if (this.isDrawPoint(dc))
-                this.drawPoint(dc, pickCandidates, opm);
+            if (this.isDrawPoint(dc)) {
+				this.drawPoint(dc, pickCandidates, opm);
+			}
             return;
         }
 
@@ -1020,8 +1036,9 @@ public class PointPlacemark extends WWObjectImpl
             {
                 gl.glEnable(GL.GL_TEXTURE_2D);
                 Color color = this.getActiveAttributes().getImageColor();
-                if (color == null)
-                    color = PointPlacemarkAttributes.DEFAULT_IMAGE_COLOR;
+                if (color == null) {
+					color = PointPlacemarkAttributes.DEFAULT_IMAGE_COLOR;
+				}
                 gl.glColor4ub((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(),
                     (byte) color.getAlpha());
             }
@@ -1031,8 +1048,9 @@ public class PointPlacemark extends WWObjectImpl
             gl.glOrtho(0d, dc.getView().getViewport().width, 0d, dc.getView().getViewport().height, -1d, 1d);
 
             // Apply the depth buffer but don't change it (for screen-space shapes).
-            if ((!dc.isDeepPickingEnabled()))
-                gl.glEnable(GL.GL_DEPTH_TEST);
+            if ((!dc.isDeepPickingEnabled())) {
+				gl.glEnable(GL.GL_DEPTH_TEST);
+			}
             gl.glDepthMask(false);
 
             // Suppress any fully transparent image pixels.
@@ -1053,16 +1071,18 @@ public class PointPlacemark extends WWObjectImpl
             // Compute the scale
             double xscale;
             Double scale = this.getActiveAttributes().getScale();
-            if (scale != null)
-                xscale = scale * this.activeTexture.getWidth(dc);
-            else
-                xscale = this.activeTexture.getWidth(dc);
+            if (scale != null) {
+				xscale = scale * this.activeTexture.getWidth(dc);
+			} else {
+				xscale = this.activeTexture.getWidth(dc);
+			}
 
             double yscale;
-            if (scale != null)
-                yscale = scale * this.activeTexture.getHeight(dc);
-            else
-                yscale = this.activeTexture.getHeight(dc);
+            if (scale != null) {
+				yscale = scale * this.activeTexture.getHeight(dc);
+			} else {
+				yscale = this.activeTexture.getHeight(dc);
+			}
 
             Double heading = getActiveAttributes().getHeading();
             Double pitch = getActiveAttributes().getPitch();
@@ -1070,28 +1090,32 @@ public class PointPlacemark extends WWObjectImpl
             // Adjust heading to be relative to globe or screen
             if (heading != null)
             {
-                if (AVKey.RELATIVE_TO_GLOBE.equals(this.getActiveAttributes().getHeadingReference()))
-                    heading = dc.getView().getHeading().degrees - heading;
-                else
-                    heading = -heading;
+                if (AVKey.RELATIVE_TO_GLOBE.equals(this.getActiveAttributes().getHeadingReference())) {
+					heading = dc.getView().getHeading().degrees - heading;
+				} else {
+					heading = -heading;
+				}
             }
 
             // Apply the heading and pitch if specified.
             if (heading != null || pitch != null)
             {
                 gl.glTranslated(xscale / 2, yscale / 2, 0);
-                if (pitch != null)
-                    gl.glRotated(pitch, 1, 0, 0);
-                if (heading != null)
-                    gl.glRotated(heading, 0, 0, 1);
+                if (pitch != null) {
+					gl.glRotated(pitch, 1, 0, 0);
+				}
+                if (heading != null) {
+					gl.glRotated(heading, 0, 0, 1);
+				}
                 gl.glTranslated(-xscale / 2, -yscale / 2, 0);
             }
 
             // Scale the unit quad
             gl.glScaled(xscale, yscale, 1);
 
-            if (this.activeTexture.bind(dc))
-                dc.drawUnitQuad(activeTexture.getTexCoords());
+            if (this.activeTexture.bind(dc)) {
+				dc.drawUnitQuad(activeTexture.getTexCoords());
+			}
 
             gl.glDepthRange(0, 1); // reset depth range to the OGL default
 //
@@ -1100,8 +1124,9 @@ public class PointPlacemark extends WWObjectImpl
 
             if (this.mustDrawLabel())
             {
-                if (!dc.isPickingMode() || this.isEnableLabelPicking())
-                    this.drawLabel(dc, pickCandidates, opm);
+                if (!dc.isPickingMode() || this.isEnableLabelPicking()) {
+					this.drawLabel(dc, pickCandidates, opm);
+				}
             }
         }
         finally
@@ -1153,15 +1178,16 @@ public class PointPlacemark extends WWObjectImpl
      */
     protected Rectangle getLabelBounds(DrawContext dc, OrderedPlacemark opm)
     {
-        if (this.getLabelText() == null)
-            return null;
+        if (this.getLabelText() == null) {
+			return null;
+		}
 
         Vec4 labelPoint = this.computeLabelPoint(dc, opm);
 
         Font font = this.getActiveAttributes().getLabelFont();
-        if (font == null)
-
-            font = PointPlacemarkAttributes.DEFAULT_LABEL_FONT;
+        if (font == null) {
+			font = PointPlacemarkAttributes.DEFAULT_LABEL_FONT;
+		}
         TextRenderer textRenderer = OGLTextRenderer.getOrCreateTextRenderer(dc.getTextRendererCache(), font);
         Rectangle2D bounds = textRenderer.getBounds(this.getLabelText());
         double width = bounds.getWidth();
@@ -1187,17 +1213,20 @@ public class PointPlacemark extends WWObjectImpl
      */
     protected void drawLabel(DrawContext dc, PickSupport pickCandidates, OrderedPlacemark opm)
     {
-        if (this.getLabelText() == null)
-            return;
+        if (this.getLabelText() == null) {
+			return;
+		}
 
         Color color = this.getActiveAttributes().getLabelColor();
         // Use the default color if the active attributes do not specify one.
-        if (color == null)
-            color = PointPlacemarkAttributes.DEFAULT_LABEL_COLOR;
+        if (color == null) {
+			color = PointPlacemarkAttributes.DEFAULT_LABEL_COLOR;
+		}
         // If the label color's alpha component is 0 or less, then the label is completely transparent. Exit
         // immediately; the label does not need to be rendered.
-        if (color.getAlpha() <= 0)
-            return;
+        if (color.getAlpha() <= 0) {
+			return;
+		}
 
         // Apply the label color's alpha component to the background color. This causes both the label foreground and
         // background to blend evenly into the frame. If the alpha component is 255 we just use the pre-defined constant
@@ -1226,8 +1255,9 @@ public class PointPlacemark extends WWObjectImpl
         gl.glDepthMask(false);
 
         Font font = this.getActiveAttributes().getLabelFont();
-        if (font == null)
-            font = PointPlacemarkAttributes.DEFAULT_LABEL_FONT;
+        if (font == null) {
+			font = PointPlacemarkAttributes.DEFAULT_LABEL_FONT;
+		}
 
         if (dc.isPickingMode())
         {
@@ -1275,8 +1305,9 @@ public class PointPlacemark extends WWObjectImpl
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
-        if ((!dc.isDeepPickingEnabled()))
-            gl.glEnable(GL.GL_DEPTH_TEST);
+        if ((!dc.isDeepPickingEnabled())) {
+			gl.glEnable(GL.GL_DEPTH_TEST);
+		}
         gl.glDepthFunc(GL.GL_LEQUAL);
         gl.glDepthMask(true);
 
@@ -1325,8 +1356,9 @@ public class PointPlacemark extends WWObjectImpl
             osh.pushModelviewIdentity(gl);
 
             // Apply the depth buffer but don't change it (for screen-space shapes).
-            if ((!dc.isDeepPickingEnabled()))
-                gl.glEnable(GL.GL_DEPTH_TEST);
+            if ((!dc.isDeepPickingEnabled())) {
+				gl.glEnable(GL.GL_DEPTH_TEST);
+			}
             gl.glDepthMask(false);
 
             // Suppress any fully transparent pixels.
@@ -1347,8 +1379,9 @@ public class PointPlacemark extends WWObjectImpl
 
             if (this.mustDrawLabel())
             {
-                if (!dc.isPickingMode() || this.isEnableLabelPicking())
-                    this.drawLabel(dc, pickCandidates, opm);
+                if (!dc.isPickingMode() || this.isEnableLabelPicking()) {
+					this.drawLabel(dc, pickCandidates, opm);
+				}
             }
         }
         finally
@@ -1368,13 +1401,15 @@ public class PointPlacemark extends WWObjectImpl
     protected boolean isDrawLine(DrawContext dc, OrderedPlacemark opm)
     {
         if (!this.isLineEnabled() || dc.is2DGlobe() || this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND
-            || opm.terrainPoint == null)
-            return false;
+            || opm.terrainPoint == null) {
+			return false;
+		}
 
-        if (dc.isPickingMode())
-            return dc.getPickFrustums().intersectsAny(opm.placePoint, opm.terrainPoint);
-        else
-            return dc.getView().getFrustumInModelCoordinates().intersectsSegment(opm.placePoint, opm.terrainPoint);
+        if (dc.isPickingMode()) {
+			return dc.getPickFrustums().intersectsAny(opm.placePoint, opm.terrainPoint);
+		} else {
+			return dc.getView().getFrustumInModelCoordinates().intersectsSegment(opm.placePoint, opm.terrainPoint);
+		}
     }
 
     /**
@@ -1392,9 +1427,9 @@ public class PointPlacemark extends WWObjectImpl
             if (dc.isPickingMode())
             {
                 gl.glLineWidth(lineWidth.floatValue() + this.getLinePickWidth());
-            }
-            else
-                gl.glLineWidth(lineWidth.floatValue());
+            } else {
+				gl.glLineWidth(lineWidth.floatValue());
+			}
 
             if (!dc.isPickingMode())
             {
@@ -1414,13 +1449,15 @@ public class PointPlacemark extends WWObjectImpl
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
         Double scale = this.getActiveAttributes().getScale();
-        if (scale == null)
-            scale = DEFAULT_POINT_SIZE;
+        if (scale == null) {
+			scale = DEFAULT_POINT_SIZE;
+		}
 
-        if (dc.isPickingMode())
-            gl.glPointSize(scale.floatValue() + this.getLinePickWidth());
-        else
-            gl.glPointSize(scale.floatValue());
+        if (dc.isPickingMode()) {
+			gl.glPointSize(scale.floatValue() + this.getLinePickWidth());
+		} else {
+			gl.glPointSize(scale.floatValue());
+		}
 
         if (!dc.isPickingMode())
         {
@@ -1442,8 +1479,9 @@ public class PointPlacemark extends WWObjectImpl
         if (!dc.isPickingMode())
         {
             Color color = this.getActiveAttributes().getLineColor();
-            if (color == null)
-                color = PointPlacemarkAttributes.DEFAULT_LINE_COLOR;
+            if (color == null) {
+				color = PointPlacemarkAttributes.DEFAULT_LINE_COLOR;
+			}
             gl.glColor4ub((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(),
                 (byte) color.getAlpha());
         }
@@ -1473,10 +1511,11 @@ public class PointPlacemark extends WWObjectImpl
                     && this.getAttributes() != null && !WWUtil.isEmpty(this.getAttributes().getImageAddress()))
                 {
                     actAttrs.setImageAddress(this.getAttributes().getImageAddress());
-                    if (this.getAttributes().getScale() != null)
-                        actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE * this.getAttributes().getScale());
-                    else
-                        actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE);
+                    if (this.getAttributes().getScale() != null) {
+						actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE * this.getAttributes().getScale());
+					} else {
+						actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE);
+					}
                 }
             }
             else
@@ -1486,18 +1525,20 @@ public class PointPlacemark extends WWObjectImpl
                 if (this.getAttributes() != null)
                 {
                     actAttrs.copy(this.getAttributes());
-                    if (getAttributes().getScale() != null)
-                        actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE * this.getAttributes().getScale());
-                    else
-                        actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE);
+                    if (getAttributes().getScale() != null) {
+						actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE * this.getAttributes().getScale());
+					} else {
+						actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE);
+					}
                 }
                 else
                 {
                     actAttrs.copy(defaultAttributes);
-                    if (defaultAttributes.getScale() != null)
-                        actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE * defaultAttributes.getScale());
-                    else
-                        actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE);
+                    if (defaultAttributes.getScale() != null) {
+						actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE * defaultAttributes.getScale());
+					} else {
+						actAttrs.setScale(DEFAULT_HIGHLIGHT_SCALE);
+					}
                 }
             }
         }
@@ -1521,8 +1562,9 @@ public class PointPlacemark extends WWObjectImpl
         {
             actAttrs.setImageAddress(null);
             actAttrs.setImageOffset(null);
-            if (actAttrs.getScale() == null)
-                actAttrs.setScale(DEFAULT_POINT_SIZE);
+            if (actAttrs.getScale() == null) {
+				actAttrs.setScale(DEFAULT_POINT_SIZE);
+			}
         }
     }
 
@@ -1554,8 +1596,9 @@ public class PointPlacemark extends WWObjectImpl
         if (!WWUtil.isEmpty(attrs.getImageAddress()))
         {
             WWTexture texture = this.textures.get(attrs.getImageAddress());
-            if (texture != null)
-                return texture;
+            if (texture != null) {
+				return texture;
+			}
 
             texture = this.initializeTexture(attrs.getImageAddress());
             if (texture != null)
@@ -1565,16 +1608,18 @@ public class PointPlacemark extends WWObjectImpl
             }
         }
 
-        if (this.getActiveAttributes().usePointAsDefaultImage)
-            return null;
+        if (this.getActiveAttributes().usePointAsDefaultImage) {
+			return null;
+		}
 
         // Use the default image if no other is defined or it's not yet available.
         WWTexture texture = this.textures.get(defaultAttributes.getImageAddress());
         this.getActiveAttributes().setImageOffset(defaultAttributes.getImageOffset());
-        if (attrs.getScale() != null)
-            this.getActiveAttributes().setScale(defaultAttributes.getScale() * attrs.getScale());
-        else
-            this.getActiveAttributes().setScale(defaultAttributes.getScale());
+        if (attrs.getScale() != null) {
+			this.getActiveAttributes().setScale(defaultAttributes.getScale() * attrs.getScale());
+		} else {
+			this.getActiveAttributes().setScale(defaultAttributes.getScale());
+		}
         if (texture == null)
         {
             URL localUrl = WorldWind.getDataFileStore().requestFile(defaultAttributes.getImageAddress());
@@ -1630,8 +1675,9 @@ public class PointPlacemark extends WWObjectImpl
         opm.screenPoint = null;
 
         Position pos = this.getPosition();
-        if (pos == null)
-            return;
+        if (pos == null) {
+			return;
+		}
 
         if (this.altitudeMode == WorldWind.CLAMP_TO_GROUND || dc.is2DGlobe())
         {
@@ -1648,12 +1694,14 @@ public class PointPlacemark extends WWObjectImpl
             opm.placePoint = dc.getGlobe().computePointFromPosition(pos.getLatitude(), pos.getLongitude(), height);
         }
 
-        if (opm.placePoint == null)
-            return;
+        if (opm.placePoint == null) {
+			return;
+		}
 
         // Compute a terrain point if needed.
-        if (this.isLineEnabled() && this.altitudeMode != WorldWind.CLAMP_TO_GROUND && !dc.is2DGlobe())
-            opm.terrainPoint = dc.computeTerrainPoint(pos.getLatitude(), pos.getLongitude(), 0);
+        if (this.isLineEnabled() && this.altitudeMode != WorldWind.CLAMP_TO_GROUND && !dc.is2DGlobe()) {
+			opm.terrainPoint = dc.computeTerrainPoint(pos.getLatitude(), pos.getLongitude(), 0);
+		}
 
         // Compute the placemark point's screen location.
         opm.screenPoint = dc.getView().project(opm.placePoint);
@@ -1696,16 +1744,18 @@ public class PointPlacemark extends WWObjectImpl
      */
     protected Vec4 computeLabelPoint(DrawContext dc, OrderedPlacemark opm)
     {
-        if (this.getLabelText() == null)
-            return null;
+        if (this.getLabelText() == null) {
+			return null;
+		}
 
         float x = (float) (opm.screenPoint.x + this.dx);
         float y = (float) (opm.screenPoint.y + this.dy);
 
         Double imageScale = this.getActiveAttributes().getScale();
         Offset os = this.getActiveAttributes().getLabelOffset();
-        if (os == null)
-            os = DEFAULT_LABEL_OFFSET_IF_UNSPECIFIED;
+        if (os == null) {
+			os = DEFAULT_LABEL_OFFSET_IF_UNSPECIFIED;
+		}
         double w = this.activeTexture != null ? this.activeTexture.getWidth(dc) : 1;
         double h = this.activeTexture != null ? this.activeTexture.getHeight(dc) : 1;
         Point.Double offset = os.computeOffset(w, h, imageScale, imageScale);
@@ -1721,12 +1771,14 @@ public class PointPlacemark extends WWObjectImpl
         this.dx = 0;
         this.dy = 0;
 
-        if (this.isDrawPoint(dc))
-            return;
+        if (this.isDrawPoint(dc)) {
+			return;
+		}
 
         Offset os = this.getActiveAttributes().getImageOffset();
-        if (os == null)
-            return;
+        if (os == null) {
+			return;
+		}
 
         double w = this.activeTexture != null ? this.activeTexture.getWidth(dc) : 1;
         double h = this.activeTexture != null ? this.activeTexture.getHeight(dc) : 1;
@@ -1741,10 +1793,11 @@ public class PointPlacemark extends WWObjectImpl
     @Override
 	public String isExportFormatSupported(String format)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(format)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     /** {@inheritDoc} */
@@ -1771,8 +1824,9 @@ public class PointPlacemark extends WWObjectImpl
         // because its position must always be non-null. We check and this case anyway to handle a subclass overriding
         // getReferencePosition and returning null. In this case moving the shape by a relative delta is meaningless
         // because the shape has no geographic location. Therefore we fail softly by exiting and doing nothing.
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
         this.moveTo(refPos.add(delta));
     }
@@ -1806,11 +1860,13 @@ public class PointPlacemark extends WWObjectImpl
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, this.getAltitudeMode());
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, this.getAltitudeMode());
+		}
 
         this.doDrag(dragContext);
     }
@@ -1972,8 +2028,9 @@ public class PointPlacemark extends WWObjectImpl
         xmlWriter.writeEndElement(); // Placemark
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 
     /**

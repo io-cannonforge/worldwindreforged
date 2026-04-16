@@ -110,18 +110,24 @@ public final class WorldWind
 
     private void dispose()
     {
-        if (this.taskService != null)
-            this.taskService.shutdown(true);
-        if (this.remoteRetrievalService != null)
-            this.remoteRetrievalService.shutdown(true);
-        if (this.localRetrievalService != null)
-            this.localRetrievalService.shutdown(true);
-        if (this.memoryCacheSet != null)
-            this.memoryCacheSet.clear();
-        if (this.sessionCache != null)
-            this.sessionCache.clear();
-        if (this.scheduledTaskService != null)
-            this.scheduledTaskService.shutdown(true);
+        if (this.taskService != null) {
+			this.taskService.shutdown(true);
+		}
+        if (this.remoteRetrievalService != null) {
+			this.remoteRetrievalService.shutdown(true);
+		}
+        if (this.localRetrievalService != null) {
+			this.localRetrievalService.shutdown(true);
+		}
+        if (this.memoryCacheSet != null) {
+			this.memoryCacheSet.clear();
+		}
+        if (this.sessionCache != null) {
+			this.sessionCache.clear();
+		}
+        if (this.scheduledTaskService != null) {
+			this.scheduledTaskService.shutdown(true);
+		}
     }
 
     /**

@@ -160,12 +160,14 @@ public class SurfaceMultiPolygon extends AbstractSurfaceShape
     @Override
     public Position getReferencePosition()
     {
-        if (this.boundaries.getContourCount() == 0)
-            return null;
+        if (this.boundaries.getContourCount() == 0) {
+			return null;
+		}
 
         var iterator = this.boundaries.getContour(0).iterator();
-        if (!iterator.hasNext())
-            return null;
+        if (!iterator.hasNext()) {
+			return null;
+		}
 
         return new Position(iterator.next(), 0);
     }
@@ -173,8 +175,9 @@ public class SurfaceMultiPolygon extends AbstractSurfaceShape
     @Override
     protected void doMoveTo(Position oldReferencePosition, Position newReferencePosition)
     {
-        if (this.boundaries.getContourCount() == 0)
-            return;
+        if (this.boundaries.getContourCount() == 0) {
+			return;
+		}
 
         for (int i = 0; i < this.boundaries.getContourCount(); i++)
         {
@@ -197,8 +200,9 @@ public class SurfaceMultiPolygon extends AbstractSurfaceShape
     @Override
     protected void doMoveTo(Globe globe, Position oldReferencePosition, Position newReferencePosition)
     {
-        if (this.boundaries.getContourCount() == 0)
-            return;
+        if (this.boundaries.getContourCount() == 0) {
+			return;
+		}
 
         for (int i = 0; i < this.boundaries.getContourCount(); i++)
         {
@@ -215,8 +219,9 @@ public class SurfaceMultiPolygon extends AbstractSurfaceShape
     @Override
     protected List<List<LatLon>> createGeometry(Globe globe, double edgeIntervalsPerDegree)
     {
-        if (this.boundaries.getContourCount() == 0)
-            return null;
+        if (this.boundaries.getContourCount() == 0) {
+			return null;
+		}
 
         ArrayList<List<LatLon>> geom = new ArrayList<>();
 
@@ -233,8 +238,9 @@ public class SurfaceMultiPolygon extends AbstractSurfaceShape
     @Override
     public Iterable<? extends LatLon> getLocations(Globe globe)
     {
-        if (this.boundaries.getContourCount() == 0)
-            return null;
+        if (this.boundaries.getContourCount() == 0) {
+			return null;
+		}
 
         ArrayList<LatLon> combinedBoundaries = new ArrayList<>();
 
@@ -296,12 +302,14 @@ public class SurfaceMultiPolygon extends AbstractSurfaceShape
             {
                 for (RestorableSupport.StateObject boundary : sos)
                 {
-                    if (boundary == null)
-                        continue;
+                    if (boundary == null) {
+						continue;
+					}
 
                     Iterable<LatLon> locations = rs.getStateObjectAsLatLonList(boundary);
-                    if (locations != null)
-                        this.boundaries.addContour(locations);
+                    if (locations != null) {
+						this.boundaries.addContour(locations);
+					}
                 }
             }
 

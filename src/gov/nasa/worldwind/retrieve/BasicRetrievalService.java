@@ -101,8 +101,9 @@ public final class BasicRetrievalService extends WWObjectImpl
         @Override
         public void run()
         {
-            if (this.isDone() || this.isCancelled())
-                return;
+            if (this.isDone() || this.isCancelled()) {
+				return;
+			}
 
             super.run();
         }
@@ -131,8 +132,9 @@ public final class BasicRetrievalService extends WWObjectImpl
                 long now = System.currentTimeMillis();
                 long thisElapsedTime = now - this.retriever.getSubmitTime();
                 long thatElapsedTime = now - that.retriever.getSubmitTime();
-                if (((thisElapsedTime - thatElapsedTime) / DEFAULT_TIME_PRIORITY_GRANULARITY) != 0)
-                    return thisElapsedTime < thatElapsedTime ? -1 : 1;
+                if (((thisElapsedTime - thatElapsedTime) / DEFAULT_TIME_PRIORITY_GRANULARITY) != 0) {
+					return thisElapsedTime < thatElapsedTime ? -1 : 1;
+				}
             }
 
             // The client-specified priority is compared for requests submitted within the same granularity period.
@@ -142,10 +144,12 @@ public final class BasicRetrievalService extends WWObjectImpl
         @Override
 		public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
             final RetrievalTask that = (RetrievalTask) o;
 
@@ -317,10 +321,11 @@ public final class BasicRetrievalService extends WWObjectImpl
                 }
                 else if (e.getCause() instanceof SSLHandshakeException)
                 {
-                    if (sslExceptionListener != null)
-                        sslExceptionListener.onException(e.getCause(), task.getRetriever().getName());
-                    else
-                        Logging.logger().fine(message + " " + e.getCause().getLocalizedMessage());
+                    if (sslExceptionListener != null) {
+						sslExceptionListener.onException(e.getCause(), task.getRetriever().getName());
+					} else {
+						Logging.logger().fine(message + " " + e.getCause().getLocalizedMessage());
+					}
                 }
                 else
                 {
@@ -360,10 +365,11 @@ public final class BasicRetrievalService extends WWObjectImpl
     @Override
 	public void shutdown(boolean immediately)
     {
-        if (immediately)
-            this.executor.shutdownNow();
-        else
-            this.executor.shutdown();
+        if (immediately) {
+			this.executor.shutdownNow();
+		} else {
+			this.executor.shutdown();
+		}
 
         this.activeTasks.clear();
         this.activeTaskSet.clear();
@@ -430,8 +436,9 @@ public final class BasicRetrievalService extends WWObjectImpl
         retriever.setSubmitTime(System.currentTimeMillis());
 
         // Modified by seaglassfoundry.com - use O(1) HashSet for active task dedup instead of O(n) queue scan.
-        if (this.activeTaskSet.contains(task) || this.executor.getQueue().contains(task))
-            return null;
+        if (this.activeTaskSet.contains(task) || this.executor.getQueue().contains(task)) {
+			return null;
+		}
 
         this.executor.execute(task);
 
@@ -469,8 +476,9 @@ public final class BasicRetrievalService extends WWObjectImpl
         int numThreads = Thread.enumerate(threads);
         for (int i = 0; i < numThreads; i++)
         {
-            if (threads[i].getName().startsWith(RUNNING_THREAD_NAME_PREFIX))
-                return true;
+            if (threads[i].getName().startsWith(RUNNING_THREAD_NAME_PREFIX)) {
+				return true;
+			}
         }
         return false;
     }
@@ -522,8 +530,9 @@ public final class BasicRetrievalService extends WWObjectImpl
 
         for (RetrievalTask task : this.activeTasks)
         {
-            if (task.isDone())
-                continue;
+            if (task.isDone()) {
+				continue;
+			}
 
             Retriever retriever = task.getRetriever();
             try
@@ -570,10 +579,11 @@ public final class BasicRetrievalService extends WWObjectImpl
 
         double progress;
 
-        if (totalContentLength < 1)
-            progress = 0;
-        else
-            progress = Math.min(100.0, 100.0 * totalBytesRead / totalContentLength);
+        if (totalContentLength < 1) {
+			progress = 0;
+		} else {
+			progress = Math.min(100.0, 100.0 * totalBytesRead / totalContentLength);
+		}
 
         return progress;
     }

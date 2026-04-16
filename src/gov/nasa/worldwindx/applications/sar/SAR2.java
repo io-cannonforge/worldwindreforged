@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 
@@ -240,10 +241,12 @@ public class SAR2 extends JFrame
             int frameWidth = window.getSize().width;
             int frameHeight = window.getSize().height;
 
-            if (frameWidth > desktopWidth)
-                frameWidth = Math.min(frameWidth, desktopWidth);
-            if (frameHeight > desktopHeight)
-                frameHeight = Math.min(frameHeight, desktopHeight);
+            if (frameWidth > desktopWidth) {
+				frameWidth = Math.min(frameWidth, desktopWidth);
+			}
+            if (frameHeight > desktopHeight) {
+				frameHeight = Math.min(frameHeight, desktopHeight);
+			}
 
             window.setPreferredSize(new Dimension(
                 frameWidth,
@@ -280,10 +283,11 @@ public class SAR2 extends JFrame
     private void elevationUnitChanged(String oldValue, String newValue)
     {
         // Update unit menu selection.
-        if (UNIT_IMPERIAL.equals(newValue))
-            this.feetMenuItem.setSelected(true);
-        else if (UNIT_METRIC.equals(newValue))
-            this.metersMenuItem.setSelected(true);
+        if (UNIT_IMPERIAL.equals(newValue)) {
+			this.feetMenuItem.setSelected(true);
+		} else if (UNIT_METRIC.equals(newValue)) {
+			this.metersMenuItem.setSelected(true);
+		}
 
         // The TracksPanel doesn't listen to the WorldWindow. Handle it as a special case.
         getTracksPanel().setElevationUnit(newValue);
@@ -311,10 +315,11 @@ public class SAR2 extends JFrame
     private void angleFormatChanged(String oldValue, String newValue)
     {
         // Update angle format menu selection.
-        if (Angle.ANGLE_FORMAT_DD.equals(newValue))
-            this.angleDDMenuItem.setSelected(true);
-        else if (Angle.ANGLE_FORMAT_DMS.equals(newValue))
-            this.angleDMSMenuItem.setSelected(true);
+        if (Angle.ANGLE_FORMAT_DD.equals(newValue)) {
+			this.angleDDMenuItem.setSelected(true);
+		} else if (Angle.ANGLE_FORMAT_DMS.equals(newValue)) {
+			this.angleDMSMenuItem.setSelected(true);
+		}
 
         // The TracksPanel doesn't listen to the WorldWindow. Handle it as a special case.
         getTracksPanel().setAngleFormat(newValue);
@@ -346,8 +351,9 @@ public class SAR2 extends JFrame
     {
         Object inputValue = JOptionPane.showInputDialog(this, "Enter a new track name", "Add New Track",
             JOptionPane.QUESTION_MESSAGE, null, null, name);
-        if (inputValue == null)
-            return;
+        if (inputValue == null) {
+			return;
+		}
 
         name = inputValue.toString();
 
@@ -360,8 +366,9 @@ public class SAR2 extends JFrame
     private void newTrackFromFile()
     {
         File[] files = showOpenDialog("Open a track file");
-        if (files == null || files.length == 0)
-            return;
+        if (files == null || files.length == 0) {
+			return;
+		}
 
         for (File file : files)
         {
@@ -388,11 +395,13 @@ public class SAR2 extends JFrame
             e.printStackTrace();
         }
 
-        if (track == null)
-            return;
+        if (track == null) {
+			return;
+		}
 
-        if (name != null)
-            track.setName(name);
+        if (name != null) {
+			track.setName(name);
+		}
 
         trackController.addTrack(track);
 
@@ -400,8 +409,9 @@ public class SAR2 extends JFrame
         {
             // Load annotations if any
             File annotationFile = getAnnotationsPath(filePath);
-            if (annotationFile != null && annotationFile.exists())
-                this.annotationSupport.readAnnotations(annotationFile.getPath(), track);
+            if (annotationFile != null && annotationFile.exists()) {
+				this.annotationSupport.readAnnotations(annotationFile.getPath(), track);
+			}
             // Restore track state
             this.restoreTrackState(new File(filePath));
         }
@@ -440,14 +450,16 @@ public class SAR2 extends JFrame
         }
 
         String s = getUserPreferences().getStringValue(SARKey.CURRENT_BROWSE_DIRECTORY);
-        if (s != null)
-            this.openFileChooser.setCurrentDirectory(new File(s));
+        if (s != null) {
+			this.openFileChooser.setCurrentDirectory(new File(s));
+		}
 
         this.openFileChooser.setDialogTitle(title != null ? title : "Open Track");
 
         int retVal = this.openFileChooser.showOpenDialog(this);
-        if (retVal != JFileChooser.APPROVE_OPTION)
-            return null;
+        if (retVal != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
 
         File file = this.openFileChooser.getCurrentDirectory();
         getUserPreferences().setValue(SARKey.CURRENT_BROWSE_DIRECTORY, file.getPath());
@@ -463,16 +475,19 @@ public class SAR2 extends JFrame
         {
             Object input = JOptionPane.showInputDialog(SAR2.this, "Enter a track URL", "Add New Track",
                 JOptionPane.QUESTION_MESSAGE, null, null, null);
-            if (input != null)
-                urlString = input.toString();
+            if (input != null) {
+				urlString = input.toString();
+			}
         }
 
-        if (urlString == null)
-            return;
+        if (urlString == null) {
+			return;
+		}
 
         URL url = makeURL(urlString);
-        if (url == null)
-            return;
+        if (url == null) {
+			return;
+		}
 
         SARTrack track = null;
         try
@@ -486,11 +501,13 @@ public class SAR2 extends JFrame
             e.printStackTrace();
         }
 
-        if (track == null)
-            return;
+        if (track == null) {
+			return;
+		}
 
-        if (name == null)
-            name = urlString;
+        if (name == null) {
+			name = urlString;
+		}
 
         track.setFile(null);
         track.setName(name);
@@ -519,11 +536,13 @@ public class SAR2 extends JFrame
             WWIO.closeStream(stream, path);
         }
 
-        if (track == null)
-            return;
+        if (track == null) {
+			return;
+		}
 
-        if (name == null)
-            name = WWIO.getFilename(path);
+        if (name == null) {
+			name = WWIO.getFilename(path);
+		}
 
         track.setFile(null);
         track.setName(name);
@@ -536,8 +555,9 @@ public class SAR2 extends JFrame
         URL url = null;
         try
         {
-            if (urlString != null)
-                url = new URL(urlString);
+            if (urlString != null) {
+				url = URI.create(urlString).toURL();
+			}
         }
         catch (MalformedURLException e)
         {
@@ -548,8 +568,9 @@ public class SAR2 extends JFrame
 
     private int removeTrack(SARTrack track, boolean forceSavePrompt)
     {
-        if (track == null)
-            return OK;
+        if (track == null) {
+			return OK;
+		}
 
         int status = OK;
         if (track.isDirty() || forceSavePrompt)
@@ -557,14 +578,16 @@ public class SAR2 extends JFrame
 
             int option = SaveTrackDialog.showSaveChangesPrompt(this, null, null, track);
             // Show a save track dialog that won't prompt the user to choose a location unless it's necessary.
-            if (option == JOptionPane.YES_OPTION)
-                status = saveTrack(track, false);
-            else if (option == JOptionPane.CANCEL_OPTION)
-                status = CANCELLED;
+            if (option == JOptionPane.YES_OPTION) {
+				status = saveTrack(track, false);
+			} else if (option == JOptionPane.CANCEL_OPTION) {
+				status = CANCELLED;
+			}
         }
 
-        if (status != OK)
-            return status;
+        if (status != OK) {
+			return status;
+		}
 
         try
         {
@@ -588,8 +611,9 @@ public class SAR2 extends JFrame
         for (SARTrack track : getTracksPanel().getAllTracks())
         {
             status |= removeTrack(track, forceSavePrompt);
-            if ((status & CANCELLED) != 0)
-                return status;
+            if ((status & CANCELLED) != 0) {
+				return status;
+			}
         }
 
         return status;
@@ -614,10 +638,12 @@ public class SAR2 extends JFrame
             throw new IllegalArgumentException(message);
         }
 
-        if (file == null)
-            file = track.getFile();
-        if (format == 0)
-            format = track.getFormat();
+        if (file == null) {
+			file = track.getFile();
+		}
+        if (format == 0) {
+			format = track.getFormat();
+		}
 
         // Show the "Save As..." dialog if either:
         // * The current track has no source file.
@@ -625,10 +651,11 @@ public class SAR2 extends JFrame
         if (file == null || forceSavePrompt)
         {
             int result = this.showSaveDialog(track, file, format);
-            if (result == SaveTrackDialog.CANCEL_OPTION)
-                return CANCELLED;
-            else if (result == SaveTrackDialog.ERROR_OPTION)
-                return ERROR;
+            if (result == SaveTrackDialog.CANCEL_OPTION) {
+				return CANCELLED;
+			} else if (result == SaveTrackDialog.ERROR_OPTION) {
+				return ERROR;
+			}
 
             file = this.saveTrackDialog.getSelectedFile();
             format = this.saveTrackDialog.getFileFormat();
@@ -681,12 +708,14 @@ public class SAR2 extends JFrame
     private void restoreTrackState(File trackFile)
     {
         File stateFile = getTrackStateFile(trackFile);
-        if (!stateFile.exists())
-            return;
+        if (!stateFile.exists()) {
+			return;
+		}
 
         String state = WWIO.readTextFile(stateFile);
-        if (state != null)
-            this.restoreState(state);
+        if (state != null) {
+			this.restoreState(state);
+		}
     }
 
     private File getTrackStateFile(File trackFile)
@@ -697,20 +726,23 @@ public class SAR2 extends JFrame
 
     private int showSaveDialog(SARTrack track, File file, int format)
     {
-        if (this.saveTrackDialog == null)
-            this.saveTrackDialog = new SaveTrackDialog();
+        if (this.saveTrackDialog == null) {
+			this.saveTrackDialog = new SaveTrackDialog();
+		}
 
         this.saveTrackDialog.setDialogTitle(track);
 
-        if (file != null)
-            this.saveTrackDialog.setSelectedFile(file);
-        else
-            this.saveTrackDialog.setSelectedFile(track);
+        if (file != null) {
+			this.saveTrackDialog.setSelectedFile(file);
+		} else {
+			this.saveTrackDialog.setSelectedFile(track);
+		}
 
-        if (format != 0)
-            this.saveTrackDialog.setFileFormat(format);
-        else
-            this.saveTrackDialog.setFileFormat(track);
+        if (format != 0) {
+			this.saveTrackDialog.setFileFormat(format);
+		} else {
+			this.saveTrackDialog.setFileFormat(track);
+		}
 
         return this.saveTrackDialog.showSaveDialog(this);
     }
@@ -749,13 +781,15 @@ public class SAR2 extends JFrame
     private void extendTrack(String extensionMode)
     {
         SARTrack track = this.trackController.getCurrentTrack();
-        if (track == null)
-            return;
+        if (track == null) {
+			return;
+		}
 
-        if (this.trackController.isExtending())
-            track.firePropertyChange(TrackController.END_TRACK_POINT_ENTRY, null, extensionMode);
-        else
-            track.firePropertyChange(TrackController.BEGIN_TRACK_POINT_ENTRY, null, extensionMode);
+        if (this.trackController.isExtending()) {
+			track.firePropertyChange(TrackController.END_TRACK_POINT_ENTRY, null, extensionMode);
+		} else {
+			track.firePropertyChange(TrackController.BEGIN_TRACK_POINT_ENTRY, null, extensionMode);
+		}
     }
 
     public static AVList getUserPreferences()
@@ -767,7 +801,7 @@ public class SAR2 extends JFrame
     {
         try
         {
-            BrowserOpener.browse(new URL(ONLINE_HELP_URL));
+            BrowserOpener.browse(URI.create(ONLINE_HELP_URL).toURL());
         }
         catch (Exception e1)
         {
@@ -785,8 +819,9 @@ public class SAR2 extends JFrame
     public boolean exit()
     {
         int status = removeAllTracks(false);
-        if ((status & CANCELLED) != 0)
-            return false;
+        if ((status & CANCELLED) != 0) {
+			return false;
+		}
 
         dispose();
         System.exit(0);
@@ -1192,11 +1227,12 @@ public class SAR2 extends JFrame
                 JMenuItem sarHelp = new JMenuItem();
                 sarHelp.setText("Search and Rescue Help");
                 sarHelp.setMnemonic('H');
-                if (!Configuration.isMacOS())
-                    sarHelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
-                else
-                    sarHelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HELP,
+                if (!Configuration.isMacOS()) {
+					sarHelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+				} else {
+					sarHelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HELP,
                         Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+				}
                 sarHelp.addActionListener(new ActionListener()
                 {
                     @Override
@@ -1399,8 +1435,9 @@ public class SAR2 extends JFrame
                 @Override
 				public void actionPerformed(ActionEvent e)
                 {
-                    if (getCurrentTrack() != null)
-                        getCurrentTrack().firePropertyChange(TrackController.REMOVE_LAST_POINT, null, null);
+                    if (getCurrentTrack() != null) {
+						getCurrentTrack().firePropertyChange(TrackController.REMOVE_LAST_POINT, null, null);
+					}
                 }
             });
             toolBar.add(this.removeLastPointButton);
@@ -1412,8 +1449,9 @@ public class SAR2 extends JFrame
                 @Override
 				public void actionPerformed(ActionEvent e)
                 {
-                    if (getCurrentTrack() != null)
-                        getCurrentTrack().firePropertyChange(TrackController.MOVE_TO_NEXT_POINT, null, null);
+                    if (getCurrentTrack() != null) {
+						getCurrentTrack().firePropertyChange(TrackController.MOVE_TO_NEXT_POINT, null, null);
+					}
                 }
             });
             toolBar.add(this.nextPointButton);
@@ -1486,10 +1524,11 @@ public class SAR2 extends JFrame
         JButton button = new JButton();
         button.setToolTipText(toolTipText);
         ImageIcon icon = getIcon(imageName);
-        if (icon != null)
-            button.setIcon(icon);
-        else
-            button.setText(altText);
+        if (icon != null) {
+			button.setIcon(icon);
+		} else {
+			button.setText(altText);
+		}
 
         return button;
     }
@@ -1501,8 +1540,9 @@ public class SAR2 extends JFrame
 //        if (event != null)
 //            System.out.println("SAR2.updateToolBar for event: " + event.getPropertyName() + ", new value = " + (event.getNewValue() == null ? "" : "'" + event.getNewValue() + "'"));
 
-        if (event == null)
-            return;
+        if (event == null) {
+			return;
+		}
 
         // Set state according to event if not null
         if (event.getPropertyName().equals(TrackController.TRACK_CURRENT))
@@ -1578,8 +1618,9 @@ public class SAR2 extends JFrame
     {
         String imagePath = "gov/nasa/worldwindx/applications/sar/images/" + imageName;
         Object o = WWIO.getFileOrResourceAsStream(imagePath, this.getClass());
-        if (!(o instanceof InputStream))
-            return null;
+        if (!(o instanceof InputStream)) {
+			return null;
+		}
 
         try
         {
@@ -1595,10 +1636,11 @@ public class SAR2 extends JFrame
     public static String formatAngle(String format, Angle angle)
     {
         String s;
-        if (Angle.ANGLE_FORMAT_DMS.equals(format))
-            s = angle.toDMSString();
-        else
-            s = String.format("%7.4f\u00B0", angle.degrees);
+        if (Angle.ANGLE_FORMAT_DMS.equals(format)) {
+			s = angle.toDMSString();
+		} else {
+			s = String.format("%7.4f\u00B0", angle.degrees);
+		}
         return s;
     }
 
@@ -1623,8 +1665,9 @@ public class SAR2 extends JFrame
         File file = new File(UserPreferenceUtils.getDefaultUserPreferencesPath());
 
         // If the preferences file does not exist, then exit and run with the defaults.
-        if (!file.exists())
-            return;
+        if (!file.exists()) {
+			return;
+		}
 
         Document doc = null;
         try
@@ -1706,8 +1749,9 @@ public class SAR2 extends JFrame
         {
             long delayMillis = AVListImpl.getLongValue(getUserPreferences(), SARKey.AUTO_SAVE_TRACKS_INTERVAL,
                 minInterval);
-            if (delayMillis < minInterval)
-                delayMillis = minInterval;
+            if (delayMillis < minInterval) {
+				delayMillis = minInterval;
+			}
 
             this.autoSaveTimer.setDelay((int) delayMillis);
             this.autoSaveTimer.setInitialDelay((int) delayMillis);
@@ -1717,8 +1761,9 @@ public class SAR2 extends JFrame
 
     protected void autoSaveAllTracks()
     {
-        if (!UserPreferenceUtils.getBooleanValue(getUserPreferences(), SARKey.AUTO_SAVE_TRACKS))
-            return;
+        if (!UserPreferenceUtils.getBooleanValue(getUserPreferences(), SARKey.AUTO_SAVE_TRACKS)) {
+			return;
+		}
 
         for (SARTrack track : this.getTracksPanel().getAllTracks())
         {
@@ -1728,15 +1773,16 @@ public class SAR2 extends JFrame
 
     protected void autoSaveTrack(SARTrack track)
     {
-        
+
 
         // Do not save the track if it's already clean. Doing so will cause an infinite recursion between saving the
         // track and changing the dirty bit to clean.
         // Without knowledge of a file and a format for the track, we'd have to prompt the user to get that information.
         // However, we should not be prompting the user for save information whenever a track is marked dirty. Therefore
         // the track auto save functionality is activated only when the track file and format are already known.
-        if (!UserPreferenceUtils.getBooleanValue(getUserPreferences(), SARKey.AUTO_SAVE_TRACKS) || !track.isDirty() || track.getFile() == null || track.getFormat() == 0)
-            return;
+        if (!UserPreferenceUtils.getBooleanValue(getUserPreferences(), SARKey.AUTO_SAVE_TRACKS) || !track.isDirty() || track.getFile() == null || track.getFormat() == 0) {
+			return;
+		}
 
         // Fire a TRACK_SAVE event which will be captured and handled by SAR2.
         this.saveTrack(track, false);
@@ -1787,8 +1833,9 @@ public class SAR2 extends JFrame
                 rs.addStateObject(context, "trackPanel"));
         }
 
-        if (this.controlPanel.getAnalysisPanel() != null)
-            this.controlPanel.getAnalysisPanel().doGetRestorableState(rs, rs.addStateObject(context, "analysisPanel"));
+        if (this.controlPanel.getAnalysisPanel() != null) {
+			this.controlPanel.getAnalysisPanel().doGetRestorableState(rs, rs.addStateObject(context, "analysisPanel"));
+		}
     }
 
     protected void doRestoreState(RestorableSupport rs, RestorableSupport.StateObject context)
@@ -1802,7 +1849,8 @@ public class SAR2 extends JFrame
         }
 
         RestorableSupport.StateObject analysisPanelState = rs.getStateObject(context, "analysisPanel");
-        if (analysisPanelState != null && this.controlPanel.getAnalysisPanel() != null)
-            this.controlPanel.getAnalysisPanel().doRestoreState(rs, analysisPanelState);
+        if (analysisPanelState != null && this.controlPanel.getAnalysisPanel() != null) {
+			this.controlPanel.getAnalysisPanel().doRestoreState(rs, analysisPanelState);
+		}
     }
 }

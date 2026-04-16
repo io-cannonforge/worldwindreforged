@@ -102,8 +102,9 @@ public class BasicElevationModelFactory extends BasicFactory
             throw new IllegalArgumentException(message);
         }
 
-        if (params == null)
-            params = new AVListImpl();
+        if (params == null) {
+			params = new AVListImpl();
+		}
 
         if (params.getStringValue(AVKey.LAYER_NAMES) == null)
         {
@@ -145,24 +146,28 @@ public class BasicElevationModelFactory extends BasicFactory
     protected ElevationModel doCreateFromElement(Element domElement, AVList params) throws Exception
     {
         Element element = WWXML.getElement(domElement, ".", null);
-        if (element == null)
-            return null;
+        if (element == null) {
+			return null;
+		}
 
         String href = WWXML.getText(element, "@href");
-        if (href != null && href.length() > 0)
-            return (ElevationModel) this.createFromConfigSource(href, params);
+        if (href != null && href.length() > 0) {
+			return (ElevationModel) this.createFromConfigSource(href, params);
+		}
 
         Element[] elements = WWXML.getElements(element, "./ElevationModel", null);
 
         String modelType = WWXML.getText(element, "@modelType");
-        if (modelType != null && modelType.equalsIgnoreCase("compound"))
-            return this.createCompoundModel(elements, params);
+        if (modelType != null && modelType.equalsIgnoreCase("compound")) {
+			return this.createCompoundModel(elements, params);
+		}
 
         String localName = WWXML.getUnqualifiedName(domElement);
-        if (elements != null && elements.length > 0)
-            return this.createCompoundModel(elements, params);
-        else if (localName != null && localName.equals("ElevationModel"))
-            return this.createNonCompoundModel(domElement, params);
+        if (elements != null && elements.length > 0) {
+			return this.createCompoundModel(elements, params);
+		} else if (localName != null && localName.equals("ElevationModel")) {
+			return this.createNonCompoundModel(domElement, params);
+		}
 
         return null;
     }
@@ -185,16 +190,18 @@ public class BasicElevationModelFactory extends BasicFactory
     {
         CompoundElevationModel compoundModel = new CompoundElevationModel();
 
-        if (elements == null || elements.length == 0)
-            return compoundModel;
+        if (elements == null || elements.length == 0) {
+			return compoundModel;
+		}
 
         for (Element element : elements)
         {
             try
             {
                 ElevationModel em = this.doCreateFromElement(element, params);
-                if (em != null)
-                    compoundModel.addElevationModel(em);
+                if (em != null) {
+					compoundModel.addElevationModel(em);
+				}
             }
             catch (Exception e)
             {

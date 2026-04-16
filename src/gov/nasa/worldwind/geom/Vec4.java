@@ -85,10 +85,12 @@ public class Vec4
     @Override
 	public final boolean equals(Object obj)
     {
-        if (this == obj)
-            return true;
-        if (obj == null || obj.getClass() != this.getClass())
-            return false;
+        if (this == obj) {
+			return true;
+		}
+        if (obj == null || obj.getClass() != this.getClass()) {
+			return false;
+		}
 
         Vec4 that = (Vec4) obj;
         return (this.x == that.x)
@@ -164,14 +166,17 @@ public class Vec4
             throw new IllegalArgumentException(msg);
         }
 
-        if (length == 1)
-            return new Vec4(array[offset], 0d);
+        if (length == 1) {
+			return new Vec4(array[offset], 0d);
+		}
 
-        if (length == 2)
-            return new Vec4(array[offset], array[offset + 1]);
+        if (length == 2) {
+			return new Vec4(array[offset], array[offset + 1]);
+		}
 
-        if (length == 3)
-            return new Vec4(array[offset], array[offset + 1], array[offset + 2]);
+        if (length == 3) {
+			return new Vec4(array[offset], array[offset + 1], array[offset + 2]);
+		}
 
         return new Vec4(array[offset], array[offset + 1], array[offset + 2], array[offset + 3]);
     }
@@ -223,11 +228,13 @@ public class Vec4
             throw new IllegalArgumentException(msg);
         }
 
-        if (length == 2)
-            return new Vec4(array[offset], array[offset + 1], 0d);
+        if (length == 2) {
+			return new Vec4(array[offset], array[offset + 1], 0d);
+		}
 
-        if (length == 3)
-            return new Vec4(array[offset], array[offset + 1], array[offset + 2]);
+        if (length == 3) {
+			return new Vec4(array[offset], array[offset + 1], array[offset + 2]);
+		}
 
         return new Vec4(array[offset], array[offset + 1], array[offset + 2], array[offset + 3]);
     }
@@ -363,12 +370,15 @@ public class Vec4
 
         array[offset] = this.x;
 
-        if (length > 1)
-            array[offset + 1] = this.y;
-        if (length > 2)
-            array[offset + 2] = this.z;
-        if (length > 3)
-            array[offset + 3] = this.w;
+        if (length > 1) {
+			array[offset + 1] = this.y;
+		}
+        if (length > 2) {
+			array[offset + 2] = this.z;
+		}
+        if (length > 3) {
+			array[offset + 3] = this.w;
+		}
 
         return array;
     }
@@ -424,10 +434,12 @@ public class Vec4
         array[offset] = (float) this.x;
         array[offset + 1] = (float) this.y;
 
-        if (length > 2)
-            array[offset + 2] = (float) this.z;
-        if (length > 3)
-            array[offset + 3] = (float) this.w;
+        if (length > 2) {
+			array[offset + 2] = (float) this.z;
+		}
+        if (length > 3) {
+			array[offset + 3] = (float) this.w;
+		}
 
         return array;
     }
@@ -527,8 +539,9 @@ public class Vec4
         // For a discussion of homogeneous coordinates, see "Mathematics for 3D Game Programming and Computer Graphics,
         // Second Edition" by Eric Lengyel, Section 3.4 (pages 81-84).
 
-        if (this.w == 1.0)
-            return this;
+        if (this.w == 1.0) {
+			return this;
+		}
 
         return new Vec4(this.x, this.y, this.z, 1.0);
     }
@@ -549,8 +562,9 @@ public class Vec4
         // For a discussion of homogeneous coordinates, see "Mathematics for 3D Game Programming and Computer Graphics,
         // Second Edition" by Eric Lengyel, Section 3.4 (pages 81-84).
 
-        if (this.w == 0.0)
-            return this;
+        if (this.w == 0.0) {
+			return this;
+		}
 
         return new Vec4(this.x, this.y, this.z, 0.0);
     }
@@ -914,15 +928,17 @@ public class Vec4
         // Compute the sum of magnitudes.
         double length = this.getLength3() * vec4.getLength3();
         // Normalize the dot product, if necessary.
-        if (!(length == 0) && (length != 1.0))
-            a_dot_b /= length;
+        if (!(length == 0) && (length != 1.0)) {
+			a_dot_b /= length;
+		}
 
         // The normalized dot product should be in the range [-1, 1]. Otherwise the result is an error from floating
         // point roundoff. So if a_dot_b is less than -1 or greater than +1, we treat it as -1 and +1 respectively.
-        if (a_dot_b < -1.0)
-            a_dot_b = -1.0;
-        else if (a_dot_b > 1.0)
-            a_dot_b = 1.0;
+        if (a_dot_b < -1.0) {
+			a_dot_b = -1.0;
+		} else if (a_dot_b > 1.0) {
+			a_dot_b = 1.0;
+		}
 
         // Angle is arc-cosine of normalized dot product.
         return Angle.fromRadians(Math.acos(a_dot_b));
@@ -982,8 +998,9 @@ public class Vec4
         double dot = this.dot3(vec4);
         double length = vec4.getLength3();
         // Normalize the dot product, if necessary.
-        if (!(length == 0) && (length != 1.0))
-            dot /= (length * length);
+        if (!(length == 0) && (length != 1.0)) {
+			dot /= (length * length);
+		}
         return vec4.multiply3(dot);
     }
 
@@ -1120,10 +1137,11 @@ public class Vec4
             throw new IllegalArgumentException(msg);
         }
 
-        if (amount < 0.0)
-            return value1;
-        else if (amount > 1.0)
-            return value2;
+        if (amount < 0.0) {
+			return value1;
+		} else if (amount > 1.0) {
+			return value2;
+		}
 
         double t1 = 1.0 - amount;
         return new Vec4(
@@ -1160,8 +1178,9 @@ public class Vec4
 
         for (Vec4 vec : points)
         {
-            if (vec == null)
-                continue;
+            if (vec == null) {
+				continue;
+			}
 
             count++;
             x += vec.x;
@@ -1170,8 +1189,9 @@ public class Vec4
             w += vec.w;
         }
 
-        if (count == 0)
-            return null;
+        if (count == 0) {
+			return null;
+		}
 
         return new Vec4(x / count, y / count, z / count, w / count);
     }
@@ -1225,8 +1245,9 @@ public class Vec4
             z += coordinates.getDouble(i + 2);
         }
 
-        if (count == 0)
-            return null;
+        if (count == 0) {
+			return null;
+		}
 
         return new Vec4(x / count, y / count, z / count);
     }
@@ -1280,8 +1301,9 @@ public class Vec4
             throw new IllegalArgumentException(message);
         }
 
-        if (points.length == 0)
-            return null;
+        if (points.length == 0) {
+			return null;
+		}
 
         double xmin = points[0].x;
         double ymin = points[0].y;
@@ -1335,8 +1357,9 @@ public class Vec4
             throw new IllegalArgumentException(message);
         }
 
-        if (buffer.getBackingBuffer().position() > buffer.getBackingBuffer().limit() - 3)
-            return null;
+        if (buffer.getBackingBuffer().position() > buffer.getBackingBuffer().limit() - 3) {
+			return null;
+		}
 
         double xmin = buffer.getDouble(0);
         double ymin = buffer.getDouble(1);

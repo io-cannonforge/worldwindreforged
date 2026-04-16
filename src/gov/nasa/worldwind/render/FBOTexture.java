@@ -60,8 +60,9 @@ public class FBOTexture extends FramebufferTexture
         // Bind actually binds the source texture only if the image source is available, otherwise it initiates image
         // source retrieval. If bind returns false, the image source is not yet available.
         // Ensure that the source texture size is available so that the FBO can be sized to match the source image.
-        if (this.sourceTexture == null || !this.sourceTexture.bind(dc) || sourceTexture.getWidth(dc) < 1 || sourceTexture.getHeight(dc) < 1)
-            return null;
+        if (this.sourceTexture == null || !this.sourceTexture.bind(dc) || sourceTexture.getWidth(dc) < 1 || sourceTexture.getHeight(dc) < 1) {
+			return null;
+		}
 
         // Limit FBO size to the max OGL size or 4k, whichever is smaller
         int maxSize = Math.min(dc.getGLRuntimeCapabilities().getMaxTextureSize(), 4096);

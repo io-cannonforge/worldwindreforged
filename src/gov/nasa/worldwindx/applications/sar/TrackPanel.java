@@ -164,10 +164,11 @@ public class TrackPanel extends JPanel
         // user is working in imperial units, convert the slider
         // value to meters before passing it to SarTrack.
         double trackOffset;
-        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit))
-            trackOffset = SAR2.feetToMeters(offset);
-        else // Default to metric units.
-            trackOffset = offset;
+        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit)) {
+			trackOffset = SAR2.feetToMeters(offset);
+		} else { // Default to metric units.
+			trackOffset = offset;
+		}
 
         this.positionTable.getSarTrack().setOffset(trackOffset);
         this.positionTable.getSarTrack().firePropertyChange(TrackController.TRACK_MODIFY, null,
@@ -176,8 +177,9 @@ public class TrackPanel extends JPanel
 
     private void changeOffsetUnit(String oldUnit, String newUnit)
     {
-        if (newUnit.equals(oldUnit))
-            return;
+        if (newUnit.equals(oldUnit)) {
+			return;
+		}
 
         double offset = parseOffsetInput();
         SpinnerNumberModel sm;
@@ -323,8 +325,9 @@ public class TrackPanel extends JPanel
         rs.addStateValueAsBoolean(context, "offsetEnabled", this.offsetToggleCheckBox.isSelected());
 
         double value = parseOffsetInput();
-        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-            value = SAR2.feetToMeters(value); // convert to meter if needed
+        if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+			value = SAR2.feetToMeters(value); // convert to meter if needed
+		}
         rs.addStateValueAsDouble(context, "offsetValue", value);
     }
 
@@ -332,14 +335,16 @@ public class TrackPanel extends JPanel
     {
         // Retrieve state values
         Boolean offsetEnabledState = rs.getStateValueAsBoolean(context, "offsetEnabled");
-        if (offsetEnabledState != null)
-            this.offsetToggleCheckBox.setSelected(offsetEnabledState);
+        if (offsetEnabledState != null) {
+			this.offsetToggleCheckBox.setSelected(offsetEnabledState);
+		}
 
         Double valueState = rs.getStateValueAsDouble(context, "offsetValue");
         if (valueState != null)
         {
-            if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL))
-                valueState = SAR2.metersToFeet(valueState); // convert to feet if needed
+            if (this.elevationUnit.equals(SAR2.UNIT_IMPERIAL)) {
+				valueState = SAR2.metersToFeet(valueState); // convert to feet if needed
+			}
             this.offsetSpinner.setValue(valueState);
         }
     }

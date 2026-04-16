@@ -85,10 +85,11 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
     {
         XMLEventParser defaultParser = null;
 
-        if (this.isRequestName(ctx, event.asStartElement().getName()))
-            defaultParser = new OGCRequestDescription(this.getNamespaceURI());
-        else if (ctx.isStartElement(event, EXCEPTION))
-            defaultParser = new StringSetXMLEventParser(this.getNamespaceURI(), FORMAT);
+        if (this.isRequestName(ctx, event.asStartElement().getName())) {
+			defaultParser = new OGCRequestDescription(this.getNamespaceURI());
+		} else if (ctx.isStartElement(event, EXCEPTION)) {
+			defaultParser = new StringSetXMLEventParser(this.getNamespaceURI(), FORMAT);
+		}
 
         return ctx.allocate(event, defaultParser);
     }
@@ -103,8 +104,9 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof StringSetXMLEventParser)
-                    this.setExceptionFormats(((StringSetXMLEventParser) o).getStrings());
+                if (o != null && o instanceof StringSetXMLEventParser) {
+					this.setExceptionFormats(((StringSetXMLEventParser) o).getStrings());
+				}
             }
         }
         else if (event.isStartElement() && this.isRequestName(ctx, event.asStartElement().getName()))
@@ -113,8 +115,9 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCRequestDescription)
-                    this.requestDescriptions.add((OGCRequestDescription) o);
+                if (o != null && o instanceof OGCRequestDescription) {
+					this.requestDescriptions.add((OGCRequestDescription) o);
+				}
             }
         }
         else if (ctx.isStartElement(event, USER_DEFINED_SYMBOLIZATION))
@@ -136,8 +139,9 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
         if (parser != null)
         {
             Object o = parser.parse(ctx, event, args);
-            if (o != null)
-                this.setExtendedCapabilities(o);
+            if (o != null) {
+				this.setExtendedCapabilities(o);
+			}
         }
     }
 
@@ -150,8 +154,9 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
     protected void parseUserDefinedSymbolization(XMLEvent event) throws XMLStreamException
     {
         var iter = event.asStartElement().getAttributes();
-        if (iter == null)
-            return;
+        if (iter == null) {
+			return;
+		}
 
         while (iter.hasNext())
         {
@@ -162,10 +167,11 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
 
     public Set<String> getExceptionFormats()
     {
-        if (this.exceptionFormats != null)
-            return exceptionFormats;
-        else
-            return Collections.emptySet();
+        if (this.exceptionFormats != null) {
+			return exceptionFormats;
+		} else {
+			return Collections.emptySet();
+		}
     }
 
     protected void setExceptionFormats(Set<String> exceptionFormats)
@@ -185,10 +191,11 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
 
     public Map<String, String> getUserDefinedSymbolization()
     {
-        if (this.userDefinedSymbolization != null)
-            return userDefinedSymbolization;
-        else
-            return Collections.emptyMap();
+        if (this.userDefinedSymbolization != null) {
+			return userDefinedSymbolization;
+		} else {
+			return Collections.emptyMap();
+		}
     }
 
     protected void setUserDefinedSymbolization(Map<String, String> userDefinedSymbolization)
@@ -198,8 +205,9 @@ abstract public class OGCCapabilityInformation extends AbstractXMLEventParser
 
     protected void addUserDefinedSymbolization(String key, String value)
     {
-        if (this.userDefinedSymbolization == null)
-            this.userDefinedSymbolization = new HashMap<>();
+        if (this.userDefinedSymbolization == null) {
+			this.userDefinedSymbolization = new HashMap<>();
+		}
 
         this.userDefinedSymbolization.put(key, value);
     }

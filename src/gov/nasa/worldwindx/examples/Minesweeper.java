@@ -17,7 +17,6 @@ package gov.nasa.worldwindx.examples;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
@@ -52,7 +51,6 @@ import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
 import gov.nasa.worldwind.render.Material;
-import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.render.SurfaceSector;
 import gov.nasa.worldwind.render.SurfaceText;
 import gov.nasa.worldwind.view.orbit.OrbitView;

@@ -108,8 +108,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     public void setWorldWindow(WorldWindow wwd)
     {
-        if (this.wwd == wwd)
-            return;
+        if (this.wwd == wwd) {
+			return;
+		}
 
         if (this.wwd != null)
         {
@@ -134,8 +135,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     public void setTrack(SARTrack track)
     {
-        if (this.track == track)
-            return;
+        if (this.track == track) {
+			return;
+		}
 
         if (this.track != null)
         {
@@ -158,8 +160,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     public void moveToNextTrackPoint()
     {
-        if (this.track == null || this.waitingForNextPosition)
-            return;
+        if (this.track == null || this.waitingForNextPosition) {
+			return;
+		}
 
         this.start();
     }
@@ -171,8 +174,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     public void removeLastTrackPoint()
     {
-        if (this.track == null || this.track.size() == 0)
-            return;
+        if (this.track == null || this.track.size() == 0) {
+			return;
+		}
 
         int lastIndex = this.track.size() - 1;
         this.track.removePosition(lastIndex);
@@ -366,8 +370,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     protected void snapTrackPointToPlanePoint(String planePoint)
     {
-        if ((this.track == null) || (this.track.size() == 0) || (this.waitingForNextPosition && planePoint == SegmentPlane.SEGMENT_END))
-            return;
+        if ((this.track == null) || (this.track.size() == 0) || (this.waitingForNextPosition && planePoint == SegmentPlane.SEGMENT_END)) {
+			return;
+		}
 
         Position[] segmentPositions = this.segmentPlane.getSegmentPositions();
 
@@ -389,14 +394,16 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     protected void snapPlaneToLastTrackPoint()
     {
-        if ((this.track == null) || (this.track.size() == 0))
-            return;
+        if ((this.track == null) || (this.track.size() == 0)) {
+			return;
+		}
 
         int lastIndex = this.track.size() - 1;
         SARPosition lastTrackPosition = this.track.get(lastIndex);
         SARPosition nextTrackPosition = this.computeNextTrackPosition();
-        if (nextTrackPosition == null)
-            nextTrackPosition = lastTrackPosition;
+        if (nextTrackPosition == null) {
+			nextTrackPosition = lastTrackPosition;
+		}
 
         Position position1 = this.trackPositionToPosition(lastTrackPosition);
         Position position2 = this.trackPositionToPosition(nextTrackPosition);
@@ -414,8 +421,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
 
     protected void snapPlaneToLastTrackSegment()
     {
-        if ((this.track == null) || (this.track.size() < 2))
-            return;
+        if ((this.track == null) || (this.track.size() < 2)) {
+			return;
+		}
 
         int lastIndex = this.track.size() - 1;
         SARPosition lastTrackPosition = this.track.get(lastIndex - 1);
@@ -470,8 +478,9 @@ public class SARTrackExtensionTool implements MouseListener, PositionListener, P
         double size = this.segmentPlane.getObjectSize(SegmentPlane.SEGMENT_END, point);
 
         double distance = Math.ceil(2 * size / gridDimensions[0]);
-        if (distance < 1)
-            distance = 1;
+        if (distance < 1) {
+			distance = 1;
+		}
         distance = distance * gridDimensions[0];
 
         Angle heading = LatLon.rhumbAzimuth(this.track.get(lastIndex - 1), lastPosition);

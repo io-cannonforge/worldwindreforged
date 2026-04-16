@@ -105,8 +105,9 @@ public class ViewControlsSelectListener implements SelectListener
         // Setup repeat timer
         this.repeatTimer = new Timer(DEFAULT_TIMER_DELAY, event ->
         {
-            if (pressedControl != null)
-                updateView(pressedControl, pressedControlType);
+            if (pressedControl != null) {
+				updateView(pressedControl, pressedControlType);
+			}
         });
         this.repeatTimer.start();
     }
@@ -292,8 +293,9 @@ public class ViewControlsSelectListener implements SelectListener
     @Override
 	public void selected(SelectEvent event)
     {
-        if ((this.wwd == null) || !(this.wwd.getView() instanceof OrbitView))
-            return;
+        if ((this.wwd == null) || !(this.wwd.getView() instanceof OrbitView)) {
+			return;
+		}
 
         OrbitView view = (OrbitView) this.wwd.getView();
 
@@ -303,16 +305,19 @@ public class ViewControlsSelectListener implements SelectListener
             this.wwd.redraw(); // must redraw so the de-highlight can take effect
         }
 
-        if (event.getMouseEvent() != null && event.getMouseEvent().isConsumed())
-            return;
+        if (event.getMouseEvent() != null && event.getMouseEvent().isConsumed()) {
+			return;
+		}
 
         if (event.getTopObject() == null || event.getTopPickedObject().getParentLayer() != this.getParentLayer()
-            || !(event.getTopObject() instanceof AVList))
-            return;
+            || !(event.getTopObject() instanceof AVList)) {
+			return;
+		}
 
         String controlType = ((AVList) event.getTopObject()).getStringValue(AVKey.VIEW_OPERATION);
-        if (controlType == null)
-            return;
+        if (controlType == null) {
+			return;
+		}
 
         ScreenAnnotation selectedObject = (ScreenAnnotation) event.getTopObject();
 
@@ -344,8 +349,9 @@ public class ViewControlsSelectListener implements SelectListener
 
             // Consume drag events, but do not consume left press events. It is not necessary to consume left press
             // events here, and doing so prevents the WorldWindow from gaining focus.
-            if (event.getEventAction().equals(SelectEvent.DRAG))
-                event.consume();
+            if (event.getEventAction().equals(SelectEvent.DRAG)) {
+				event.consume();
+			}
         }
         else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK)
             || event.getEventAction().equals(SelectEvent.LEFT_DOUBLE_CLICK)
@@ -353,8 +359,9 @@ public class ViewControlsSelectListener implements SelectListener
         {
             // Release pressed control
 
-            if (pressedControl != null)
-                event.consume();
+            if (pressedControl != null) {
+				event.consume();
+			}
 
             this.pressedControl = null;
             resetOrbitView(view);
@@ -382,8 +389,9 @@ public class ViewControlsSelectListener implements SelectListener
 
     protected void updateView(ScreenAnnotation control, String controlType)
     {
-        if ((this.wwd == null) || !(this.wwd.getView() instanceof OrbitView))
-            return;
+        if ((this.wwd == null) || !(this.wwd.getView() instanceof OrbitView)) {
+			return;
+		}
 
         OrbitView view = (OrbitView) this.wwd.getView();
         view.stopAnimations();
@@ -398,8 +406,9 @@ public class ViewControlsSelectListener implements SelectListener
             LatLon newViewCenter = LatLon.greatCircleEndPosition(view.getCenterPosition(),
                 heading, distance);
             // Turn around if passing by a pole - TODO: better handling of the pole crossing situation
-            if (this.isPathCrossingAPole(newViewCenter, view.getCenterPosition()))
-                view.setHeading(Angle.POS180.subtract(view.getHeading()));
+            if (this.isPathCrossingAPole(newViewCenter, view.getCenterPosition())) {
+				view.setHeading(Angle.POS180.subtract(view.getHeading()));
+			}
             // Set new center pos
             view.setCenterPosition(new Position(newViewCenter, view.getCenterPosition().getElevation()));
         }
@@ -443,24 +452,28 @@ public class ViewControlsSelectListener implements SelectListener
         else if (controlType.equals(AVKey.VIEW_PITCH_UP))
         {
             resetOrbitView(view);
-            if (view.getPitch().degrees >= pitchStep)
-                view.setPitch(view.getPitch().addDegrees(-pitchStep));
+            if (view.getPitch().degrees >= pitchStep) {
+				view.setPitch(view.getPitch().addDegrees(-pitchStep));
+			}
         }
         else if (controlType.equals(AVKey.VIEW_PITCH_DOWN))
         {
             resetOrbitView(view);
-            if (view.getPitch().degrees <= 90 - pitchStep)
-                view.setPitch(view.getPitch().addDegrees(pitchStep));
+            if (view.getPitch().degrees <= 90 - pitchStep) {
+				view.setPitch(view.getPitch().addDegrees(pitchStep));
+			}
         }
         else if (controlType.equals(AVKey.VIEW_FOV_NARROW))
         {
-            if (view.getFieldOfView().degrees / fovStep >= 4)
-                view.setFieldOfView(view.getFieldOfView().divide(fovStep));
+            if (view.getFieldOfView().degrees / fovStep >= 4) {
+				view.setFieldOfView(view.getFieldOfView().divide(fovStep));
+			}
         }
         else if (controlType.equals(AVKey.VIEW_FOV_WIDE))
         {
-            if (view.getFieldOfView().degrees * fovStep < 120)
-                view.setFieldOfView(view.getFieldOfView().multiply(fovStep));
+            if (view.getFieldOfView().degrees * fovStep < 120) {
+				view.setFieldOfView(view.getFieldOfView().multiply(fovStep));
+			}
         }
         else if (controlType.equals(AVKey.VERTICAL_EXAGGERATION_UP))
         {
@@ -564,8 +577,9 @@ public class ViewControlsSelectListener implements SelectListener
      */
     protected void resetOrbitView(OrbitView view)
     {
-        if (view.getZoom() > 0)   // already in orbit view mode
-            return;
+        if (view.getZoom() > 0) { // already in orbit view mode
+			return;
+		}
 
         // Find out where on the terrain the eye is looking at in the viewport center
         // TODO: if no terrain is found in the viewport center, iterate toward viewport bottom until it is found
@@ -602,8 +616,9 @@ public class ViewControlsSelectListener implements SelectListener
      */
     protected void setupFirstPersonView(OrbitView view)
     {
-        if (view.getZoom() == 0)  // already in first person mode
-            return;
+        if (view.getZoom() == 0) { // already in first person mode
+			return;
+		}
 
         Vec4 eyePoint = view.getEyePoint();
         // Center pos at eye pos

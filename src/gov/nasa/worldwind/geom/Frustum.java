@@ -165,10 +165,12 @@ public class Frustum
     @Override
 	public boolean equals(Object obj)
     {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
+        if (this == obj) {
+			return true;
+		}
+        if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
 
         Frustum that = (Frustum) obj;
         return this.left.equals(that.left)
@@ -311,10 +313,12 @@ public class Frustum
         double fov = horizontalFieldOfView.getDegrees();
         double farMinusNear = far - near;
         String message = null;
-        if (fov <= 0 || fov > 180)
-            message = Logging.getMessage("Geom.ViewFrustum.FieldOfViewOutOfRange", fov);
-        if (near <= 0 || farMinusNear <= 0)
-            message = Logging.getMessage("Geom.ViewFrustum.ClippingDistanceOutOfRange");
+        if (fov <= 0 || fov > 180) {
+			message = Logging.getMessage("Geom.ViewFrustum.FieldOfViewOutOfRange", fov);
+		}
+        if (near <= 0 || farMinusNear <= 0) {
+			message = Logging.getMessage("Geom.ViewFrustum.ClippingDistanceOutOfRange");
+		}
         if (message != null)
         {
             Logging.logger().severe(message);
@@ -463,21 +467,25 @@ public class Frustum
         }
 
         // First do a trivial accept test.
-        if (this.contains(pa) || this.contains(pb))
-            return true;
+        if (this.contains(pa) || this.contains(pb)) {
+			return true;
+		}
 
-        if (pa.equals(pb))
-            return false;
+        if (pa.equals(pb)) {
+			return false;
+		}
 
         for (Plane p : this.getAllPlanes())
         {
             // See if both points are behind the plane and therefore not in the frustum.
-            if (p.onSameSide(pa, pb) < 0)
-                return false;
+            if (p.onSameSide(pa, pb) < 0) {
+				return false;
+			}
 
             // See if the segment intersects the plane.
-            if (p.clip(pa, pb) != null)
-                return true;
+            if (p.clip(pa, pb) != null) {
+				return true;
+			}
         }
 
         return false; // segment does not intersect frustum
@@ -511,13 +519,13 @@ public class Frustum
         Vec4 c = extent.getCenter();
         double r = extent.getRadius();
 
-        if ((this.far.dot(c) <= r) || (this.left.dot(c) <= r) || (this.right.dot(c) <= r) || (this.top.dot(c) <= r))
-            return false;
-        if (this.bottom.dot(c) <= r)
-            return false;
+        if ((this.far.dot(c) <= r) || (this.left.dot(c) <= r) || (this.right.dot(c) <= r) || (this.top.dot(c) <= r)) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (this.near.dot(c) <= r)
-            return false;
+        if ((this.bottom.dot(c) <= r) || (this.near.dot(c) <= r)) {
+			return false;
+		}
 
         return true;
     }
@@ -544,13 +552,13 @@ public class Frustum
         // provides a distance to each plane. If this distance is less than 0, the point is clipped by that plane and
         // neither intersects nor is contained by the space enclosed by this Frustum.
 
-        if ((this.far.dot(point) <= 0) || (this.left.dot(point) <= 0) || (this.right.dot(point) <= 0) || (this.top.dot(point) <= 0))
-            return false;
-        if (this.bottom.dot(point) <= 0)
-            return false;
+        if ((this.far.dot(point) <= 0) || (this.left.dot(point) <= 0) || (this.right.dot(point) <= 0) || (this.top.dot(point) <= 0)) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (this.near.dot(point) <= 0)
-            return false;
+        if ((this.bottom.dot(point) <= 0) || (this.near.dot(point) <= 0)) {
+			return false;
+		}
 
         return true;
     }

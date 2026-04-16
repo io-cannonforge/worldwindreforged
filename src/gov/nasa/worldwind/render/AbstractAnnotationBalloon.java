@@ -86,8 +86,9 @@ public abstract class AbstractAnnotationBalloon extends AbstractBalloon
     @Override
 	public void render(DrawContext dc)
     {
-        if (!this.isVisible())
-            return;
+        if (!this.isVisible()) {
+			return;
+		}
 
         this.determineActiveAttributes();
         this.applyAttributesToAnnotation();
@@ -111,8 +112,9 @@ public abstract class AbstractAnnotationBalloon extends AbstractBalloon
         annotation.setPickEnabled(this.isPickEnabled());
 
         String text = this.getDecodedText();
-        if (text != null)
-            annotation.setText(text);
+        if (text != null) {
+			annotation.setText(text);
+		}
 
         annotation.setMinActiveAltitude(this.getMinActiveAltitude());
         annotation.setMaxActiveAltitude(this.getMaxActiveAltitude());

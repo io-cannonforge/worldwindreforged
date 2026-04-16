@@ -110,8 +110,9 @@ public class TextureTile extends Tile implements SurfaceTile
     {
         long size = super.getSizeInBytes();
 
-        if (this.textureData != null)
-            size += this.textureData.getEstimatedMemorySize();
+        if (this.textureData != null) {
+			size += this.textureData.getEstimatedMemorySize();
+		}
 
         return size;
     }
@@ -169,8 +170,9 @@ public class TextureTile extends Tile implements SurfaceTile
     public void setTextureData(TextureData textureData)
     {
         this.textureData = textureData;
-        if (textureData != null && textureData.getMipmapData() != null)
-            this.hasMipmapData = true;
+        if (textureData != null && textureData.getMipmapData() != null) {
+			this.hasMipmapData = true;
+		}
     }
 
     public Texture getTexture(GpuResourceCache tc)
@@ -290,31 +292,35 @@ public class TextureTile extends Tile implements SurfaceTile
 
         TileKey key = this.createSubTileKey(nextLevel, 2 * row, 2 * col);
         TextureTile subTile = this.getTileFromMemoryCache(key);
-        if (subTile != null)
-            subTiles[0] = subTile;
-        else
-            subTiles[0] = this.createSubTile(new Sector(p0, p1, t0, t1), nextLevel, 2 * row, 2 * col);
+        if (subTile != null) {
+			subTiles[0] = subTile;
+		} else {
+			subTiles[0] = this.createSubTile(new Sector(p0, p1, t0, t1), nextLevel, 2 * row, 2 * col);
+		}
 
         key = this.createSubTileKey(nextLevel, 2 * row, 2 * col + 1);
         subTile = this.getTileFromMemoryCache(key);
-        if (subTile != null)
-            subTiles[1] = subTile;
-        else
-            subTiles[1] = this.createSubTile(new Sector(p0, p1, t1, t2), nextLevel, 2 * row, 2 * col + 1);
+        if (subTile != null) {
+			subTiles[1] = subTile;
+		} else {
+			subTiles[1] = this.createSubTile(new Sector(p0, p1, t1, t2), nextLevel, 2 * row, 2 * col + 1);
+		}
 
         key = this.createSubTileKey(nextLevel, 2 * row + 1, 2 * col);
         subTile = this.getTileFromMemoryCache(key);
-        if (subTile != null)
-            subTiles[2] = subTile;
-        else
-            subTiles[2] = this.createSubTile(new Sector(p1, p2, t0, t1), nextLevel, 2 * row + 1, 2 * col);
+        if (subTile != null) {
+			subTiles[2] = subTile;
+		} else {
+			subTiles[2] = this.createSubTile(new Sector(p1, p2, t0, t1), nextLevel, 2 * row + 1, 2 * col);
+		}
 
         key = this.createSubTileKey(nextLevel, 2 * row + 1, 2 * col + 1);
         subTile = this.getTileFromMemoryCache(key);
-        if (subTile != null)
-            subTiles[3] = subTile;
-        else
-            subTiles[3] = this.createSubTile(new Sector(p1, p2, t1, t2), nextLevel, 2 * row + 1, 2 * col + 1);
+        if (subTile != null) {
+			subTiles[3] = subTile;
+		} else {
+			subTiles[3] = this.createSubTile(new Sector(p1, p2, t1, t2), nextLevel, 2 * row + 1, 2 * col + 1);
+		}
 
         return subTiles;
     }
@@ -360,8 +366,9 @@ public class TextureTile extends Tile implements SurfaceTile
 
     protected void updateMemoryCache()
     {
-        if (this.getTileFromMemoryCache(this.getTileKey()) != null)
-            getMemoryCache().add(this.getTileKey(), this);
+        if (this.getTileFromMemoryCache(this.getTileKey()) != null) {
+			getMemoryCache().add(this.getTileKey(), this);
+		}
     }
 
     protected Texture initializeTexture(DrawContext dc)
@@ -375,8 +382,9 @@ public class TextureTile extends Tile implements SurfaceTile
 
         Texture t = this.getTexture(dc.getTextureCache());
         // Return texture if found and there is no new texture data
-        if (t != null && this.getTextureData() == null)
-            return t;
+        if (t != null && this.getTextureData() == null) {
+			return t;
+		}
 
         if (this.getTextureData() == null) // texture not in cache yet texture data is null, can't initialize
         {
@@ -472,8 +480,9 @@ public class TextureTile extends Tile implements SurfaceTile
         if (this.getTextureData() != null)
         {
             Texture t = this.initializeTexture(dc);
-            if (t != null)
-                return true; // texture was bound during initialization.
+            if (t != null) {
+				return true; // texture was bound during initialization.
+			}
         }
 
         Texture t = this.getTexture(dc.getTextureCache());
@@ -485,13 +494,15 @@ public class TextureTile extends Tile implements SurfaceTile
             if (t == null)
             {
                 t = resourceTile.initializeTexture(dc);
-                if (t != null)
-                    return true; // texture was bound during initialization.
+                if (t != null) {
+					return true; // texture was bound during initialization.
+				}
             }
         }
 
-        if (t != null)
-            t.bind(dc.getGL());
+        if (t != null) {
+			t.bind(dc.getGL());
+		}
 
         return t != null;
     }
@@ -509,10 +520,11 @@ public class TextureTile extends Tile implements SurfaceTile
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
         Texture t;
-        if (this.getTextureData() != null) // Reinitialize if new texture data
-            t = this.initializeTexture(dc);
-        else
-            t = this.getTexture(dc.getTextureCache()); // Use the tile's texture if available
+        if (this.getTextureData() != null) { // Reinitialize if new texture data
+			t = this.initializeTexture(dc);
+		} else {
+			t = this.getTexture(dc.getTextureCache()); // Use the tile's texture if available
+		}
 
         if (t != null)
         {
@@ -531,15 +543,18 @@ public class TextureTile extends Tile implements SurfaceTile
 
         // Use the tile's fallback texture if its primary texture is not available.
         TextureTile resourceTile = this.getFallbackTile();
-        if (resourceTile == null) // no fallback specified
-            return;
+        if (resourceTile == null) { // no fallback specified
+			return;
+		}
 
         t = resourceTile.getTexture(dc.getTextureCache());
-        if (t == null && resourceTile.getTextureData() != null)
-            t = resourceTile.initializeTexture(dc);
+        if (t == null && resourceTile.getTextureData() != null) {
+			t = resourceTile.initializeTexture(dc);
+		}
 
-        if (t == null) // was not able to initialize the fallback texture
-            return;
+        if (t == null) { // was not able to initialize the fallback texture
+			return;
+		}
 
         // Apply necessary transforms to the fallback texture.
         if (!textureIdentityActive)
@@ -566,12 +581,14 @@ public class TextureTile extends Tile implements SurfaceTile
             throw new IllegalStateException(message);
         }
 
-        if (this.getLevel() == null)
-            return;
+        if (this.getLevel() == null) {
+			return;
+		}
 
         int levelDelta = this.getLevelNumber() - this.getFallbackTile().getLevelNumber();
-        if (levelDelta <= 0)
-            return;
+        if (levelDelta <= 0) {
+			return;
+		}
 
         double twoToTheN = Math.pow(2, levelDelta);
         double oneOverTwoToTheN = 1 / twoToTheN;
@@ -607,12 +624,14 @@ public class TextureTile extends Tile implements SurfaceTile
 
         // Fallback texture — flip + resource transform.
         TextureTile resourceTile = this.getFallbackTile();
-        if (resourceTile == null)
-            return;
+        if (resourceTile == null) {
+			return;
+		}
 
         t = resourceTile.getTexture(dc.getTextureCache());
-        if (t == null)
-            return;
+        if (t == null) {
+			return;
+		}
 
         if (t.getMustFlipVertically())
         {
@@ -644,10 +663,12 @@ public class TextureTile extends Tile implements SurfaceTile
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final TextureTile tile = (TextureTile) o;
 

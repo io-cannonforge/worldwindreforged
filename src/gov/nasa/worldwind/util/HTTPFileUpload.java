@@ -57,25 +57,39 @@ public class HTTPFileUpload {
 
     private final PropertyChangeSupport propertyChangeSupport;
 
-    protected static final String CR_LF = "\r\n";
-    protected static final String TWO_HYPHENS = "--";
-    protected static final String BOUNDARY = "*********NASA_World_Wind_HTTP_File_Upload_Separator**********";
-    protected int maxBufferSize = 1024 * 1024; // default is 1M
+    @Deprecated
+	protected static final String CR_LF = "\r\n";
+    @Deprecated
+	protected static final String TWO_HYPHENS = "--";
+    @Deprecated
+	protected static final String BOUNDARY = "*********NASA_World_Wind_HTTP_File_Upload_Separator**********";
+    @Deprecated
+	protected int maxBufferSize = 1024 * 1024; // default is 1M
 
-    protected final URL url;
+    @Deprecated
+	protected final URL url;
 
-    protected ArrayList<FileInfo> filesToUpload = new ArrayList<>();
+    @Deprecated
+	protected ArrayList<FileInfo> filesToUpload = new ArrayList<>();
 
-    protected String requestMethod = "POST";
-    protected AVList requestProperties = new AVListImpl();
+    @Deprecated
+	protected String requestMethod = "POST";
+    @Deprecated
+	protected AVList requestProperties = new AVListImpl();
 
-    protected long totalBytesToUpload = 0;
-    protected long totalBytesUploaded = 0;
-    protected int totalFilesUploaded = 0;
-    protected int totalFilesFailed = 0;
-    protected float lastProgress = 0;
+    @Deprecated
+	protected long totalBytesToUpload = 0;
+    @Deprecated
+	protected long totalBytesUploaded = 0;
+    @Deprecated
+	protected int totalFilesUploaded = 0;
+    @Deprecated
+	protected int totalFilesFailed = 0;
+    @Deprecated
+	protected float lastProgress = 0;
 
-    protected class FileInfo {
+    @Deprecated
+	protected class FileInfo {
 
         protected final String uploadName;
         protected final Object uploadItem;
@@ -88,7 +102,8 @@ public class HTTPFileUpload {
         }
     }
 
-    public HTTPFileUpload(URL url) {
+    @Deprecated
+	public HTTPFileUpload(URL url) {
         if (url == null) {
             String message = Logging.getMessage("nullValue.URLIsNull");
             Logging.logger().severe(message);
@@ -103,31 +118,38 @@ public class HTTPFileUpload {
         this.setRequestProperty("Content-Transfer-Encoding", "binary");
     }
 
-    public long getTotalFilesToUpload() {
+    @Deprecated
+	public long getTotalFilesToUpload() {
         return filesToUpload.size();
     }
 
-    public long getTotalBytesToUpload() {
+    @Deprecated
+	public long getTotalBytesToUpload() {
         return totalBytesToUpload;
     }
 
-    public long getTotalBytesUploaded() {
+    @Deprecated
+	public long getTotalBytesUploaded() {
         return totalBytesUploaded;
     }
 
-    public int getTotalFilesUploaded() {
+    @Deprecated
+	public int getTotalFilesUploaded() {
         return totalFilesUploaded;
     }
 
-    public int getTotalFilesFailed() {
+    @Deprecated
+	public int getTotalFilesFailed() {
         return totalFilesFailed;
     }
 
-    public int getMaxBufferSize() {
+    @Deprecated
+	public int getMaxBufferSize() {
         return maxBufferSize;
     }
 
-    public void setMaxBufferSize(int maxBufferSize) {
+    @Deprecated
+	public void setMaxBufferSize(int maxBufferSize) {
         this.maxBufferSize = maxBufferSize;
     }
 
@@ -136,7 +158,8 @@ public class HTTPFileUpload {
      *
      * @param method POST or GET
      */
-    public void setRequestMethod(String method) {
+    @Deprecated
+	public void setRequestMethod(String method) {
         if ("POST".equalsIgnoreCase(method)) {
             this.requestMethod = "POST";
         } else if ("GET".equalsIgnoreCase(method)) {
@@ -153,11 +176,13 @@ public class HTTPFileUpload {
      *
      * @return POST or GET
      */
-    public String getRequestMethod() {
+    @Deprecated
+	public String getRequestMethod() {
         return this.requestMethod;
     }
 
-    public void setRequestProperty(String name, String value) {
+    @Deprecated
+	public void setRequestProperty(String name, String value) {
         if (WWUtil.isEmpty(name)) {
             String message = Logging.getMessage("nullValue.PropertyNameIsNull");
             Logging.logger().severe(message);
@@ -166,7 +191,8 @@ public class HTTPFileUpload {
         this.requestProperties.setValue(name, value);
     }
 
-    public void add(ByteBuffer bufferToUpload, String name, AVList params) {
+    @Deprecated
+	public void add(ByteBuffer bufferToUpload, String name, AVList params) {
         if (bufferToUpload == null) {
             String message = Logging.getMessage("nullValue.ByteBufferIsNull");
             Logging.logger().severe(message);
@@ -198,7 +224,8 @@ public class HTTPFileUpload {
      *
      * @throws FileNotFoundException if the file was not found or does not exist
      */
-    public void add(File file, String name, AVList params) throws FileNotFoundException {
+    @Deprecated
+	public void add(File file, String name, AVList params) throws FileNotFoundException {
         if (null != file && file.exists()) {
             this.totalBytesToUpload += file.length();
             this.filesToUpload.add(new FileInfo(name, file, params));
@@ -207,7 +234,8 @@ public class HTTPFileUpload {
         }
     }
 
-    public void send() throws Exception {
+    @Deprecated
+	public void send() throws Exception {
         for (FileInfo info : this.filesToUpload) {
             try {
                 if (info.uploadItem instanceof File) {
@@ -231,7 +259,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void send(File fileToUpload, String uploadName, AVList params)
+    @Deprecated
+	protected void send(File fileToUpload, String uploadName, AVList params)
             throws IOException, NullPointerException {
         if (null == fileToUpload || !fileToUpload.exists()) {
             throw new FileNotFoundException();
@@ -290,7 +319,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void handleResponse(HttpURLConnection conn) throws IOException {
+    @Deprecated
+	protected void handleResponse(HttpURLConnection conn) throws IOException {
         if (null != conn) {
             int code = conn.getResponseCode();
             String message = conn.getResponseMessage();
@@ -304,7 +334,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void disconnect(HttpURLConnection conn, String name) {
+    @Deprecated
+	protected void disconnect(HttpURLConnection conn, String name) {
         if (null != conn) {
             try {
                 conn.disconnect();
@@ -315,7 +346,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void send(ByteBuffer bufferToUpload, String fileName, AVList params) throws IOException {
+    @Deprecated
+	protected void send(ByteBuffer bufferToUpload, String fileName, AVList params) throws IOException {
         if (null == bufferToUpload) {
             String message = Logging.getMessage("nullValue.ByteBufferIsNull");
             Logging.logger().severe(message);
@@ -381,7 +413,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void send(String stringToUpload, String fileName, AVList params) throws IOException {
+    @Deprecated
+	protected void send(String stringToUpload, String fileName, AVList params) throws IOException {
         if (WWUtil.isEmpty(stringToUpload)) {
             String message = Logging.getMessage("nullValue.StringIsNull");
             Logging.logger().severe(message);
@@ -430,7 +463,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void writeProperties(DataOutputStream dos, AVList params) throws IOException {
+    @Deprecated
+	protected void writeProperties(DataOutputStream dos, AVList params) throws IOException {
         if (null != dos && null != params) {
             for (var param : params.getEntries()) {
                 String name = param.getKey();
@@ -447,7 +481,8 @@ public class HTTPFileUpload {
      *
      * @throws IOException if there is any problem with a connection
      */
-    protected void writeRequestProperties(HttpURLConnection conn) throws IOException {
+    @Deprecated
+	protected void writeRequestProperties(HttpURLConnection conn) throws IOException {
         if (null != conn) {
             conn.setRequestMethod(this.getRequestMethod());
             this.requestProperties.getEntries().forEach((requestProperty) -> {
@@ -456,7 +491,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void writeContentDisposition(DataOutputStream dos, String filename) throws IOException {
+    @Deprecated
+	protected void writeContentDisposition(DataOutputStream dos, String filename) throws IOException {
         if (null != dos) {
             dos.writeBytes(TWO_HYPHENS + BOUNDARY + CR_LF);
             dos.writeBytes("Content-Disposition: attachment; filename=\"" + filename + "\"" + CR_LF);
@@ -465,7 +501,8 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void writeContentDisposition(DataOutputStream dos, String paramName, String paramValue) throws IOException {
+    @Deprecated
+	protected void writeContentDisposition(DataOutputStream dos, String paramName, String paramValue) throws IOException {
         if (null != dos && null != paramName) {
             dos.writeBytes(TWO_HYPHENS + BOUNDARY + CR_LF);
             dos.writeBytes("Content-Disposition: form-data; name=\"" + paramName + "\"" + CR_LF);
@@ -473,22 +510,26 @@ public class HTTPFileUpload {
         }
     }
 
-    protected void writeContentSeparator(DataOutputStream dos) throws IOException {
+    @Deprecated
+	protected void writeContentSeparator(DataOutputStream dos) throws IOException {
         if (null != dos) {
             // send multipart form data necesssary after file data...
             dos.writeBytes(CR_LF + TWO_HYPHENS + BOUNDARY + TWO_HYPHENS + CR_LF);
         }
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    @Deprecated
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    @Deprecated
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
         this.propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
-    protected void notifyProgress() {
+    @Deprecated
+	protected void notifyProgress() {
         float progress = (float) 100 * (float) this.totalBytesUploaded / this.totalBytesToUpload;
 
         if (progress != lastProgress) {

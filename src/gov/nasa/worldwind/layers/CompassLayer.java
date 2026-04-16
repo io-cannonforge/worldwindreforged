@@ -315,8 +315,9 @@ public class CompassLayer extends AbstractLayer
     @Override
 	protected void doRender(DrawContext dc)
     {
-        if (dc.isContinuous2DGlobe() && this.frameStampForDrawing == dc.getFrameTimeStamp())
-            return;
+        if (dc.isContinuous2DGlobe() && this.frameStampForDrawing == dc.getFrameTimeStamp()) {
+			return;
+		}
 
         dc.addOrderedRenderable(this.orderedImage);
 
@@ -326,8 +327,9 @@ public class CompassLayer extends AbstractLayer
     @Override
 	protected void doPick(DrawContext dc, Point pickPoint)
     {
-        if (dc.isContinuous2DGlobe() && this.frameStampForPicking == dc.getFrameTimeStamp())
-            return;
+        if (dc.isContinuous2DGlobe() && this.frameStampForPicking == dc.getFrameTimeStamp()) {
+			return;
+		}
 
         dc.addOrderedRenderable(this.orderedImage);
 
@@ -346,8 +348,9 @@ public class CompassLayer extends AbstractLayer
 
     protected void draw(DrawContext dc)
     {
-        if (this.getIconFilePath() == null)
-            return;
+        if (this.getIconFilePath() == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         OGLStackHandler ogsh = new OGLStackHandler();
@@ -382,8 +385,9 @@ public class CompassLayer extends AbstractLayer
             java.awt.Rectangle viewport = dc.getView().getViewport();
             ogsh.pushProjectionIdentity(gl);
             double maxwh = width > height ? width : height;
-            if (maxwh == 0)
-                maxwh = 1;
+            if (maxwh == 0) {
+				maxwh = 1;
+			}
             gl.glOrtho(0d, viewport.width, 0d, viewport.height, -0.6 * maxwh, 0.6 * maxwh);
 
             ogsh.pushModelviewIdentity(gl);
@@ -398,8 +402,9 @@ public class CompassLayer extends AbstractLayer
             if (!dc.isPickingMode())
             {
                 gl.glTranslated(width / 2, height / 2, 0);
-                if (this.showTilt) // formula contributed by Ty Hayden
-                    gl.glRotated(70d * (pitch / 90.0), 1d, 0d, 0d);
+                if (this.showTilt) { // formula contributed by Ty Hayden
+					gl.glRotated(70d * (pitch / 90.0), 1d, 0d, 0d);
+				}
                 gl.glRotated(heading, 0d, 0d, 1d);
                 gl.glTranslated(-width / 2, -height / 2, 0);
 
@@ -551,16 +556,18 @@ public class CompassLayer extends AbstractLayer
 
     protected double computeHeading(View view)
     {
-        if (view == null)
-            return 0.0;
+        if (view == null) {
+			return 0.0;
+		}
 
         return view.getHeading().getDegrees();
     }
 
     protected double computePitch(View view)
     {
-        if ((view == null) || !(view instanceof OrbitView))
-            return 0.0;
+        if ((view == null) || !(view instanceof OrbitView)) {
+			return 0.0;
+		}
 
         OrbitView orbitView = (OrbitView) view;
         return orbitView.getPitch().getDegrees();
@@ -569,8 +576,9 @@ public class CompassLayer extends AbstractLayer
     protected void initializeTexture(DrawContext dc)
     {
         Texture iconTexture = dc.getTextureCache().getTexture(this.getIconFilePath());
-        if (iconTexture != null)
-            return;
+        if (iconTexture != null) {
+			return;
+		}
 
         GL gl = dc.getGL();
 

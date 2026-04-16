@@ -75,8 +75,9 @@ public class FileTree implements Iterable<File>
 
     public void setMode(int mode)
     {
-        if (!validate(mode))
-            throw new IllegalArgumentException("mode:" + mode);
+        if (!validate(mode)) {
+			throw new IllegalArgumentException("mode:" + mode);
+		}
 
         this.mode = mode;
     }
@@ -105,12 +106,14 @@ public class FileTree implements Iterable<File>
     private static List<File> makeList(File root, FileFilter fileFilter, int mode)
     {
         Queue<File> dirs = new LinkedList<>();
-        if (isDirectory(root))
-            dirs.offer(root);
+        if (isDirectory(root)) {
+			dirs.offer(root);
+		}
 
         LinkedList<File> result = new LinkedList<>();
-        while (dirs.peek() != null)
-            expand(dirs.poll(), fileFilter, mode, result, dirs);
+        while (dirs.peek() != null) {
+			expand(dirs.poll(), fileFilter, mode, result, dirs);
+		}
 
         return result;
     }
@@ -122,16 +125,18 @@ public class FileTree implements Iterable<File>
         private final int mode;
 
         private FileTreeIterator(File root, FileFilter fileFilter, int mode) {
-            if (isDirectory(root))
-                this.dirs.offer(root);
+            if (isDirectory(root)) {
+				this.dirs.offer(root);
+			}
             this.fileFilter = fileFilter;
             this.mode = mode;
         }
 
         @Override
 		public boolean hasNext() {
-            if (this.files.peek() == null)
-                expandUntilFilesFound();
+            if (this.files.peek() == null) {
+				expandUntilFilesFound();
+			}
             return this.files.peek() != null;
         }
 
@@ -139,8 +144,9 @@ public class FileTree implements Iterable<File>
 		public File next() {
             if (this.files.peek() == null) {
                 expandUntilFilesFound();
-                if (this.files.peek() == null)
-                    throw new NoSuchElementException();
+                if (this.files.peek() == null) {
+					throw new NoSuchElementException();
+				}
             }
             return this.files.poll();
         }
@@ -151,8 +157,9 @@ public class FileTree implements Iterable<File>
         }
 
         private void expandUntilFilesFound() {
-            while (this.dirs.peek() != null && this.files.peek() == null)
-                expand(this.dirs.poll());
+            while (this.dirs.peek() != null && this.files.peek() == null) {
+				expand(this.dirs.poll());
+			}
         }
 
         private void expand(File directory) {

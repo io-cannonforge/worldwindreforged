@@ -514,46 +514,56 @@ public class BasicViewPropertyLimits implements ViewPropertyLimits
     public void restoreState(RestorableSupport rs, RestorableSupport.StateObject context)
     {
         Sector sector = rs.getStateValueAsSector(context, "eyeLocationLimits");
-        if (sector != null)
-            this.setEyeLocationLimits(sector);
+        if (sector != null) {
+			this.setEyeLocationLimits(sector);
+		}
 
         // Min and max center elevation.
         double[] minAndMaxValue = this.getEyeElevationLimits();
         Double min = rs.getStateValueAsDouble(context, "minEyeElevation");
-        if (min != null)
-            minAndMaxValue[0] = min;
+        if (min != null) {
+			minAndMaxValue[0] = min;
+		}
 
         Double max = rs.getStateValueAsDouble(context, "maxEyeElevation");
-        if (max != null)
-            minAndMaxValue[1] = max;
+        if (max != null) {
+			minAndMaxValue[1] = max;
+		}
 
-        if (min != null || max != null)
-            this.setEyeElevationLimits(minAndMaxValue[0], minAndMaxValue[1]);
+        if (min != null || max != null) {
+			this.setEyeElevationLimits(minAndMaxValue[0], minAndMaxValue[1]);
+		}
 
         // Min and max heading angle.
         Angle[] minAndMaxAngle = this.getHeadingLimits();
         min = rs.getStateValueAsDouble(context, "minHeadingDegrees");
-        if (min != null)
-            minAndMaxAngle[0] = Angle.fromDegrees(min);
+        if (min != null) {
+			minAndMaxAngle[0] = Angle.fromDegrees(min);
+		}
 
         max = rs.getStateValueAsDouble(context, "maxHeadingDegrees");
-        if (max != null)
-            minAndMaxAngle[1] = Angle.fromDegrees(max);
+        if (max != null) {
+			minAndMaxAngle[1] = Angle.fromDegrees(max);
+		}
 
-        if (min != null || max != null)
-            this.setHeadingLimits(minAndMaxAngle[0], minAndMaxAngle[1]);
+        if (min != null || max != null) {
+			this.setHeadingLimits(minAndMaxAngle[0], minAndMaxAngle[1]);
+		}
 
         // Min and max pitch angle.
         minAndMaxAngle = this.getPitchLimits();
         min = rs.getStateValueAsDouble(context, "minPitchDegrees");
-        if (min != null)
-            minAndMaxAngle[0] = Angle.fromDegrees(min);
+        if (min != null) {
+			minAndMaxAngle[0] = Angle.fromDegrees(min);
+		}
 
         max = rs.getStateValueAsDouble(context, "maxPitchDegrees");
-        if (max != null)
-            minAndMaxAngle[1] = Angle.fromDegrees(max);
+        if (max != null) {
+			minAndMaxAngle[1] = Angle.fromDegrees(max);
+		}
 
-        if (min != null || max != null)
-            this.setPitchLimits(minAndMaxAngle[0], minAndMaxAngle[1]);
+        if (min != null || max != null) {
+			this.setPitchLimits(minAndMaxAngle[0], minAndMaxAngle[1]);
+		}
     }
 }

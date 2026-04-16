@@ -77,8 +77,9 @@ public class YahooGazetteer implements Gazetteer
             urlString = GEOCODE_SERVICE + "%22" + lookupString.replaceAll(" ", "+") + "%22";
         }
 
-        if (isNumber(lookupString))
-            lookupString += "%20and%20gflags%3D%22R%22";
+        if (isNumber(lookupString)) {
+			lookupString += "%20and%20gflags%3D%22R%22";
+		}
 
         String locationString = POIUtils.callService(urlString);
 

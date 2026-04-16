@@ -137,8 +137,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
      */
     protected void handleUnsuccessfulRetrieval()
     {
-        if (this.getRetriever().getState().equals(Retriever.RETRIEVER_STATE_ERROR))
-            this.markResourceAbsent();
+        if (this.getRetriever().getState().equals(Retriever.RETRIEVER_STATE_ERROR)) {
+			this.markResourceAbsent();
+		}
     }
 
     /**
@@ -168,12 +169,13 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     protected boolean validateResponseCode()
     {
         //noinspection SimplifiableIfStatement
-        if (this.getRetriever() instanceof HTTPRetriever)
-            return this.validateHTTPResponseCode();
-        else if (this.getRetriever() instanceof JarRetriever)
-            return this.validateJarResponseCode();
-        else if (this.getRetriever() instanceof LocalRasterServerRetriever)
-            return true;
+        if (this.getRetriever() instanceof HTTPRetriever) {
+			return this.validateHTTPResponseCode();
+		} else if (this.getRetriever() instanceof JarRetriever) {
+			return this.validateJarResponseCode();
+		} else if (this.getRetriever() instanceof LocalRasterServerRetriever) {
+			return true;
+		}
 
         return false;
     }
@@ -213,11 +215,11 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     {
         this.markResourceAbsent();
 
-        if (this.isWMSException())
-            this.handleWMSExceptionContent();
-
-        else if (this.isPrimaryContentType("text", this.getRetriever().getContentType()))
-            this.logTextBuffer(this.getRetriever().getBuffer()); // the buffer might contain error info, so log it
+        if (this.isWMSException()) {
+			this.handleWMSExceptionContent();
+		} else if (this.isPrimaryContentType("text", this.getRetriever().getContentType())) {
+			this.logTextBuffer(this.getRetriever().getBuffer()); // the buffer might contain error info, so log it
+		}
     }
 
     /**
@@ -259,8 +261,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     {
         File outFile = this.getOutputFile();
 
-        if ((outFile == null) || (outFile.exists() && !this.overwriteExistingFile()))
-            return false;
+        if ((outFile == null) || (outFile.exists() && !this.overwriteExistingFile())) {
+			return false;
+		}
 
         synchronized (this.getFileLock()) // synchronize with read of file in another class
         {
@@ -279,8 +282,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     {
         File outFile = this.doGetOutputFile();
 
-        if (outFile != null && this.isDeleteOnExit(outFile))
-            outFile.deleteOnExit();
+        if (outFile != null && this.isDeleteOnExit(outFile)) {
+			outFile.deleteOnExit();
+		}
 
         return outFile;
     }
@@ -323,8 +327,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
 
     protected boolean isPrimaryContentType(String typeOfContent, String contentType)
     {
-        if (WWUtil.isEmpty(contentType) || WWUtil.isEmpty(typeOfContent))
-            return false;
+        if (WWUtil.isEmpty(contentType) || WWUtil.isEmpty(typeOfContent)) {
+			return false;
+		}
 
         return contentType.trim().toLowerCase().startsWith(typeOfContent);
     }
@@ -333,8 +338,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     {
         String contentType = this.getRetriever().getContentType();
 
-        if (WWUtil.isEmpty(contentType))
-            return false;
+        if (WWUtil.isEmpty(contentType)) {
+			return false;
+		}
 
         return contentType.trim().equalsIgnoreCase("application/vnd.ogc.se_xml");
     }
@@ -355,8 +361,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
         {
             // Try to determine the content type from the URL's suffix, if any.
             String suffix = WWIO.getSuffix(this.getRetriever().getName().split(";")[0]);
-            if (!WWUtil.isEmpty(suffix))
-                contentType = WWIO.makeMimeTypeForSuffix(suffix);
+            if (!WWUtil.isEmpty(suffix)) {
+				contentType = WWIO.makeMimeTypeForSuffix(suffix);
+			}
 
             if (WWUtil.isEmpty(contentType))
             {
@@ -366,20 +373,25 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
         }
         contentType = contentType.trim().toLowerCase();
 
-        if (this.isWMSException())
-            return this.handleWMSExceptionContent();
+        if (this.isWMSException()) {
+			return this.handleWMSExceptionContent();
+		}
 
-        if (contentType.contains("zip"))
-            return this.handleZipContent();
+        if (contentType.contains("zip")) {
+			return this.handleZipContent();
+		}
 
-        if (this.isPrimaryContentType("text", contentType))
-            return this.handleTextContent();
+        if (this.isPrimaryContentType("text", contentType)) {
+			return this.handleTextContent();
+		}
 
-        if (this.isPrimaryContentType("image", contentType))
-            return this.handleImageContent();
+        if (this.isPrimaryContentType("image", contentType)) {
+			return this.handleImageContent();
+		}
 
-        if (this.isPrimaryContentType("application", contentType))
-            return this.handleApplicationContent();
+        if (this.isPrimaryContentType("application", contentType)) {
+			return this.handleApplicationContent();
+		}
 
         return this.handleUnknownContentType();
     }
@@ -433,11 +445,13 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     {
         String contentType = this.getRetriever().getContentType().trim().toLowerCase();
 
-        if (contentType.contains("xml"))
-            return this.handleXMLContent();
+        if (contentType.contains("xml")) {
+			return this.handleXMLContent();
+		}
 
-        if (contentType.contains("html"))
-            return this.handleHTMLContent();
+        if (contentType.contains("html")) {
+			return this.handleHTMLContent();
+		}
 
         this.logTextBuffer(this.getRetriever().getBuffer());
 
@@ -482,8 +496,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
      */
     protected void logTextBuffer(ByteBuffer buffer)
     {
-        if (buffer == null || !buffer.hasRemaining())
-            return;
+        if (buffer == null || !buffer.hasRemaining()) {
+			return;
+		}
 
         Logging.logger().warning(WWIO.byteBufferToString(buffer, 2048, null));
     }
@@ -499,8 +514,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     protected ByteBuffer handleZipContent() throws IOException
     {
         File outFile = this.getOutputFile();
-        if (outFile == null)
-            return null;
+        if (outFile == null) {
+			return null;
+		}
 
         this.saveBuffer();
 
@@ -557,11 +573,13 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
         // to handle elevations as images correctly (just save them to the filestore).
 
         File outFile = this.getOutputFile();
-        if (outFile == null || (outFile.exists() && !this.overwriteExistingFile()))
-            return this.getRetriever().getBuffer();
+        if (outFile == null || (outFile.exists() && !this.overwriteExistingFile())) {
+			return this.getRetriever().getBuffer();
+		}
 
-        if (outFile.getPath().endsWith("dds"))
-            return this.saveDDS();
+        if (outFile.getPath().endsWith("dds")) {
+			return this.saveDDS();
+		}
 
         BufferedImage image = this.transformPixels();
 
@@ -571,9 +589,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
             {
                 ImageIO.write(image, this.getRetriever().getContentType().split("/")[1], outFile);
             }
-        }
-        else
-            this.saveBuffer();
+        } else {
+			this.saveBuffer();
+		}
 
         return this.getRetriever().getBuffer();
     }
@@ -591,8 +609,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
         if (this.avList != null)
         {
             int[] colors = (int[]) this.avList.getValue(AVKey.TRANSPARENCY_COLORS);
-            if (colors != null)
-                return ImageUtil.mapTransparencyColors(this.getRetriever().getBuffer(), colors);
+            if (colors != null) {
+				return ImageUtil.mapTransparencyColors(this.getRetriever().getBuffer(), colors);
+			}
         }
 
         return null;
@@ -609,8 +628,9 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
     {
         ByteBuffer buffer = this.getRetriever().getBuffer();
 
-        if (!this.getRetriever().getContentType().contains("dds"))
-            buffer = this.convertToDDS();
+        if (!this.getRetriever().getContentType().contains("dds")) {
+			buffer = this.convertToDDS();
+		}
 
         this.saveBuffer(buffer);
 
@@ -630,10 +650,11 @@ public abstract class AbstractRetrievalPostProcessor implements RetrievalPostPro
         ByteBuffer buffer;
 
         BufferedImage image = this.transformPixels();
-        if (image != null)
-            buffer = DDSCompressor.compressImage(image);
-        else
-            buffer = DDSCompressor.compressImageBuffer(this.getRetriever().getBuffer());
+        if (image != null) {
+			buffer = DDSCompressor.compressImage(image);
+		} else {
+			buffer = DDSCompressor.compressImageBuffer(this.getRetriever().getBuffer());
+		}
 
         return buffer;
     }

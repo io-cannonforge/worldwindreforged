@@ -326,12 +326,14 @@ public class Polygon extends AbstractShape
 
         for (List<? extends Position> boundary : this.boundaries)
         {
-            if (boundary == null || boundary.size() < 3)
-                continue;
+            if (boundary == null || boundary.size() < 3) {
+				continue;
+			}
 
             //noinspection StringEquality
-            if (WWMath.computeWindingOrderOfLocations(boundary) != AVKey.COUNTER_CLOCKWISE)
-                Collections.reverse(boundary);
+            if (WWMath.computeWindingOrderOfLocations(boundary) != AVKey.COUNTER_CLOCKWISE) {
+				Collections.reverse(boundary);
+			}
         }
 
         this.numPositions = this.countPositions();
@@ -403,8 +405,9 @@ public class Polygon extends AbstractShape
         }
 
         this.boundaries.set(0, this.fillBoundary(corners));
-        if (this.surfaceShape != null)
-            this.setSurfacePolygonBoundaries(this.surfaceShape);
+        if (this.surfaceShape != null) {
+			this.setSurfacePolygonBoundaries(this.surfaceShape);
+		}
 
         this.reset();
     }
@@ -423,8 +426,9 @@ public class Polygon extends AbstractShape
 
         for (Position corner : corners)
         {
-            if (corner != null)
-                list.add(corner);
+            if (corner != null) {
+				list.add(corner);
+			}
         }
 
         if (list.size() < 3)
@@ -435,8 +439,9 @@ public class Polygon extends AbstractShape
         }
 
         // Close the list if not already closed.
-        if (list.size() > 0 && !list.get(0).equals(list.get(list.size() - 1)))
-            list.add(list.get(0));
+        if (list.size() > 0 && !list.get(0).equals(list.get(list.size() - 1))) {
+			list.add(list.get(0));
+		}
 
         list.trimToSize();
 
@@ -462,8 +467,9 @@ public class Polygon extends AbstractShape
         }
 
         this.boundaries.add(this.fillBoundary(corners));
-        if (this.surfaceShape != null)
-            this.setSurfacePolygonBoundaries(this.surfaceShape);
+        if (this.surfaceShape != null) {
+			this.setSurfacePolygonBoundaries(this.surfaceShape);
+		}
 
         this.reset();
     }
@@ -506,8 +512,9 @@ public class Polygon extends AbstractShape
      */
     public float[] getTextureCoords()
     {
-        if (this.textureCoordsBuffer == null)
-            return null;
+        if (this.textureCoordsBuffer == null) {
+			return null;
+		}
 
         float[] retCoords = new float[this.textureCoordsBuffer.limit()];
         this.textureCoordsBuffer.get(retCoords, 0, retCoords.length);
@@ -536,8 +543,9 @@ public class Polygon extends AbstractShape
             this.texture = null;
             this.textureCoordsBuffer = null;
 
-            if (this.surfaceShape != null)
-                this.setSurfacePolygonTexImageSource(this.surfaceShape);
+            if (this.surfaceShape != null) {
+				this.setSurfacePolygonTexImageSource(this.surfaceShape);
+			}
 
             return;
         }
@@ -585,18 +593,21 @@ public class Polygon extends AbstractShape
 
         this.textureCoordsBuffer.rewind();
 
-        if (this.surfaceShape != null)
-            this.setSurfacePolygonTexImageSource(this.surfaceShape);
+        if (this.surfaceShape != null) {
+			this.setSurfacePolygonTexImageSource(this.surfaceShape);
+		}
     }
 
     @Override
 	public Position getReferencePosition()
     {
-        if (this.referencePosition != null)
-            return this.referencePosition;
+        if (this.referencePosition != null) {
+			return this.referencePosition;
+		}
 
-        if (this.outerBoundary().size() > 0)
-            this.referencePosition = this.outerBoundary().get(0);
+        if (this.outerBoundary().size() > 0) {
+			this.referencePosition = this.outerBoundary().get(0);
+		}
 
         return this.referencePosition;
     }
@@ -659,8 +670,9 @@ public class Polygon extends AbstractShape
     {
         // See if we've cached an extent associated with the globe.
         Extent extent = super.getExtent(globe, verticalExaggeration);
-        if (extent != null)
-            return extent;
+        if (extent != null) {
+			return extent;
+		}
 
         return super.computeExtentFromPositions(globe, verticalExaggeration, this.getOuterBoundary());
     }
@@ -675,8 +687,9 @@ public class Polygon extends AbstractShape
      */
     protected Extent computeExtent(BoundaryInfo boundary, Vec4 refPoint)
     {
-        if (boundary == null || boundary.vertices == null)
-            return null;
+        if (boundary == null || boundary.vertices == null) {
+			return null;
+		}
 
         // The bounding box is computed relative to the polygon's reference point, so it needs to be translated to
         // model coordinates in order to indicate its model-coordinate extent.
@@ -688,8 +701,9 @@ public class Polygon extends AbstractShape
     @Override
 	public Sector getSector()
     {
-        if (this.sector == null && this.isOuterBoundaryValid())
-            this.sector = Sector.boundingSector(this.getOuterBoundary());
+        if (this.sector == null && this.isOuterBoundaryValid()) {
+			this.sector = Sector.boundingSector(this.getOuterBoundary());
+		}
 
         return this.sector;
     }
@@ -709,13 +723,15 @@ public class Polygon extends AbstractShape
     @Override
 	protected boolean mustRegenerateGeometry(DrawContext dc)
     {
-        if ((this.getCurrent().coordBuffer == null) || (dc.getVerticalExaggeration() != this.getCurrent().getVerticalExaggeration()) || (this.mustApplyLighting(dc, null) && this.getCurrent().normalBuffer == null))
-            return true;
+        if ((this.getCurrent().coordBuffer == null) || (dc.getVerticalExaggeration() != this.getCurrent().getVerticalExaggeration()) || (this.mustApplyLighting(dc, null) && this.getCurrent().normalBuffer == null)) {
+			return true;
+		}
 
         if (this.getAltitudeMode() == WorldWind.ABSOLUTE
             && this.getCurrent().getGlobeStateKey() != null
-            && this.getCurrent().getGlobeStateKey().equals(dc.getGlobe().getGlobeStateKey(dc)))
-            return false;
+            && this.getCurrent().getGlobeStateKey().equals(dc.getGlobe().getGlobeStateKey(dc))) {
+			return false;
+		}
 
         return super.mustRegenerateGeometry(dc);
     }
@@ -723,8 +739,9 @@ public class Polygon extends AbstractShape
     @Override
 	public void render(DrawContext dc)
     {
-        if (!this.isOuterBoundaryValid())
-            return;
+        if (!this.isOuterBoundaryValid()) {
+			return;
+		}
 
         super.render(dc);
     }
@@ -732,8 +749,9 @@ public class Polygon extends AbstractShape
     @Override
 	protected boolean doMakeOrderedRenderable(DrawContext dc)
     {
-        if (dc.getSurfaceGeometry() == null || !this.isOuterBoundaryValid())
-            return false;
+        if (dc.getSurfaceGeometry() == null || !this.isOuterBoundaryValid()) {
+			return false;
+		}
 
         this.getCurrent().setRotationMatrix(this.getRotation() != null ?
             this.computeRotationMatrix(dc.getGlobe()) : null);
@@ -741,8 +759,9 @@ public class Polygon extends AbstractShape
         this.createMinimalGeometry(dc, this.getCurrent());
 
         // If the shape is less that a pixel in size, don't render it.
-        if (this.getCurrent().getExtent() == null || dc.isSmall(this.getExtent(), 1) || !this.intersectsFrustum(dc))
-            return false;
+        if (this.getCurrent().getExtent() == null || dc.isSmall(this.getExtent(), 1) || !this.intersectsFrustum(dc)) {
+			return false;
+		}
 
         this.createFullGeometry(dc, dc.getTerrain(), this.getCurrent(), true);
 
@@ -777,10 +796,11 @@ public class Polygon extends AbstractShape
         if (this.shouldUseVBOs(dc))
         {
             int[] vboIds = this.getVboIds(dc);
-            if (vboIds != null)
-                this.doDrawOutlineVBO(dc, vboIds, this.getCurrent());
-            else
-                this.doDrawOutlineVA(dc, this.getCurrent());
+            if (vboIds != null) {
+				this.doDrawOutlineVBO(dc, vboIds, this.getCurrent());
+			} else {
+				this.doDrawOutlineVA(dc, this.getCurrent());
+			}
         }
         else
         {
@@ -794,8 +814,9 @@ public class Polygon extends AbstractShape
 
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, shapeData.coordBuffer.rewind());
 
-        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null))
-            gl.glNormalPointer(GL.GL_FLOAT, 0, shapeData.normalBuffer.rewind());
+        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null)) {
+			gl.glNormalPointer(GL.GL_FLOAT, 0, shapeData.normalBuffer.rewind());
+		}
 
         int k = 0;
         for (BoundaryInfo boundary : shapeData)
@@ -816,8 +837,9 @@ public class Polygon extends AbstractShape
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboIds[0]);
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
 
-        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null))
-            gl.glNormalPointer(GL.GL_FLOAT, 0, 4 * shapeData.normalBufferPosition);
+        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null)) {
+			gl.glNormalPointer(GL.GL_FLOAT, 0, 4 * shapeData.normalBufferPosition);
+		}
 
         int k = 0;
         for (BoundaryInfo boundary : shapeData)
@@ -852,10 +874,11 @@ public class Polygon extends AbstractShape
         if (this.shouldUseVBOs(dc))
         {
             int[] vboIds = this.getVboIds(dc);
-            if (vboIds != null)
-                this.doDrawInteriorVBO(dc, vboIds, this.getCurrent());
-            else
-                this.doDrawInteriorVA(dc, this.getCurrent());
+            if (vboIds != null) {
+				this.doDrawInteriorVBO(dc, vboIds, this.getCurrent());
+			} else {
+				this.doDrawInteriorVA(dc, this.getCurrent());
+			}
         }
         else
         {
@@ -867,8 +890,9 @@ public class Polygon extends AbstractShape
     {
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
-        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null))
-            gl.glNormalPointer(GL.GL_FLOAT, 0, shapeData.normalBuffer.rewind());
+        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null)) {
+			gl.glNormalPointer(GL.GL_FLOAT, 0, shapeData.normalBuffer.rewind());
+		}
 
         FloatBuffer vb = shapeData.coordBuffer;
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, vb.rewind());
@@ -886,8 +910,9 @@ public class Polygon extends AbstractShape
 
         gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
 
-        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null))
-            gl.glNormalPointer(GL.GL_FLOAT, 0, 4 * shapeData.normalBufferPosition);
+        if (!dc.isPickingMode() && this.mustApplyLighting(dc, null)) {
+			gl.glNormalPointer(GL.GL_FLOAT, 0, 4 * shapeData.normalBufferPosition);
+		}
 
         gl.glDrawElements(GL.GL_TRIANGLES, shapeData.interiorIndicesBuffer.limit(), GL.GL_UNSIGNED_INT, 0);
 
@@ -897,8 +922,9 @@ public class Polygon extends AbstractShape
 
     protected Matrix computeRotationMatrix(Globe globe)
     {
-        if (this.getRotation() == null)
-            return null;
+        if (this.getRotation() == null) {
+			return null;
+		}
 
         // Find the centroid of the polygon with all altitudes 0 and rotate around that using the surface normal at
         // that point as the rotation axis.
@@ -937,17 +963,19 @@ public class Polygon extends AbstractShape
         Matrix rotationMatrix = shapeData.getRotationMatrix();
 
         Vec4 refPt = this.computeReferencePoint(dc.getTerrain(), rotationMatrix);
-        if (refPt == null)
-            return;
+        if (refPt == null) {
+			return;
+		}
         shapeData.setReferencePoint(refPt);
 
         // Need only the outer-boundary vertices.
         this.computeBoundaryVertices(dc.getTerrain(), shapeData.getOuterBoundaryInfo(),
             shapeData.getReferencePoint(), rotationMatrix);
 
-        if (shapeData.getExtent() == null || this.getAltitudeMode() != WorldWind.ABSOLUTE)
-            shapeData.setExtent(this.computeExtent(shapeData.getOuterBoundaryInfo(),
+        if (shapeData.getExtent() == null || this.getAltitudeMode() != WorldWind.ABSOLUTE) {
+			shapeData.setExtent(this.computeExtent(shapeData.getOuterBoundaryInfo(),
                 shapeData.getReferencePoint()));
+		}
 
         shapeData.setEyeDistance(this.computeEyeDistance(dc, shapeData));
         shapeData.setGlobeStateKey(dc.getGlobe().getGlobeStateKey(dc));
@@ -972,8 +1000,9 @@ public class Polygon extends AbstractShape
         for (Vec4 point : shapeData.getOuterBoundaryInfo().vertices)
         {
             double d = point.add3(shapeData.getReferencePoint()).distanceTo3(eyePoint);
-            if (d < minDistance)
-                minDistance = d;
+            if (d < minDistance) {
+				minDistance = d;
+			}
         }
 
         return minDistance;
@@ -982,12 +1011,14 @@ public class Polygon extends AbstractShape
     protected Vec4 computeReferencePoint(Terrain terrain, Matrix rotationMatrix)
     {
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return null;
+        if (refPos == null) {
+			return null;
+		}
 
         Vec4 refPt = terrain.getSurfacePoint(refPos.getLatitude(), refPos.getLongitude(), 0);
-        if (refPt == null)
-            return null;
+        if (refPt == null) {
+			return null;
+		}
 
         return rotationMatrix != null ? refPt.transformBy4(rotationMatrix) : refPt;
     }
@@ -1006,10 +1037,11 @@ public class Polygon extends AbstractShape
         this.createVertices(terrain, shapeData, skipOuterBoundary);
         this.createGeometry(dc, shapeData);
 
-        if (this.mustApplyLighting(dc, null))
-            this.createNormals(shapeData);
-        else
-            shapeData.normalBuffer = null;
+        if (this.mustApplyLighting(dc, null)) {
+			this.createNormals(shapeData);
+		} else {
+			shapeData.normalBuffer = null;
+		}
     }
 
     /**
@@ -1024,9 +1056,10 @@ public class Polygon extends AbstractShape
     {
         for (BoundaryInfo boundary : shapeData)
         {
-            if (boundary != shapeData.getOuterBoundaryInfo() || !skipOuterBoundary)
-                this.computeBoundaryVertices(terrain, boundary, shapeData.getReferencePoint(),
+            if (boundary != shapeData.getOuterBoundaryInfo() || !skipOuterBoundary) {
+				this.computeBoundaryVertices(terrain, boundary, shapeData.getReferencePoint(),
                     shapeData.getRotationMatrix());
+			}
         }
     }
 
@@ -1046,11 +1079,12 @@ public class Polygon extends AbstractShape
 
         for (int i = 0; i < n; i++)
         {
-            if (rotationMatrix == null)
-                boundaryVertices[i] = this.computePoint(terrain, boundary.positions.get(i)).subtract3(refPoint);
-            else
-                boundaryVertices[i] = this.computePoint(terrain, boundary.positions.get(i)).transformBy4(
+            if (rotationMatrix == null) {
+				boundaryVertices[i] = this.computePoint(terrain, boundary.positions.get(i)).subtract3(refPoint);
+			} else {
+				boundaryVertices[i] = this.computePoint(terrain, boundary.positions.get(i)).transformBy4(
                     rotationMatrix).subtract3(refPoint);
+			}
         }
 
         boundary.vertices = boundaryVertices;
@@ -1069,10 +1103,11 @@ public class Polygon extends AbstractShape
     {
         int size = this.numPositions * (this.mustApplyLighting(dc, null) ? 6 : 3);
 
-        if (shapeData.coordBuffer != null && shapeData.coordBuffer.capacity() >= size)
-            shapeData.coordBuffer.clear();
-        else
-            shapeData.coordBuffer = Buffers.newDirectFloatBuffer(size);
+        if (shapeData.coordBuffer != null && shapeData.coordBuffer.capacity() >= size) {
+			shapeData.coordBuffer.clear();
+		} else {
+			shapeData.coordBuffer = Buffers.newDirectFloatBuffer(size);
+		}
 
         // Capture the position position at which normals buffer starts (in case there are normals)
         shapeData.normalBufferPosition = this.numPositions * 3;
@@ -1084,11 +1119,13 @@ public class Polygon extends AbstractShape
             shapeData.coordBuffer.position(shapeData.coordBuffer.position() + boundary.vertexBuffer.limit());
         }
 
-        if (shapeData.cb == null && !shapeData.tessellationError)
-            this.createTessllationGeometry(dc, shapeData);
+        if (shapeData.cb == null && !shapeData.tessellationError) {
+			this.createTessllationGeometry(dc, shapeData);
+		}
 
-        if (shapeData.refillIndexBuffer)
-            this.generateInteriorIndices(shapeData);
+        if (shapeData.refillIndexBuffer) {
+			this.generateInteriorIndices(shapeData);
+		}
     }
 
     /**
@@ -1264,9 +1301,10 @@ public class Polygon extends AbstractShape
         // The normal vector is null if this is a degenerate polygon representing a line or a single point. We fall
         // back to using the globe's surface normal at the reference point. This allows the tessellator to process
         // the degenerate polygon without generating an exception.
-        if (normal == null)
-            normal = dc.getGlobe().computeSurfaceNormalAtLocation(
+        if (normal == null) {
+			normal = dc.getGlobe().computeSurfaceNormalAtLocation(
                 this.getReferencePosition().getLatitude(), this.getReferencePosition().getLongitude());
+		}
 
         return normal;
     }
@@ -1322,10 +1360,11 @@ public class Polygon extends AbstractShape
         GLUTessellatorSupport.CollectIndexListsCallback cb = shapeData.cb;
         int size = this.countTriangleVertices(cb.getPrims(), cb.getPrimTypes());
 
-        if (shapeData.interiorIndicesBuffer == null || shapeData.interiorIndicesBuffer.capacity() < size)
-            shapeData.interiorIndicesBuffer = Buffers.newDirectIntBuffer(size);
-        else
-            shapeData.interiorIndicesBuffer.clear();
+        if (shapeData.interiorIndicesBuffer == null || shapeData.interiorIndicesBuffer.capacity() < size) {
+			shapeData.interiorIndicesBuffer = Buffers.newDirectIntBuffer(size);
+		} else {
+			shapeData.interiorIndicesBuffer.clear();
+		}
 
         for (int i = 0; i < cb.getPrims().size(); i++)
         {
@@ -1352,8 +1391,9 @@ public class Polygon extends AbstractShape
 
     protected boolean isSameAsPreviousTerrain(Terrain terrain)
     {
-        if (terrain == null || this.previousIntersectionTerrain == null || terrain != this.previousIntersectionTerrain || (terrain.getVerticalExaggeration() != this.previousIntersectionTerrain.getVerticalExaggeration()))
-            return false;
+        if (terrain == null || this.previousIntersectionTerrain == null || terrain != this.previousIntersectionTerrain || (terrain.getVerticalExaggeration() != this.previousIntersectionTerrain.getVerticalExaggeration())) {
+			return false;
+		}
 
         return this.previousIntersectionGlobeStateKey != null &&
             terrain.getGlobe().getGlobeStateKey().equals(this.previousIntersectionGlobeStateKey);
@@ -1385,8 +1425,9 @@ public class Polygon extends AbstractShape
 	public List<Intersection> intersect(Line line, Terrain terrain) throws InterruptedException
     {
         Position refPos = this.getReferencePosition();
-        if ((refPos == null) || !this.isOuterBoundaryValid())
-            return null;
+        if ((refPos == null) || !this.isOuterBoundaryValid()) {
+			return null;
+		}
 
         // Reuse the previously computed high-res shape data if the terrain is the same.
         ShapeData highResShapeData = this.isSameAsPreviousTerrain(terrain) ? this.previousIntersectionShapeData
@@ -1395,16 +1436,18 @@ public class Polygon extends AbstractShape
         if (highResShapeData == null)
         {
             highResShapeData = this.createIntersectionGeometry(terrain);
-            if (highResShapeData == null)
-                return null;
+            if (highResShapeData == null) {
+				return null;
+			}
 
             this.previousIntersectionShapeData = highResShapeData;
             this.previousIntersectionTerrain = terrain;
             this.previousIntersectionGlobeStateKey = terrain.getGlobe().getGlobeStateKey();
         }
 
-        if (highResShapeData.getExtent() != null && highResShapeData.getExtent().intersect(line) == null)
-            return null;
+        if (highResShapeData.getExtent() != null && highResShapeData.getExtent().intersect(line) == null) {
+			return null;
+		}
 
         final Line localLine = new Line(line.getOrigin().subtract3(highResShapeData.getReferencePoint()),
             line.getDirection());
@@ -1412,8 +1455,9 @@ public class Polygon extends AbstractShape
 
         this.intersect(localLine, highResShapeData, intersections);
 
-        if (intersections.size() == 0)
-            return null;
+        if (intersections.size() == 0) {
+			return null;
+		}
 
         for (Intersection intersection : intersections)
         {
@@ -1439,8 +1483,9 @@ public class Polygon extends AbstractShape
         Matrix rotationMatrix = this.getRotation() != null ? this.computeRotationMatrix(terrain.getGlobe()) : null;
 
         shapeData.setReferencePoint(this.computeReferencePoint(terrain, rotationMatrix));
-        if (shapeData.getReferencePoint() == null)
-            return null;
+        if (shapeData.getReferencePoint() == null) {
+			return null;
+		}
 
         // Compute the boundary vertices first.
         this.createVertices(terrain, shapeData, false);
@@ -1454,16 +1499,18 @@ public class Polygon extends AbstractShape
     protected void intersect(Line line, ShapeData shapeData, List<Intersection> intersections)
         throws InterruptedException
     {
-        if (shapeData.cb.getPrims() == null)
-            return;
+        if (shapeData.cb.getPrims() == null) {
+			return;
+		}
 
         IntBuffer ib = shapeData.interiorIndicesBuffer;
         ib.rewind();
         List<Intersection> ti = Triangle.intersectTriangleTypes(line, shapeData.coordBuffer, ib,
             GL.GL_TRIANGLES);
 
-        if (ti != null && ti.size() > 0)
-            intersections.addAll(ti);
+        if (ti != null && ti.size() > 0) {
+			intersections.addAll(ti);
+		}
     }
 
     /**
@@ -1486,23 +1533,27 @@ public class Polygon extends AbstractShape
             throw new IllegalArgumentException(msg);
         }
 
-        if (!this.isOuterBoundaryValid())
-            return;
+        if (!this.isOuterBoundaryValid()) {
+			return;
+		}
 
         Position oldPosition = this.getReferencePosition();
-        if (oldPosition == null)
-            return;
+        if (oldPosition == null) {
+			return;
+		}
 
         List<List<? extends Position>> newBoundaries = new ArrayList<>(this.boundaries.size());
 
         for (List<? extends Position> boundary : this.boundaries)
         {
-            if (boundary == null || boundary.size() == 0)
-                continue;
+            if (boundary == null || boundary.size() == 0) {
+				continue;
+			}
 
             List<Position> newList = Position.computeShiftedPositions(oldPosition, position, boundary);
-            if (newList != null)
-                newBoundaries.add(newList);
+            if (newList != null) {
+				newBoundaries.add(newList);
+			}
         }
 
         this.boundaries = newBoundaries;
@@ -1538,23 +1589,27 @@ public class Polygon extends AbstractShape
             throw new IllegalArgumentException(msg);
         }
 
-        if (!this.isOuterBoundaryValid())
-            return;
+        if (!this.isOuterBoundaryValid()) {
+			return;
+		}
 
         Position oldPosition = this.getReferencePosition();
-        if (oldPosition == null)
-            return;
+        if (oldPosition == null) {
+			return;
+		}
 
         List<List<? extends Position>> newBoundaries = new ArrayList<>(this.boundaries.size());
 
         for (List<? extends Position> boundary : this.boundaries)
         {
-            if (boundary == null || boundary.size() == 0)
-                continue;
+            if (boundary == null || boundary.size() == 0) {
+				continue;
+			}
 
             List<Position> newList = Position.computeShiftedPositions(globe, oldPosition, position, boundary);
-            if (newList != null)
-                newBoundaries.add(newList);
+            if (newList != null) {
+				newBoundaries.add(newList);
+			}
         }
 
         this.boundaries = newBoundaries;

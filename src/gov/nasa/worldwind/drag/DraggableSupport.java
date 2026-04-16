@@ -154,8 +154,9 @@ public class DraggableSupport
         }
 
         Position referencePosition = this.getReferencePosition();
-        if (referencePosition == null)
-            return;
+        if (referencePosition == null) {
+			return;
+		}
 
         if (dragContext.getDragState().equals(AVKey.DRAG_BEGIN))
         {
@@ -164,8 +165,9 @@ public class DraggableSupport
                 dragContext);
         }
 
-        if (this.initialScreenPointOffset == null)
-            return;
+        if (this.initialScreenPointOffset == null) {
+			return;
+		}
 
         double referenceAltitude = referencePosition.getAltitude();
 
@@ -182,8 +184,9 @@ public class DraggableSupport
             moveToScreenCoordinates.getX(),
             moveToScreenCoordinates.getY()
         );
-        if (ray == null)
-            return;
+        if (ray == null) {
+			return;
+		}
 
         Vec4 moveToGlobeCoordinates = this.computeGlobeIntersection(
             ray,
@@ -191,8 +194,9 @@ public class DraggableSupport
             true,
             dragContext.getGlobe(),
             dragContext.getSceneController());
-        if (moveToGlobeCoordinates == null)
-            return;
+        if (moveToGlobeCoordinates == null) {
+			return;
+		}
 
         Position moveTo = dragContext.getGlobe().computePositionFromPoint(moveToGlobeCoordinates);
 
@@ -219,8 +223,9 @@ public class DraggableSupport
         }
 
         Position referencePosition = this.getReferencePosition();
-        if (referencePosition == null)
-            return;
+        if (referencePosition == null) {
+			return;
+		}
 
         if (dragContext.getDragState().equals(AVKey.DRAG_BEGIN))
         {
@@ -233,8 +238,9 @@ public class DraggableSupport
                 false);
         }
 
-        if (this.initialEllipsoidalReferencePoint == null || this.initialEllipsoidalScreenPoint == null)
-            return;
+        if (this.initialEllipsoidalReferencePoint == null || this.initialEllipsoidalScreenPoint == null) {
+			return;
+		}
 
         double referenceAltitude = referencePosition.getAltitude();
 
@@ -244,8 +250,9 @@ public class DraggableSupport
         );
         Line ray = dragContext.getView()
             .computeRayFromScreenPoint(currentScreenPoint.getX(), currentScreenPoint.getY());
-        if (ray == null)
-            return;
+        if (ray == null) {
+			return;
+		}
 
         Vec4 currentPoint = this.computeGlobeIntersection(
             ray,
@@ -253,16 +260,19 @@ public class DraggableSupport
             false,
             dragContext.getGlobe(),
             dragContext.getSceneController());
-        if (currentPoint == null)
-            return;
+        if (currentPoint == null) {
+			return;
+		}
 
         Position currentPosition = dragContext.getGlobe().computePositionFromPoint(currentPoint);
-        if (currentPosition == null)
-            return;
+        if (currentPosition == null) {
+			return;
+		}
 
         Vec4 currentEllipsoidalPoint = dragContext.getGlobe().computeEllipsoidalPointFromPosition(currentPosition);
-        if (currentEllipsoidalPoint == null)
-            return;
+        if (currentEllipsoidalPoint == null) {
+			return;
+		}
 
         Vec4 rotationAxis = this.initialEllipsoidalScreenPoint.cross3(currentEllipsoidalPoint).normalize3();
         Angle rotationAngle = this.initialEllipsoidalScreenPoint.angleBetween3(currentEllipsoidalPoint);
@@ -271,8 +281,9 @@ public class DraggableSupport
         Vec4 dragObjectReferenceMoveToEllipsoidalPoint = this.initialEllipsoidalReferencePoint.transformBy3(rotation);
         Position moveToInterim = dragContext.getGlobe()
             .computePositionFromEllipsoidalPoint(dragObjectReferenceMoveToEllipsoidalPoint);
-        if (moveToInterim == null)
-            return;
+        if (moveToInterim == null) {
+			return;
+		}
 
         Position moveTo = new Position(moveToInterim, referenceAltitude);
 
@@ -379,12 +390,14 @@ public class DraggableSupport
             utilizeSearchMethod,
             dragContext.getGlobe(),
             dragContext.getSceneController());
-        if (globePoint == null)
-            return null;
+        if (globePoint == null) {
+			return null;
+		}
 
         Position screenPosition = dragContext.getGlobe().computePositionFromPoint(globePoint);
-        if (screenPosition == null)
-            return null;
+        if (screenPosition == null) {
+			return null;
+		}
 
         return dragContext.getGlobe().computeEllipsoidalPointFromPosition(screenPosition);
     }
@@ -428,12 +441,14 @@ public class DraggableSupport
             }
         }
 
-        if (dragObjectPoint == null)
-            return null;
+        if (dragObjectPoint == null) {
+			return null;
+		}
 
         Vec4 dragObjectScreenPoint = dragContext.getView().project(dragObjectPoint);
-        if (dragObjectScreenPoint == null)
-            return null;
+        if (dragObjectScreenPoint == null) {
+			return null;
+		}
 
         Vec4 screenPointOffset = new Vec4(
             dragContext.getInitialPoint().getX() - dragObjectScreenPoint.getX(),
@@ -453,10 +468,11 @@ public class DraggableSupport
      */
     protected Position getReferencePosition()
     {
-        if (this.dragObject instanceof Movable2)
-            return ((Movable2) this.dragObject).getReferencePosition();
-        else if (this.dragObject instanceof Movable)
-            return ((Movable) this.dragObject).getReferencePosition();
+        if (this.dragObject instanceof Movable2) {
+			return ((Movable2) this.dragObject).getReferencePosition();
+		} else if (this.dragObject instanceof Movable) {
+			return ((Movable) this.dragObject).getReferencePosition();
+		}
 
         return null;
     }
@@ -482,8 +498,9 @@ public class DraggableSupport
             }
             ((Movable2) this.dragObject).moveTo(globe, movePosition);
         }
-        else if (this.dragObject instanceof Movable)
-            ((Movable) this.dragObject).moveTo(movePosition);
+        else if (this.dragObject instanceof Movable) {
+			((Movable) this.dragObject).moveTo(movePosition);
+		}
     }
 
     /**
@@ -543,10 +560,11 @@ public class DraggableSupport
                     // In the event the computeRelativePoint fails with the numeric approach it falls back to a
                     // ellipsoidal intersection. Need to check if the result of that calculation was also null,
                     // indicating the screen point doesn't intersect with the globe.
-                    if (intersectionPoint != null)
-                        intersections = new Intersection[] {new Intersection(intersectionPoint, false)};
-                    else
-                        intersections = null;
+                    if (intersectionPoint != null) {
+						intersections = new Intersection[] {new Intersection(intersectionPoint, false)};
+					} else {
+						intersections = null;
+					}
                 }
                 else
                 {
@@ -560,10 +578,11 @@ public class DraggableSupport
             intersections = globe.intersect(ray, altitude);
         }
 
-        if ((intersections != null) && (intersections.length > 0))
-            return intersections[0].getIntersectionPoint();
-        else
-            return null;
+        if ((intersections != null) && (intersections.length > 0)) {
+			return intersections[0].getIntersectionPoint();
+		} else {
+			return null;
+		}
     }
 
     /**
@@ -627,18 +646,20 @@ public class DraggableSupport
                     return intersectionPoint;
                 }
 
-                if (altitude < pointAlt)
-                    mixHigh = mixPoint;
-                else
-                    mixLow = mixPoint;
+                if (altitude < pointAlt) {
+					mixHigh = mixPoint;
+				} else {
+					mixLow = mixPoint;
+				}
 
                 mixPoint = (mixHigh + mixLow) / 2.0;
             }
         }
 
         intersections = globe.intersect(ray, altitude);
-        if (intersections != null && (intersections.length > 0))
-            return intersections[0].getIntersectionPoint();
+        if (intersections != null && (intersections.length > 0)) {
+			return intersections[0].getIntersectionPoint();
+		}
 
         return null;
     }

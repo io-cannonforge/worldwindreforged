@@ -188,16 +188,15 @@ public abstract class BitSetQuadTreeFilter
      */
     protected void testAndDo(int level, int position, double[] cellRegion, double[] itemCoords)
     {
-        if (this.stopped || (this.intersects(cellRegion, itemCoords) == 0))
-            return;
+        if (this.stopped || (this.intersects(cellRegion, itemCoords) == 0)) {
+			return;
+		}
 
         this.path[level] = position;
 
-        if (!this.doOperation(level, position, cellRegion, itemCoords) || this.stopped)
-            return;
-
-        if (level == this.maxLevel)
-            return;
+        if (!this.doOperation(level, position, cellRegion, itemCoords) || this.stopped || (level == this.maxLevel)) {
+			return;
+		}
 
         double latMid = (cellRegion[1] + cellRegion[0]) / 2;
         double lonMid = (cellRegion[3] + cellRegion[2]) / 2;
@@ -209,20 +208,23 @@ public abstract class BitSetQuadTreeFilter
         subRegion[2] = cellRegion[2];
         subRegion[3] = lonMid;
         this.testAndDo(level + 1, 0, subRegion, itemCoords);
-        if (this.stopped)
-            return;
+        if (this.stopped) {
+			return;
+		}
 
         subRegion[2] = lonMid;
         subRegion[3] = cellRegion[3];
         this.testAndDo(level + 1, 1, subRegion, itemCoords);
-        if (this.stopped)
-            return;
+        if (this.stopped) {
+			return;
+		}
 
         subRegion[0] = latMid;
         subRegion[1] = cellRegion[1];
         this.testAndDo(level + 1, 2, subRegion, itemCoords);
-        if (this.stopped)
-            return;
+        if (this.stopped) {
+			return;
+		}
 
         subRegion[2] = cellRegion[2];
         subRegion[3] = lonMid;
@@ -243,12 +245,13 @@ public abstract class BitSetQuadTreeFilter
      */
     protected int intersects(double[] cellRegion, double[] itemCoords)
     {
-        if (itemCoords.length == 4) // treat test region as a sector
-            return !(itemCoords[1] < cellRegion[0] || itemCoords[0] > cellRegion[1]
-                || itemCoords[3] < cellRegion[2] || itemCoords[2] > cellRegion[3]) ? 1 : 0;
-        else // assume test region is a 2-tuple location
-            return itemCoords[0] >= cellRegion[0] && itemCoords[0] <= cellRegion[1]
-                && itemCoords[1] >= cellRegion[2] && itemCoords[1] <= cellRegion[3] ? 1 : 0;
+        if (itemCoords.length == 4) { // treat test region as a sector
+			return !(itemCoords[1] < cellRegion[0] || itemCoords[0] > cellRegion[1]
+			                || itemCoords[3] < cellRegion[2] || itemCoords[2] > cellRegion[3]) ? 1 : 0;
+		} else { // assume test region is a 2-tuple location
+			return itemCoords[0] >= cellRegion[0] && itemCoords[0] <= cellRegion[1]
+			                && itemCoords[1] >= cellRegion[2] && itemCoords[1] <= cellRegion[3] ? 1 : 0;
+		}
     }
 
     /**
@@ -395,11 +398,13 @@ public abstract class BitSetQuadTreeFilter
         {
             int bitNum = this.computeBitPosition(level, position);
 
-            if (!this.bits.get(bitNum))
-                return false;
+            if (!this.bits.get(bitNum)) {
+				return false;
+			}
 
-            if (level < this.maxLevel)
-                return true;
+            if (level < this.maxLevel) {
+				return true;
+			}
 
             this.intersectingBits.add(bitNum);
 

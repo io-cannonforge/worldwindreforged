@@ -83,8 +83,9 @@ public class LayerMenu extends JMenu
             Iterable<Renderable> iter = ((RenderableLayer)layer).getRenderables();
             for (Renderable rend: iter)
             {
-                if (rend instanceof SurfaceImage)
-                    return true;
+                if (rend instanceof SurfaceImage) {
+					return true;
+				}
             }
 
             return false;
@@ -116,8 +117,9 @@ public class LayerMenu extends JMenu
             {
                 for (Layer lyr : this.wwd.getModel().getLayers())
                 {
-                    if (lyr instanceof BMNGWMSLayer)
-                        lyr.setEnabled(((JCheckBoxMenuItem) actionEvent.getSource()).getState());
+                    if (lyr instanceof BMNGWMSLayer) {
+						lyr.setEnabled(((JCheckBoxMenuItem) actionEvent.getSource()).getState());
+					}
                 }
 
             }

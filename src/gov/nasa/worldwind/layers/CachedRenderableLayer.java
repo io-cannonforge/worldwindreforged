@@ -248,8 +248,9 @@ public class CachedRenderableLayer extends AbstractLayer
         {
             try
             {
-                if (renderable instanceof Disposable)
-                    ((Disposable) renderable).dispose();
+                if (renderable instanceof Disposable) {
+					((Disposable) renderable).dispose();
+				}
             }
             catch (Exception e)
             {
@@ -288,8 +289,9 @@ public class CachedRenderableLayer extends AbstractLayer
             {
                 // If the caller has specified their own Iterable,
                 // then we cannot make any guarantees about its contents.
-                if (renderable != null && renderable instanceof PreRenderable)
-                    ((PreRenderable) renderable).preRender(dc);
+                if (renderable != null && renderable instanceof PreRenderable) {
+					((PreRenderable) renderable).preRender(dc);
+				}
             }
             catch (Exception e)
             {
@@ -360,8 +362,9 @@ public class CachedRenderableLayer extends AbstractLayer
             {
                 // If the caller has specified their own Iterable,
                 // then we cannot make any guarantees about its contents.
-                if (renderable != null)
-                    renderable.render(dc);
+                if (renderable != null) {
+					renderable.render(dc);
+				}
             }
             catch (Exception e)
             {

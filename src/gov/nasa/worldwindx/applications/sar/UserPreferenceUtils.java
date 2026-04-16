@@ -88,8 +88,9 @@ public class UserPreferenceUtils
         XPath xpath = WWXML.makeXPath();
 
         Element el = WWXML.getElement(domElement, "PropertyList", xpath);
-        if (el != null)
-            getPropertyList(el, params, xpath);
+        if (el != null) {
+			getPropertyList(el, params, xpath);
+		}
     }
 
     public static void createUserPreferenceElements(AVList params, Element domElement)
@@ -139,15 +140,18 @@ public class UserPreferenceUtils
     public static boolean getBooleanValue(AVList avList, String key)
     {
         Object o = avList.getValue(key);
-        if (o == null)
-            return false;
+        if (o == null) {
+			return false;
+		}
 
-        if (o instanceof Boolean)
-            return (Boolean) o;
+        if (o instanceof Boolean) {
+			return (Boolean) o;
+		}
 
         String v = AVListImpl.getStringValue(avList, key);
-        if (v == null)
-            return false;
+        if (v == null) {
+			return false;
+		}
 
         try
         {
@@ -163,13 +167,15 @@ public class UserPreferenceUtils
     protected static void getPropertyList(Element domElement, AVList params, XPath xpath)
     {
         Element[] els = WWXML.getElements(domElement, "Property", xpath);
-        if (els == null || els.length == 0)
-            return;
+        if (els == null || els.length == 0) {
+			return;
+		}
 
         for (Element el : els)
         {
-            if (el == null)
-                continue;
+            if (el == null) {
+				continue;
+			}
 
             getProperty(el, params, xpath);
         }
@@ -179,8 +185,9 @@ public class UserPreferenceUtils
     {
         String key = WWXML.getText(domElement, "@key", xpath);
         String value = WWXML.getText(domElement, "@value", xpath);
-        if (key == null || value == null)
-            return;
+        if (key == null || value == null) {
+			return;
+		}
 
         params.setValue(key, value);
     }
@@ -189,8 +196,9 @@ public class UserPreferenceUtils
     {
         for (var entry : params.getEntries())
         {
-            if (entry == null || entry.getKey() == null || entry.getValue() == null)
-                continue;
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+				continue;
+			}
 
             createProperty(entry, domElement);
         }
@@ -199,8 +207,9 @@ public class UserPreferenceUtils
     protected static void createProperty(Map.Entry<String, Object> entry, Element domElement)
     {
         String s = entry.getValue().toString();
-        if (s == null)
-            return;
+        if (s == null) {
+			return;
+		}
 
         Element el = WWXML.appendElementPath(domElement, "Property");
         el.setAttribute("key", entry.getKey());

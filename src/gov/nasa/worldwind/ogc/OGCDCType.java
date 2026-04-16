@@ -78,8 +78,9 @@ public class OGCDCType extends AbstractXMLEventParser
     {
         XMLEventParser defaultParser = null;
 
-        if (ctx.isStartElement(event, ONLINE_RESOURCE))
-            defaultParser = new OGCOnlineResource(this.getNamespaceURI());
+        if (ctx.isStartElement(event, ONLINE_RESOURCE)) {
+			defaultParser = new OGCOnlineResource(this.getNamespaceURI());
+		}
 
         return ctx.allocate(event, defaultParser);
     }
@@ -110,8 +111,9 @@ public class OGCDCType extends AbstractXMLEventParser
             if (parser != null)
             {
                 Object o = parser.parse(ctx, event, args);
-                if (o != null && o instanceof OGCOnlineResource)
-                    this.addOnlineResource((OGCOnlineResource) o);
+                if (o != null && o instanceof OGCOnlineResource) {
+					this.addOnlineResource((OGCOnlineResource) o);
+				}
             }
         }
     }
@@ -150,11 +152,13 @@ public class OGCDCType extends AbstractXMLEventParser
     {
         for (DCPInfo dcpi : this.getDCPInfos())
         {
-            if (!dcpi.protocol.equalsIgnoreCase(protocol))
-                continue;
+            if (!dcpi.protocol.equalsIgnoreCase(protocol)) {
+				continue;
+			}
 
-            if (dcpi.method.equalsIgnoreCase(requestMethod))
-                return dcpi.onlineResource;
+            if (dcpi.method.equalsIgnoreCase(requestMethod)) {
+				return dcpi.onlineResource;
+			}
         }
 
         return null;

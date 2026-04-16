@@ -30,6 +30,8 @@ package gov.nasa.worldwind.ogc.kml;
 
 import java.awt.Rectangle;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.concurrent.ScheduledFuture;
@@ -385,11 +387,11 @@ public class KMLLink extends KMLAbstractObject
         try
         {
             // Create a new URL, with the full query string.
-            URL newUrl = new URL(this.hrefURL.getProtocol(), this.hrefURL.getHost(), this.hrefURL.getPort(),
-                this.hrefURL.getPath() + queryString);
+            URL newUrl = new URI(this.hrefURL.getProtocol(), null, this.hrefURL.getHost(), this.hrefURL.getPort(),
+                this.hrefURL.getPath() + queryString, null, null).toURL();
             return newUrl.toString();
         }
-        catch (MalformedURLException e)
+        catch (MalformedURLException | URISyntaxException e)
         {
             return href; // If constructing a URL from the href and query string fails, assume this is a local file.
         }

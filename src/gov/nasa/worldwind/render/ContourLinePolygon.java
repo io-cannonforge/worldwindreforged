@@ -112,8 +112,9 @@ public class ContourLinePolygon extends ContourLine
         list = super.filterIntersections(dc, list);
 
         // Filter the remaining segments against the polygon
-        if (this.getPositions() == null)
-            return list;
+        if (this.getPositions() == null) {
+			return list;
+		}
 
         Globe globe = dc.getGlobe();
         int i = 0;
@@ -122,10 +123,10 @@ public class ContourLinePolygon extends ContourLine
             if (WWMath.isLocationInside(globe.computePositionFromPoint(list.get(i).getIntersectionPoint()),
                 this.positions) &&
                 WWMath.isLocationInside(globe.computePositionFromPoint(list.get(i + 1).getIntersectionPoint()),
-                    this.positions))
-                // Keep segment
+                    this.positions)) {
+				// Keep segment
                 i += 2;
-            else
+			} else
             {
                 // Remove segment
                 list.remove(i);

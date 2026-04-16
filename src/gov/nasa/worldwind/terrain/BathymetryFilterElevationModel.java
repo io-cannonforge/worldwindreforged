@@ -63,8 +63,9 @@ public class BathymetryFilterElevationModel extends AbstractElevationModel
     @Override
 	public void dispose()
     {
-        if (this.sourceModel != null)
-            this.sourceModel.dispose();
+        if (this.sourceModel != null) {
+			this.sourceModel.dispose();
+		}
     }
 
     /**
@@ -114,8 +115,9 @@ public class BathymetryFilterElevationModel extends AbstractElevationModel
 	public double[] getExtremeElevations(Angle latitude, Angle longitude)
     {
         double[] elevs = this.sourceModel.getExtremeElevations(latitude, longitude);
-        if (elevs == null)
-            return elevs;
+        if (elevs == null) {
+			return elevs;
+		}
 
         return new double[] {this.clampElevation(elevs[0]), this.clampElevation(elevs[1])};
     }
@@ -124,8 +126,9 @@ public class BathymetryFilterElevationModel extends AbstractElevationModel
 	public double[] getExtremeElevations(Sector sector)
     {
         double[] elevs = this.sourceModel.getExtremeElevations(sector);
-        if (elevs == null)
-            return elevs;
+        if (elevs == null) {
+			return elevs;
+		}
 
         return new double[] {this.clampElevation(elevs[0]), this.clampElevation(elevs[1])};
     }
@@ -138,8 +141,9 @@ public class BathymetryFilterElevationModel extends AbstractElevationModel
         for (int i = 0; i < latlons.size(); i++)
         {
             LatLon ll = latlons.get(i);
-            if (this.sourceModel.contains(ll.getLatitude(), ll.getLongitude()) && buffer[i] < this.threshold)
-                buffer[i] = this.threshold;
+            if (this.sourceModel.contains(ll.getLatitude(), ll.getLongitude()) && buffer[i] < this.threshold) {
+				buffer[i] = this.threshold;
+			}
         }
 
         return resolution;
@@ -155,8 +159,9 @@ public class BathymetryFilterElevationModel extends AbstractElevationModel
         {
             LatLon ll = latlons.get(i);
             if (this.sourceModel.contains(ll.getLatitude(), ll.getLongitude())
-                && buffer[i] != this.sourceModel.getMissingDataSignal() && buffer[i] < this.threshold)
-                buffer[i] = this.threshold;
+                && buffer[i] != this.sourceModel.getMissingDataSignal() && buffer[i] < this.threshold) {
+				buffer[i] = this.threshold;
+			}
         }
 
         return resolution;

@@ -134,16 +134,19 @@ public class PositionTable extends JTable
 
     public void setSarTrack(SARTrack sarTrack)
     {
-        if (this.sarTrack == sarTrack)
-            return;
+        if (this.sarTrack == sarTrack) {
+			return;
+		}
 
-        if (this.sarTrack != null)
-            this.sarTrack.removePropertyChangeListener(this.propertyListener);
+        if (this.sarTrack != null) {
+			this.sarTrack.removePropertyChangeListener(this.propertyListener);
+		}
 
         this.sarTrack = sarTrack;
 
-        if (this.sarTrack != null)
-            this.sarTrack.addPropertyChangeListener(this.propertyListener);
+        if (this.sarTrack != null) {
+			this.sarTrack.addPropertyChangeListener(this.propertyListener);
+		}
 
         this.setTableColors(this.sarTrack);
         this.updateTableData();
@@ -181,8 +184,9 @@ public class PositionTable extends JTable
 
     protected Color getTableColorForTrack(SARTrack track)
     {
-        if (track == null)
-            return null;
+        if (track == null) {
+			return null;
+		}
 
         Color color = track.getColor();
 
@@ -214,8 +218,9 @@ public class PositionTable extends JTable
         if (c != null)
         {
             c.setBackground(tableBackground);
-            if (c instanceof JComponent)
-                ((JComponent) c).setOpaque(true);
+            if (c instanceof JComponent) {
+				((JComponent) c).setOpaque(true);
+			}
         }
     }
 
@@ -273,8 +278,9 @@ public class PositionTable extends JTable
         @Override
 		public Object getValueAt(int row, int col)
         {
-            if (sarTrack == null)
-                return null;
+            if (sarTrack == null) {
+				return null;
+			}
 
             switch (col)
             {
@@ -294,8 +300,9 @@ public class PositionTable extends JTable
         @Override
         public void setValueAt(Object object, int row, int col)
         {
-            if (sarTrack == null)
-                return;
+            if (sarTrack == null) {
+				return;
+			}
 
             SARPosition curPos = sarTrack.get(row);
             SARPosition newPos;
@@ -304,15 +311,15 @@ public class PositionTable extends JTable
             switch (col)
             {
                 case LATITUDE_COLUMN:
-				if (!(object instanceof String) || ((newAngle = table.toAngle((String) object)) == null))
-                        return;
+				if (!(object instanceof String) || ((newAngle = table.toAngle((String) object)) == null)) {
+					return;
+				}
                     newPos = new SARPosition(newAngle, curPos.getLongitude(), curPos.getElevation());
                     break;
                 case LONGITUDE_COLUMN:
-                    if (!(object instanceof String))
-                        return;
-                    if ((newAngle = table.toAngle((String) object)) == null)
-                        return;
+				if (!(object instanceof String) || ((newAngle = table.toAngle((String) object)) == null)) {
+						return;
+					}
                     newPos = new SARPosition(curPos.getLatitude(), newAngle, curPos.getElevation());
                     break;
                 case ALTITUDE_COLUMN:
@@ -320,11 +327,13 @@ public class PositionTable extends JTable
                     // So when the altitude is displayed in feet, we will convert the incoming
                     // value back to meters. This allows the user entring a value to operate in
                     // whatever units are being displayed without thinking about conversion.
-                    if (!(object instanceof Double))
-                        return;
+                    if (!(object instanceof Double)) {
+						return;
+					}
                     double newVal = (Double) object;
-                    if (SAR2.UNIT_IMPERIAL.equals(elevationUnit))
-                        newVal = SAR2.feetToMeters(newVal);
+                    if (SAR2.UNIT_IMPERIAL.equals(elevationUnit)) {
+						newVal = SAR2.feetToMeters(newVal);
+					}
                     newPos = new SARPosition(curPos.getLatitude(), curPos.getLongitude(), newVal);
                     break;
                 default:
@@ -370,10 +379,11 @@ public class PositionTable extends JTable
     private String makeElevationDescription(double metersElevation)
     {
         String s;
-        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit))
-            s = NumberFormat.getInstance().format(SAR2.metersToFeet(metersElevation));
-        else // Default to metric units.
-            s = NumberFormat.getInstance().format(metersElevation);
+        if (SAR2.UNIT_IMPERIAL.equals(this.elevationUnit)) {
+			s = NumberFormat.getInstance().format(SAR2.metersToFeet(metersElevation));
+		} else { // Default to metric units.
+			s = NumberFormat.getInstance().format(metersElevation);
+		}
         return s;
     }
 
@@ -392,21 +402,25 @@ public class PositionTable extends JTable
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
             int row, int column)
         {
-            if (this.delegate == null)
-                return null;
+            if (this.delegate == null) {
+				return null;
+			}
 
             Component c = this.delegate.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (c == null || !(c instanceof JLabel))
-                return c;
+            if (c == null || !(c instanceof JLabel)) {
+				return c;
+			}
 
             JLabel label = (JLabel) c;
-            if (label.getText() == null)
-                return c;
+            if (label.getText() == null) {
+				return c;
+			}
 
-            if (SAR2.UNIT_IMPERIAL.equals(this.table.elevationUnit))
-                label.setText(label.getText() + " (ft)");
-            else // Default to metric units.
-                label.setText(label.getText() + " (m)");
+            if (SAR2.UNIT_IMPERIAL.equals(this.table.elevationUnit)) {
+				label.setText(label.getText() + " (ft)");
+			} else { // Default to metric units.
+				label.setText(label.getText() + " (m)");
+			}
             return label;
         }
     }
@@ -426,21 +440,25 @@ public class PositionTable extends JTable
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
             int row, int column)
         {
-            if (this.delegate == null)
-                return null;
+            if (this.delegate == null) {
+				return null;
+			}
 
             Component c = this.delegate.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (c == null || !(c instanceof JLabel))
-                return c;
+            if (c == null || !(c instanceof JLabel)) {
+				return c;
+			}
 
             JLabel label = (JLabel) c;
-            if (label.getText() == null)
-                return c;
+            if (label.getText() == null) {
+				return c;
+			}
 
-            if (Angle.ANGLE_FORMAT_DMS.equals(this.table.angleFormat))
-                label.setText(label.getText() + " (dms)");
-            else // Default to decimal degrees.
-                label.setText(label.getText() + " (dd)");
+            if (Angle.ANGLE_FORMAT_DMS.equals(this.table.angleFormat)) {
+				label.setText(label.getText() + " (dms)");
+			} else { // Default to decimal degrees.
+				label.setText(label.getText() + " (dd)");
+			}
             return label;
         }
     }
@@ -561,8 +579,9 @@ public class PositionTable extends JTable
 		protected Object validateEditorText(String text) throws Exception
         {
             Angle angle = this.getTable().toAngle(text);
-            if ((angle == null) || angle.degrees < min || angle.degrees > max)
-                throw new IllegalArgumentException(text);
+            if ((angle == null) || angle.degrees < min || angle.degrees > max) {
+				throw new IllegalArgumentException(text);
+			}
             return text;
         }
 

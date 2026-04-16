@@ -225,8 +225,9 @@ public class Quadrilateral implements Renderable, Movable,
             throw new IllegalStateException(message);
         }
 
-        if (this.vertices == null)
-            this.intializeGeometry(dc);
+        if (this.vertices == null) {
+			this.intializeGeometry(dc);
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         boolean textureMatrixPushed = false;
@@ -235,11 +236,13 @@ public class Quadrilateral implements Renderable, Movable,
 
         if (!dc.isPickingMode())
         {
-            if (this.color.getAlpha() != 255)
-                attrBits |= GL.GL_COLOR_BUFFER_BIT;
+            if (this.color.getAlpha() != 255) {
+				attrBits |= GL.GL_COLOR_BUFFER_BIT;
+			}
 
-            if (this.texture != null)
-                attrBits |= GL2.GL_ENABLE_BIT | GL2.GL_TRANSFORM_BIT;
+            if (this.texture != null) {
+				attrBits |= GL2.GL_ENABLE_BIT | GL2.GL_TRANSFORM_BIT;
+			}
         }
 
         gl.glPushAttrib(attrBits);
@@ -269,8 +272,9 @@ public class Quadrilateral implements Renderable, Movable,
 
                     gl.glEnable(GL.GL_TEXTURE_2D);
 
-                    if (this.textureCoordinates == null)
-                        this.initializeTextureCoordinates();
+                    if (this.textureCoordinates == null) {
+						this.initializeTextureCoordinates();
+					}
                     gl.glEnableClientState(GLPointerFunc.GL_TEXTURE_COORD_ARRAY);
                     gl.glTexCoordPointer(2, GL2GL3.GL_DOUBLE, 0, this.textureCoordinates.rewind());
 
@@ -333,8 +337,9 @@ public class Quadrilateral implements Renderable, Movable,
         }
 
         Position delta = position.subtract(this.getReferencePosition());
-        if (delta == null)
-            return;
+        if (delta == null) {
+			return;
+		}
 
         this.move(delta);
     }
@@ -354,11 +359,13 @@ public class Quadrilateral implements Renderable, Movable,
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, WorldWind.ABSOLUTE);
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, WorldWind.ABSOLUTE);
+		}
 
         this.doDrag(dragContext);
     }

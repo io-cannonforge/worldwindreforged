@@ -206,8 +206,9 @@ public final class Intersection // Instances are immutable
             @Override
 			public int compare(Intersection losiA, Intersection losiB)
             {
-                if (losiA.intersectionPoint == null || losiB.intersectionPoint == null)
-                    return 0;
+                if (losiA.intersectionPoint == null || losiB.intersectionPoint == null) {
+					return 0;
+				}
 
                 double dA = refPoint.distanceTo3(losiA.intersectionPoint);
                 double dB = refPoint.distanceTo3(losiB.intersectionPoint);
@@ -238,16 +239,19 @@ public final class Intersection // Instances are immutable
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         final gov.nasa.worldwind.geom.Intersection that = (gov.nasa.worldwind.geom.Intersection) o;
 
         //noinspection RedundantIfStatement
-        if ((isTangent != that.isTangent) || !intersectionPoint.equals(that.intersectionPoint))
-            return false;
+        if ((isTangent != that.isTangent) || !intersectionPoint.equals(that.intersectionPoint)) {
+			return false;
+		}
 
         return true;
     }

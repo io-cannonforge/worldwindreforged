@@ -135,8 +135,9 @@ public class IntSet
         {
             for (int i = 0; i < bucket.length; i++)
             {
-                if (bucket.values[i] == value)
-                    return false;
+                if (bucket.values[i] == value) {
+					return false;
+				}
             }
         }
 
@@ -166,18 +167,21 @@ public class IntSet
         int index = value % this.numBuckets;
         Bucket bucket = this.buckets[index];
 
-        if (bucket == null || bucket.length == 0)
-            return false;
+        if (bucket == null || bucket.length == 0) {
+			return false;
+		}
 
         int i;
         for (i = 0; i < bucket.length; i++)
         {
-            if (bucket.values[i] == value)
-                break;
+            if (bucket.values[i] == value) {
+				break;
+			}
         }
 
-        if (i == bucket.length)
-            return false;
+        if (i == bucket.length) {
+			return false;
+		}
 
         if (i < bucket.length - 1)
         {
@@ -202,13 +206,15 @@ public class IntSet
         int index = value % this.numBuckets;
         Bucket bucket = this.buckets[index];
 
-        if (bucket == null)
-            return false;
+        if (bucket == null) {
+			return false;
+		}
 
         for (int i = 0; i < bucket.length; i++)
         {
-            if (bucket.values[i] == value)
-                return true;
+            if (bucket.values[i] == value) {
+				return true;
+			}
         }
 
         return false;
@@ -219,8 +225,9 @@ public class IntSet
     {
         for (int i = 0; i < this.numBuckets; i++)
         {
-            if (this.buckets[i] != null)
-                this.buckets[i].length = 0;
+            if (this.buckets[i] != null) {
+				this.buckets[i].length = 0;
+			}
         }
 
         this.size = 0;
@@ -238,8 +245,9 @@ public class IntSet
      */
     public int[] toArray(int[] array)
     {
-        if (array == null || array.length < this.size)
-            array = new int[this.size];
+        if (array == null || array.length < this.size) {
+			array = new int[this.size];
+		}
 
         int offset = 0;
 

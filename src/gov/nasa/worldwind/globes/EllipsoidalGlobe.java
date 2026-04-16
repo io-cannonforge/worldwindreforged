@@ -156,17 +156,20 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
             StateKey stateKey = (StateKey) o;
 
             if ((Double.compare(stateKey.verticalExaggeration, verticalExaggeration) != 0) || (elevationModel != null ? !elevationModel.equals(stateKey.elevationModel)
                 : stateKey.elevationModel != null) || (globe != null ? !globe.equals(stateKey.globe) : stateKey.globe != null)
-					|| (tessellator != null ? !tessellator.equals(stateKey.tessellator) : stateKey.tessellator != null))
-                return false;
+					|| (tessellator != null ? !tessellator.equals(stateKey.tessellator) : stateKey.tessellator != null)) {
+				return false;
+			}
 
             return true;
         }
@@ -388,8 +391,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
 
     protected Intersection[] intersect(Line line, double equRadius, double polRadius)
     {
-        if (line == null)
-            return null;
+        if (line == null) {
+			return null;
+		}
 
         // Taken from Lengyel, 2Ed., Section 5.2.3, page 148.
         double m = equRadius / polRadius; // "ratio of the x semi-axis length to the y semi-axis length"
@@ -410,8 +414,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         double c = sx * sx + m2 * sy * sy + n2 * sz * sz - r2;
 
         double discriminant = discriminant(a, b, c);
-        if (discriminant < 0)
-            return null;
+        if (discriminant < 0) {
+			return null;
+		}
 
         double discriminantRoot = Math.sqrt(discriminant);
         if (discriminant == 0)
@@ -426,16 +431,17 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         {
             Vec4 near = line.getPointAt((-b - discriminantRoot) / (2 * a));
             Vec4 far = line.getPointAt((-b + discriminantRoot) / (2 * a));
-            if (c >= 0) // Line originates outside the Globe.
-                return new Intersection[]
-                {
-                    new Intersection(near, false), new Intersection(far, false)
-                };
-            else // Line originates inside the Globe.
-                return new Intersection[]
-                {
-                    new Intersection(far, false)
-                };
+            if (c >= 0) { // Line originates outside the Globe.
+				return new Intersection[]
+				                {
+				                    new Intersection(near, false), new Intersection(far, false)
+				                };
+			} else { // Line originates inside the Globe.
+				return new Intersection[]
+				                {
+				                    new Intersection(far, false)
+				                };
+			}
         }
     }
 
@@ -447,38 +453,46 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
     @Override
 	public Intersection[] intersect(Triangle t, double elevation)
     {
-        if (t == null)
-            return null;
+        if (t == null) {
+			return null;
+		}
 
         boolean bA = isPointAboveElevation(t.getA(), elevation);
         boolean bB = isPointAboveElevation(t.getB(), elevation);
         boolean bC = isPointAboveElevation(t.getC(), elevation);
 
-        if (!(bA ^ bB) && !(bB ^ bC))
-            return null; // all triangle points are either above or below the given elevation
+        if (!(bA ^ bB) && !(bB ^ bC)) {
+			return null; // all triangle points are either above or below the given elevation
+		}
 
         Intersection[] inter = new Intersection[2];
         int idx = 0;
 
         // Assumes that intersect(Line) returns only one intersection when the line
         // originates inside the ellipsoid at the given elevation.
-        if (bA ^ bB)
-            if (bA)
-                inter[idx++] = intersect(new Line(t.getB(), t.getA().subtract3(t.getB())), elevation)[0];
-            else
-                inter[idx++] = intersect(new Line(t.getA(), t.getB().subtract3(t.getA())), elevation)[0];
+        if (bA ^ bB) {
+			if (bA) {
+				inter[idx++] = intersect(new Line(t.getB(), t.getA().subtract3(t.getB())), elevation)[0];
+			} else {
+				inter[idx++] = intersect(new Line(t.getA(), t.getB().subtract3(t.getA())), elevation)[0];
+			}
+		}
 
-        if (bB ^ bC)
-            if (bB)
-                inter[idx++] = intersect(new Line(t.getC(), t.getB().subtract3(t.getC())), elevation)[0];
-            else
-                inter[idx++] = intersect(new Line(t.getB(), t.getC().subtract3(t.getB())), elevation)[0];
+        if (bB ^ bC) {
+			if (bB) {
+				inter[idx++] = intersect(new Line(t.getC(), t.getB().subtract3(t.getC())), elevation)[0];
+			} else {
+				inter[idx++] = intersect(new Line(t.getB(), t.getC().subtract3(t.getB())), elevation)[0];
+			}
+		}
 
-        if (bC ^ bA)
-            if (bC)
-                inter[idx] = intersect(new Line(t.getA(), t.getC().subtract3(t.getA())), elevation)[0];
-            else
-                inter[idx] = intersect(new Line(t.getC(), t.getA().subtract3(t.getC())), elevation)[0];
+        if (bC ^ bA) {
+			if (bC) {
+				inter[idx] = intersect(new Line(t.getA(), t.getC().subtract3(t.getA())), elevation)[0];
+			} else {
+				inter[idx] = intersect(new Line(t.getC(), t.getA().subtract3(t.getC())), elevation)[0];
+			}
+		}
 
         return inter;
     }
@@ -487,8 +501,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
 	public boolean intersects(Line line)
     {
         //noinspection SimplifiableIfStatement
-        if (line == null)
-            return false;
+        if (line == null) {
+			return false;
+		}
 
         return line.distanceTo(this.center) <= this.equatorialRadius;
     }
@@ -496,8 +511,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
     @Override
 	public boolean intersects(Plane plane)
     {
-        if (plane == null)
-            return false;
+        if (plane == null) {
+			return false;
+		}
 
         double dq1 = plane.dot(this.center);
         return dq1 <= this.equatorialRadius;
@@ -519,18 +535,20 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
 
     public void applyEGMA96Offsets(String offsetsFilePath) throws IOException
     {
-        if (offsetsFilePath != null)
-            this.egm96 = new EGM96(offsetsFilePath);
-        else
-            this.egm96 = null;
+        if (offsetsFilePath != null) {
+			this.egm96 = new EGM96(offsetsFilePath);
+		} else {
+			this.egm96 = null;
+		}
     }
 
     @Override
 	public double getElevations(Sector sector, List<? extends LatLon> latlons, double targetResolution,
         double[] elevations)
     {
-        if (this.elevationModel == null)
-            return 0;
+        if (this.elevationModel == null) {
+			return 0;
+		}
 
         double resolution = this.elevationModel.getElevations(sector, latlons, targetResolution, elevations);
 
@@ -550,11 +568,12 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
 	public double[] getElevations(Sector sector, List<? extends LatLon> latLons, double[] targetResolution,
         double[] elevations)
     {
-        if (this.elevationModel == null)
-            return new double[]
+        if (this.elevationModel == null) {
+			return new double[]
             {
                 0
             };
+		}
 
         double[] resolution = this.elevationModel.getElevations(sector, latLons, targetResolution, elevations);
 
@@ -590,13 +609,15 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
             throw new IllegalArgumentException(message);
         }
 
-        if (this.elevationModel == null)
-            return 0;
+        if (this.elevationModel == null) {
+			return 0;
+		}
 
         double elevation = this.elevationModel.getElevation(latitude, longitude);
 
-        if (this.egm96 != null)
-            elevation += this.egm96.getOffset(latitude, longitude);
+        if (this.egm96 != null) {
+			elevation += this.egm96.getOffset(latitude, longitude);
+		}
 
         return elevation;
     }
@@ -944,8 +965,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         }
 
         Intersection[] intersections = this.intersect(line);
-        if (intersections == null)
-            return null;
+        if (intersections == null) {
+			return null;
+		}
 
         return this.computePositionFromPoint(intersections[0].getIntersectionPoint());
     }
@@ -1050,8 +1072,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         double lon = minLon;
         for (int i = 0; i < numLon; i++, lon += deltaLon)
         {
-            if (i == numLon - 1) // explicitly set the last lon to the max longitude to ensure alignment
-                lon = maxLon;
+            if (i == numLon - 1) { // explicitly set the last lon to the max longitude to ensure alignment
+				lon = maxLon;
+			}
 
             cosLon[i] = Math.cos(lon);
             sinLon[i] = Math.sin(lon);
@@ -1062,8 +1085,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         double lat = minLat;
         for (int j = 0; j < numLat; j++, lat += deltaLat)
         {
-            if (j == numLat - 1) // explicitly set the last lat to the max latitude to ensure alignment
-                lat = maxLat;
+            if (j == numLat - 1) { // explicitly set the last lat to the max latitude to ensure alignment
+				lat = maxLat;
+			}
 
             // Latitude is constant for each row. Values that are a function of latitude can be computed once per row.
             double cosLat = Math.cos(lat);
@@ -1130,8 +1154,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         double[] latRad = new double[gridSize];
         latRad[0] = minLat;
         latRad[1] = minLat;
-        for (int j = 2; j <= density; j++)
-            latRad[j] = minLat + (j - 1) * dLat;
+        for (int j = 2; j <= density; j++) {
+			latRad[j] = minLat + (j - 1) * dLat;
+		}
         latRad[density + 1] = maxLat;
         latRad[density + 2] = maxLat;
 
@@ -1139,16 +1164,20 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
         double[] lonRad = new double[gridSize];
         lonRad[0] = minLon;
         lonRad[1] = minLon;
-        for (int i = 2; i <= density; i++)
-            lonRad[i] = minLon + (i - 1) * dLon;
+        for (int i = 2; i <= density; i++) {
+			lonRad[i] = minLon + (i - 1) * dLon;
+		}
         lonRad[density + 1] = maxLon;
         lonRad[density + 2] = maxLon;
 
         // Clamp longitudes to [-PI, PI] (matches Angle.NEG180 / POS180 guard in computeLocations)
         for (int i = 0; i < gridSize; i++)
         {
-            if (lonRad[i] < -Math.PI) lonRad[i] = -Math.PI;
-            else if (lonRad[i] > Math.PI) lonRad[i] = Math.PI;
+            if (lonRad[i] < -Math.PI) {
+				lonRad[i] = -Math.PI;
+			} else if (lonRad[i] > Math.PI) {
+				lonRad[i] = Math.PI;
+			}
         }
 
         // Pre-compute cos/sin of each unique longitude value — saves (gridSize-1) * gridSize trig ops.
@@ -1180,8 +1209,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
             {
                 double elevation = vertExagg * elevations[ie++];
 
-                if (skirtElevation != null && (isSkirtRow || i == 0 || i == density + 2))
-                    elevation = skirtElevation;
+                if (skirtElevation != null && (isSkirtRow || i == 0 || i == density + 2)) {
+					elevation = skirtElevation;
+				}
 
                 double x = (rpm + elevation) * cosLat * sinLon[i];
                 double y = (rpm * esComp + elevation) * sinLat;
@@ -1542,8 +1572,9 @@ public class EllipsoidalGlobe extends WWObjectImpl implements Globe
 	public boolean isPointAboveElevation(Vec4 point, double elevation)
     {
         //noinspection SimplifiableIfStatement
-        if (point == null)
-            return false;
+        if (point == null) {
+			return false;
+		}
 
         return (point.x() * point.x()) / ((this.equatorialRadius + elevation) * (this.equatorialRadius + elevation))
             + (point.y() * point.y()) / ((this.polarRadius + elevation) * (this.polarRadius + elevation))

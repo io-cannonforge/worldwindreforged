@@ -89,10 +89,11 @@ public class RasterServerConfiguration extends AbstractXMLEventParser
             Double maxLat = Double.valueOf((String) latLon.getField("latitude"));
             Double maxLon = Double.valueOf((String) latLon.getField("longitude"));
 
-            if (units.equals("radians"))
-                return Sector.fromRadians(minLat, maxLat, minLon, maxLon);
-            else
-                return Sector.fromDegrees(minLat, maxLat, minLon, maxLon);
+            if (units.equals("radians")) {
+				return Sector.fromRadians(minLat, maxLat, minLon, maxLon);
+			} else {
+				return Sector.fromDegrees(minLat, maxLat, minLon, maxLon);
+			}
         }
     }
 
@@ -225,8 +226,9 @@ public class RasterServerConfiguration extends AbstractXMLEventParser
 
         for (XMLEvent event = ctx.nextEvent(); ctx.hasNext(); event = ctx.nextEvent())
         {
-            if (event == null)
-                continue;
+            if (event == null) {
+				continue;
+			}
 
             if (event.isStartElement() && event.asStartElement().getName().equals(capsName))
             {

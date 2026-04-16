@@ -97,8 +97,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         for (Layer layer : newList)
         {
-            if (!oldList.contains(layer))
-                deltaList.add(layer);
+            if (!oldList.contains(layer)) {
+				deltaList.add(layer);
+			}
         }
 
         return deltaList;
@@ -196,8 +197,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
             throw new IllegalArgumentException(msg);
         }
 
-        if (!this.contains(layer))
-            return;
+        if (!this.contains(layer)) {
+			return;
+		}
 
         LayerList copy = makeShallowCopy(this);
         layer.removePropertyChangeListener(this);
@@ -209,8 +211,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 	public Layer remove(int index)
     {
         Layer layer = get(index);
-        if (layer == null)
-            return null;
+        if (layer == null) {
+			return null;
+		}
 
         LayerList copy = makeShallowCopy(this);
         layer.removePropertyChangeListener(this);
@@ -223,8 +226,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
     public boolean moveLower(Layer targetLayer)
     {
         int index = this.indexOf(targetLayer);
-        if (index <= 0)
-            return false;
+        if (index <= 0) {
+			return false;
+		}
 
         this.remove(index);
         this.add(index - 1, targetLayer);
@@ -235,8 +239,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
     public boolean moveHigher(Layer targetLayer)
     {
         int index = this.indexOf(targetLayer);
-        if (index < 0)
-            return false;
+        if (index < 0) {
+			return false;
+		}
 
         this.remove(index);
         this.add(index + 1, targetLayer);
@@ -255,8 +260,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
         }
 
         Layer oldLayer = this.get(index);
-        if (oldLayer != null)
-            oldLayer.removePropertyChangeListener(this);
+        if (oldLayer != null) {
+			oldLayer.removePropertyChangeListener(this);
+		}
 
         LayerList copy = makeShallowCopy(this);
         super.set(index, layer);
@@ -271,14 +277,16 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
     {
         for (Layer layer : this)
         {
-            if (layer.equals(o))
-                layer.removePropertyChangeListener(this);
+            if (layer.equals(o)) {
+				layer.removePropertyChangeListener(this);
+			}
         }
 
         LayerList copy = makeShallowCopy(this);
         boolean removed = super.remove(o);
-        if (removed)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (removed) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return removed;
     }
@@ -288,16 +296,18 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
     {
         for (Layer l : this)
         {
-            if (l.equals(layer))
-                return false;
+            if (l.equals(layer)) {
+				return false;
+			}
         }
 
         layer.addPropertyChangeListener(this);
 
         LayerList copy = makeShallowCopy(this);
         boolean added = super.addIfAbsent(layer);
-        if (added)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (added) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return added;
     }
@@ -312,8 +322,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         LayerList copy = makeShallowCopy(this);
         boolean removed = super.removeAll(objects);
-        if (removed)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (removed) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         for (Layer layer : this)
         {
@@ -332,8 +343,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         LayerList copy = makeShallowCopy(this);
         boolean removed = super.retainAll(new ArrayList<>()); // retain no layers
-        if (removed)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (removed) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return removed;
     }
@@ -343,14 +355,16 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
     {
         for (Layer layer : layers)
         {
-            if (!this.contains(layer))
-                layer.addPropertyChangeListener(this);
+            if (!this.contains(layer)) {
+				layer.addPropertyChangeListener(this);
+			}
         }
 
         LayerList copy = makeShallowCopy(this);
         int numAdded = super.addAllAbsent(layers);
-        if (numAdded > 0)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (numAdded > 0) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return numAdded;
     }
@@ -365,8 +379,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         LayerList copy = makeShallowCopy(this);
         boolean added = super.addAll(layers);
-        if (added)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (added) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return added;
     }
@@ -381,8 +396,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         LayerList copy = makeShallowCopy(this);
         boolean added = super.addAll(i, layers);
-        if (added)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (added) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return added;
     }
@@ -392,14 +408,16 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
     {
         for (Layer layer : this)
         {
-            if (!objects.contains(layer))
-                layer.removePropertyChangeListener(this);
+            if (!objects.contains(layer)) {
+				layer.removePropertyChangeListener(this);
+			}
         }
 
         LayerList copy = makeShallowCopy(this);
         boolean added = super.retainAll(objects);
-        if (added)
-            this.firePropertyChange(AVKey.LAYERS, copy, this);
+        if (added) {
+			this.firePropertyChange(AVKey.LAYERS, copy, this);
+		}
 
         return added;
     }
@@ -411,10 +429,11 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         for (Layer layer : layers)
         {
-            if (!this.contains(layer))
-                toDelete.add(layer);
-            else
-                toKeep.add(layer);
+            if (!this.contains(layer)) {
+				toDelete.add(layer);
+			} else {
+				toKeep.add(layer);
+			}
         }
 
         for (Layer layer : toDelete)
@@ -426,8 +445,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         for (Layer layer : layers)
         {
-            if (!toKeep.contains(layer))
-                layer.addPropertyChangeListener(this);
+            if (!toKeep.contains(layer)) {
+				layer.addPropertyChangeListener(this);
+			}
 
             super.add(layer);
         }
@@ -444,8 +464,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         for (Layer l : this)
         {
-            if (l.getName().equals(name))
-                return l;
+            if (l.getName().equals(name)) {
+				return l;
+			}
         }
 
         return null;
@@ -464,8 +485,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
         for (Layer l : this)
         {
-            if (l.getClass().equals(classToFind))
-                layers.add(l);
+            if (l.getClass().equals(classToFind)) {
+				layers.add(l);
+			}
         }
 
         return layers;
@@ -533,8 +555,9 @@ public class LayerList extends CopyOnWriteArrayList<Layer> implements WWObject
 
     public LayerList sort()
     {
-        if (this.size() <= 0)
-            return this;
+        if (this.size() <= 0) {
+			return this;
+		}
 
         Layer[] array = new Layer[this.size()];
         this.toArray(array);

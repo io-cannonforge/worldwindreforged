@@ -28,6 +28,7 @@
 package gov.nasa.worldwind.layers.placename;
 
 import java.awt.Color;
+import java.net.URI;
 
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Extent;
@@ -184,7 +185,7 @@ public class PlaceNameService
         sb.append(sector.getMinLatitude().getDegrees()).append(',');
         sb.append(sector.getMaxLongitude().getDegrees()).append(',');
         sb.append(sector.getMaxLatitude().getDegrees());
-        return new java.net.URL(sb.toString());
+        return URI.create(sb.toString()).toURL();
     }
 
     public synchronized final PlaceNameService deepCopy()

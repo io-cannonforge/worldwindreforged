@@ -288,8 +288,9 @@ public class Pyramid extends RigidShape
             makeUnitPyramid(this.subdivisions, shapeData.getMeshes());
             for (int piece = 0; piece < getFaceCount(); piece++)
             {
-                if (offsets.get(piece) == null)  // if texture offsets don't exist, set default values to 0
-                    offsets.put(piece, new OffsetsList());
+                if (offsets.get(piece) == null) { // if texture offsets don't exist, set default values to 0
+					offsets.put(piece, new OffsetsList());
+				}
                 // add the new mesh pieces to the cache
                 cacheKey = new Geometry.CacheKey(this.getClass(), "Pyramid" + piece, this.subdivisions);
                 this.getGeometryCache().add(cacheKey, shapeData.getMesh(piece));
@@ -300,8 +301,9 @@ public class Pyramid extends RigidShape
             // otherwise, just use the one from the cache
             for (int piece = 0; piece < getFaceCount(); piece++)
             {
-                if (offsets.get(piece) == null)  // if texture offsets don't exist, set default values to 0
-                    offsets.put(piece, new OffsetsList());
+                if (offsets.get(piece) == null) { // if texture offsets don't exist, set default values to 0
+					offsets.put(piece, new OffsetsList());
+				}
                 cacheKey = new Geometry.CacheKey(this.getClass(), "Pyramid" + piece, this.subdivisions);
                 geom = (Geometry) this.getGeometryCache().getObject(cacheKey);
                 shapeData.addMesh(piece, geom);
@@ -480,8 +482,9 @@ public class Pyramid extends RigidShape
             if (mustApplyLighting(dc, null))
             {
                 // re-enable normals if we temporarily turned them off earlier
-                if (normalBuffer == null)
-                    gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+                if (normalBuffer == null) {
+					gl.glEnableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
+				}
             }
             // this.logGeometryStatistics(dc, geom);
         }

@@ -282,23 +282,29 @@ public class ToolTipRenderer
             outlineWidth = ((LineBorder) border).getThickness();
         }
 
-        if (border != null)
-            insets = border.getBorderInsets(null);
+        if (border != null) {
+			insets = border.getBorderInsets(null);
+		}
 
-        if (font == null)
-            font = this.getFont();
+        if (font == null) {
+			font = this.getFont();
+		}
 
-        if (textColor == null)
-            textColor = this.getTextColor();
+        if (textColor == null) {
+			textColor = this.getTextColor();
+		}
 
-        if (interiorColor == null)
-            interiorColor = this.getInteriorColor();
+        if (interiorColor == null) {
+			interiorColor = this.getInteriorColor();
+		}
 
-        if (outlineColor == null)
-            outlineColor = this.getOutlineColor();
+        if (outlineColor == null) {
+			outlineColor = this.getOutlineColor();
+		}
 
-        if (insets == null)
-            insets = this.getInsets();
+        if (insets == null) {
+			insets = this.getInsets();
+		}
 
         return new ToolTipAttributes(font, textColor, interiorColor, outlineColor, textOpacity, interiorOpacity,
             outlineOpacity, outlineWidth, insets);
@@ -471,8 +477,9 @@ public class ToolTipRenderer
 
     protected void applyColor(DrawContext dc, java.awt.Color color, double opacity)
     {
-        if (dc.isPickingMode())
-            return;
+        if (dc.isPickingMode()) {
+			return;
+		}
 
         double finalOpacity = opacity * (color.getAlpha() / 255.0);
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
@@ -524,15 +531,17 @@ public class ToolTipRenderer
     protected java.awt.Point adjustDrawPointToViewport(int x, int y, java.awt.geom.Rectangle2D bounds,
         java.awt.Rectangle viewport)
     {
-        if (x + bounds.getMaxX() > viewport.getWidth())
-            x = (int) (viewport.getWidth() - bounds.getWidth()) - 1;
-        else if (x < 0)
-            x = 0;
+        if (x + bounds.getMaxX() > viewport.getWidth()) {
+			x = (int) (viewport.getWidth() - bounds.getWidth()) - 1;
+		} else if (x < 0) {
+			x = 0;
+		}
 
-        if (y + bounds.getMaxY() > viewport.getHeight())
-            y = (int) (viewport.getHeight() - bounds.getHeight()) - 1;
-        else if (y < 0)
-            y = 0;
+        if (y + bounds.getMaxY() > viewport.getHeight()) {
+			y = (int) (viewport.getHeight() - bounds.getHeight()) - 1;
+		} else if (y < 0) {
+			y = 0;
+		}
 
         return new java.awt.Point(x, y);
     }

@@ -171,12 +171,14 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 	protected void drawInterior(DrawContext dc, SurfaceTileDrawContext sdc)
     {
         // Exit immediately if the polygon has no coordinate data.
-        if (this.buffer.size() == 0)
-            return;
+        if (this.buffer.size() == 0) {
+			return;
+		}
 
         Position referencePos = this.getReferencePosition();
-        if (referencePos == null)
-            return;
+        if (referencePos == null) {
+			return;
+		}
 
         // Try shader-based VBO rendering first
         if (!Boolean.TRUE.equals(fillShaderFailed.get()) && this.drawInteriorWithShader(dc, sdc))
@@ -201,11 +203,13 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 
         // Fallback: legacy GLU tessellator + display list caching
         int[] dlResource = (int[]) dc.getGpuResourceCache().get(this.interiorDisplayListCacheKey);
-        if (dlResource == null || this.needsInteriorTessellation)
-            dlResource = this.tessellateInterior(dc, referencePos);
+        if (dlResource == null || this.needsInteriorTessellation) {
+			dlResource = this.tessellateInterior(dc, referencePos);
+		}
 
-        if (dlResource == null)
-            return;
+        if (dlResource == null) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2();
         this.applyInteriorState(dc, sdc, this.getActiveAttributes(), this.getTexture(), referencePos);
@@ -230,12 +234,14 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
     @Override
     protected InteriorVBOData buildInteriorVBOs(DrawContext dc, SurfaceTileDrawContext sdc)
     {
-        if (this.buffer.size() == 0)
-            return null;
+        if (this.buffer.size() == 0) {
+			return null;
+		}
 
         Position refPos = this.getReferencePosition();
-        if (refPos == null)
-            return null;
+        if (refPos == null) {
+			return null;
+		}
 
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;
@@ -250,10 +256,12 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
             VecBuffer vb = this.buffer.subBuffer(i);
             boolean[] crossedRef = {false};
             float[] verts = this.flattenRingVertices(vb, refLon, refLat, crossedRef);
-            if (verts == null)
-                return null; // pole-wrapping — fall back to GLU
-            if (crossedRef[0])
-                this.crossesDateLine = true;
+            if (verts == null) {
+				return null; // pole-wrapping — fall back to GLU
+			}
+            if (crossedRef[0]) {
+				this.crossesDateLine = true;
+			}
             ringVertices.add(verts);
         }
 
@@ -266,8 +274,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 
         // Build single flat vertex array across all rings (needed for bridgeHoles indices)
         int totalVertices = 0;
-        for (float[] v : ringVertices)
-            totalVertices += v.length / 2;
+        for (float[] v : ringVertices) {
+			totalVertices += v.length / 2;
+		}
 
         float[] globalVerts = new float[totalVertices * 2];
         int[] ringOffsets = new int[numRings];
@@ -282,8 +291,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 
         for (List<Integer> group : polygonGroups)
         {
-            if (group.isEmpty())
-                continue;
+            if (group.isEmpty()) {
+				continue;
+			}
 
             int outerIdx = group.get(0);
             float[] outerVerts = ringVertices.get(outerIdx);
@@ -294,11 +304,13 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
             if (group.size() == 1)
             {
                 // No holes — triangulate directly
-                if (outerCount < 3)
-                    continue;
+                if (outerCount < 3) {
+					continue;
+				}
                 int[] ring = new int[outerCount];
-                for (int i = 0; i < outerCount; i++)
-                    ring[i] = outerStart + i;
+                for (int i = 0; i < outerCount; i++) {
+					ring[i] = outerStart + i;
+				}
                 triangles = GpuTriangulator.triangulateCPU(globalVerts, ring);
             }
             else
@@ -316,8 +328,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 
                 int[] mergedRing = GpuTriangulator.bridgeHoles(globalVerts,
                     outerStart, outerCount, holeStarts, holeCounts);
-                if (mergedRing == null || mergedRing.length < 3)
-                    continue;
+                if (mergedRing == null || mergedRing.length < 3) {
+					continue;
+				}
                 triangles = GpuTriangulator.triangulateCPU(globalVerts, mergedRing);
             }
 
@@ -328,8 +341,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
             }
         }
 
-        if (totalIndices == 0)
-            return null;
+        if (totalIndices == 0) {
+			return null;
+		}
 
         // Upload to VBOs
         GL gl = dc.getGL();
@@ -368,8 +382,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
         // Pole-wrapping detection
         List<double[]> dlCrossPoints = this.computeDateLineCrossingPoints(vecBuffer);
         int pole = this.computePole(dlCrossPoints);
-        if (pole != 0)
-            return null; // pole-wrapping not handled — fall back to GLU
+        if (pole != 0) {
+			return null; // pole-wrapping not handled — fall back to GLU
+		}
 
         List<float[]> points = new ArrayList<>();
         double[] previousPoint = null;
@@ -388,8 +403,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
             previousPoint = coords.clone();
         }
 
-        if (points.size() < 3)
-            return null;
+        if (points.size() < 3) {
+			return null;
+		}
 
         float[] result = new float[points.size() * 2];
         for (int i = 0; i < points.size(); i++)
@@ -417,10 +433,12 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
                 int groupStart = this.polygonRingGroups[g];
                 int groupEnd = (g == numGroups - 1) ? numRings : this.polygonRingGroups[g + 1];
                 List<Integer> group = new ArrayList<>();
-                for (int i = groupStart; i < groupEnd; i++)
-                    group.add(i);
-                if (!group.isEmpty())
-                    groups.add(group);
+                for (int i = groupStart; i < groupEnd; i++) {
+					group.add(i);
+				}
+                if (!group.isEmpty()) {
+					groups.add(group);
+				}
             }
         }
         else
@@ -450,11 +468,13 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 
     protected WWTexture getTexture()
     {
-        if (this.getActiveAttributes().getImageSource() == null)
-            return null;
+        if (this.getActiveAttributes().getImageSource() == null) {
+			return null;
+		}
 
-        if (this.texture == null && this.getActiveAttributes().getImageSource() != null)
-            this.texture = new BasicWWTexture(this.getActiveAttributes().getImageSource(), true);
+        if (this.texture == null && this.getActiveAttributes().getImageSource() != null) {
+			this.texture = new BasicWWTexture(this.getActiveAttributes().getImageSource(), true);
+		}
 
         return this.texture;
     }
@@ -571,19 +591,22 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
                 // Start a new polygon for each outer ring
                 if (WWMath.computeWindingOrderOfLocations(vecBuffer.getLocations()).equals(this.getWindingRule()))
                 {
-                    if (inBeginPolygon)
-                        GLU.gluTessEndPolygon(tess);
+                    if (inBeginPolygon) {
+						GLU.gluTessEndPolygon(tess);
+					}
 
                     GLU.gluTessBeginPolygon(tess, null);
                     inBeginPolygon = true;
                 }
 
-                if (tessellateRing(tess, vecBuffer, referenceLocation))
-                    this.crossesDateLine = true;
+                if (tessellateRing(tess, vecBuffer, referenceLocation)) {
+					this.crossesDateLine = true;
+				}
             }
 
-            if (inBeginPolygon)
-                GLU.gluTessEndPolygon(tess);
+            if (inBeginPolygon) {
+				GLU.gluTessEndPolygon(tess);
+			}
         }
         else
         {
@@ -600,8 +623,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
                 {
                     VecBuffer subBuffer = this.buffer.subBuffer(groupStart + i);
                     numBytes += subBuffer.getSize() * 3 * 4; // 3 float coords per vertex
-                    if (tessellateRing(tess, subBuffer, referenceLocation))
-                        this.crossesDateLine = true;
+                    if (tessellateRing(tess, subBuffer, referenceLocation)) {
+						this.crossesDateLine = true;
+					}
                 }
                 GLU.gluTessEndPolygon(tess);
             }
@@ -688,8 +712,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
         double[] previousPoint = null;
         for (double[] coords : iterable)
         {
-            if (previousPoint != null && Math.abs(previousPoint[0] - coords[0]) > 180)
-                list.add(previousPoint);
+            if (previousPoint != null && Math.abs(previousPoint[0] - coords[0]) > 180) {
+				list.add(previousPoint);
+			}
             previousPoint = coords;
         }
 
@@ -704,8 +729,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
             sign += Math.signum(point[0]);
         }
 
-        if (sign == 0)
-            return 0;
+        if (sign == 0) {
+			return 0;
+		}
 
         // If we cross the date line going west (from a negative longitude) with a clockwise polygon,
         // then the north pole (positive) is included.
@@ -714,8 +740,9 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 
     protected double[] computePoleWrappingPoint(int pole, List<double[]> dateLineCrossingPoints)
     {
-        if (pole == 0)
-            return null;
+        if (pole == 0) {
+			return null;
+		}
 
         // Find point with latitude closest to pole
         int idx = -1;

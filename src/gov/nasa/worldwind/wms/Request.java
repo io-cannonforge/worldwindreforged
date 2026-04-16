@@ -200,8 +200,9 @@ public abstract class Request
 
     public void setParam(String key, String value)
     {
-        if (key != null)
-            this.queryParams.put(key, value);
+        if (key != null) {
+			this.queryParams.put(key, value);
+		}
     }
 
     public String getParam(String key)
@@ -211,8 +212,9 @@ public abstract class Request
 
     public URI getUri() throws URISyntaxException
     {
-        if (this.uri == null)
-            return null;
+        if (this.uri == null) {
+			return null;
+		}
 
         try
         {
@@ -231,8 +233,9 @@ public abstract class Request
     {
         StringBuilder queryString = new StringBuilder(existingQueryString != null ? existingQueryString : "");
 
-        if (queryString.length() > 1 && queryString.lastIndexOf("&") != queryString.length() - 1)
-            queryString = queryString.append("&");
+        if (queryString.length() > 1 && queryString.lastIndexOf("&") != queryString.length() - 1) {
+			queryString = queryString.append("&");
+		}
 
         for (var entry : this.queryParams.entrySet())
         {
@@ -249,8 +252,9 @@ public abstract class Request
         if (WWUtil.isEmpty(existingQueryString))
         {
             int trailingAmpersandPosition = queryString.lastIndexOf("&");
-            if (trailingAmpersandPosition >= 0)
-                queryString.deleteCharAt(trailingAmpersandPosition);
+            if (trailingAmpersandPosition >= 0) {
+				queryString.deleteCharAt(trailingAmpersandPosition);
+			}
         }
 
         return queryString.toString();

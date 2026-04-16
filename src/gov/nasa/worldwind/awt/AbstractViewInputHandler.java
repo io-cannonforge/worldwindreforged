@@ -153,8 +153,9 @@ public abstract class AbstractViewInputHandler implements ViewInputHandler, java
     @Override
 	public void setWorldWindow(WorldWindow newWorldWindow)
     {
-        if (newWorldWindow == this.wwd)
-            return;
+        if (newWorldWindow == this.wwd) {
+			return;
+		}
 
         if (this.wwd != null)
         {
@@ -644,8 +645,9 @@ public abstract class AbstractViewInputHandler implements ViewInputHandler, java
     @SuppressWarnings("unused")
     protected void handleFocusLost(FocusEvent e)
     {
-        if (this.isStopOnFocusLost())
-            this.onStopView();
+        if (this.isStopOnFocusLost()) {
+			this.onStopView();
+		}
     }
 
     @Override
@@ -918,19 +920,22 @@ public abstract class AbstractViewInputHandler implements ViewInputHandler, java
 
         // Return the ratio of world distance to screen distance.
         double slope = vec1.distanceTo3(vec2) / (pixelDistance * pixelSize);
-        if (slope < 1.0)
-            slope = 1.0;
+        if (slope < 1.0) {
+			slope = 1.0;
+		}
 
         return slope - 1.0;
     }
 
     protected static Point constrainToSourceBounds(Point point, WorldWindow source)
     {
-        if (point == null)
-            return null;
+        if (point == null) {
+			return null;
+		}
 
-        if (!(source instanceof Component))
-            return point;
+        if (!(source instanceof Component)) {
+			return point;
+		}
 
         // source.getHeight(), source.getWidth() are AWT coords height,
         // but the 'point' is MouseEvent GL surface coords.
@@ -939,17 +944,21 @@ public abstract class AbstractViewInputHandler implements ViewInputHandler, java
         int glHeight = source.getView().getViewport().height;
 
         int x = (int) point.getX();
-        if (x < 0)
-            x = 0;
-        if (x >= glWidth)
-            x = glWidth - 1;
+        if (x < 0) {
+			x = 0;
+		}
+        if (x >= glWidth) {
+			x = glWidth - 1;
+		}
 
         int y = (int) point.getY();
-        if (y < 0)
-            y = 0;
+        if (y < 0) {
+			y = 0;
+		}
 
-        if (y >= glHeight)
-            y = glHeight - 1;
+        if (y >= glHeight) {
+			y = glHeight - 1;
+		}
 
         return new Point(x, y);
     }

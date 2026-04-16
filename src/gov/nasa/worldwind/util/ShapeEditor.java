@@ -718,27 +718,34 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         LayerList layers = this.getWwd().getModel().getLayers();
 
-        if (!layers.contains(this.getControlPointLayer()))
-            layers.add(this.getControlPointLayer());
+        if (!layers.contains(this.getControlPointLayer())) {
+			layers.add(this.getControlPointLayer());
+		}
 
-        if (!this.getControlPointLayer().isEnabled())
-            this.getControlPointLayer().setEnabled(true);
+        if (!this.getControlPointLayer().isEnabled()) {
+			this.getControlPointLayer().setEnabled(true);
+		}
 
-        if (!layers.contains(this.getAccessoryLayer()))
-            layers.add(this.getAccessoryLayer());
+        if (!layers.contains(this.getAccessoryLayer())) {
+			layers.add(this.getAccessoryLayer());
+		}
 
-        if (!this.getAccessoryLayer().isEnabled())
-            this.getAccessoryLayer().setEnabled(true);
+        if (!this.getAccessoryLayer().isEnabled()) {
+			this.getAccessoryLayer().setEnabled(true);
+		}
 
-        if (!layers.contains(this.getAnnotationLayer()))
-            layers.add(this.getAnnotationLayer());
+        if (!layers.contains(this.getAnnotationLayer())) {
+			layers.add(this.getAnnotationLayer());
+		}
 
-        if (!layers.contains(this.getShadowLayer()))
-            layers.add(0, this.getShadowLayer());
+        if (!layers.contains(this.getShadowLayer())) {
+			layers.add(0, this.getShadowLayer());
+		}
         this.getShadowLayer().setEnabled(true);
 
-        if (this.getShape() instanceof TrackAirspace)
-            this.determineTrackAdjacency();
+        if (this.getShape() instanceof TrackAirspace) {
+			this.determineTrackAdjacency();
+		}
 
         this.updateControlPoints();
 
@@ -769,18 +776,20 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected void determineTrackAdjacency()
     {
-        if (this.trackAdjacencyList == null)
-            this.trackAdjacencyList = new ArrayList<>();
-        else
-            this.trackAdjacencyList.clear();
+        if (this.trackAdjacencyList == null) {
+			this.trackAdjacencyList = new ArrayList<>();
+		} else {
+			this.trackAdjacencyList.clear();
+		}
 
         TrackAirspace track = (TrackAirspace) this.getShape();
         List<Box> legs = track.getLegs();
         for (int i = 1; i < legs.size(); i++)
         {
             boolean adjacent = legs.get(i - 1).getLocations()[1].equals(legs.get(i).getLocations()[0]);
-            if (adjacent)
-                this.trackAdjacencyList.add(legs.get(i));
+            if (adjacent) {
+				this.trackAdjacencyList.add(legs.get(i));
+			}
         }
     }
 
@@ -813,33 +822,36 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         }
         else if (event.getEventAction().equals(SelectEvent.ROLLOVER))
         {
-            if (!(this.getWwd() instanceof Component))
-                return;
+            if (!(this.getWwd() instanceof Component)) {
+				return;
+			}
 
             // Update the cursor.
             Cursor cursor = null;
-            if (this.activeOperation == MOVING)
-                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-            else if (this.getActiveOperation() == SIZING)
-                cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-            else if (event.getTopObject() != null && event.getTopObject() == this.getShape())
-                cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-            else if (event.getTopObject() != null && event.getTopObject() instanceof Marker)
-                cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+            if (this.activeOperation == MOVING) {
+				cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+			} else if (this.getActiveOperation() == SIZING) {
+				cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+			} else if (event.getTopObject() != null && event.getTopObject() == this.getShape()) {
+				cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+			} else if (event.getTopObject() != null && event.getTopObject() instanceof Marker) {
+				cursor = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+			}
 
             ((Component) this.getWwd()).setCursor(cursor);
 
             // Update the shape or control point annotation.
-            if (this.getActiveOperation() == MOVING && event.getTopObject() == this.getShape())
-                this.updateShapeAnnotation();
-            else if (this.getActiveOperation() == SIZING)
-                this.updateAnnotation(this.getCurrentSizingMarker());
-            else if (event.getTopObject() != null && event.getTopObject() == this.getShape())
-                this.updateShapeAnnotation();
-            else if (event.getTopObject() != null && event.getTopObject() instanceof ControlPointMarker)
-                this.updateAnnotation((ControlPointMarker) event.getTopObject());
-            else
-                this.updateAnnotation(null);
+            if (this.getActiveOperation() == MOVING && event.getTopObject() == this.getShape()) {
+				this.updateShapeAnnotation();
+			} else if (this.getActiveOperation() == SIZING) {
+				this.updateAnnotation(this.getCurrentSizingMarker());
+			} else if (event.getTopObject() != null && event.getTopObject() == this.getShape()) {
+				this.updateShapeAnnotation();
+			} else if (event.getTopObject() != null && event.getTopObject() instanceof ControlPointMarker) {
+				this.updateAnnotation((ControlPointMarker) event.getTopObject());
+			} else {
+				this.updateAnnotation(null);
+			}
         }
         else if (event.getEventAction().equals(SelectEvent.LEFT_PRESS))
         {
@@ -849,15 +861,17 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             if (objectsUnderCursor != null)
             {
                 PickedObject terrainObject = objectsUnderCursor.getTerrainObject();
-                if (terrainObject != null)
-                    this.previousPosition = terrainObject.getPosition();
+                if (terrainObject != null) {
+					this.previousPosition = terrainObject.getPosition();
+				}
             }
         }
         else if (event.getEventAction().equals(SelectEvent.LEFT_CLICK))
         {
             Object topObject = event.getTopObject();
-            if (topObject == null)
-                return;
+            if (topObject == null) {
+				return;
+			}
 
             // Add and delete control points.
             if (event.getTopPickedObject().getParentLayer() == this.getControlPointLayer())
@@ -877,16 +891,19 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         }
         else if (event.getEventAction().equals(SelectEvent.DRAG))
         {
-            if (!this.isActive())
-                return;
+            if (!this.isActive()) {
+				return;
+			}
 
             DragSelectEvent dragEvent = (DragSelectEvent) event;
             Object topObject = dragEvent.getTopObject();
-            if (topObject == null)
-                return;
+            if (topObject == null) {
+				return;
+			}
 
-            if (this.getActiveOperation() == NONE) // drag is starting
-                this.makeShadowShape();
+            if (this.getActiveOperation() == NONE) { // drag is starting
+				this.makeShadowShape();
+			}
 
             if (topObject == this.getShape() || this.getActiveOperation() == MOVING)
             {
@@ -941,11 +958,13 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     protected void makeShadowShape()
     {
         Renderable shadowShape = this.doMakeShadowShape();
-        if (shadowShape == null)
-            return;
+        if (shadowShape == null) {
+			return;
+		}
 
-        if (this.getShape() instanceof Airspace)
-            ((Airspace) this.getShape()).setAlwaysOnTop(true);
+        if (this.getShape() instanceof Airspace) {
+			((Airspace) this.getShape()).setAlwaysOnTop(true);
+		}
 
         // Reduce the opacity of an opaque current shape so that the shadow shape is visible while editing
         // is performed.
@@ -954,8 +973,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         this.originalHighlightAttributes = ((Attributable) this.getShape()).getHighlightAttributes();
 
         ShapeAttributes editingAttributes = new BasicShapeAttributes(this.originalAttributes);
-        if (editingAttributes.getInteriorOpacity() == 1)
-            editingAttributes.setInteriorOpacity(0.7);
+        if (editingAttributes.getInteriorOpacity() == 1) {
+			editingAttributes.setInteriorOpacity(0.7);
+		}
 
         ((Attributable) this.getShape()).setAttributes(editingAttributes);
         ((Attributable) this.getShape()).setHighlightAttributes(editingAttributes);
@@ -981,8 +1001,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     protected void removeShadowShape()
     {
         this.getShadowLayer().removeAllRenderables();
-        if (this.getShape() instanceof AbstractAirspace)
-            ((AbstractAirspace) this.getShape()).setAlwaysOnTop(false);
+        if (this.getShape() instanceof AbstractAirspace) {
+			((AbstractAirspace) this.getShape()).setAlwaysOnTop(false);
+		}
 
         // Restore the original attributes.
         if (this.getOriginalAttributes() != null)
@@ -1002,36 +1023,37 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected Renderable doMakeShadowShape()
     {
-        if (this.getShape() instanceof Polygon)
-            return new Polygon((Polygon) this.getShape());
-        else if (this.getShape() instanceof PartialCappedCylinder)
-            return new PartialCappedCylinder((PartialCappedCylinder) this.getShape());
-        else if (this.getShape() instanceof CappedCylinder)
-            return new CappedCylinder((CappedCylinder) this.getShape());
-        else if (this.getShape() instanceof CappedEllipticalCylinder)
-            return new CappedEllipticalCylinder((CappedEllipticalCylinder) this.getShape());
-        else if (this.getShape() instanceof Orbit)
-            return new Orbit((Orbit) this.getShape());
-        else if (this.getShape() instanceof Route)
-            return new Route((Route) this.getShape());
-        else if (this.getShape() instanceof Curtain)
-            return new Curtain((Curtain) this.getShape());
-        else if (this.getShape() instanceof SphereAirspace)
-            return new SphereAirspace((SphereAirspace) this.getShape());
-        else if (this.getShape() instanceof TrackAirspace)
-            return new TrackAirspace((TrackAirspace) this.getShape());
-        else if (this.getShape() instanceof SurfaceSquare)
-            return new SurfaceSquare((SurfaceSquare) this.getShape());
-        else if (this.getShape() instanceof SurfaceQuad)
-            return new SurfaceQuad((SurfaceQuad) this.getShape());
-        else if (this.getShape() instanceof SurfaceCircle)
-            return new SurfaceCircle((SurfaceCircle) this.getShape());
-        else if (this.getShape() instanceof SurfaceEllipse)
-            return new SurfaceEllipse((SurfaceEllipse) this.getShape());
-        else if (this.getShape() instanceof SurfacePolyline)
-            return new SurfacePolyline((SurfacePolyline) this.getShape());
-        else if (this.getShape() instanceof SurfacePolygon)
-            return new SurfacePolygon((SurfacePolygon) this.getShape());
+        if (this.getShape() instanceof Polygon) {
+			return new Polygon((Polygon) this.getShape());
+		} else if (this.getShape() instanceof PartialCappedCylinder) {
+			return new PartialCappedCylinder((PartialCappedCylinder) this.getShape());
+		} else if (this.getShape() instanceof CappedCylinder) {
+			return new CappedCylinder((CappedCylinder) this.getShape());
+		} else if (this.getShape() instanceof CappedEllipticalCylinder) {
+			return new CappedEllipticalCylinder((CappedEllipticalCylinder) this.getShape());
+		} else if (this.getShape() instanceof Orbit) {
+			return new Orbit((Orbit) this.getShape());
+		} else if (this.getShape() instanceof Route) {
+			return new Route((Route) this.getShape());
+		} else if (this.getShape() instanceof Curtain) {
+			return new Curtain((Curtain) this.getShape());
+		} else if (this.getShape() instanceof SphereAirspace) {
+			return new SphereAirspace((SphereAirspace) this.getShape());
+		} else if (this.getShape() instanceof TrackAirspace) {
+			return new TrackAirspace((TrackAirspace) this.getShape());
+		} else if (this.getShape() instanceof SurfaceSquare) {
+			return new SurfaceSquare((SurfaceSquare) this.getShape());
+		} else if (this.getShape() instanceof SurfaceQuad) {
+			return new SurfaceQuad((SurfaceQuad) this.getShape());
+		} else if (this.getShape() instanceof SurfaceCircle) {
+			return new SurfaceCircle((SurfaceCircle) this.getShape());
+		} else if (this.getShape() instanceof SurfaceEllipse) {
+			return new SurfaceEllipse((SurfaceEllipse) this.getShape());
+		} else if (this.getShape() instanceof SurfacePolyline) {
+			return new SurfacePolyline((SurfacePolyline) this.getShape());
+		} else if (this.getShape() instanceof SurfacePolygon) {
+			return new SurfacePolygon((SurfacePolygon) this.getShape());
+		}
 
         return null;
     }
@@ -1046,8 +1068,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected void adjustShape()
     {
-        if (this.getShape() instanceof TrackAirspace)
-            this.adjustTrackShape();
+        if (this.getShape() instanceof TrackAirspace) {
+			this.adjustTrackShape();
+		}
     }
 
     /**
@@ -1059,8 +1082,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         TrackAirspace track = (TrackAirspace) this.getShape();
 
         List<Box> legs = track.getLegs();
-        if (legs == null)
-            return;
+        if (legs == null) {
+			return;
+		}
 
         // Start with the second leg and restore coincidence of the first leg position with that of the previous leg.
         for (int i = 1; i < legs.size(); i++)
@@ -1088,8 +1112,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
         // Compute ref-point position in screen coordinates.
         Position refPos = dragObject.getReferencePosition();
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
         Vec4 refPoint = globe.computePointFromPosition(refPos);
         Vec4 screenRefPoint = view.project(refPoint);
@@ -1127,12 +1152,14 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         // If the terrain beneath the control point is null, then the user is attempting to drag the handle off the
         // globe. This is not a valid state, so we ignore this action but keep the drag operation in effect.
         PickedObjectList objectsUnderCursor = this.getWwd().getObjectsAtCurrentPosition();
-        if (objectsUnderCursor == null)
-            return;
+        if (objectsUnderCursor == null) {
+			return;
+		}
 
         PickedObject terrainObject = this.getWwd().getObjectsAtCurrentPosition().getTerrainObject();
-        if (terrainObject == null)
-            return;
+        if (terrainObject == null) {
+			return;
+		}
 
         if (this.getPreviousPosition() == null)
         {
@@ -1160,35 +1187,37 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         if (this.getShape() instanceof Airspace)
         {
-            if (this.getShape() instanceof Polygon || this.getShape() instanceof Curtain)
-                this.reshapePolygonAirspace(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof CappedCylinder)
-                this.reshapeCappedCylinder(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof CappedEllipticalCylinder)
-                this.reshapeCappedEllipticalCylinder(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof Orbit)
-                this.reshapeOrbit(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof Route)
-                this.reshapeRoute(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof SphereAirspace)
-                this.reshapeSphere(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof TrackAirspace)
-                this.reshapeTrack(terrainPosition, controlPoint);
+            if (this.getShape() instanceof Polygon || this.getShape() instanceof Curtain) {
+				this.reshapePolygonAirspace(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof CappedCylinder) {
+				this.reshapeCappedCylinder(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof CappedEllipticalCylinder) {
+				this.reshapeCappedEllipticalCylinder(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof Orbit) {
+				this.reshapeOrbit(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof Route) {
+				this.reshapeRoute(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof SphereAirspace) {
+				this.reshapeSphere(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof TrackAirspace) {
+				this.reshapeTrack(terrainPosition, controlPoint);
+			}
         }
         else if (this.getShape() instanceof SurfaceShape)
         {
-            if (this.getShape() instanceof SurfacePolygon)
-                this.reshapeSurfacePolygon(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof SurfacePolyline)
-                this.reshapeSurfacePolygon(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof SurfaceCircle)
-                this.reshapeSurfaceCircle(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof SurfaceSquare)
-                this.reshapeSurfaceSquare(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof SurfaceQuad)
-                this.reshapeSurfaceQuad(terrainPosition, controlPoint);
-            else if (this.getShape() instanceof SurfaceEllipse)
-                this.reshapeSurfaceEllipse(terrainPosition, controlPoint);
+            if (this.getShape() instanceof SurfacePolygon) {
+				this.reshapeSurfacePolygon(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof SurfacePolyline) {
+				this.reshapeSurfacePolygon(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof SurfaceCircle) {
+				this.reshapeSurfaceCircle(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof SurfaceSquare) {
+				this.reshapeSurfaceSquare(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof SurfaceQuad) {
+				this.reshapeSurfaceQuad(terrainPosition, controlPoint);
+			} else if (this.getShape() instanceof SurfaceEllipse) {
+				this.reshapeSurfaceEllipse(terrainPosition, controlPoint);
+			}
         }
     }
 
@@ -1200,35 +1229,37 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         if (this.getShape() instanceof Airspace)
         {
-            if (this.getShape() instanceof Polygon || this.getShape() instanceof Curtain)
-                this.updatePolygonAirspaceControlPoints();
-            else if (this.getShape() instanceof PartialCappedCylinder)
-                this.updatePartialCappedCylinderControlPoints();
-            else if (this.getShape() instanceof CappedCylinder)
-                this.updateCappedCylinderControlPoints();
-            else if (this.getShape() instanceof CappedEllipticalCylinder)
-                this.updateCappedEllipticalCylinderControlPoints();
-            else if (this.getShape() instanceof Orbit)
-                this.updateOrbitControlPoints();
-            else if (this.getShape() instanceof Route)
-                this.updateRouteControlPoints();
-            else if (this.getShape() instanceof SphereAirspace)
-                this.updateSphereControlPoints();
-            else if (this.getShape() instanceof TrackAirspace)
-                this.updateTrackControlPoints();
+            if (this.getShape() instanceof Polygon || this.getShape() instanceof Curtain) {
+				this.updatePolygonAirspaceControlPoints();
+			} else if (this.getShape() instanceof PartialCappedCylinder) {
+				this.updatePartialCappedCylinderControlPoints();
+			} else if (this.getShape() instanceof CappedCylinder) {
+				this.updateCappedCylinderControlPoints();
+			} else if (this.getShape() instanceof CappedEllipticalCylinder) {
+				this.updateCappedEllipticalCylinderControlPoints();
+			} else if (this.getShape() instanceof Orbit) {
+				this.updateOrbitControlPoints();
+			} else if (this.getShape() instanceof Route) {
+				this.updateRouteControlPoints();
+			} else if (this.getShape() instanceof SphereAirspace) {
+				this.updateSphereControlPoints();
+			} else if (this.getShape() instanceof TrackAirspace) {
+				this.updateTrackControlPoints();
+			}
         }
         else if (this.getShape() instanceof SurfaceShape)
         {
-            if (this.getShape() instanceof SurfacePolygon || this.getShape() instanceof SurfacePolyline)
-                this.updateSurfacePolygonControlPoints();
-            else if (this.getShape() instanceof SurfaceCircle)
-                this.updateSurfaceCircleControlPoints();
-            else if (this.getShape() instanceof SurfaceSquare)
-                this.updateSurfaceSquareControlPoints();
-            else if (this.getShape() instanceof SurfaceQuad)
-                this.updateSurfaceQuadControlPoints();
-            else if (this.getShape() instanceof SurfaceEllipse)
-                this.updateSurfaceEllipseControlPoints();
+            if (this.getShape() instanceof SurfacePolygon || this.getShape() instanceof SurfacePolyline) {
+				this.updateSurfacePolygonControlPoints();
+			} else if (this.getShape() instanceof SurfaceCircle) {
+				this.updateSurfaceCircleControlPoints();
+			} else if (this.getShape() instanceof SurfaceSquare) {
+				this.updateSurfaceSquareControlPoints();
+			} else if (this.getShape() instanceof SurfaceQuad) {
+				this.updateSurfaceQuadControlPoints();
+			} else if (this.getShape() instanceof SurfaceEllipse) {
+				this.updateSurfaceEllipseControlPoints();
+			}
         }
     }
 
@@ -1261,16 +1292,17 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         LatLon center = null;
 
-        if (this.getShape() instanceof CappedCylinder)
-            center = ((CappedCylinder) this.getShape()).getCenter();
-        else if (this.getShape() instanceof CappedEllipticalCylinder)
-            center = ((CappedEllipticalCylinder) this.getShape()).getCenter();
-        else if (this.getShape() instanceof SphereAirspace)
-            center = ((SphereAirspace) this.getShape()).getLocation();
-        else if (this.getShape() instanceof SurfaceEllipse)
-            center = ((SurfaceEllipse) this.getShape()).getCenter();
-        else if (this.getShape() instanceof SurfaceQuad)
-            center = ((SurfaceQuad) this.getShape()).getCenter();
+        if (this.getShape() instanceof CappedCylinder) {
+			center = ((CappedCylinder) this.getShape()).getCenter();
+		} else if (this.getShape() instanceof CappedEllipticalCylinder) {
+			center = ((CappedEllipticalCylinder) this.getShape()).getCenter();
+		} else if (this.getShape() instanceof SphereAirspace) {
+			center = ((SphereAirspace) this.getShape()).getLocation();
+		} else if (this.getShape() instanceof SurfaceEllipse) {
+			center = ((SurfaceEllipse) this.getShape()).getCenter();
+		} else if (this.getShape() instanceof SurfaceQuad) {
+			center = ((SurfaceQuad) this.getShape()).getCenter();
+		}
 
         return center;
     }
@@ -1292,12 +1324,13 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         this.getAnnotation().setPosition(controlPoint.getPosition());
 
         String annotationText;
-        if (controlPoint.size != null)
-            annotationText = this.unitsFormat.length(null, controlPoint.size);
-        else if (controlPoint.rotation != null)
-            annotationText = this.unitsFormat.angle(null, controlPoint.rotation);
-        else
-            annotationText = this.unitsFormat.latLon2(controlPoint.getPosition());
+        if (controlPoint.size != null) {
+			annotationText = this.unitsFormat.length(null, controlPoint.size);
+		} else if (controlPoint.rotation != null) {
+			annotationText = this.unitsFormat.angle(null, controlPoint.rotation);
+		} else {
+			annotationText = this.unitsFormat.latLon2(controlPoint.getPosition());
+		}
 
         this.getAnnotation().setText(annotationText);
     }
@@ -1372,8 +1405,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             if (airspace.getAltitudeDatum()[1].equals(AVKey.ABOVE_GROUND_LEVEL))
             {
                 LatLon refPos = airspace.getGroundReference();
-                if (refPos == null)
-                    refPos = location;
+                if (refPos == null) {
+					refPos = location;
+				}
                 altitude += getWwd().getModel().getGlobe().getElevation(refPos.getLatitude(), refPos.getLongitude());
             }
         }
@@ -1383,11 +1417,12 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             {
                 if (new LatLon(position).equals(location))
                 {
-                    if (((Path) shape).getAltitudeMode() == WorldWind.ABSOLUTE)
-                        altitude = position.getAltitude();
-                    else if (((Path) shape).getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND)
-                        altitude = position.getAltitude() + this.getWwd().getModel().getGlobe().getElevation(
+                    if (((Path) shape).getAltitudeMode() == WorldWind.ABSOLUTE) {
+						altitude = position.getAltitude();
+					} else if (((Path) shape).getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND) {
+						altitude = position.getAltitude() + this.getWwd().getModel().getGlobe().getElevation(
                             location.getLatitude(), location.getLongitude());
+					}
                 }
             }
         }
@@ -1397,12 +1432,13 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             {
                 if (new LatLon(position).equals(location))
                 {
-                    if (((gov.nasa.worldwind.render.Polygon) shape).getAltitudeMode() == WorldWind.ABSOLUTE)
-                        altitude = position.getAltitude();
-                    else if (((gov.nasa.worldwind.render.Polygon) shape).getAltitudeMode()
-                        == WorldWind.RELATIVE_TO_GROUND)
-                        altitude = position.getAltitude() + this.getWwd().getModel().getGlobe().getElevation(
+                    if (((gov.nasa.worldwind.render.Polygon) shape).getAltitudeMode() == WorldWind.ABSOLUTE) {
+						altitude = position.getAltitude();
+					} else if (((gov.nasa.worldwind.render.Polygon) shape).getAltitudeMode()
+                        == WorldWind.RELATIVE_TO_GROUND) {
+						altitude = position.getAltitude() + this.getWwd().getModel().getGlobe().getElevation(
                             location.getLatitude(), location.getLongitude());
+					}
                 }
             }
         }
@@ -1425,8 +1461,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         }
         else if (this.getShape() instanceof Airspace)
         {
-            if (((Airspace) this.getShape()).getAltitudeDatum()[1].equals(AVKey.ABOVE_GROUND_LEVEL))
-                altitudeMode = WorldWind.RELATIVE_TO_GROUND;
+            if (((Airspace) this.getShape()).getAltitudeDatum()[1].equals(AVKey.ABOVE_GROUND_LEVEL)) {
+				altitudeMode = WorldWind.RELATIVE_TO_GROUND;
+			}
         }
         else if (this.getShape() instanceof SurfaceShape)
         {
@@ -1500,8 +1537,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
         double newHeading = originalHeading.getRadians() + deltaHeading.getRadians();
 
-        if (Math.abs(newHeading) > twoPI)
-            newHeading = newHeading % twoPI;
+        if (Math.abs(newHeading) > twoPI) {
+			newHeading = newHeading % twoPI;
+		}
 
         return Angle.fromRadians(newHeading >= 0 ? newHeading : newHeading + twoPI);
     }
@@ -1612,8 +1650,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             // Skip the closing segment if the shape is not a polygon.
             if (!(this.getShape() instanceof Polygon || this.getShape() instanceof SurfacePolygon)
-                && i == locations.size())
-                continue;
+                && i == locations.size()) {
+				continue;
+			}
 
             LatLon locationA = locations.get(i - 1);
             LatLon locationB = locations.get(i == locations.size() ? 0 : i);
@@ -1637,10 +1676,11 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             // Compute the location of the nearest point and add it to the shape.
             LatLon nearestLocation = globe.computePositionFromEllipsoidalPoint(nearestPoint);
-            if (nearestSegmentIndex == locations.size())
-                locations.add(nearestLocation);
-            else
-                locations.add(nearestSegmentIndex, nearestLocation);
+            if (nearestSegmentIndex == locations.size()) {
+				locations.add(nearestLocation);
+			} else {
+				locations.add(nearestSegmentIndex, nearestLocation);
+			}
             this.getControlPointLayer().setMarkers(null);
 
             return nearestSegmentIndex;
@@ -1736,13 +1776,15 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         Iterable<? extends LatLon> currentLocations = null;
 
-        if (this.getShape() instanceof Polygon)
-            currentLocations = ((Polygon) this.getShape()).getLocations();
-        else if (this.getShape() instanceof Curtain)
-            currentLocations = ((Curtain) this.getShape()).getLocations();
+        if (this.getShape() instanceof Polygon) {
+			currentLocations = ((Polygon) this.getShape()).getLocations();
+		} else if (this.getShape() instanceof Curtain) {
+			currentLocations = ((Curtain) this.getShape()).getLocations();
+		}
 
-        if (currentLocations == null)
-            return;
+        if (currentLocations == null) {
+			return;
+		}
 
         // Assemble a local copy of the polygon's locations.
         java.util.List<LatLon> locations = new ArrayList<>();
@@ -1791,10 +1833,11 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         }
 
         // Update the shape's locations.
-        if (this.getShape() instanceof Polygon)
-            ((Polygon) this.getShape()).setLocations(locations);
-        else if (this.getShape() instanceof Curtain)
-            ((Curtain) this.getShape()).setLocations(locations);
+        if (this.getShape() instanceof Polygon) {
+			((Polygon) this.getShape()).setLocations(locations);
+		} else if (this.getShape() instanceof Curtain) {
+			((Curtain) this.getShape()).setLocations(locations);
+		}
     }
 
     /**
@@ -1804,13 +1847,15 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         Iterable<? extends LatLon> currentLocations = null;
 
-        if (this.getShape() instanceof Polygon)
-            currentLocations = ((Polygon) this.getShape()).getLocations();
-        else if (this.getShape() instanceof Curtain)
-            currentLocations = ((Curtain) this.getShape()).getLocations();
+        if (this.getShape() instanceof Polygon) {
+			currentLocations = ((Polygon) this.getShape()).getLocations();
+		} else if (this.getShape() instanceof Curtain) {
+			currentLocations = ((Curtain) this.getShape()).getLocations();
+		}
 
-        if (currentLocations == null)
-            return;
+        if (currentLocations == null) {
+			return;
+		}
 
         java.util.List<LatLon> locations = new ArrayList<>();
         for (LatLon location : currentLocations)
@@ -1818,8 +1863,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             locations.add(location);
         }
 
-        if (locations.size() < 2)
-            return;
+        if (locations.size() < 2) {
+			return;
+		}
 
         Globe globe = this.getWwd().getModel().getGlobe();
 
@@ -1888,8 +1934,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected void reshapeCappedCylinder(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         CappedCylinder cylinder = (CappedCylinder) this.getShape();
         double[] radii = cylinder.getRadii();
@@ -1900,13 +1947,15 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         Vec4 vMarker = markerPoint.subtract3(centerPoint).normalize3();
 
         Vec4 delta = this.computeControlPointDelta(this.getPreviousPosition(), terrainPosition);
-        if (controlPoint.getPurpose().equals(OUTER_RADIUS))
-            radii[1] += delta.dot3(vMarker);
-        else if (controlPoint.getPurpose().equals(INNER_RADIUS))
-            radii[0] += delta.dot3(vMarker);
+        if (controlPoint.getPurpose().equals(OUTER_RADIUS)) {
+			radii[1] += delta.dot3(vMarker);
+		} else if (controlPoint.getPurpose().equals(INNER_RADIUS)) {
+			radii[0] += delta.dot3(vMarker);
+		}
 
-        if (radii[0] >= 0 && radii[1] > 0 && radii[0] < radii[1])
-            cylinder.setRadii(radii[0], radii[1]);
+        if (radii[0] >= 0 && radii[1] > 0 && radii[0] < radii[1]) {
+			cylinder.setRadii(radii[0], radii[1]);
+		}
 
         if (this.getShape() instanceof PartialCappedCylinder)
         {
@@ -1914,11 +1963,11 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             Angle deltaHeading = LatLon.greatCircleAzimuth(cylinder.getCenter(), terrainPosition).subtract(oldHeading);
 
             Angle[] azimuths = ((PartialCappedCylinder) cylinder).getAzimuths();
-            if (controlPoint.getPurpose().equals(LEFT_AZIMUTH))
-                azimuths[0] = this.normalizedHeading(azimuths[0], deltaHeading);
-            else if (controlPoint.getPurpose().equals(RIGHT_AZIMUTH))
-                azimuths[1] = this.normalizedHeading(azimuths[1], deltaHeading);
-            else if (controlPoint.getPurpose().equals(ROTATION))
+            if (controlPoint.getPurpose().equals(LEFT_AZIMUTH)) {
+				azimuths[0] = this.normalizedHeading(azimuths[0], deltaHeading);
+			} else if (controlPoint.getPurpose().equals(RIGHT_AZIMUTH)) {
+				azimuths[1] = this.normalizedHeading(azimuths[1], deltaHeading);
+			} else if (controlPoint.getPurpose().equals(ROTATION))
             {
                 this.currentHeading = this.normalizedHeading(this.getCurrentHeading(), deltaHeading);
                 azimuths[0] = this.normalizedHeading(azimuths[0], deltaHeading);
@@ -1965,14 +2014,16 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             var markerIterator = markers.iterator();
             markerIterator.next().setPosition(new Position(outerRadiusLocation, outerRadiusAltitude));
-            if (hasInnerRadius)
-                markerIterator.next().setPosition(new Position(innerRadiusLocation, innerRadiusAltitude));
+            if (hasInnerRadius) {
+				markerIterator.next().setPosition(new Position(innerRadiusLocation, innerRadiusAltitude));
+			}
         }
 
         var markerIterator = this.getControlPointLayer().getMarkers().iterator();
         ((ControlPointMarker) markerIterator.next()).size = radii[1];
-        if (hasInnerRadius)
-            ((ControlPointMarker) markerIterator.next()).size = radii[0];
+        if (hasInnerRadius) {
+			((ControlPointMarker) markerIterator.next()).size = radii[0];
+		}
     }
 
     /**
@@ -2037,8 +2088,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             var markerIterator = markers.iterator();
             markerIterator.next().setPosition(new Position(outerRadiusLocation, outerRadiusAltitude));
-            if (hasInnerRadius)
-                markerIterator.next().setPosition(new Position(innerRadiusLocation, rightAzimuthAltitude));
+            if (hasInnerRadius) {
+				markerIterator.next().setPosition(new Position(innerRadiusLocation, rightAzimuthAltitude));
+			}
             markerIterator.next().setPosition(new Position(leftAzimuthLocation, leftAzimuthAltitude));
             markerIterator.next().setPosition(new Position(rightAzimuthLocation, rightAzimuthAltitude));
 
@@ -2047,8 +2099,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
         var markerIterator = this.getControlPointLayer().getMarkers().iterator();
         ((ControlPointMarker) markerIterator.next()).size = radii[1];
-        if (hasInnerRadius)
-            ((ControlPointMarker) markerIterator.next()).size = radii[0];
+        if (hasInnerRadius) {
+			((ControlPointMarker) markerIterator.next()).size = radii[0];
+		}
 
         ((ControlPointMarker) markerIterator.next()).rotation = azimuths[0];
         ((ControlPointMarker) markerIterator.next()).rotation = azimuths[1];
@@ -2069,8 +2122,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected void reshapeCappedEllipticalCylinder(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         CappedEllipticalCylinder cylinder = (CappedEllipticalCylinder) this.getShape();
         double[] radii = cylinder.getRadii();
@@ -2081,23 +2135,24 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         Vec4 vMarker = markerPoint.subtract3(centerPoint).normalize3();
 
         Vec4 delta = this.computeControlPointDelta(this.getPreviousPosition(), terrainPosition);
-        if (controlPoint.getPurpose().equals(INNER_MINOR_RADIUS))
-            radii[0] += delta.dot3(vMarker);
-        else if (controlPoint.getPurpose().equals(INNER_MAJOR_RADIUS))
-            radii[1] += delta.dot3(vMarker);
-        else if (controlPoint.getPurpose().equals(OUTER_MINOR_RADIUS))
-            radii[2] += delta.dot3(vMarker);
-        else if (controlPoint.getPurpose().equals(OUTER_MAJOR_RADIUS))
-            radii[3] += delta.dot3(vMarker);
-        else if (controlPoint.getPurpose().equals(ROTATION)) {
+        if (controlPoint.getPurpose().equals(INNER_MINOR_RADIUS)) {
+			radii[0] += delta.dot3(vMarker);
+		} else if (controlPoint.getPurpose().equals(INNER_MAJOR_RADIUS)) {
+			radii[1] += delta.dot3(vMarker);
+		} else if (controlPoint.getPurpose().equals(OUTER_MINOR_RADIUS)) {
+			radii[2] += delta.dot3(vMarker);
+		} else if (controlPoint.getPurpose().equals(OUTER_MAJOR_RADIUS)) {
+			radii[3] += delta.dot3(vMarker);
+		} else if (controlPoint.getPurpose().equals(ROTATION)) {
             Angle oldHeading = LatLon.greatCircleAzimuth(cylinder.getCenter(), this.getPreviousPosition());
             Angle deltaHeading = LatLon.greatCircleAzimuth(cylinder.getCenter(), terrainPosition).subtract(oldHeading);
             cylinder.setHeading(this.normalizedHeading(cylinder.getHeading(), deltaHeading));
             this.currentHeading = this.normalizedHeading(this.getCurrentHeading(), deltaHeading);
         }
 
-        if (isRadiiValid(radii[0], radii[2]) && isRadiiValid(radii[1], radii[3]))
-            cylinder.setRadii(radii[0], radii[1], radii[2], radii[3]);
+        if (isRadiiValid(radii[0], radii[2]) && isRadiiValid(radii[1], radii[3])) {
+			cylinder.setRadii(radii[0], radii[1], radii[2], radii[3]);
+		}
     }
 
     protected static boolean isRadiiValid(double innerRadius, double outerRadius)
@@ -2200,8 +2255,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected void reshapeSphere(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         SphereAirspace sphere = (SphereAirspace) this.getShape();
         double radius = sphere.getRadius();
@@ -2213,11 +2269,13 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         Vec4 vMarker = markerPoint.subtract3(centerPoint).normalize3();
 
         Vec4 delta = this.computeControlPointDelta(this.getPreviousPosition(), terrainPosition);
-        if (controlPoint.getPurpose().equals(OUTER_RADIUS))
-            radius += delta.dot3(vMarker);
+        if (controlPoint.getPurpose().equals(OUTER_RADIUS)) {
+			radius += delta.dot3(vMarker);
+		}
 
-        if (radius > 0)
-            sphere.setRadius(radius);
+        if (radius > 0) {
+			sphere.setRadius(radius);
+		}
     }
 
     /**
@@ -2260,8 +2318,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
      */
     protected void reshapeOrbit(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         Orbit orbit = (Orbit) this.getShape();
         LatLon[] locations = orbit.getLocations();
@@ -2278,8 +2337,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             Vec4 delta = this.computeControlPointDelta(this.getPreviousPosition(), terrainPosition);
             Vec4 vMarker = markerPoint.subtract3(centerPoint).normalize3();
             double newWidth = width + delta.dot3(vMarker);
-            if (newWidth > 0)
-                orbit.setWidth(width + delta.dot3(vMarker));
+            if (newWidth > 0) {
+				orbit.setWidth(width + delta.dot3(vMarker));
+			}
         }
         else if (controlPoint.getPurpose().equals(ROTATION))
         {
@@ -2397,8 +2457,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             Vec4 vMarker = markerPoint.subtract3(centerPoint).normalize3();
             Vec4 delta = this.computeControlPointDelta(this.getPreviousPosition(), terrainPosition);
             double newWidth = route.getWidth() + delta.dot3(vMarker);
-            if (newWidth >= 0)
-                route.setWidth(newWidth);
+            if (newWidth >= 0) {
+				route.setWidth(newWidth);
+			}
         }
         else if (controlPoint != null) // location change or add/delete control point
         {
@@ -2442,8 +2503,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
     {
         Route route = (Route) this.getShape();
 
-        if (route.getLocations() == null)
-            return;
+        if (route.getLocations() == null) {
+			return;
+		}
 
         java.util.List<LatLon> locations = new ArrayList<>();
         for (LatLon location : route.getLocations())
@@ -2451,8 +2513,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             locations.add(location);
         }
 
-        if (locations.size() < 2)
-            return;
+        if (locations.size() < 2) {
+			return;
+		}
 
         Globe globe = this.getWwd().getModel().getGlobe();
         double width = route.getWidth();
@@ -2578,10 +2641,11 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             double[] widths = leg.getWidths();
             double[] newWidths = new double[] {widths[0], widths[1]};
             Vec4 delta = this.computeControlPointDelta(this.getPreviousPosition(), terrainPosition);
-            if (controlPoint.getPurpose().equals(LEFT_WIDTH))
-                newWidths[0] += delta.dot3(vMarker);
-            else
-                newWidths[1] += delta.dot3(vMarker);
+            if (controlPoint.getPurpose().equals(LEFT_WIDTH)) {
+				newWidths[0] += delta.dot3(vMarker);
+			} else {
+				newWidths[1] += delta.dot3(vMarker);
+			}
 
             if (newWidths[0] >= 0 && newWidths[1] >= 0)
             {
@@ -2600,8 +2664,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             {
                 // Remove a control point.
 
-                if (legs.size() < 2) // Can't remove a control point from a single-leg track.
-                    return;
+                if (legs.size() < 2) { // Can't remove a control point from a single-leg track.
+					return;
+				}
 
                 if (controlPoint.getLeg() == 0 && controlPoint.getId() == 0)
                 {
@@ -2679,10 +2744,11 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
                     markerPoint.add3(delta));
 
                 Box leg = track.getLegs().get(controlPoint.getLeg());
-                if (controlPoint.getId() == 0)
-                    leg.setLocations(markerPosition, leg.getLocations()[1]);
-                else
-                    leg.setLocations(leg.getLocations()[0], markerPosition);
+                if (controlPoint.getId() == 0) {
+					leg.setLocations(markerPosition, leg.getLocations()[1]);
+				} else {
+					leg.setLocations(leg.getLocations()[0], markerPosition);
+				}
 
                 track.setLegs(new ArrayList<>(track.getLegs()));
             }
@@ -2734,8 +2800,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         TrackAirspace track = (TrackAirspace) this.getShape();
 
         List<Box> legs = track.getLegs();
-        if (legs == null)
-            return;
+        if (legs == null) {
+			return;
+		}
 
         // Update the location control points.
         ArrayList<Marker> controlPoints = new ArrayList<>();
@@ -2833,8 +2900,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             markerIterator.next().setPosition(new Position(rotationLocation, rotationAltitude));
         }
 
-        if (markers == null)
-            this.getControlPointLayer().setMarkers(controlPoints);
+        if (markers == null) {
+			this.getControlPointLayer().setMarkers(controlPoints);
+		}
 
         this.updateOrientationLine(new Position(trackCenter, trackCenterAltitude),
             new Position(rotationLocation, rotationAltitude));
@@ -2844,12 +2912,13 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             ControlPointMarker cp = (ControlPointMarker) marker;
 
-            if (cp.getId() == 2)
-                cp.size = legs.get(cp.getLeg()).getWidths()[0];
-            else if (cp.getId() == 3)
-                cp.size = legs.get(cp.getLeg()).getWidths()[1];
-            else if (cp.getId() == 4)
-                cp.rotation = heading;
+            if (cp.getId() == 2) {
+				cp.size = legs.get(cp.getLeg()).getWidths()[0];
+			} else if (cp.getId() == 3) {
+				cp.size = legs.get(cp.getLeg()).getWidths()[1];
+			} else if (cp.getId() == 4) {
+				cp.rotation = heading;
+			}
         }
     }
 
@@ -2900,23 +2969,26 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             this.addNearestLocation(terrainPosition, 0, locations);
         }
 
-        if (this.getShape() instanceof SurfacePolygon)
-            ((SurfacePolygon) this.getShape()).setLocations(locations);
-        else
-            ((SurfacePolyline) this.getShape()).setLocations(locations);
+        if (this.getShape() instanceof SurfacePolygon) {
+			((SurfacePolygon) this.getShape()).setLocations(locations);
+		} else {
+			((SurfacePolyline) this.getShape()).setLocations(locations);
+		}
     }
 
     protected void updateSurfacePolygonControlPoints()
     {
         Iterable<? extends LatLon> locationsIterable = null;
 
-        if (this.getShape() instanceof SurfacePolygon)
-            locationsIterable = ((SurfacePolygon) this.getShape()).getLocations();
-        else if (this.getShape() instanceof SurfacePolyline)
-            locationsIterable = ((SurfacePolyline) this.getShape()).getLocations();
+        if (this.getShape() instanceof SurfacePolygon) {
+			locationsIterable = ((SurfacePolygon) this.getShape()).getLocations();
+		} else if (this.getShape() instanceof SurfacePolyline) {
+			locationsIterable = ((SurfacePolyline) this.getShape()).getLocations();
+		}
 
-        if (locationsIterable == null)
-            return;
+        if (locationsIterable == null) {
+			return;
+		}
 
         java.util.List<LatLon> locations = new ArrayList<>();
         for (LatLon location : locationsIterable)
@@ -2924,8 +2996,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
             locations.add(location);
         }
 
-        if (locations.size() < 2)
-            return;
+        if (locations.size() < 2) {
+			return;
+		}
 
         Globe globe = this.getWwd().getModel().getGlobe();
 
@@ -2980,8 +3053,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
     protected void reshapeSurfaceCircle(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         SurfaceCircle circle = (SurfaceCircle) this.getShape();
 
@@ -2993,8 +3067,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         Vec4 vMarker = markerPoint.subtract3(centerPoint).normalize3();
 
         double radius = circle.getRadius() + delta.dot3(vMarker);
-        if (radius > 0)
-            circle.setRadius(radius);
+        if (radius > 0) {
+			circle.setRadius(radius);
+		}
     }
 
     protected void updateSurfaceCircleControlPoints()
@@ -3023,8 +3098,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
     protected void reshapeSurfaceSquare(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         SurfaceSquare square = (SurfaceSquare) this.getShape();
 
@@ -3041,8 +3117,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         if (controlPoint.getPurpose().equals(RIGHT_WIDTH))
         {
             double size = square.getSize() + delta.dot3(vMarker.normalize3());
-            if (size > 0)
-                square.setSize(size);
+            if (size > 0) {
+				square.setSize(size);
+			}
         }
         else // rotation
         {
@@ -3092,8 +3169,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
     protected void reshapeSurfaceQuad(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         SurfaceQuad quad = (SurfaceQuad) this.getShape();
 
@@ -3111,8 +3189,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             double width = quad.getWidth() + (controlPoint.getId() == 0 ? delta.dot3(vMarker) : 0);
             double height = quad.getHeight() + (controlPoint.getId() == 1 ? delta.dot3(vMarker) : 0);
-            if (width > 0 && height > 0)
-                quad.setSize(width, height);
+            if (width > 0 && height > 0) {
+				quad.setSize(width, height);
+			}
         }
         else
         {
@@ -3170,8 +3249,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
 
     protected void reshapeSurfaceEllipse(Position terrainPosition, ControlPointMarker controlPoint)
     {
-        if (controlPoint == null)
-            return; // Cannot add locations to this shape.
+        if (controlPoint == null) {
+			return; // Cannot add locations to this shape.
+		}
 
         SurfaceEllipse ellipse = (SurfaceEllipse) this.getShape();
 
@@ -3189,8 +3269,9 @@ public class ShapeEditor implements SelectListener, PropertyChangeListener
         {
             double majorRadius = ellipse.getMajorRadius() + (controlPoint.getId() == 0 ? delta.dot3(vMarker) : 0);
             double minorRadius = ellipse.getMinorRadius() + (controlPoint.getId() == 1 ? delta.dot3(vMarker) : 0);
-            if (majorRadius > 0 && minorRadius > 0)
-                ellipse.setRadii(majorRadius, minorRadius);
+            if (majorRadius > 0 && minorRadius > 0) {
+				ellipse.setRadii(majorRadius, minorRadius);
+			}
         }
         else
         {

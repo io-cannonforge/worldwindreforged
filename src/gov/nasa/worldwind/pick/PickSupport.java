@@ -116,16 +116,19 @@ public class PickSupport
 
     public PickedObject getTopObject(DrawContext dc, Point pickPoint)
     {
-        if (!this.hasPickableObjects()) // avoid reading the current GL color when no pickable objects are registered
-            return null;
+        if (!this.hasPickableObjects()) { // avoid reading the current GL color when no pickable objects are registered
+			return null;
+		}
 
         int colorCode = this.getTopColor(dc, pickPoint);
-        if (colorCode == 0) // getTopColor returns 0 if the pick point selects the clear color.
-            return null;
+        if (colorCode == 0) { // getTopColor returns 0 if the pick point selects the clear color.
+			return null;
+		}
 
         PickedObject pickedObject = this.lookupPickableObject(colorCode);
-        if (pickedObject == null)
-            return null;
+        if (pickedObject == null) {
+			return null;
+		}
 
         return pickedObject;
     }
@@ -149,22 +152,25 @@ public class PickSupport
      */
     public PickedObject resolvePick(DrawContext dc, Point pickPoint, Layer layer)
     {
-        if (!this.hasPickableObjects()) // avoid reading the current GL color when no pickable objects are registered
-            return null;
+        if (!this.hasPickableObjects()) { // avoid reading the current GL color when no pickable objects are registered
+			return null;
+		}
 
         PickedObject po = null;
 
         // Resolve the object at the pick point, if any, adding it to the draw context's list of objects at the pick
         // point. If any object is at the pick point we return it. Note that the pick point can be null when the pick
         // rectangle is specified but the pick point is not.
-        if (pickPoint != null)
-            po = this.doResolvePick(dc, pickPoint, layer);
+        if (pickPoint != null) {
+			po = this.doResolvePick(dc, pickPoint, layer);
+		}
 
         // Resolve the objects in the pick rectangle, if any, adding them to the draw context's list of objects
         // intersecting the pick rectangle. Note that the pick rectangle can be null when the pick point is specified
         // but the pick rectangle is not.
-        if (dc.getPickRectangle() != null && !dc.getPickRectangle().isEmpty())
-            this.doResolvePick(dc, dc.getPickRectangle(), layer);
+        if (dc.getPickRectangle() != null && !dc.getPickRectangle().isEmpty()) {
+			this.doResolvePick(dc, dc.getPickRectangle(), layer);
+		}
 
         this.clearPickList();
 
@@ -187,8 +193,9 @@ public class PickSupport
         PickedObject pickedObject = this.getTopObject(dc, pickPoint);
         if (pickedObject != null)
         {
-            if (layer != null)
-                pickedObject.setParentLayer(layer);
+            if (layer != null) {
+				pickedObject.setParentLayer(layer);
+			}
 
             dc.addPickedObject(pickedObject);
         }
@@ -210,22 +217,26 @@ public class PickSupport
         // the number of colors that the draw context must consider with identifying the unique pick colors in the
         // specified rectangle.
         int[] colorCodes = dc.getPickColorsInRectangle(pickRect, this.minAndMaxColorCodes);
-        if (colorCodes == null || colorCodes.length == 0)
-            return;
+        if (colorCodes == null || colorCodes.length == 0) {
+			return;
+		}
 
         // Lookup the pickable object (if any) for each unique color code appearing in the pick rectangle. Each picked
         // object that corresponds to a picked color is added to the draw context.
         for (int colorCode : colorCodes)
         {
-            if (colorCode == 0) // This should never happen, but we check anyway.
-                continue;
+            if (colorCode == 0) { // This should never happen, but we check anyway.
+				continue;
+			}
 
             PickedObject po = this.lookupPickableObject(colorCode);
-            if (po == null)
-                continue;
+            if (po == null) {
+				continue;
+			}
 
-            if (layer != null)
-                po.setParentLayer(layer);
+            if (layer != null) {
+				po.setParentLayer(layer);
+			}
 
             dc.addObjectInPickRectangle(po);
         }
@@ -264,8 +275,9 @@ public class PickSupport
         gl.glDisable(GL.GL_BLEND);
         gl.glDisable(GL.GL_TEXTURE_2D);
 
-        if (dc.isDeepPickingEnabled())
-            gl.glDisable(GL.GL_DEPTH_TEST);
+        if (dc.isDeepPickingEnabled()) {
+			gl.glDisable(GL.GL_DEPTH_TEST);
+		}
     }
 
     public void endPicking(DrawContext dc)
@@ -297,8 +309,9 @@ public class PickSupport
     {
         // Try looking up the color code in the pickable object map.
         PickedObject po = this.getPickableObjects().get(colorCode);
-        if (po != null)
-            return po;
+        if (po != null) {
+			return po;
+		}
 
         // Try matching the color code to one of the pickable object ranges.
         for (var entry : this.getPickableObjectRanges().entrySet())
@@ -306,8 +319,9 @@ public class PickSupport
             Range range = entry.getKey();
             PickedObjectFactory factory = entry.getValue();
 
-            if (range.contains(colorCode) && factory != null)
-                return factory.createPickedObject(colorCode);
+            if (range.contains(colorCode) && factory != null) {
+				return factory.createPickedObject(colorCode);
+			}
         }
 
         return null;
@@ -322,14 +336,16 @@ public class PickSupport
      */
     protected void adjustExtremeColorCodes(int colorCode)
     {
-        if (this.minAndMaxColorCodes == null)
-            this.minAndMaxColorCodes = new int[] {colorCode, colorCode};
-        else
+        if (this.minAndMaxColorCodes == null) {
+			this.minAndMaxColorCodes = new int[] {colorCode, colorCode};
+		} else
         {
-            if (this.minAndMaxColorCodes[0] > colorCode)
-                this.minAndMaxColorCodes[0] = colorCode;
-            if (this.minAndMaxColorCodes[1] < colorCode)
-                this.minAndMaxColorCodes[1] = colorCode;
+            if (this.minAndMaxColorCodes[0] > colorCode) {
+				this.minAndMaxColorCodes[0] = colorCode;
+			}
+            if (this.minAndMaxColorCodes[1] < colorCode) {
+				this.minAndMaxColorCodes[1] = colorCode;
+			}
         }
     }
 

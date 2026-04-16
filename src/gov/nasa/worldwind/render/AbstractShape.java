@@ -448,8 +448,9 @@ public abstract class AbstractShape extends WWObjectImpl
     {
         this.normalAttrs = normalAttrs;
 
-        if (this.surfaceShape != null)
-            this.surfaceShape.setAttributes(normalAttrs);
+        if (this.surfaceShape != null) {
+			this.surfaceShape.setAttributes(normalAttrs);
+		}
     }
 
     /**
@@ -473,8 +474,9 @@ public abstract class AbstractShape extends WWObjectImpl
     {
         this.highlightAttrs = highlightAttrs;
 
-        if (this.surfaceShape != null)
-            this.surfaceShape.setHighlightAttributes(highlightAttrs);
+        if (this.surfaceShape != null) {
+			this.surfaceShape.setHighlightAttributes(highlightAttrs);
+		}
     }
 
     @Override
@@ -537,8 +539,9 @@ public abstract class AbstractShape extends WWObjectImpl
      */
     public void setAltitudeMode(int altitudeMode)
     {
-        if (this.altitudeMode == altitudeMode)
-            return;
+        if (this.altitudeMode == altitudeMode) {
+			return;
+		}
 
         this.altitudeMode = altitudeMode;
         this.reset();
@@ -688,8 +691,9 @@ public abstract class AbstractShape extends WWObjectImpl
 
         for (ShapeDataCache.ShapeDataCacheEntry shapeData : this.shapeDataCache)
         {
-            if (shapeData != null)
-                shapeData.getTimer().setExpiryTime(this.minExpiryTime, this.maxExpiryTime);
+            if (shapeData != null) {
+				shapeData.getTimer().setExpiryTime(this.minExpiryTime, this.maxExpiryTime);
+			}
         }
     }
 
@@ -741,8 +745,9 @@ public abstract class AbstractShape extends WWObjectImpl
     @Override
 	public Extent getExtent(Globe globe, double verticalExaggeration)
     {
-        if (globe == null)
-            return null;
+        if (globe == null) {
+			return null;
+		}
 
         ShapeDataCache.ShapeDataCacheEntry entry = this.shapeDataCache.getEntry(globe);
 
@@ -759,16 +764,17 @@ public abstract class AbstractShape extends WWObjectImpl
     {
         if (this.isHighlighted())
         {
-            if (this.getHighlightAttributes() != null)
-                this.activeAttributes.copy(this.getHighlightAttributes());
-            else
+            if (this.getHighlightAttributes() != null) {
+				this.activeAttributes.copy(this.getHighlightAttributes());
+			} else
             {
                 // If no highlight attributes have been specified we need to use the normal attributes but adjust them
                 // to cause highlighting.
-                if (this.getAttributes() != null)
-                    this.activeAttributes.copy(this.getAttributes());
-                else
-                    this.activeAttributes.copy(defaultAttributes);
+                if (this.getAttributes() != null) {
+					this.activeAttributes.copy(this.getAttributes());
+				} else {
+					this.activeAttributes.copy(defaultAttributes);
+				}
 
                 this.activeAttributes.setOutlineMaterial(DEFAULT_HIGHLIGHT_MATERIAL);
                 this.activeAttributes.setInteriorMaterial(DEFAULT_HIGHLIGHT_MATERIAL);
@@ -923,8 +929,9 @@ public abstract class AbstractShape extends WWObjectImpl
             if (this.surfaceShape == null)
             {
                 this.surfaceShape = this.createSurfaceShape();
-                if (this.surfaceShape == null)
-                    return;
+                if (this.surfaceShape == null) {
+					return;
+				}
 
                 this.surfaceShape.setAttributes(this.getAttributes());
                 this.surfaceShape.setHighlightAttributes(this.getHighlightAttributes());
@@ -1014,11 +1021,13 @@ public abstract class AbstractShape extends WWObjectImpl
             this.shapeDataCache.addEntry(this.currentData);
         }
 
-        if ((dc.getSurfaceGeometry() == null) || !this.isVisible())
-            return;
+        if ((dc.getSurfaceGeometry() == null) || !this.isVisible()) {
+			return;
+		}
 
-        if (this.isTerrainDependent())
-            this.checkViewDistanceExpiration(dc);
+        if (this.isTerrainDependent()) {
+			this.checkViewDistanceExpiration(dc);
+		}
 
         // Invalidate the extent if the vertical exaggeration has changed.
         if (this.currentData.getVerticalExaggeration() != dc.getVerticalExaggeration()) {
@@ -1027,18 +1036,17 @@ public abstract class AbstractShape extends WWObjectImpl
 
         if (this.getExtent() != null)
         {
-            if (!this.intersectsFrustum(dc))
-                return;
-
             // If the shape is less that a pixel in size, don't render it.
-            if (dc.isSmall(this.getExtent(), 1))
-                return;
+            if (!this.intersectsFrustum(dc) || dc.isSmall(this.getExtent(), 1)) {
+				return;
+			}
         }
 
-        if (dc.isOrderedRenderingMode())
-            this.drawOrderedRenderable(dc);
-        else
-            this.makeOrderedRenderable(dc);
+        if (dc.isOrderedRenderingMode()) {
+			this.drawOrderedRenderable(dc);
+		} else {
+			this.makeOrderedRenderable(dc);
+		}
     }
 
     /**
@@ -1055,17 +1063,20 @@ public abstract class AbstractShape extends WWObjectImpl
         if (dc.getFrameTimeStamp() != this.getCurrentData().getFrameNumber())
         {
             this.determineActiveAttributes();
-            if (this.getActiveAttributes() == null)
-                return;
+            if (this.getActiveAttributes() == null) {
+				return;
+			}
 
             // Regenerate the positions and shape at a specified frequency.
             if (this.mustRegenerateGeometry(dc))
             {
-                if (!this.doMakeOrderedRenderable(dc))
-                    return;
+                if (!this.doMakeOrderedRenderable(dc)) {
+					return;
+				}
 
-                if (this.shouldUseVBOs(dc))
-                    this.fillVBO(dc);
+                if (this.shouldUseVBOs(dc)) {
+					this.fillVBO(dc);
+				}
 
                 this.getCurrentData().restartTimer(dc);
             }
@@ -1073,11 +1084,13 @@ public abstract class AbstractShape extends WWObjectImpl
             this.getCurrentData().setFrameNumber(dc.getFrameTimeStamp());
         }
 
-        if (!this.isOrderedRenderableValid(dc))
-            return;
+        if (!this.isOrderedRenderableValid(dc)) {
+			return;
+		}
 
-        if (dc.isPickingMode())
-            this.pickLayer = dc.getCurrentLayer();
+        if (dc.isPickingMode()) {
+			this.pickLayer = dc.getCurrentLayer();
+		}
 
         this.addOrderedRenderable(dc);
     }
@@ -1138,12 +1151,14 @@ public abstract class AbstractShape extends WWObjectImpl
         // Determine whether the distance of this shape from the eye has changed significantly. Invalidate the previous
         // extent and expire the shape geometry if it has. "Significantly" is considered a 10% difference.
 
-        if (!this.isViewDistanceExpiration())
-            return;
+        if (!this.isViewDistanceExpiration()) {
+			return;
+		}
 
         Vec4 refPt = this.currentData.getReferencePoint();
-        if (refPt == null)
-            return;
+        if (refPt == null) {
+			return;
+		}
 
         double newRefDistance = dc.getView().getEyePoint().distanceTo3(refPt);
         Double oldRefDistance = this.currentData.getReferenceDistance();
@@ -1166,11 +1181,13 @@ public abstract class AbstractShape extends WWObjectImpl
      */
     protected boolean intersectsFrustum(DrawContext dc)
     {
-        if (this.getExtent() == null)
-            return true; // don't know the visibility, shape hasn't been computed yet
+        if (this.getExtent() == null) {
+			return true; // don't know the visibility, shape hasn't been computed yet
+		}
 
-        if (dc.isPickingMode())
-            return dc.getPickFrustums().intersectsAny(this.getExtent());
+        if (dc.isPickingMode()) {
+			return dc.getPickFrustums().intersectsAny(this.getExtent());
+		}
 
         return dc.getView().getFrustumInModelCoordinates().intersects(this.getExtent());
     }
@@ -1189,8 +1206,9 @@ public abstract class AbstractShape extends WWObjectImpl
         {
             this.doDrawOrderedRenderable(dc, this.pickSupport);
 
-            if (this.isEnableBatchRendering())
-                this.drawBatched(dc);
+            if (this.isEnableBatchRendering()) {
+				this.drawBatched(dc);
+			}
         }
         finally
         {
@@ -1216,8 +1234,9 @@ public abstract class AbstractShape extends WWObjectImpl
             while (nextItem != null && nextItem.getClass() == this.getClass())
             {
                 AbstractShape shape = (AbstractShape) nextItem;
-                if (!shape.isEnableBatchRendering())
-                    break;
+                if (!shape.isEnableBatchRendering()) {
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 shape.doDrawOrderedRenderable(dc, this.pickSupport);
@@ -1230,8 +1249,9 @@ public abstract class AbstractShape extends WWObjectImpl
             while (nextItem != null && nextItem.getClass() == this.getClass())
             {
                 AbstractShape shape = (AbstractShape) nextItem;
-                if (!shape.isEnableBatchRendering() || !shape.isEnableBatchPicking() || (shape.pickLayer != this.pickLayer)) // batch pick only within a single layer
-                    break;
+                if (!shape.isEnableBatchRendering() || !shape.isEnableBatchPicking() || (shape.pickLayer != this.pickLayer)) { // batch pick only within a single layer
+					break;
+				}
 
                 dc.pollOrderedRenderables(); // take it off the queue
                 shape.doDrawOrderedRenderable(dc, this.pickSupport);
@@ -1404,16 +1424,18 @@ public abstract class AbstractShape extends WWObjectImpl
      */
     protected void prepareToDrawOutline(DrawContext dc, ShapeAttributes activeAttrs, ShapeAttributes defaultAttrs)
     {
-        if (activeAttrs == null || !activeAttrs.isDrawOutline())
-            return;
+        if (activeAttrs == null || !activeAttrs.isDrawOutline()) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
         if (!dc.isPickingMode())
         {
             Material material = activeAttrs.getOutlineMaterial();
-            if (material == null)
-                material = defaultAttrs.getOutlineMaterial();
+            if (material == null) {
+				material = defaultAttrs.getOutlineMaterial();
+			}
 
             if (this.mustApplyLighting(dc, activeAttrs))
             {
@@ -1436,10 +1458,11 @@ public abstract class AbstractShape extends WWObjectImpl
             gl.glHint(GL.GL_LINE_SMOOTH_HINT, activeAttrs.isEnableAntialiasing() ? GL.GL_NICEST : GL.GL_DONT_CARE);
         }
 
-        if (dc.isPickingMode() && activeAttrs.getOutlineWidth() < this.getOutlinePickWidth())
-            gl.glLineWidth(this.getOutlinePickWidth());
-        else
-            gl.glLineWidth((float) activeAttrs.getOutlineWidth());
+        if (dc.isPickingMode() && activeAttrs.getOutlineWidth() < this.getOutlinePickWidth()) {
+			gl.glLineWidth(this.getOutlinePickWidth());
+		} else {
+			gl.glLineWidth((float) activeAttrs.getOutlineWidth());
+		}
 
         if (activeAttrs.getOutlineStippleFactor() > 0)
         {
@@ -1478,16 +1501,18 @@ public abstract class AbstractShape extends WWObjectImpl
      */
     protected void prepareToDrawInterior(DrawContext dc, ShapeAttributes activeAttrs, ShapeAttributes defaultAttrs)
     {
-        if (!activeAttrs.isDrawInterior())
-            return;
+        if (!activeAttrs.isDrawInterior()) {
+			return;
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
 
         if (!dc.isPickingMode())
         {
             Material material = activeAttrs.getInteriorMaterial();
-            if (material == null)
-                material = defaultAttrs.getInteriorMaterial();
+            if (material == null) {
+				material = defaultAttrs.getInteriorMaterial();
+			}
 
             if (this.mustApplyLighting(dc, activeAttrs))
             {
@@ -1507,8 +1532,9 @@ public abstract class AbstractShape extends WWObjectImpl
                 gl.glDisableClientState(GLPointerFunc.GL_NORMAL_ARRAY);
             }
 
-            if (activeAttrs.getInteriorOpacity() < 1)
-                gl.glDepthMask(false);
+            if (activeAttrs.getInteriorOpacity() < 1) {
+				gl.glDepthMask(false);
+			}
         }
     }
 
@@ -1522,10 +1548,11 @@ public abstract class AbstractShape extends WWObjectImpl
      */
     protected Vec4 computePoint(Terrain terrain, Position position)
     {
-        if (this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND)
-            return terrain.getSurfacePoint(position.getLatitude(), position.getLongitude(), 0d);
-        else if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND)
-            return terrain.getSurfacePoint(position);
+        if (this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND) {
+			return terrain.getSurfacePoint(position.getLatitude(), position.getLongitude(), 0d);
+		} else if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND) {
+			return terrain.getSurfacePoint(position);
+		}
 
         // Raise the shape to accommodate vertical exaggeration applied to the terrain.
         double height = position.getElevation() * terrain.getVerticalExaggeration();
@@ -1545,10 +1572,11 @@ public abstract class AbstractShape extends WWObjectImpl
      */
     protected Vec4 computePoint(DrawContext dc, Terrain terrain, Position position)
     {
-        if (this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND || dc.is2DGlobe())
-            return terrain.getSurfacePoint(position.getLatitude(), position.getLongitude(), 0d);
-        else if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND)
-            return terrain.getSurfacePoint(position);
+        if (this.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND || dc.is2DGlobe()) {
+			return terrain.getSurfacePoint(position.getLatitude(), position.getLongitude(), 0d);
+		} else if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND) {
+			return terrain.getSurfacePoint(position);
+		}
 
         // Raise the shape to accommodate vertical exaggeration applied to the terrain.
         double height = position.getElevation() * terrain.getVerticalExaggeration();
@@ -1569,12 +1597,14 @@ public abstract class AbstractShape extends WWObjectImpl
     protected Extent computeExtentFromPositions(Globe globe, double verticalExaggeration,
         Iterable<? extends LatLon> positions)
     {
-        if (globe == null || positions == null)
-            return null;
+        if (globe == null || positions == null) {
+			return null;
+		}
 
         Sector mySector = this.getSector();
-        if (mySector == null)
-            return null;
+        if (mySector == null) {
+			return null;
+		}
 
         double[] extremes;
         double[] minAndMaxElevations = globe.getMinAndMaxElevations(mySector);
@@ -1584,13 +1614,16 @@ public abstract class AbstractShape extends WWObjectImpl
             for (LatLon pos : positions)
             {
                 double elevation = pos instanceof Position ? ((Position) pos).getElevation() : 0;
-                if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND)
-                    elevation += minAndMaxElevations[1];
+                if (this.getAltitudeMode() == WorldWind.RELATIVE_TO_GROUND) {
+					elevation += minAndMaxElevations[1];
+				}
 
-                if (extremes[0] > elevation)
-                    extremes[0] = elevation * verticalExaggeration; // min
-                if (extremes[1] < elevation)
-                    extremes[1] = elevation * verticalExaggeration; // max
+                if (extremes[0] > elevation) {
+					extremes[0] = elevation * verticalExaggeration; // min
+				}
+                if (extremes[1] < elevation) {
+					extremes[1] = elevation * verticalExaggeration; // max
+				}
             }
         }
         else
@@ -1669,8 +1702,9 @@ public abstract class AbstractShape extends WWObjectImpl
         // The reference position is null if this shape has no positions. In this case moving the shape by a
         // relative delta is meaningless because the shape has no geographic location. Therefore we fail softly by
         // exiting and doing nothing.
-        if (refPos == null)
-            return;
+        if (refPos == null) {
+			return;
+		}
 
         this.moveTo(refPos.add(delta));
     }
@@ -1696,11 +1730,13 @@ public abstract class AbstractShape extends WWObjectImpl
     @Override
     public void drag(DragContext dragContext)
     {
-        if (!this.dragEnabled)
-            return;
+        if (!this.dragEnabled) {
+			return;
+		}
 
-        if (this.draggableSupport == null)
-            this.draggableSupport = new DraggableSupport(this, this.getAltitudeMode());
+        if (this.draggableSupport == null) {
+			this.draggableSupport = new DraggableSupport(this, this.getAltitudeMode());
+		}
 
         this.doDrag(dragContext);
     }
@@ -1713,10 +1749,11 @@ public abstract class AbstractShape extends WWObjectImpl
     @Override
 	public String isExportFormatSupported(String mimeType)
     {
-        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(mimeType))
-            return Exportable.FORMAT_SUPPORTED;
-        else
-            return Exportable.FORMAT_NOT_SUPPORTED;
+        if (KMLConstants.KML_MIME_TYPE.equalsIgnoreCase(mimeType)) {
+			return Exportable.FORMAT_SUPPORTED;
+		} else {
+			return Exportable.FORMAT_NOT_SUPPORTED;
+		}
     }
 
     @Override
@@ -1849,8 +1886,9 @@ public abstract class AbstractShape extends WWObjectImpl
         xmlWriter.writeEndElement(); // Placemark
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 
     //**************************************************************//
@@ -1918,16 +1956,19 @@ public abstract class AbstractShape extends WWObjectImpl
     {
 
         Boolean booleanState = rs.getStateValueAsBoolean(context, "highlighted");
-        if (booleanState != null)
-            this.setHighlighted(booleanState);
+        if (booleanState != null) {
+			this.setHighlighted(booleanState);
+		}
 
         booleanState = rs.getStateValueAsBoolean(context, "visible");
-        if (booleanState != null)
-            this.setVisible(booleanState);
+        if (booleanState != null) {
+			this.setVisible(booleanState);
+		}
 
         Integer integerState = rs.getStateValueAsInteger(context, "altitudeMode");
-        if (integerState != null)
-            this.setAltitudeMode(integerState);
+        if (integerState != null) {
+			this.setAltitudeMode(integerState);
+		}
 
         RestorableSupport.StateObject so = rs.getStateObject(context, "attributes");
         if (so != null)

@@ -117,8 +117,9 @@ public class BoundedHashMap<K, V> extends java.util.LinkedHashMap<K, V>
     protected void removeOverCapacityEntries()
     {
         int count = this.size() - this.getCapacity();
-        if (count <= 0)
-            return;
+        if (count <= 0) {
+			return;
+		}
 
         java.util.Iterator<java.util.Map.Entry<K, V>> iter = this.entrySet().iterator();
         for (int i = 0; i < count && iter.hasNext(); i++)

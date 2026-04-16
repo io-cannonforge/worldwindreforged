@@ -331,8 +331,9 @@ public class BasicMemoryCache implements MemoryCache
         synchronized (this.lock)
         {
             CacheEntry entry = this.entries.get(key);
-            if (entry != null)
-                this.removeEntry(entry);
+            if (entry != null) {
+				this.removeEntry(entry);
+			}
         }
     }
 
@@ -361,8 +362,9 @@ public class BasicMemoryCache implements MemoryCache
         {
             entry = this.entries.get(key);
 
-            if (entry == null)
-                return null;
+            if (entry == null) {
+				return null;
+			}
 
             entry.lastUsed = System.nanoTime(); // nanoTime overflows once every 292 years
             // which will result in a slowing of the cache
@@ -421,8 +423,9 @@ public class BasicMemoryCache implements MemoryCache
      */
     private void makeSpace(long spaceRequired) // MUST BE CALLED WITHIN SYNCHRONIZED
     {
-        if (spaceRequired > this.capacity.get() || spaceRequired < 0)
-            return;
+        if (spaceRequired > this.capacity.get() || spaceRequired < 0) {
+			return;
+		}
 
         CacheEntry[] timeOrderedEntries = new CacheEntry[this.entries.size()];
         java.util.Arrays.sort(this.entries.values().toArray(timeOrderedEntries)); // TODO

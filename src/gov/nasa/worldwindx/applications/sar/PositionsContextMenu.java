@@ -71,8 +71,9 @@ public class PositionsContextMenu extends MouseAdapter
 
     private void checkPopup(MouseEvent e)
     {
-        if (!e.isPopupTrigger())
-            return;
+        if (!e.isPopupTrigger()) {
+			return;
+		}
 
         JMenuItem mi;
         JPopupMenu pum = new JPopupMenu();

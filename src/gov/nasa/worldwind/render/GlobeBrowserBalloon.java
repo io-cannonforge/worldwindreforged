@@ -54,7 +54,8 @@ import gov.nasa.worldwind.util.Logging;
 @Deprecated
 public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements GlobeBalloon
 {
-    protected class OrderedGlobeBrowserBalloon extends OrderedBrowserBalloon
+    @Deprecated
+	protected class OrderedGlobeBrowserBalloon extends OrderedBrowserBalloon
     {
         /** The model-coordinate point corresponding to this balloon's position. May be <code>null</code>. */
         protected Vec4 placePoint;
@@ -69,13 +70,15 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
      * Indicates this balloon's geographic position. The position's altitude is interpreted relative to this balloon's
      * <code>altitudeMode</code>. Initialized to a non-<code>null</code> value at construction.
      */
-    protected Position position;
+    @Deprecated
+	protected Position position;
     /**
      * Indicates how this balloon's altitude is interpreted. One of <code>WorldWind.ABSOLUTE</code>,
      * <code>WorldWind.RELATIVE_TO_GROUND</code>, or <code>WorldWind.CLAMP_TO_GROUND</code>. If the altitude mode is 0
      * or an unrecognized code, this balloon assumes an altitude mode of <code>WorldWind.ABSOLUTE</code>. Initially 0.
      */
-    protected int altitudeMode;
+    @Deprecated
+	protected int altitudeMode;
 
     /**
      * Constructs a new <code>GlobeBrowserBalloon</code> with the specified text content and position.
@@ -85,7 +88,8 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
      *
      * @throws IllegalArgumentException if either <code>text</code> or <code>position</code> are <code>null</code>.
      */
-    public GlobeBrowserBalloon(String text, Position position)
+    @Deprecated
+	public GlobeBrowserBalloon(String text, Position position)
     {
         super(text);
 
@@ -100,14 +104,16 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	public Position getPosition()
     {
         return this.position;
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	public void setPosition(Position position)
     {
         if (position == null)
@@ -121,20 +127,23 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	public int getAltitudeMode()
     {
         return altitudeMode;
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	public void setAltitudeMode(int altitudeMode)
     {
         this.altitudeMode = altitudeMode;
     }
 
-    @Override
+    @Deprecated
+	@Override
     protected OrderedBrowserBalloon createOrderedRenderable()
     {
         return new OrderedGlobeBrowserBalloon();
@@ -154,7 +163,8 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
      *
      * @param dc the current draw context.
      */
-    @Override
+    @Deprecated
+	@Override
 	protected void computeBalloonPoints(DrawContext dc, OrderedBrowserBalloon obb)
     {
         OrderedGlobeBrowserBalloon ogpm = (OrderedGlobeBrowserBalloon) obb;
@@ -187,8 +197,9 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
 
         // Exit immediately if the place point is null. In this case we cannot compute the data that depends on the
         // place point: screen place point, screen rectangle, WebView rectangle, and eye distance.
-        if (ogpm.placePoint == null)
-            return;
+        if (ogpm.placePoint == null) {
+			return;
+		}
 
         BalloonAttributes activeAttrs = this.getActiveAttributes();
         Dimension size = this.computeSize(dc, activeAttrs);
@@ -219,7 +230,8 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
     }
 
     /** {@inheritDoc} */
-    @Override
+    @Deprecated
+	@Override
 	protected void setupDepthTest(DrawContext dc, OrderedBrowserBalloon obb)
     {
         OrderedGlobeBrowserBalloon ogpm = (OrderedGlobeBrowserBalloon) obb;
@@ -252,7 +264,8 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
      * clipping plane or in front of the <code>View's</code> far clipping plane. Otherwise this delegates to the super
      * class' behavior.
      */
-    @Override
+    @Deprecated
+	@Override
     protected boolean intersectsFrustum(DrawContext dc, OrderedBrowserBalloon obb)
     {
         OrderedGlobeBrowserBalloon ogpm = (OrderedGlobeBrowserBalloon) obb;
@@ -277,7 +290,8 @@ public class GlobeBrowserBalloon extends AbstractBrowserBalloon implements Globe
      * <p>
      * Overridden to use this balloon's position as the picked object's position.
      */
-    @Override
+    @Deprecated
+	@Override
     protected PickedObject createPickedObject(DrawContext dc, Color pickColor)
     {
         PickedObject po = super.createPickedObject(dc, pickColor);

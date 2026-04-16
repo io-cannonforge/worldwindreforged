@@ -87,11 +87,13 @@ public class PerformanceStatistic implements Comparable<PerformanceStatistic>
     public int compareTo(PerformanceStatistic that)
     {
         //noinspection StringEquality
-        if (this.displayString == that.displayString)
-            return 0;
+        if (this.displayString == that.displayString) {
+			return 0;
+		}
 
-        if (this.displayString != null && that.displayString != null)
-            return this.displayString.compareTo(that.displayString);
+        if (this.displayString != null && that.displayString != null) {
+			return this.displayString.compareTo(that.displayString);
+		}
 
         return this.displayString == null ? -1 : 1;
     }
@@ -99,16 +101,19 @@ public class PerformanceStatistic implements Comparable<PerformanceStatistic>
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
         PerformanceStatistic that = (PerformanceStatistic) o;
 
         //noinspection RedundantIfStatement
-        if ((displayString != null ? !displayString.equals(that.displayString) : that.displayString != null) || (key != null ? !key.equals(that.key) : that.key != null) || (value != null ? !value.equals(that.value) : that.value != null))
-            return false;
+        if ((displayString != null ? !displayString.equals(that.displayString) : that.displayString != null) || (key != null ? !key.equals(that.key) : that.key != null) || (value != null ? !value.equals(that.value) : that.value != null)) {
+			return false;
+		}
 
         return true;
     }

@@ -114,11 +114,13 @@ public abstract class Capabilities
                 throw new WWRuntimeException(message);
             }
 
-            if (connectTimeout != null)
-                retriever.setConnectTimeout(connectTimeout);
+            if (connectTimeout != null) {
+				retriever.setConnectTimeout(connectTimeout);
+			}
 
-            if (readTimeout != null)
-                retriever.setReadTimeout(readTimeout);
+            if (readTimeout != null) {
+				retriever.setReadTimeout(readTimeout);
+			}
 
             retriever.call();
 
@@ -149,8 +151,9 @@ public abstract class Capabilities
             try (InputStream is = WWIO.getInputStreamFromByteBuffer(retriever.getBuffer()))
             {
                 Capabilities caps = Capabilities.parse(WWXML.createDocumentBuilder(true).parse(is));
-                if (caps != null)
-                    caps.capsURL = capsURL;
+                if (caps != null) {
+					caps.capsURL = capsURL;
+				}
 
                 return caps;
             }
@@ -195,13 +198,15 @@ public abstract class Capabilities
             }
 
             String version = xpath.evaluate(altPaths("*/@wms:version"), doc);
-            if (version == null || version.length() == 0)
-                return null;
+            if (version == null || version.length() == 0) {
+				return null;
+			}
 
-            if (version.compareTo("1.3") < 0)
-                return new CapabilitiesV111(doc, xpath);
-            else
-                return new CapabilitiesV130(doc, xpath);
+            if (version.compareTo("1.3") < 0) {
+				return new CapabilitiesV111(doc, xpath);
+			} else {
+				return new CapabilitiesV130(doc, xpath);
+			}
         }
         catch (XPathExpressionException e)
         {
@@ -272,8 +277,9 @@ public abstract class Capabilities
         {
             NodeList nodes = (NodeList) this.xpath.evaluate(altPaths(path), context != null ? context : doc,
                 XPathConstants.NODESET);
-            if (nodes == null || nodes.getLength() == 0)
-                return null;
+            if (nodes == null || nodes.getLength() == 0) {
+				return null;
+			}
 
             String[] strings = new String[nodes.getLength()];
             for (int i = 0; i < nodes.getLength(); i++)
@@ -291,14 +297,16 @@ public abstract class Capabilities
     protected String[] getUniqueText(Element context, String path)
     {
         String[] strings = this.getTextArray(context, path);
-        if (strings == null)
-            return null;
+        if (strings == null) {
+			return null;
+		}
 
         ArrayList<String> sarl = new ArrayList<>();
         for (String s : strings)
         {
-            if (!sarl.contains(s))
-                sarl.add(s);
+            if (!sarl.contains(s)) {
+				sarl.add(s);
+			}
         }
 
         return sarl.toArray(new String[1]);
@@ -310,8 +318,9 @@ public abstract class Capabilities
         {
             Node node = (Node) this.xpath.evaluate(altPaths(path), context != null ? context : doc,
                 XPathConstants.NODE);
-            if (node == null)
-                return null;
+            if (node == null) {
+				return null;
+			}
 
             return node instanceof Element ? (Element) node : null;
         }
@@ -327,15 +336,17 @@ public abstract class Capabilities
         {
             NodeList nodes = (NodeList) this.xpath.evaluate(altPaths(path), context != null ? context : doc,
                 XPathConstants.NODESET);
-            if (nodes == null || nodes.getLength() == 0)
-                return null;
+            if (nodes == null || nodes.getLength() == 0) {
+				return null;
+			}
 
             Element[] elements = new Element[nodes.getLength()];
             for (int i = 0; i < nodes.getLength(); i++)
             {
                 Node node = nodes.item(i);
-                if (node instanceof Element)
-                    elements[i] = (Element) node;
+                if (node instanceof Element) {
+					elements[i] = (Element) node;
+				}
             }
             return elements;
         }
@@ -348,15 +359,17 @@ public abstract class Capabilities
     protected Element[] getUniqueElements(Element context, String path, String uniqueTag)
     {
         Element[] elements = this.getElements(context, path);
-        if (elements == null)
-            return null;
+        if (elements == null) {
+			return null;
+		}
 
         HashMap<String, Element> styles = new HashMap<>();
         for (Element e : elements)
         {
             String name = this.getText(e, uniqueTag);
-            if (name != null)
-                styles.put(name, e);
+            if (name != null) {
+				styles.put(name, e);
+			}
         }
 
         return styles.values().toArray(new Element[1]);
@@ -370,8 +383,9 @@ public abstract class Capabilities
         if (this.namedLayers.size() == 0)
         {
             Element[] nels = this.getElements(this.capability, "descendant::wms:Layer[wms:Name]");
-            if (nels == null || nels.length == 0)
-                return;
+            if (nels == null || nels.length == 0) {
+				return;
+			}
 
             for (Element le : nels)
             {
@@ -393,16 +407,18 @@ public abstract class Capabilities
 
     public Element[] getNamedLayers()
     {
-        if (this.namedLayerElements.size() == 0)
-            this.fillLayerList();
+        if (this.namedLayerElements.size() == 0) {
+			this.fillLayerList();
+		}
 
         return this.namedLayerElements.keySet().toArray(new Element[this.namedLayerElements.size()]);
     }
 
     public Element getLayerByName(String layerName)
     {
-        if (this.namedLayers.size() == 0)
-            this.fillLayerList();
+        if (this.namedLayers.size() == 0) {
+			this.fillLayerList();
+		}
 
         Layer l = this.namedLayers.get(layerName);
         return l != null ? l.element : null;
@@ -429,12 +445,14 @@ public abstract class Capabilities
         for (String name : layerNames)
         {
             Element layer = caps.getLayerByName(name);
-            if (layer == null)
-                continue;
+            if (layer == null) {
+				continue;
+			}
 
             String update = caps.getLayerLastUpdate(layer);
-            if (update != null && update.length() > 0 && (lastUpdate == null || update.compareTo(lastUpdate) > 0))
-                lastUpdate =  update;
+            if (update != null && update.length() > 0 && (lastUpdate == null || update.compareTo(lastUpdate) > 0)) {
+				lastUpdate =  update;
+			}
         }
 
         if (lastUpdate != null)
@@ -475,16 +493,19 @@ public abstract class Capabilities
         for (String name : layerNames)
         {
             Element layer = caps.getLayerByName(name);
-            if (layer == null)
-                continue;
+            if (layer == null) {
+				continue;
+			}
 
             String min = caps.getLayerExtremeElevationsMin(layer);
-            if (min != null && (extremeMin == null || min.compareTo(min) > 0))
-                extremeMin =  min;
+            if (min != null && (extremeMin == null || min.compareTo(min) > 0)) {
+				extremeMin =  min;
+			}
 
             String max = caps.getLayerExtremeElevationsMax(layer);
-            if (max != null && (extremeMax == null || max.compareTo(max) > 0))
-                extremeMax =  max;
+            if (max != null && (extremeMax == null || max.compareTo(max) > 0)) {
+				extremeMax =  max;
+			}
         }
 
         if (extremeMin != null || extremeMax != null)
@@ -493,10 +514,12 @@ public abstract class Capabilities
             {
                 Double[] extremes = new Double[] {null, null};
 
-                if (extremeMin != null)
-                    extremes[0] = Double.parseDouble(extremeMin);
-                if (extremeMax != null)
-                    extremes[1] = Double.parseDouble(extremeMax);
+                if (extremeMin != null) {
+					extremes[0] = Double.parseDouble(extremeMin);
+				}
+                if (extremeMax != null) {
+					extremes[1] = Double.parseDouble(extremeMax);
+				}
 
                 return extremes;
             }
@@ -735,8 +758,9 @@ public abstract class Capabilities
     {
         Element[] dims = this.getElements(layer, "ancestor-or-self::wms:Layer/wms:Dimension");
 
-        if (dims == null || dims.length == 0)
-            return null;
+        if (dims == null || dims.length == 0) {
+			return null;
+		}
 
         ArrayList<Element> uniqueDims = new ArrayList<>();
         ArrayList<String> dimNames = new ArrayList<>();
@@ -745,8 +769,9 @@ public abstract class Capabilities
             // Filter out dimensions with same name.
             // Keep all those with a null name, even though wms says they're invalid. Let the app decide.
             String name = this.getDimensionName(e);
-            if (name != null && dimNames.contains(name))
-                continue;
+            if (name != null && dimNames.contains(name)) {
+				continue;
+			}
 
             uniqueDims.add(e);
             dimNames.add(name);
@@ -759,8 +784,9 @@ public abstract class Capabilities
     {
         Element[] extents = this.getElements(layer, "ancestor-or-self::wms:Layer/wms:Extent");
 
-        if (extents == null || extents.length == 0)
-            return null;
+        if (extents == null || extents.length == 0) {
+			return null;
+		}
 
         ArrayList<Element> uniqueExtents = new ArrayList<>();
         ArrayList<String> extentNames = new ArrayList<>();
@@ -769,8 +795,9 @@ public abstract class Capabilities
             // Filter out dimensions with same name.
             // Keep all those with a null name, even though wms says they're invalid. Let the app decide.
             String name = this.getDimensionName(e);
-            if (name != null && extentNames.contains(name))
-                continue;
+            if (name != null && extentNames.contains(name)) {
+				continue;
+			}
 
             uniqueExtents.add(e);
             extentNames.add(name);
@@ -849,15 +876,18 @@ public abstract class Capabilities
     public Element[] getLayerStyles(Element layerElement)
     {
         Layer layer = this.namedLayerElements.get(layerElement);
-        if (layer == null)
-            return null;
+        if (layer == null) {
+			return null;
+		}
 
-        if (layer.styleElements != null && layer.styleElements.size() != 0)
-            return layer.styleElements.keySet().toArray(new Element[1]);
+        if (layer.styleElements != null && layer.styleElements.size() != 0) {
+			return layer.styleElements.keySet().toArray(new Element[1]);
+		}
 
         Element[] styleElements = this.getUniqueElements(layerElement, "ancestor-or-self::wms:Layer/wms:Style", "Name");
-        if (styleElements == null)
-            return null;
+        if (styleElements == null) {
+			return null;
+		}
 
         layer.styleElements = new HashMap<>();
         for (Element se : styleElements)
@@ -878,8 +908,9 @@ public abstract class Capabilities
     public String getLayerTitle(Element layerElement)
     {
         Layer layer = this.namedLayerElements.get(layerElement);
-        if (layer == null)
-            return this.getText(layerElement, "wms:Title");
+        if (layer == null) {
+			return this.getText(layerElement, "wms:Title");
+		}
 
         return layer.title != null ? layer.title : (layer.title = this.getText(layerElement, "wms:Title"));
     }
@@ -887,22 +918,25 @@ public abstract class Capabilities
     public Element getLayerStyleByName(Element layerElement, String styleName)
     {
         Layer layer = this.namedLayerElements.get(layerElement);
-        if (layer == null)
-            return null;
+        if (layer == null) {
+			return null;
+		}
 
         if (layer.styleElements == null || layer.styleElements.size() == 0)
         {
             // Initialize the layer's style list.
             this.getLayerStyles(layerElement);
-            if (layer.styleElements == null || layer.styleElements.size() == 0)
-                return null;
+            if (layer.styleElements == null || layer.styleElements.size() == 0) {
+				return null;
+			}
         }
 
         Collection<Style> styles = layer.styleElements.values();
         for (Style s : styles)
         {
-            if (s != null && s.name != null && s.name.equals(styleName))
-                return s.element;
+            if (s != null && s.name != null && s.name.equals(styleName)) {
+				return s.element;
+			}
         }
 
         return null;
@@ -975,8 +1009,9 @@ public abstract class Capabilities
     public String getStyleName(Element layerElement, Element styleElement)
     {
         Layer layer = this.namedLayerElements.get(layerElement);
-        if (layer == null || layer.styleElements == null)
-            return this.getStyleName(layerElement, styleElement);
+        if (layer == null || layer.styleElements == null) {
+			return this.getStyleName(layerElement, styleElement);
+		}
 
         Style style = layer.styleElements.get(styleElement);
 
@@ -1002,8 +1037,9 @@ public abstract class Capabilities
     public String getStyleTitle(Element layerElement, Element styleElement)
     {
         Layer layer = this.namedLayerElements.get(layerElement);
-        if (layer == null || layer.styleElements == null)
-            return this.getStyleTitle(styleElement);
+        if (layer == null || layer.styleElements == null) {
+			return this.getStyleTitle(styleElement);
+		}
 
         Style style = this.styleElements.get(styleElement);
         return style != null && style.title != null ? style.title : this.getText(styleElement, "wms:Title");

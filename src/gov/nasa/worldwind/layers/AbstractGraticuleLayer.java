@@ -395,8 +395,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
     {
         RestorableSupport rs = RestorableSupport.newRestorableSupport();
         // Creating a new RestorableSupport failed. RestorableSupport logged the problem, so just return null.
-        if (rs == null)
-            return null;
+        if (rs == null) {
+			return null;
+		}
 
         RestorableSupport.StateObject so = rs.addStateObject("renderingParams");
         for (var entry : this.graticuleSupport.getAllRenderingParams())
@@ -471,8 +472,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
                 if (rp != null)
                 {
                     GraticuleRenderingParams params = getRenderingParams(rp.getName());
-                    if (params == null)
-                        params = new GraticuleRenderingParams();
+                    if (params == null) {
+						params = new GraticuleRenderingParams();
+					}
                     restorableStateToParams(params, rs, rp);
                     setRenderingParams(rp.getName(), params);
                 }
@@ -486,40 +488,47 @@ public class AbstractGraticuleLayer extends AbstractLayer
         if (params != null && rs != null)
         {
             Boolean b = rs.getStateValueAsBoolean(context, GraticuleRenderingParams.KEY_DRAW_LINES);
-            if (b != null)
-                params.setValue(GraticuleRenderingParams.KEY_DRAW_LINES, b);
+            if (b != null) {
+				params.setValue(GraticuleRenderingParams.KEY_DRAW_LINES, b);
+			}
 
             Integer red = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LINE_COLOR + ".Red");
             Integer green = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LINE_COLOR + ".Green");
             Integer blue = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LINE_COLOR + ".Blue");
             Integer alpha = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LINE_COLOR + ".Alpha");
-            if (red != null && green != null && blue != null && alpha != null)
-                params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(red, green, blue, alpha));
+            if (red != null && green != null && blue != null && alpha != null) {
+				params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(red, green, blue, alpha));
+			}
 
             Double d = rs.getStateValueAsDouble(context, GraticuleRenderingParams.KEY_LINE_WIDTH);
-            if (d != null)
-                params.setValue(GraticuleRenderingParams.KEY_LINE_WIDTH, d);
+            if (d != null) {
+				params.setValue(GraticuleRenderingParams.KEY_LINE_WIDTH, d);
+			}
 
             String s = rs.getStateValueAsString(context, GraticuleRenderingParams.KEY_LINE_STYLE);
-            if (s != null)
-                params.setValue(GraticuleRenderingParams.KEY_LINE_STYLE, s);
+            if (s != null) {
+				params.setValue(GraticuleRenderingParams.KEY_LINE_STYLE, s);
+			}
 
             b = rs.getStateValueAsBoolean(context, GraticuleRenderingParams.KEY_DRAW_LABELS);
-            if (b != null)
-                params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, b);
+            if (b != null) {
+				params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, b);
+			}
 
             red = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LABEL_COLOR + ".Red");
             green = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LABEL_COLOR + ".Green");
             blue = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LABEL_COLOR + ".Blue");
             alpha = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LABEL_COLOR + ".Alpha");
-            if (red != null && green != null && blue != null && alpha != null)
-                params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(red, green, blue, alpha));
+            if (red != null && green != null && blue != null && alpha != null) {
+				params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(red, green, blue, alpha));
+			}
 
             String name = rs.getStateValueAsString(context, GraticuleRenderingParams.KEY_LABEL_FONT + ".Name");
             Integer style = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LABEL_FONT + ".Style");
             Integer size = rs.getStateValueAsInteger(context, GraticuleRenderingParams.KEY_LABEL_FONT + ".Size");
-            if (name != null && style != null && size != null)
-                params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, new Font(name, style, size));
+            if (name != null && style != null && size != null) {
+				params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, new Font(name, style, size));
+			}
         }
     }
 
@@ -586,8 +595,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
 
             // If the frame time stamp is the same, then this is the second or third pass of the same frame. We continue
             // selecting renderables in these passes.
-            if (dc.getFrameTimeStamp() == this.frameTimeStamp)
-                this.selectRenderables(dc);
+            if (dc.getFrameTimeStamp() == this.frameTimeStamp) {
+				this.selectRenderables(dc);
+			}
 
             this.frameTimeStamp = dc.getFrameTimeStamp();
         }
@@ -656,28 +666,31 @@ public class AbstractGraticuleLayer extends AbstractLayer
      */
     protected boolean needsToUpdate(DrawContext dc)
     {
-        if (this.lastEyePoint == null)
-            return true;
+        if (this.lastEyePoint == null) {
+			return true;
+		}
 
         View view = dc.getView();
         double altitudeAboveGround = computeAltitudeAboveGround(dc);
-        if ((view.getEyePoint().distanceTo3(this.lastEyePoint) > altitudeAboveGround / 100) || (this.lastVerticalExaggeration != dc.getVerticalExaggeration()) || (Math.abs(this.lastViewHeading - view.getHeading().degrees) > 1) || (Math.abs(this.lastViewPitch - view.getPitch().degrees) > 1))
-            return true;
+        if ((view.getEyePoint().distanceTo3(this.lastEyePoint) > altitudeAboveGround / 100) || (this.lastVerticalExaggeration != dc.getVerticalExaggeration()) || (Math.abs(this.lastViewHeading - view.getHeading().degrees) > 1) || (Math.abs(this.lastViewPitch - view.getPitch().degrees) > 1)) {
+			return true;
+		}
 
-        if (Math.abs(this.lastViewFOV - view.getFieldOfView().degrees) > 1)
-            return true;
+        
 
         // We must test the globe and its projection to see if either changed. We can't simply use the globe state
         // key for this because we don't want a 2D globe offset change to cause an update. Offset changes don't
         // invalidate the current set of renderables.
 
-        if (dc.getGlobe() != this.globe)
-            return true;
+        if ((Math.abs(this.lastViewFOV - view.getFieldOfView().degrees) > 1) || (dc.getGlobe() != this.globe)) {
+			return true;
+		}
 
         if (dc.is2DGlobe())
         {
-            if (((Globe2D) dc.getGlobe()).getProjection() != this.lastProjection)
-                return true;
+            if (((Globe2D) dc.getGlobe()).getProjection() != this.lastProjection) {
+				return true;
+			}
         }
 
         return false;
@@ -694,22 +707,24 @@ public class AbstractGraticuleLayer extends AbstractLayer
         this.lastViewPitch = dc.getView().getPitch().degrees;
         this.lastVerticalExaggeration = dc.getVerticalExaggeration();
 
-        if (dc.is2DGlobe())
-            this.lastProjection = ((Globe2D) dc.getGlobe()).getProjection();
+        if (dc.is2DGlobe()) {
+			this.lastProjection = ((Globe2D) dc.getGlobe()).getProjection();
+		}
     }
 
     protected double computeTerrainConformance(DrawContext dc)
     {
         int value = 100;
         double alt = dc.getView().getEyePosition().getElevation();
-        if (alt < 10e3)
-            value = 20;
-        else if (alt < 50e3)
-            value = 30;
-        else if (alt < 100e3)
-            value = 40;
-        else if (alt < 1000e3)
-            value = 60;
+        if (alt < 10e3) {
+			value = 20;
+		} else if (alt < 50e3) {
+			value = 30;
+		} else if (alt < 100e3) {
+			value = 40;
+		} else if (alt < 1000e3) {
+			value = 60;
+		}
 
         return value;
     }
@@ -729,9 +744,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
             Double labelLatDegrees = labelPos.getLatitude().normalizedLatitude().degrees;
             labelLatDegrees = Math.min(Math.max(labelLatDegrees, -70), 70);
             labelPos = new LatLon(Angle.fromDegrees(labelLatDegrees), labelPos.getLongitude().normalizedLongitude());
-        }
-        else
-            labelPos = dc.getView().getEyePosition(); // fall back if no orbit view
+        } else {
+			labelPos = dc.getView().getEyePosition(); // fall back if no orbit view
+		}
 
         return labelPos;
     }
@@ -818,8 +833,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
                 Logging.logger().severe(message);
                 throw new IllegalArgumentException(message);
             }
-            if (!this.sector.intersects(vs))
-                return false;
+            if (!this.sector.intersects(vs)) {
+				return false;
+			}
 
             return true;
         }
@@ -830,9 +846,10 @@ public class AbstractGraticuleLayer extends AbstractLayer
     protected Vec4 getSurfacePoint(DrawContext dc, Angle latitude, Angle longitude)
     {
         Vec4 surfacePoint = dc.getSurfaceGeometry().getSurfacePoint(latitude, longitude);
-        if (surfacePoint == null)
-            surfacePoint = dc.getGlobe().computePointFromPosition(new Position(latitude, longitude,
+        if (surfacePoint == null) {
+			surfacePoint = dc.getGlobe().computePointFromPosition(new Position(latitude, longitude,
                 dc.getGlobe().getElevation(latitude, longitude)));
+		}
 
         return surfacePoint;
     }
@@ -848,8 +865,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
 
     protected void computeTruncatedSegment(Position p1, Position p2, Sector sector, ArrayList<Position> positions)
     {
-        if (p1 == null || p2 == null)
-            return;
+        if (p1 == null || p2 == null) {
+			return;
+		}
 
         boolean p1In = sector.contains(p1);
         boolean p2In = sector.contains(p2);
@@ -898,10 +916,11 @@ public class AbstractGraticuleLayer extends AbstractLayer
                     intersection = greatCircleIntersectionAtLatitude(
                         inPoint, outPoint, sector.getMinLatitude());
                 }
-                if (intersection != null)
-                    outPoint = new Position(intersection, outPoint.getElevation());
-                else
-                    break;
+                if (intersection != null) {
+					outPoint = new Position(intersection, outPoint.getElevation());
+				} else {
+					break;
+				}
             }
             positions.add(inPoint);
             positions.add(outPoint);
@@ -919,10 +938,12 @@ public class AbstractGraticuleLayer extends AbstractLayer
      */
     protected LatLon greatCircleIntersectionAtLongitude(LatLon p1, LatLon p2, Angle longitude)
     {
-        if (p1.getLongitude().degrees == longitude.degrees)
-            return p1;
-        if (p2.getLongitude().degrees == longitude.degrees)
-            return p2;
+        if (p1.getLongitude().degrees == longitude.degrees) {
+			return p1;
+		}
+        if (p2.getLongitude().degrees == longitude.degrees) {
+			return p2;
+		}
         LatLon pos = null;
         Double deltaLon = getDeltaLongitude(p1, p2.getLongitude()).degrees;
         if (getDeltaLongitude(p1, longitude).degrees < deltaLon
@@ -936,10 +957,11 @@ public class AbstractGraticuleLayer extends AbstractLayer
             while (getDeltaLongitude(midPoint, longitude).radians > precision && count <= 20)
             {
                 count++;
-                if (getDeltaLongitude(a, longitude).degrees < getDeltaLongitude(b, longitude).degrees)
-                    b = midPoint;
-                else
-                    a = midPoint;
+                if (getDeltaLongitude(a, longitude).degrees < getDeltaLongitude(b, longitude).degrees) {
+					b = midPoint;
+				} else {
+					a = midPoint;
+				}
                 midPoint = greatCircleMidPoint(a, b);
             }
             pos = midPoint;
@@ -947,8 +969,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
             //    System.out.println("Warning dichotomy loop aborted: " + p1 + " - " + p2 + " for lon " + longitude + " = " + pos);
         }
         // Adjust final longitude for an exact match
-        if (pos != null)
-            pos = new LatLon(pos.getLatitude(), longitude);
+        if (pos != null) {
+			pos = new LatLon(pos.getLatitude(), longitude);
+		}
         return pos;
     }
 
@@ -976,10 +999,11 @@ public class AbstractGraticuleLayer extends AbstractLayer
             {
                 count++;
                 if (Math.signum(a.getLatitude().degrees - latitude.degrees)
-                    != Math.signum(midPoint.getLatitude().degrees - latitude.degrees))
-                    b = midPoint;
-                else
-                    a = midPoint;
+                    != Math.signum(midPoint.getLatitude().degrees - latitude.degrees)) {
+					b = midPoint;
+				} else {
+					a = midPoint;
+				}
                 midPoint = greatCircleMidPoint(a, b);
             }
             pos = midPoint;
@@ -987,8 +1011,9 @@ public class AbstractGraticuleLayer extends AbstractLayer
             //    System.out.println("Warning dichotomy loop aborted: " + p1 + " - " + p2 + " for lat " + latitude + " = " + pos);
         }
         // Adjust final latitude for an exact match
-        if (pos != null)
-            pos = new LatLon(latitude, pos.getLongitude());
+        if (pos != null) {
+			pos = new LatLon(latitude, pos.getLongitude());
+		}
         return pos;
     }
 

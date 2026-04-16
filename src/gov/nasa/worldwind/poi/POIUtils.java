@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -63,12 +64,13 @@ public class POIUtils
      */
     public static String callService(String urlString) throws NoItemException, ServiceException
     {
-        if (urlString == null || urlString.length() < 1)
-            return null;
+        if (urlString == null || urlString.length() < 1) {
+			return null;
+		}
 
         try
         {
-            URL url = new URL(urlString);
+            URL url = URI.create(urlString).toURL();
             URLConnection connection = url.openConnection();
 
             HttpURLConnection htpc = (HttpURLConnection) connection;
@@ -124,8 +126,9 @@ public class POIUtils
 
     protected static String getCharsetName(String contentType)
     {
-        if (contentType == null || contentType.toLowerCase().indexOf("charset") == -1)
-            return DEFAULT_CHARSET_NAME;
+        if (contentType == null || contentType.toLowerCase().indexOf("charset") == -1) {
+			return DEFAULT_CHARSET_NAME;
+		}
 
         String[] pairs = contentType.split(";");
         for (String pair : pairs)
@@ -133,8 +136,9 @@ public class POIUtils
             if (pair.toLowerCase().trim().startsWith("charset"))
             {
                 String[] av = pair.split("=");
-                if (av.length > 1 && av[1].trim().length() > 0)
-                    return av[1].trim();
+                if (av.length > 1 && av[1].trim().length() > 0) {
+					return av[1].trim();
+				}
             }
         }
 

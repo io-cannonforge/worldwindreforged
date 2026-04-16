@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.Proxy;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -121,8 +122,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
     {
         String testSites = System.getProperty(AVKey.NETWORK_STATUS_TEST_SITES);
 
-        if (testSites == null)
-            testSites = Configuration.getStringValue(AVKey.NETWORK_STATUS_TEST_SITES);
+        if (testSites == null) {
+			testSites = Configuration.getStringValue(AVKey.NETWORK_STATUS_TEST_SITES);
+		}
 
         if (testSites == null)
         {
@@ -135,8 +137,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
 
             for (String site2 : sites) {
                 String site = WWUtil.removeWhiteSpace(site2);
-                if (!WWUtil.isEmpty(site))
-                    actualSites.add(site);
+                if (!WWUtil.isEmpty(site)) {
+					actualSites.add(site);
+				}
             }
 
             this.setNetworkTestSites(actualSites);
@@ -212,16 +215,18 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
     {
         this.networkTestSites.clear();
 
-        if (networkTestSites != null)
-            this.networkTestSites.addAll(networkTestSites);
+        if (networkTestSites != null) {
+			this.networkTestSites.addAll(networkTestSites);
+		}
     }
 
     /** {@inheritDoc} */
     @Override
 	public synchronized void logUnavailableHost(URL url)
     {
-        if (this.offlineMode)
-            return;
+        if (this.offlineMode) {
+			return;
+		}
 
         if (url == null)
         {
@@ -237,8 +242,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
             if (!hi.isUnavailable())
             {
                 hi.logCount.incrementAndGet();
-                if (hi.isUnavailable()) // host just became unavailable
-                    this.firePropertyChange(NetworkStatus.HOST_UNAVAILABLE, null, url);
+                if (hi.isUnavailable()) { // host just became unavailable
+					this.firePropertyChange(NetworkStatus.HOST_UNAVAILABLE, null, url);
+				}
             }
             hi.lastLogTime.set(System.currentTimeMillis());
         }
@@ -246,8 +252,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
         {
             hi = new HostInfo(this.attemptLimit.get(), this.tryAgainInterval.get());
             hi.logCount.set(1);
-            if (hi.isUnavailable()) // the attempt limit may be as low as 1, so handle that case here
-                this.firePropertyChange(NetworkStatus.HOST_UNAVAILABLE, null, url);
+            if (hi.isUnavailable()) { // the attempt limit may be as low as 1, so handle that case here
+				this.firePropertyChange(NetworkStatus.HOST_UNAVAILABLE, null, url);
+			}
             this.hostMap.put(hostName, hi);
         }
 
@@ -258,8 +265,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
     @Override
 	public synchronized void logAvailableHost(URL url)
     {
-        if (this.offlineMode)
-            return;
+        if (this.offlineMode) {
+			return;
+		}
 
         if (url == null)
         {
@@ -283,8 +291,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
     @Override
 	public synchronized boolean isHostUnavailable(URL url)
     {
-        if (this.offlineMode)
-            return true;
+        if (this.offlineMode) {
+			return true;
+		}
 
         if (url == null)
         {
@@ -295,8 +304,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
 
         String hostName = url.getHost();
         HostInfo hi = this.hostMap.get(hostName);
-        if (hi == null)
-            return false;
+        if (hi == null) {
+			return false;
+		}
 
         if (hi.isTimeToTryAgain())
         {
@@ -318,8 +328,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
     @Override
 	public synchronized boolean isNetworkUnavailable(long checkInterval)
     {
-        if (this.offlineMode)
-            return true;
+        if (this.offlineMode) {
+			return true;
+		}
 
         // If there's been success since failure, network assumed to be reachable.
         if (this.lastAvailableLogTime.get() > this.lastUnavailableLogTime.get())
@@ -413,19 +424,21 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
             final String[] protocols = new String[] {"https://", "http://"};
             for (String protocol: protocols)
             {
-                URL url = new URL(protocol + hostName);
+                URL url = URI.create(protocol + hostName).toURL();
 
                 Proxy proxy = WWIO.configureProxy();
-                if (proxy != null)
-                    connection = url.openConnection(proxy);
-                else
-                    connection = url.openConnection();
+                if (proxy != null) {
+					connection = url.openConnection(proxy);
+				} else {
+					connection = url.openConnection();
+				}
 
                 connection.setConnectTimeout(2000);
                 connection.setReadTimeout(2000);
                 String ct = connection.getContentType();
-                if (ct != null)
-                    return true;
+                if (ct != null) {
+					return true;
+				}
             }
         }
         catch (IOException e)
@@ -435,8 +448,9 @@ public class BasicNetworkStatus extends AVListImpl implements NetworkStatus
         }
         finally
         {
-            if (connection != null && connection instanceof HttpURLConnection)
-                ((HttpURLConnection) connection).disconnect();
+            if (connection != null && connection instanceof HttpURLConnection) {
+				((HttpURLConnection) connection).disconnect();
+			}
         }
 
         return false;

@@ -115,8 +115,9 @@ public class PolygonTessellator
 
     public void reset()
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         this.interiorIndices.clear();
         this.boundaryIndices.clear();
@@ -124,32 +125,36 @@ public class PolygonTessellator
 
     public void setPolygonNormal(double x, double y, double z)
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         GLU.gluTessNormal(this.tess, x, y, z);
     }
 
     public void beginPolygon()
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         GLU.gluTessBeginPolygon(this.tess, this); // Use this as the polygon user data to enable callbacks to this instance.
     }
 
     public void beginContour()
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         GLU.gluTessBeginContour(this.tess);
     }
 
     public void addVertex(double x, double y, double z, int index)
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         this.vertexCoord[0] = x;
         this.vertexCoord[1] = y;
@@ -160,16 +165,18 @@ public class PolygonTessellator
 
     public void endContour()
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         GLU.gluTessEndContour(this.tess);
     }
 
     public void endPolygon()
     {
-        if (!this.enabled)
-            return;
+        if (!this.enabled) {
+			return;
+		}
 
         GLU.gluTessEndPolygon(this.tess);
     }

@@ -39,6 +39,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
@@ -709,7 +710,7 @@ public class Annotations extends ApplicationTemplate
                                         // Try to launch a browser with the clicked URL
                                         try
                                         {
-                                            BrowserOpener.browse(new URL((String) po.getValue(AVKey.URL)));
+                                            BrowserOpener.browse(URI.create((String) po.getValue(AVKey.URL)).toURL());
                                         }
                                         catch (Exception ignore)
                                         {

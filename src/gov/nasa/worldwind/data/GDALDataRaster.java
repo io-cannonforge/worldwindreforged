@@ -140,8 +140,9 @@ public class GDALDataRaster extends AbstractDataRaster implements Cacheable
         if (ds == null)
         {
             String message = GDALUtils.getErrorMessage();
-            if( WWUtil.isEmpty(message) )
-                message = Logging.getMessage("nullValue.DataSetIsNull");
+            if( WWUtil.isEmpty(message) ) {
+				message = Logging.getMessage("nullValue.DataSetIsNull");
+			}
 
             if (!quickReadingMode)
             {
@@ -464,16 +465,19 @@ public class GDALDataRaster extends AbstractDataRaster implements Cacheable
     {
         StringBuilder sb = new StringBuilder();
 
-        if (null != t.getMessage())
-            sb.append(t.getMessage());
-        else if (null != t.getCause())
-            sb.append(t.getCause().getMessage());
+        if (null != t.getMessage()) {
+			sb.append(t.getMessage());
+		} else if (null != t.getCause()) {
+			sb.append(t.getCause().getMessage());
+		}
 
-        if (sb.length() > 0)
-            sb.append(" : ");
+        if (sb.length() > 0) {
+			sb.append(" : ");
+		}
 
-        if (null != this.srcFile)
-            sb.append(this.srcFile);
+        if (null != this.srcFile) {
+			sb.append(this.srcFile);
+		}
 
         return sb.toString();
     }
@@ -1018,8 +1022,9 @@ public class GDALDataRaster extends AbstractDataRaster implements Cacheable
             if (null != missingDataSignal && colorInt == gdalconstConstants.GCI_GrayIndex)
             {
                 band.Fill(missingDataSignal);
-                if( null != srcBand && minValue != null && maxValue != null )
-                    band.SetStatistics( minValue, maxValue, 0d, 0d);
+                if( null != srcBand && minValue != null && maxValue != null ) {
+					band.SetStatistics( minValue, maxValue, 0d, 0d);
+				}
             }
         }
 

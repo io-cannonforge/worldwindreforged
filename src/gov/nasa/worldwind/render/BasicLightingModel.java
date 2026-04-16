@@ -54,8 +54,9 @@ public class BasicLightingModel implements LightingModel
     @Override
 	public void beginLighting(DrawContext dc)
     {
-        if (this.lightingStackHandler.isActive())
-            return; // lighting is already enabled
+        if (this.lightingStackHandler.isActive()) {
+			return; // lighting is already enabled
+		}
 
         GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
         this.lightingStackHandler.pushAttrib(gl, GL2.GL_LIGHTING_BIT);

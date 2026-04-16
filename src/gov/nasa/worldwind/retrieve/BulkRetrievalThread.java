@@ -109,8 +109,9 @@ public abstract class BulkRetrievalThread extends Thread
         this.fileStore = fileStore;
         this.progress = new Progress();
 
-        if (listener != null)
-            this.addRetrievalListener(listener);
+        if (listener != null) {
+			this.addRetrievalListener(listener);
+		}
     }
 
     @Override
@@ -168,14 +169,16 @@ public abstract class BulkRetrievalThread extends Thread
 
     public void addRetrievalListener(BulkRetrievalListener listener)
     {
-        if (listener != null)
-            this.retrievalListeners.add(BulkRetrievalListener.class, listener);
+        if (listener != null) {
+			this.retrievalListeners.add(BulkRetrievalListener.class, listener);
+		}
     }
 
     public void removeRetrievalListener(BulkRetrievalListener listener)
     {
-        if (listener != null)
-            this.retrievalListeners.remove(BulkRetrievalListener.class, listener);
+        if (listener != null) {
+			this.retrievalListeners.remove(BulkRetrievalListener.class, listener);
+		}
     }
 
     protected boolean hasRetrievalListeners()

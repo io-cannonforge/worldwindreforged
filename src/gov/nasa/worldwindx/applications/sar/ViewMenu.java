@@ -112,8 +112,9 @@ public class ViewMenu extends JMenu
             Iterable<Renderable> iter = ((RenderableLayer)layer).getRenderables();
             for (Renderable rend: iter)
             {
-                if (rend instanceof PlaneModel)
-                    return true;
+                if (rend instanceof PlaneModel) {
+					return true;
+				}
             }
         }
 

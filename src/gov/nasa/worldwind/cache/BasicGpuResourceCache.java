@@ -105,8 +105,9 @@ public class BasicGpuResourceCache implements GpuResourceCache
     protected void onEntryRemoved(Object key, Object clientObject)
     {
         GLContext context = GLContext.getCurrent();
-        if (context == null || context.getGL() == null || !(clientObject instanceof CacheEntry)) // shouldn't be null or wrong type, but check anyway
-            return;
+        if (context == null || context.getGL() == null || !(clientObject instanceof CacheEntry)) { // shouldn't be null or wrong type, but check anyway
+			return;
+		}
 
         CacheEntry entry = (CacheEntry) clientObject;
         GL2 gl = context.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
@@ -271,8 +272,9 @@ public class BasicGpuResourceCache implements GpuResourceCache
 
     protected long computeEntrySize(CacheEntry entry)
     {
-        if (entry.resourceType == TEXTURE)
-            return this.computeTextureSize(entry);
+        if (entry.resourceType == TEXTURE) {
+			return this.computeTextureSize(entry);
+		}
 
         return 0;
     }
@@ -284,8 +286,9 @@ public class BasicGpuResourceCache implements GpuResourceCache
         long size = texture.getEstimatedMemorySize();
 
         // JOGL returns a zero estimated memory size for some textures, so calculate a size ourselves.
-        if (size < 1)
-            size = texture.getHeight() * texture.getWidth() * 4;
+        if (size < 1) {
+			size = texture.getHeight() * texture.getWidth() * 4;
+		}
 
         return size;
     }

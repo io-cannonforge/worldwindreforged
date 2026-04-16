@@ -78,8 +78,9 @@ public class NetworkCheckThread extends Thread
         this.showNetStatus = showNetStatus;
         this.isNetAvailable = isNetAvailable;
 
-        if (interval != null && interval > 0)
-            this.netChecInterval.set(interval);
+        if (interval != null && interval > 0) {
+			this.netChecInterval.set(interval);
+		}
     }
 
     @Override

@@ -76,16 +76,19 @@ public abstract class SurfaceTileRenderer implements Disposable
 	public void dispose()
     {
         GLContext context = GLContext.getCurrent();
-        if (context == null || context.getGL() == null)
-            return;
+        if (context == null || context.getGL() == null) {
+			return;
+		}
 
         GL gl = context.getGL();
 
-        if (this.alphaTexture != null)
-            this.alphaTexture.destroy(gl);
+        if (this.alphaTexture != null) {
+			this.alphaTexture.destroy(gl);
+		}
         this.alphaTexture = null;
-        if (this.outlineTexture != null)
-            this.outlineTexture.destroy(gl);
+        if (this.outlineTexture != null) {
+			this.outlineTexture.destroy(gl);
+		}
         this.outlineTexture = null;
     }
 
@@ -190,8 +193,9 @@ public abstract class SurfaceTileRenderer implements Disposable
                 dc.getTextureCache().put(this, this.alphaTexture);
             }
 
-            if (showOutlines && this.outlineTexture == null)
-                this.initOutlineTexture(dc, 128);
+            if (showOutlines && this.outlineTexture == null) {
+				this.initOutlineTexture(dc, 128);
+			}
 
             gl.glEnable(GL.GL_DEPTH_TEST);
             gl.glDepthFunc(GL.GL_LEQUAL);
@@ -244,8 +248,9 @@ public abstract class SurfaceTileRenderer implements Disposable
             for (SectorGeometry sg : dc.getSurfaceGeometry())
             {
                 Iterable<SurfaceTile> tilesToRender = this.getIntersectingTiles(dc, sg, tiles);
-                if (tilesToRender == null)
-                    continue;
+                if (tilesToRender == null) {
+					continue;
+				}
 
                 sg.beginRendering(dc, numTexUnitsUsed); // TODO: wrap in try/catch in case of exception
 
@@ -369,10 +374,11 @@ public abstract class SurfaceTileRenderer implements Disposable
             for (int col = 0; col < size; col++)
             {
                 byte p;
-                if (row == 0 || col == 0 || row == size - 1 || col == size - 1)
-                    p = (byte) 0xff;
-                else
-                    p = (byte) 0;
+                if (row == 0 || col == 0 || row == size - 1 || col == size - 1) {
+					p = (byte) 0xff;
+				} else {
+					p = (byte) 0;
+				}
                 textureBytes.put(row * size + col, p);
             }
         }

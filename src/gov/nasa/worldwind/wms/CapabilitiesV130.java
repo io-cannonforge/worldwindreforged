@@ -63,16 +63,18 @@ public class CapabilitiesV130 extends Capabilities
 	public BoundingBox[] getLayerBoundingBoxes(Element layer)
     {
         Element[] es = this.getElements(layer, "ancestor-or-self::wms:Layer/wms:BoundingBox");
-        if (es == null)
-            return null;
+        if (es == null) {
+			return null;
+		}
 
         ArrayList<BoundingBox> bboxes = new ArrayList<>();
         ArrayList<String> crses = new ArrayList<>();
 
         for (Element e : es)
         {
-            if (e == null)
-                continue;
+            if (e == null) {
+				continue;
+			}
 
             BoundingBox bb = BoundingBox.createFromStrings(this.getBoundingBoxCRS(e),
                 this.getBoundingBoxMinx(e), this.getBoundingBoxMaxx(e),

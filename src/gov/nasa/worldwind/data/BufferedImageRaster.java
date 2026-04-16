@@ -378,17 +378,21 @@ public class BufferedImageRaster extends AbstractDataRaster implements Cacheable
             {
                 if (null != g2d)
                 {
-                    if (null != prevClip)
-                        g2d.setClip(prevClip);
+                    if (null != prevClip) {
+						g2d.setClip(prevClip);
+					}
 
-                    if (null != prevComposite)
-                        g2d.setComposite(prevComposite);
+                    if (null != prevComposite) {
+						g2d.setComposite(prevComposite);
+					}
 
-                    if (null != prevInterpolation)
-                        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, prevInterpolation);
+                    if (null != prevInterpolation) {
+						g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, prevInterpolation);
+					}
 
-                    if (null != prevAntialiasing)
-                        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, prevAntialiasing);
+                    if (null != prevAntialiasing) {
+						g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, prevAntialiasing);
+					}
                 }
             }
             catch (Throwable t)

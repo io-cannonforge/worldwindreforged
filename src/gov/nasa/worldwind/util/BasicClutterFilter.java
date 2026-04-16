@@ -51,8 +51,9 @@ public class BasicClutterFilter implements ClutterFilter
         for (Declutterable shape : shapes)
         {
             Rectangle2D bounds = shape.getBounds(dc);
-            if (bounds == null)
-                continue;
+            if (bounds == null) {
+				continue;
+			}
 
             // Check for an intersecting region. If none, then add the incoming region to the region list. Subsequent
             // regions will be checked for intersection with it.
@@ -81,14 +82,16 @@ public class BasicClutterFilter implements ClutterFilter
      */
     protected Rectangle2D intersects(Rectangle2D rectangle)
     {
-        if (rectangle == null)
-            return null;
+        if (rectangle == null) {
+			return null;
+		}
 
         // Performs a simple linear search. This is a performance bottleneck for very large lists.
         for (Rectangle2D rect : this.rectList)
         {
-            if (rectangle.intersects(rect))
-                return rect;
+            if (rectangle.intersects(rect)) {
+				return rect;
+			}
         }
 
         return null;

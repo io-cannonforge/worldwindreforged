@@ -508,34 +508,44 @@ public class Box implements Extent, Renderable
 
         for (Vec4 p : points)
         {
-            if (p == null)
-                continue;
+            if (p == null) {
+				continue;
+			}
 
             double pdr = p.dot3(r);
-            if (pdr < minDotR)
-                minDotR = pdr;
-            if (pdr > maxDotR)
-                maxDotR = pdr;
+            if (pdr < minDotR) {
+				minDotR = pdr;
+			}
+            if (pdr > maxDotR) {
+				maxDotR = pdr;
+			}
 
             double pds = p.dot3(s);
-            if (pds < minDotS)
-                minDotS = pds;
-            if (pds > maxDotS)
-                maxDotS = pds;
+            if (pds < minDotS) {
+				minDotS = pds;
+			}
+            if (pds > maxDotS) {
+				maxDotS = pds;
+			}
 
             double pdt = p.dot3(t);
-            if (pdt < minDotT)
-                minDotT = pdt;
-            if (pdt > maxDotT)
-                maxDotT = pdt;
+            if (pdt < minDotT) {
+				minDotT = pdt;
+			}
+            if (pdt > maxDotT) {
+				maxDotT = pdt;
+			}
         }
 
-        if (maxDotR == minDotR)
-            maxDotR = minDotR + 1;
-        if (maxDotS == minDotS)
-            maxDotS = minDotS + 1;
-        if (maxDotT == minDotT)
-            maxDotT = minDotT + 1;
+        if (maxDotR == minDotR) {
+			maxDotR = minDotR + 1;
+		}
+        if (maxDotS == minDotS) {
+			maxDotS = minDotS + 1;
+		}
+        if (maxDotT == minDotT) {
+			maxDotT = minDotT + 1;
+		}
 
         return new Box(axes, minDotR, maxDotR, minDotS, maxDotS, minDotT, maxDotT);
     }
@@ -603,30 +613,39 @@ public class Box implements Extent, Renderable
             double z = coordinates.getDouble(i + 2);
 
             double pdr = x * r.x + y * r.y + z * r.z;
-            if (pdr < minDotR)
-                minDotR = pdr;
-            if (pdr > maxDotR)
-                maxDotR = pdr;
+            if (pdr < minDotR) {
+				minDotR = pdr;
+			}
+            if (pdr > maxDotR) {
+				maxDotR = pdr;
+			}
 
             double pds = x * s.x + y * s.y + z * s.z;
-            if (pds < minDotS)
-                minDotS = pds;
-            if (pds > maxDotS)
-                maxDotS = pds;
+            if (pds < minDotS) {
+				minDotS = pds;
+			}
+            if (pds > maxDotS) {
+				maxDotS = pds;
+			}
 
             double pdt = x * t.x + y * t.y + z * t.z;
-            if (pdt < minDotT)
-                minDotT = pdt;
-            if (pdt > maxDotT)
-                maxDotT = pdt;
+            if (pdt < minDotT) {
+				minDotT = pdt;
+			}
+            if (pdt > maxDotT) {
+				maxDotT = pdt;
+			}
         }
 
-        if (maxDotR == minDotR)
-            maxDotR = minDotR + 1;
-        if (maxDotS == minDotS)
-            maxDotS = minDotS + 1;
-        if (maxDotT == minDotT)
-            maxDotT = minDotT + 1;
+        if (maxDotR == minDotR) {
+			maxDotR = minDotR + 1;
+		}
+        if (maxDotS == minDotS) {
+			maxDotS = minDotS + 1;
+		}
+        if (maxDotT == minDotT) {
+			maxDotT = minDotT + 1;
+		}
 
         return new Box(axes, minDotR, maxDotR, minDotS, maxDotS, minDotT, maxDotT);
     }
@@ -657,8 +676,9 @@ public class Box implements Extent, Renderable
 
         for (Box box : iterable)
         {
-            if (box == null)
-                continue;
+            if (box == null) {
+				continue;
+			}
 
             boxes.add(box);
         }
@@ -708,29 +728,34 @@ public class Box implements Extent, Renderable
 
         double effectiveRadius = this.getEffectiveRadius2(frustum.getNear());
         intersectionPoint = this.intersectsAt(frustum.getNear(), effectiveRadius, endPoints);
-        if (intersectionPoint < 0)
-            return false;
+        if (intersectionPoint < 0) {
+			return false;
+		}
 
         // Near and far have the same effective radius.
         effectiveRadius = this.getEffectiveRadius2(frustum.getFar());
         intersectionPoint = this.intersectsAt(frustum.getFar(), effectiveRadius, endPoints);
-        if (intersectionPoint < 0)
-            return false;
+        if (intersectionPoint < 0) {
+			return false;
+		}
 
         effectiveRadius = this.getEffectiveRadius2(frustum.getLeft());
         intersectionPoint = this.intersectsAt(frustum.getLeft(), effectiveRadius, endPoints);
-        if (intersectionPoint < 0)
-            return false;
+        if (intersectionPoint < 0) {
+			return false;
+		}
 
         effectiveRadius = this.getEffectiveRadius2(frustum.getRight());
         intersectionPoint = this.intersectsAt(frustum.getRight(), effectiveRadius, endPoints);
-        if (intersectionPoint < 0)
-            return false;
+        if (intersectionPoint < 0) {
+			return false;
+		}
 
         effectiveRadius = this.getEffectiveRadius2(frustum.getTop());
         intersectionPoint = this.intersectsAt(frustum.getTop(), effectiveRadius, endPoints);
-        if (intersectionPoint < 0)
-            return false;
+        if (intersectionPoint < 0) {
+			return false;
+		}
 
         effectiveRadius = this.getEffectiveRadius2(frustum.getBottom());
         intersectionPoint = this.intersectsAt(frustum.getBottom(), effectiveRadius, endPoints);
@@ -750,8 +775,9 @@ public class Box implements Extent, Renderable
      */
     protected double getEffectiveRadius2(Plane plane)
     {
-        if (plane == null)
-            return 0;
+        if (plane == null) {
+			return 0;
+		}
 
         // Determine the effective radius of the box axis relative to the plane, use only the S and T axes because the
         // R axis is incorporated into the endpoints of the line this place is being tested against.
@@ -763,8 +789,9 @@ public class Box implements Extent, Renderable
     @Override
 	public double getEffectiveRadius(Plane plane)
     {
-        if (plane == null)
-            return 0;
+        if (plane == null) {
+			return 0;
+		}
 
         // Determine the effective radius of the box axis relative to the plane.
         Vec4 n = plane.getNormal();
@@ -781,21 +808,24 @@ public class Box implements Extent, Renderable
         double dq2 = plane.dot(endpoints[1]);
         boolean bq2 = dq2 <= -effectiveRadius;
 
-        if (bq1 && bq2) // endpoints more distant from plane than effective radius; box is on neg. side of plane
-            return -1;
+        if (bq1 && bq2) { // endpoints more distant from plane than effective radius; box is on neg. side of plane
+			return -1;
+		}
 
-        if (bq1 == bq2) // endpoints less distant from plane than effective radius; can't draw any conclusions
-            return 0;
+        if (bq1 == bq2) { // endpoints less distant from plane than effective radius; can't draw any conclusions
+			return 0;
+		}
 
         // Compute and return the endpoints of the cylinder on the positive side of the plane.
         double t = (effectiveRadius + dq1) / plane.getNormal().dot3(endpoints[0].subtract3(endpoints[1]));
 
         Vec4 newEndPoint = endpoints[0].add3(endpoints[1].subtract3(endpoints[0]).multiply3(t));
         // truncate the line to only that in the positive halfspace (e.g., inside the frustum)
-        if (bq1)
-            endpoints[0] = newEndPoint;
-        else
-            endpoints[1] = newEndPoint;
+        if (bq1) {
+			endpoints[0] = newEndPoint;
+		} else {
+			endpoints[1] = newEndPoint;
+		}
 
         return t;
     }
@@ -825,11 +855,13 @@ public class Box implements Extent, Renderable
         double dq2 = plane.dot(this.topCenter);
         boolean bq2 = dq2 <= -effectiveRadius;
 
-        if (bq1 && bq2) // both beyond effective radius; box is on negative side of plane
-            return -1;
+        if (bq1 && bq2) { // both beyond effective radius; box is on negative side of plane
+			return -1;
+		}
 
-        if (bq1 == bq2) // both within effective radius; can't draw any conclusions
-            return 0;
+        if (bq1 == bq2) { // both within effective radius; can't draw any conclusions
+			return 0;
+		}
 
         return 1; // box almost certainly intersects
     }
@@ -880,17 +912,20 @@ public class Box implements Extent, Renderable
 
         // Index 0 indicates that the view is inside this Box. Return positive infinity, indicating that this Box does
         // not have a finite area in the viewport.
-        if (lookupCode == 0)
-            return Double.POSITIVE_INFINITY;
+        if (lookupCode == 0) {
+			return Double.POSITIVE_INFINITY;
+		}
 
-        if (lookupCode < 0 || lookupCode >= ProjectionHullTable.length)
-            return 0; // This should never happen, but we check anyway.
+        if (lookupCode < 0 || lookupCode >= ProjectionHullTable.length) {
+			return 0; // This should never happen, but we check anyway.
+		}
 
         // Get the 4 or 6 vertex indices that define this Box's convex hull in screen coordinates. Each element is used
         // as an index into this Box's array of corners.
         int[] indices = ProjectionHullTable[lookupCode];
-        if (indices == null || (indices.length != 4 && indices.length != 6))
-            return 0; // This should never happen, but we check anyway.
+        if (indices == null || (indices.length != 4 && indices.length != 6)) {
+			return 0; // This should never happen, but we check anyway.
+		}
 
         // Compute this Box's convex hull in screen coordinates, by transforming the 4 or 6 vertices that define its
         // projected outline from model coordinates into screen coordinates.
@@ -902,8 +937,9 @@ public class Box implements Extent, Renderable
         //noinspection ForLoopReplaceableByForEach
         for (int index : indices) {
             Vec4 eyeVertex = vertices[index].transformBy4(view.getModelviewMatrix());
-            if (eyeVertex.z >= 0)
-                return Double.POSITIVE_INFINITY;
+            if (eyeVertex.z >= 0) {
+				return Double.POSITIVE_INFINITY;
+			}
         }
 
         for (int i = 0; i < indices.length; i++)
@@ -1048,8 +1084,9 @@ public class Box implements Extent, Renderable
             throw new IllegalArgumentException(message);
         }
 
-        if (dc.isPickingMode())
-            return;
+        if (dc.isPickingMode()) {
+			return;
+		}
 
         Vec4 a = this.s.add3(this.t).multiply3(-0.5);
         Vec4 b = this.s.subtract3(this.t).multiply3(0.5);
@@ -1140,17 +1177,20 @@ public class Box implements Extent, Renderable
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (!(o instanceof Box))
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (!(o instanceof Box)) {
+			return false;
+		}
 
         Box box = (Box) o;
 
         //noinspection RedundantIfStatement
         if ((center != null ? !center.equals(box.center) : box.center != null) || (r != null ? !r.equals(box.r) : box.r != null) || (s != null ? !s.equals(box.s) : box.s != null)
-				|| (t != null ? !t.equals(box.t) : box.t != null))
-            return false;
+				|| (t != null ? !t.equals(box.t) : box.t != null)) {
+			return false;
+		}
 
         return true;
     }

@@ -57,8 +57,9 @@ public class HTTPRetriever extends URLRetriever
     {
         // Configure JVM-level HTTP connection pooling to match the retrieval thread pool size.
         // These are no-ops if already set by the application before first HTTP request.
-        if (System.getProperty("http.keepAlive") == null)
-            System.setProperty("http.keepAlive", "true");
+        if (System.getProperty("http.keepAlive") == null) {
+			System.setProperty("http.keepAlive", "true");
+		}
         if (System.getProperty("http.maxConnections") == null)
         {
             int poolSize = Configuration.getIntegerValue(AVKey.RETRIEVAL_POOL_SIZE, 10);
@@ -101,8 +102,9 @@ public class HTTPRetriever extends URLRetriever
             connection.getContentLength(), contentType != null ? contentType : "content type not returned",
             connection.getURL()});
 
-        if (this.responseCode == HttpURLConnection.HTTP_OK)
-            return super.doRead(connection);
+        if (this.responseCode == HttpURLConnection.HTTP_OK) {
+			return super.doRead(connection);
+		}
 
         return null;
     }

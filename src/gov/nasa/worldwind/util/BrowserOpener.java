@@ -50,12 +50,13 @@ public class BrowserOpener
         try
         {
             String urlString = url.toString();
-            if (Configuration.isMacOS())
-                browseMacOS(urlString);
-            else if (Configuration.isWindowsOS())
-                browseWindows(urlString);
-            else if (Configuration.isUnixOS() || Configuration.isLinuxOS())
-                browseUnix(urlString);
+            if (Configuration.isMacOS()) {
+				browseMacOS(urlString);
+			} else if (Configuration.isWindowsOS()) {
+				browseWindows(urlString);
+			} else if (Configuration.isUnixOS() || Configuration.isLinuxOS()) {
+				browseUnix(urlString);
+			}
         }
         catch (Exception e)
         {
@@ -72,7 +73,7 @@ public class BrowserOpener
 
     private static void browseWindows(String urlString) throws Exception
     {
-        Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + urlString);
+        Runtime.getRuntime().exec(new String[] {"rundll32", "url.dll,FileProtocolHandler", urlString});
     }
 
     private static void browseUnix(String urlString) throws Exception
@@ -80,12 +81,15 @@ public class BrowserOpener
         String browser = null;
 
         String[] browsers = {"firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape"};
-        for (String curBrowser : browsers)
-            if (Runtime.getRuntime().exec(new String[] {"which", curBrowser}).waitFor() == 0)
-                browser = curBrowser;
+        for (String curBrowser : browsers) {
+			if (Runtime.getRuntime().exec(new String[] {"which", curBrowser}).waitFor() == 0) {
+				browser = curBrowser;
+			}
+		}
 
-        if (browser == null)
-            throw new Exception("Cannot find browser");
+        if (browser == null) {
+			throw new Exception("Cannot find browser");
+		}
 
         Runtime.getRuntime().exec(new String[] {browser, urlString});
     }

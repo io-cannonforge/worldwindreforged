@@ -196,8 +196,9 @@ public class WWXML
         String sourceName = (String) docSource;
 
         URL url = WWIO.makeURL(sourceName);
-        if (url != null)
-            return openDocumentURL(url);
+        if (url != null) {
+			return openDocumentURL(url);
+		}
 
         return openDocumentFile(sourceName, null);
     }
@@ -568,8 +569,9 @@ public class WWXML
         String sourceName = (String) docSource;
 
         URL url = WWIO.makeURL(sourceName);
-        if (url != null)
-            return openEventReaderURL(url, isNamespaceAware);
+        if (url != null) {
+			return openEventReaderURL(url, isNamespaceAware);
+		}
 
         return openEventReaderFile(sourceName, null, isNamespaceAware);
     }
@@ -582,8 +584,9 @@ public class WWXML
      */
     public static void closeEventReader(XMLEventReader eventReader, String name)
     {
-        if (eventReader == null)
-            return;
+        if (eventReader == null) {
+			return;
+		}
 
         try
         {
@@ -619,10 +622,11 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (output instanceof OutputStream)
-            return XMLOutputFactory.newInstance().createXMLStreamWriter((OutputStream) output);
-        else if (output instanceof Writer)
-            return XMLOutputFactory.newInstance().createXMLStreamWriter((Writer) output);
+        if (output instanceof OutputStream) {
+			return XMLOutputFactory.newInstance().createXMLStreamWriter((OutputStream) output);
+		} else if (output instanceof Writer) {
+			return XMLOutputFactory.newInstance().createXMLStreamWriter((Writer) output);
+		}
 
         return null;
     }
@@ -652,8 +656,9 @@ public class WWXML
             while (eventReader.hasNext())
             {
                 event = eventReader.nextEvent();
-                if (event != null && event.isStartElement())
-                    break;
+                if (event != null && event.isStartElement()) {
+					break;
+				}
             }
 
             return (event != null && event.isStartElement()) ? (StartElement) event : null;
@@ -717,8 +722,9 @@ public class WWXML
                 else if (nextEvent.isCharacters())
                 {
                     Characters characters = eventReader.nextEvent().asCharacters(); // consume the event
-                    if (!characters.isWhiteSpace())
-                        sb.append(characters.getData());
+                    if (!characters.isWhiteSpace()) {
+						sb.append(characters.getData());
+					}
                 }
                 else
                 {
@@ -761,8 +767,9 @@ public class WWXML
 
             String exception = xpath.evaluate("ServiceExceptionReport", doc);
 
-            if (exception == null || exception.length() == 0)
-                return null;
+            if (exception == null || exception.length() == 0) {
+				return null;
+			}
 
             // TODO: Test this xpath expression for returning the text of the service exception.
             return xpath.evaluate("ServiceExceptionReport/ServiceException/text()", doc);
@@ -868,8 +875,9 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (xpath == null)
-            xpath = makeXPath();
+        if (xpath == null) {
+			xpath = makeXPath();
+		}
 
         try
         {
@@ -909,15 +917,17 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (xpath == null)
-            xpath = makeXPath();
+        if (xpath == null) {
+			xpath = makeXPath();
+		}
 
         try
         {
             NodeList nodes = (NodeList) xpath.evaluate(path, context,
                 XPathConstants.NODESET);
-            if (nodes == null || nodes.getLength() == 0)
-                return null;
+            if (nodes == null || nodes.getLength() == 0) {
+				return null;
+			}
 
             String[] strings = new String[nodes.getLength()];
             for (int i = 0; i < nodes.getLength(); i++)
@@ -962,18 +972,21 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (xpath == null)
-            xpath = makeXPath();
+        if (xpath == null) {
+			xpath = makeXPath();
+		}
 
         String[] strings = getTextArray(context, path, xpath);
-        if (strings == null)
-            return null;
+        if (strings == null) {
+			return null;
+		}
 
         ArrayList<String> sarl = new ArrayList<>();
         for (String s : strings)
         {
-            if (!sarl.contains(s))
-                sarl.add(s);
+            if (!sarl.contains(s)) {
+				sarl.add(s);
+			}
         }
 
         return sarl.toArray(new String[1]);
@@ -1007,14 +1020,16 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (xpath == null)
-            xpath = makeXPath();
+        if (xpath == null) {
+			xpath = makeXPath();
+		}
 
         try
         {
             Node node = (Node) xpath.evaluate(path, context, XPathConstants.NODE);
-            if (node == null)
-                return null;
+            if (node == null) {
+				return null;
+			}
 
             return node instanceof Element ? (Element) node : null;
         }
@@ -1054,21 +1069,24 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (xpath == null)
-            xpath = makeXPath();
+        if (xpath == null) {
+			xpath = makeXPath();
+		}
 
         try
         {
             NodeList nodes = (NodeList) xpath.evaluate(path, context, XPathConstants.NODESET);
-            if (nodes == null || nodes.getLength() == 0)
-                return null;
+            if (nodes == null || nodes.getLength() == 0) {
+				return null;
+			}
 
             Element[] elements = new Element[nodes.getLength()];
             for (int i = 0; i < nodes.getLength(); i++)
             {
                 Node node = nodes.item(i);
-                if (node instanceof Element)
-                    elements[i] = (Element) node;
+                if (node instanceof Element) {
+					elements[i] = (Element) node;
+				}
             }
             return elements;
         }
@@ -1118,19 +1136,22 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (xpath == null)
-            xpath = makeXPath();
+        if (xpath == null) {
+			xpath = makeXPath();
+		}
 
         Element[] elements = getElements(context, path, xpath);
-        if (elements == null)
-            return null;
+        if (elements == null) {
+			return null;
+		}
 
         HashMap<String, Element> styles = new HashMap<>();
         for (Element e : elements)
         {
             String name = getText(e, uniqueTag, xpath);
-            if (name != null)
-                styles.put(name, e);
+            if (name != null) {
+				styles.put(name, e);
+			}
         }
 
         return styles.values().toArray(new Element[1]);
@@ -1170,8 +1191,9 @@ public class WWXML
         try
         {
             s = getText(context, path, xpath);
-            if (s == null || s.length() == 0)
-                return null;
+            if (s == null || s.length() == 0) {
+				return null;
+			}
 
             return Double.valueOf(s);
         }
@@ -1217,8 +1239,9 @@ public class WWXML
         try
         {
             s = getText(context, path, xpath);
-            if (s == null || s.length() == 0)
-                return null;
+            if (s == null || s.length() == 0) {
+				return null;
+			}
 
             return Integer.valueOf(s);
         }
@@ -1264,8 +1287,9 @@ public class WWXML
         try
         {
             s = getText(context, path, xpath);
-            if (s == null || s.length() == 0)
-                return null;
+            if (s == null || s.length() == 0) {
+				return null;
+			}
 
             return Long.valueOf(s);
         }
@@ -1311,8 +1335,9 @@ public class WWXML
         try
         {
             s = getText(context, path, xpath);
-            if (s == null || s.length() == 0)
-                return null;
+            if (s == null || s.length() == 0) {
+				return null;
+			}
 
             return Boolean.valueOf(s);
         }
@@ -1350,21 +1375,25 @@ public class WWXML
         try
         {
             Element el = path == null ? context : getElement(context, path, xpath);
-            if (el == null)
-                return null;
+            if (el == null) {
+				return null;
+			}
 
             String units = getText(el, "@units", xpath);
             Double lat = getDouble(el, "@latitude", xpath);
             Double lon = getDouble(el, "@longitude", xpath);
 
-            if (lat == null || lon == null)
-                return null;
+            if (lat == null || lon == null) {
+				return null;
+			}
 
-            if (units == null || units.equals("degrees"))
-                return LatLon.fromDegrees(lat, lon);
+            if (units == null || units.equals("degrees")) {
+				return LatLon.fromDegrees(lat, lon);
+			}
 
-            if (units.equals("radians"))
-                return LatLon.fromRadians(lat, lon);
+            if (units.equals("radians")) {
+				return LatLon.fromRadians(lat, lon);
+			}
 
             // Warn that units are not recognized
             String message = Logging.getMessage("XML.UnitsUnrecognized", units);
@@ -1406,8 +1435,9 @@ public class WWXML
         try
         {
             Element el = path == null ? context : getElement(context, path, xpath);
-            if (el == null)
-                return null;
+            if (el == null) {
+				return null;
+			}
 
             Integer r = getInteger(el, "@red", xpath);
             Integer g = getInteger(el, "@green", xpath);
@@ -1448,14 +1478,16 @@ public class WWXML
         }
 
         Element el = path == null ? context : getElement(context, path, xpath);
-        if (el == null)
-            return null;
+        if (el == null) {
+			return null;
+		}
 
         LatLon sw = getLatLon(el, "SouthWest/LatLon", xpath);
         LatLon ne = getLatLon(el, "NorthEast/LatLon", xpath);
 
-        if (sw == null || ne == null)
-            return null;
+        if (sw == null || ne == null) {
+			return null;
+		}
 
         return new Sector(sw.latitude, ne.latitude, sw.longitude, ne.longitude);
     }
@@ -1485,14 +1517,16 @@ public class WWXML
         }
 
         Element el = path == null ? context : getElement(context, path, xpath);
-        if (el == null)
-            return null;
+        if (el == null) {
+			return null;
+		}
 
         Integer maxLevelNum = getInteger(el, "@maxLevelNum", xpath);
         Sector sector = getSector(el, "Sector", xpath);
 
-        if (maxLevelNum == null || sector == null)
-            return null;
+        if (maxLevelNum == null || sector == null) {
+			return null;
+		}
 
         return new LevelSet.SectorResolution(sector, maxLevelNum);
     }
@@ -1523,26 +1557,32 @@ public class WWXML
         try
         {
             Element el = path == null ? context : getElement(context, path, xpath);
-            if (el == null)
-                return null;
+            if (el == null) {
+				return null;
+			}
 
             String units = getText(el, "@units", xpath);
             Double value = getDouble(el, "@value", xpath);
 
-            if (value == null)
-                return null;
+            if (value == null) {
+				return null;
+			}
 
-            if (units == null || units.equals("milliseconds"))
-                return value.longValue();
+            if (units == null || units.equals("milliseconds")) {
+				return value.longValue();
+			}
 
-            if (units.equals("seconds"))
-                return (long) WWMath.convertSecondsToMillis(value);
+            if (units.equals("seconds")) {
+				return (long) WWMath.convertSecondsToMillis(value);
+			}
 
-            if (units.equals("minutes"))
-                return (long) WWMath.convertMinutesToMillis(value);
+            if (units.equals("minutes")) {
+				return (long) WWMath.convertMinutesToMillis(value);
+			}
 
-            if (units.equals("hours"))
-                return (long) WWMath.convertHoursToMillis(value);
+            if (units.equals("hours")) {
+				return (long) WWMath.convertHoursToMillis(value);
+			}
 
             // Warn that units are not recognized
             String message = Logging.getMessage("XML.UnitsUnrecognized", units);
@@ -1592,17 +1632,20 @@ public class WWXML
         try
         {
             Element el = path == null ? context : getElement(context, path, xpath);
-            if (el == null)
-                return null;
+            if (el == null) {
+				return null;
+			}
 
             String s = getText(context, path, xpath);
-            if (s == null || s.length() == 0)
-                return null;
+            if (s == null || s.length() == 0) {
+				return null;
+			}
 
             // See if the value is already a long
             Long longValue = WWUtil.makeLong(s);
-            if (longValue != null)
-                return longValue;
+            if (longValue != null) {
+				return longValue;
+			}
 
             return new SimpleDateFormat(pattern).parse(s).getTime();
         }
@@ -1639,8 +1682,9 @@ public class WWXML
         }
 
         Element el = path == null ? context : WWXML.getElement(context, path, xpath);
-        if (el == null)
-            return null;
+        if (el == null) {
+			return null;
+		}
 
         String type = WWXML.getText(el, "@creditType", xpath);
 
@@ -1652,8 +1696,9 @@ public class WWXML
                 ScreenCredit credit = new ScreenCreditImage(WWIO.getFilename(fileName), fileName);
 
                 String link = WWXML.getText(el, "Link", xpath);
-                if (link != null && link.length() > 0)
-                    credit.setLink(link);
+                if (link != null && link.length() > 0) {
+					credit.setLink(link);
+				}
 
                 return credit;
             }
@@ -2165,8 +2210,9 @@ public class WWXML
             setTextAttribute(el, "creditType", "ScreenImage");
 
             String link = screenCredit.getLink();
-            if (link != null && link.length() > 0)
-                WWXML.appendText(el, "Link", link);
+            if (link != null && link.length() > 0) {
+				WWXML.appendText(el, "Link", link);
+			}
 
             Object imageSource = ((ScreenCreditImage) screenCredit).getImageSource();
             if (imageSource != null && imageSource instanceof String)
@@ -2388,8 +2434,9 @@ public class WWXML
         if (s == null)
         {
             s = getText(context, paramName, xpath);
-            if (s != null && s.length() > 0)
-                params.setValue(paramKey, s.trim());
+            if (s != null && s.length() > 0) {
+				params.setValue(paramKey, s.trim());
+			}
         }
     }
 
@@ -2442,8 +2489,9 @@ public class WWXML
         if (o == null)
         {
             String[] strings = getTextArray(context, paramName, xpath);
-            if (strings != null && strings.length > 0)
-                params.setValue(paramKey, strings);
+            if (strings != null && strings.length > 0) {
+				params.setValue(paramKey, strings);
+			}
         }
     }
 
@@ -2496,8 +2544,9 @@ public class WWXML
         if (o == null)
         {
             String[] strings = getUniqueText(context, paramName, xpath);
-            if (strings != null && strings.length > 0)
-                params.setValue(paramKey, strings);
+            if (strings != null && strings.length > 0) {
+				params.setValue(paramKey, strings);
+			}
         }
     }
 
@@ -2550,8 +2599,9 @@ public class WWXML
         if (o == null)
         {
             Double d = getDouble(context, paramName, xpath);
-            if (d != null)
-                params.setValue(paramKey, d);
+            if (d != null) {
+				params.setValue(paramKey, d);
+			}
         }
     }
 
@@ -2604,8 +2654,9 @@ public class WWXML
         if (o == null)
         {
             Integer d = getInteger(context, paramName, xpath);
-            if (d != null)
-                params.setValue(paramKey, d);
+            if (d != null) {
+				params.setValue(paramKey, d);
+			}
         }
     }
 
@@ -2658,8 +2709,9 @@ public class WWXML
         if (o == null)
         {
             Long d = getLong(context, paramName, xpath);
-            if (d != null)
-                params.setValue(paramKey, d);
+            if (d != null) {
+				params.setValue(paramKey, d);
+			}
         }
     }
 
@@ -2712,8 +2764,9 @@ public class WWXML
         if (o == null)
         {
             Boolean d = getBoolean(context, paramName, xpath);
-            if (d != null)
-                params.setValue(paramKey, d);
+            if (d != null) {
+				params.setValue(paramKey, d);
+			}
         }
     }
 
@@ -2766,8 +2819,9 @@ public class WWXML
         if (o == null)
         {
             LatLon ll = getLatLon(context, paramName, xpath);
-            if (ll != null)
-                params.setValue(paramKey, ll);
+            if (ll != null) {
+				params.setValue(paramKey, ll);
+			}
         }
     }
 
@@ -2820,8 +2874,9 @@ public class WWXML
         if (o == null)
         {
             Color color = getColor(context, paramName, xpath);
-            if (color != null)
-                params.setValue(paramKey, color);
+            if (color != null) {
+				params.setValue(paramKey, color);
+			}
         }
     }
 
@@ -2860,16 +2915,18 @@ public class WWXML
         if (o == null)
         {
             Element[] els = getElements(context, paramName, xpath);
-            if (els == null || els.length == 0)
-                return;
+            if (els == null || els.length == 0) {
+				return;
+			}
 
             int[] colors = new int[els.length];
 
             for (int i = 0; i < els.length; i++)
             {
                 Color color = getColor(context, paramName, xpath);
-                if (color != null)
-                    colors[i] = color.getRGB();
+                if (color != null) {
+					colors[i] = color.getRGB();
+				}
             }
 
             params.setValue(paramKey, colors);
@@ -2925,8 +2982,9 @@ public class WWXML
         if (o == null)
         {
             Sector sector = getSector(context, paramName, xpath);
-            if (sector != null)
-                params.setValue(paramKey, sector);
+            if (sector != null) {
+				params.setValue(paramKey, sector);
+			}
         }
     }
 
@@ -2979,16 +3037,18 @@ public class WWXML
         if (o == null)
         {
             Element[] els = getElements(context, paramName, xpath);
-            if (els == null || els.length == 0)
-                return;
+            if (els == null || els.length == 0) {
+				return;
+			}
 
             LevelSet.SectorResolution[] srs = new LevelSet.SectorResolution[els.length];
 
             for (int i = 0; i < els.length; i++)
             {
                 LevelSet.SectorResolution sr = getSectorResolutionLimit(els[i], null, xpath);
-                if (sr != null)
-                    srs[i] = sr;
+                if (sr != null) {
+					srs[i] = sr;
+				}
             }
 
             params.setValue(paramKey, srs);
@@ -3044,8 +3104,9 @@ public class WWXML
         if (o == null)
         {
             Long d = getTimeInMillis(context, paramName, xpath);
-            if (d != null)
-                params.setValue(paramKey, d);
+            if (d != null) {
+				params.setValue(paramKey, d);
+			}
         }
     }
 
@@ -3098,8 +3159,9 @@ public class WWXML
         if (o == null)
         {
             Long d = WWXML.getTimeInMillis(context, paramName, xpath);
-            if (d != null)
-                params.setValue(paramKey, d.intValue());
+            if (d != null) {
+				params.setValue(paramKey, d.intValue());
+			}
         }
     }
 
@@ -3161,8 +3223,9 @@ public class WWXML
         if (o == null)
         {
             Long d = getDateTimeInMillis(context, paramName, pattern, xpath);
-            if (d != null)
-                params.setValue(paramKey, d);
+            if (d != null) {
+				params.setValue(paramKey, d);
+			}
         }
     }
 
@@ -3215,8 +3278,9 @@ public class WWXML
         if (o == null)
         {
             ScreenCredit sc = getScreenCredit(context, paramName, xpath);
-            if (sc != null)
-                params.setValue(paramKey, sc);
+            if (sc != null) {
+				params.setValue(paramKey, sc);
+			}
         }
     }
 
@@ -3696,11 +3760,13 @@ public class WWXML
 
         gms = gms.trim();
         int qMarkIndex = gms.indexOf("?");
-        if (qMarkIndex < 0)
-            gms += "?";
-        else if (qMarkIndex != gms.length() - 1)
-            if (gms.lastIndexOf("&") != gms.length() - 1)
-                gms += "&";
+        if (qMarkIndex < 0) {
+			gms += "?";
+		} else if (qMarkIndex != gms.length() - 1) {
+			if (gms.lastIndexOf("&") != gms.length() - 1) {
+				gms += "&";
+			}
+		}
 
         return gms;
     }
@@ -3726,10 +3792,11 @@ public class WWXML
         }
 
         s = s.trim().toLowerCase();
-        if (s.startsWith("little"))
-            return AVKey.LITTLE_ENDIAN;
-        else if (s.startsWith("big"))
-            return AVKey.BIG_ENDIAN;
+        if (s.startsWith("little")) {
+			return AVKey.LITTLE_ENDIAN;
+		} else if (s.startsWith("big")) {
+			return AVKey.BIG_ENDIAN;
+		}
 
         // Warn that the byte order is unrecognized.
         String message = Logging.getMessage("generic.UnrecognizedByteOrder", s);
@@ -3758,10 +3825,11 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (byteOrder.equals(AVKey.LITTLE_ENDIAN))
-            return "LittleEndian";
-        else if (byteOrder.equals(AVKey.BIG_ENDIAN))
-            return "BigEndian";
+        if (byteOrder.equals(AVKey.LITTLE_ENDIAN)) {
+			return "LittleEndian";
+		} else if (byteOrder.equals(AVKey.BIG_ENDIAN)) {
+			return "BigEndian";
+		}
 
         // Warn that the byte order is unrecognized.
         String message = Logging.getMessage("generic.UnrecognizedByteOrder", byteOrder);
@@ -3791,14 +3859,15 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (s.equals("Float32"))
-            return AVKey.FLOAT32;
-        else if (s.equals("Int32"))
-            return AVKey.INT32;
-        else if (s.equals("Int16"))
-            return AVKey.INT16;
-        else if (s.equals("Int8"))
-            return AVKey.INT8;
+        if (s.equals("Float32")) {
+			return AVKey.FLOAT32;
+		} else if (s.equals("Int32")) {
+			return AVKey.INT32;
+		} else if (s.equals("Int16")) {
+			return AVKey.INT16;
+		} else if (s.equals("Int8")) {
+			return AVKey.INT8;
+		}
 
         // Warn that the data type is unrecognized.
         String message = Logging.getMessage("generic.UnrecognizedDataType", s);
@@ -3828,14 +3897,15 @@ public class WWXML
             throw new IllegalArgumentException(message);
         }
 
-        if (dataType.equals(AVKey.FLOAT32))
-            return "Float32";
-        else if (dataType.equals(AVKey.INT32))
-            return "Int32";
-        else if (dataType.equals(AVKey.INT16))
-            return "Int16";
-        else if (dataType.equals(AVKey.INT8))
-            return "Int8";
+        if (dataType.equals(AVKey.FLOAT32)) {
+			return "Float32";
+		} else if (dataType.equals(AVKey.INT32)) {
+			return "Int32";
+		} else if (dataType.equals(AVKey.INT16)) {
+			return "Int16";
+		} else if (dataType.equals(AVKey.INT8)) {
+			return "Int8";
+		}
 
         // Warn that the data type is unrecognized.
         String message = Logging.getMessage("generic.UnrecognizedDataType", dataType);
@@ -3869,18 +3939,21 @@ public class WWXML
         {
             XPath xpath = makeXPath();
             Element[] elements = getElements(element, "Property", xpath);
-            if (elements == null || elements.length == 0)
-                return params;
+            if (elements == null || elements.length == 0) {
+				return params;
+			}
 
-            if (params == null)
-                params = new AVListImpl();
+            if (params == null) {
+				params = new AVListImpl();
+			}
 
             for (Element el : elements)
             {
                 String prop = xpath.evaluate("@name", el);
                 String value = xpath.evaluate("@value", el);
-                if (WWUtil.isEmpty(prop) || WWUtil.isEmpty(value))
-                    continue;
+                if (WWUtil.isEmpty(prop) || WWUtil.isEmpty(value)) {
+					continue;
+				}
 
                 params.setValue(prop, value);
             }
@@ -3922,14 +3995,16 @@ public class WWXML
         }
 
         Element[] elements = WWXML.getElements(domElement, "Property", null);
-        if (elements == null || elements.length == 0)
-            return;
+        if (elements == null || elements.length == 0) {
+			return;
+		}
 
         for (Element element : elements)
         {
             String propertyName = element.getAttribute("name");
-            if (WWUtil.isEmpty(propertyName))
-                continue;
+            if (WWUtil.isEmpty(propertyName)) {
+				continue;
+			}
 
             String propertyValue = element.getAttribute("value");
 
@@ -3940,8 +4015,9 @@ public class WWXML
             catch (NoSuchMethodException e)
             {
                 // No property method, so just add the property to the object's AVList if it has one.
-                if (parent instanceof AVList)
-                    ((AVList) parent).setValue(propertyName, propertyValue);
+                if (parent instanceof AVList) {
+					((AVList) parent).setValue(propertyName, propertyValue);
+				}
                 continue; // This is a benign exception; not all properties have set methods.
             }
             catch (InvocationTargetException e)

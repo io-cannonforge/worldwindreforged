@@ -382,7 +382,7 @@ public class WMSExplorer
                 html.append("<b>").append(truncate(entry.getTitle(), 40)).append(":</b><br>");
                 try
                 {
-                    URL url = new URL(query);
+                    URL url = URI.create(query).toURL();
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setConnectTimeout(8000);
                     conn.setReadTimeout(10000);
@@ -1165,7 +1165,7 @@ public class WMSExplorer
                 String probe = serverUrl
                     + (serverUrl.contains("?") ? "&" : "?")
                     + "SERVICE=WMS&REQUEST=GetCapabilities";
-                HttpURLConnection conn = (HttpURLConnection) new URL(probe).openConnection();
+                HttpURLConnection conn = (HttpURLConnection) URI.create(probe).toURL().openConnection();
                 conn.setConnectTimeout(6000);
                 conn.setReadTimeout(6000);
                 conn.setRequestMethod("HEAD");
@@ -1472,7 +1472,7 @@ public class WMSExplorer
             Thread t = new Thread(() -> {
                 try
                 {
-                    URL url = new URL(legendUrl);
+                    URL url = URI.create(legendUrl).toURL();
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setConnectTimeout(10000);
                     conn.setReadTimeout(10000);

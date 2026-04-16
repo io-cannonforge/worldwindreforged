@@ -98,10 +98,11 @@ public class ElementParser
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.currentElement != null)
-            this.currentElement.startElement(uri, lname, qname, attributes);
-        else
-            this.doStartElement(uri, lname, qname, attributes);
+        if (this.currentElement != null) {
+			this.currentElement.startElement(uri, lname, qname, attributes);
+		} else {
+			this.doStartElement(uri, lname, qname, attributes);
+		}
     }
 
     /**
@@ -136,8 +137,9 @@ public class ElementParser
         if (this.currentElement != null)
         {
             this.currentElement.endElement(uri, lname, qname);
-            if (lname.equalsIgnoreCase(this.currentElement.elementName))
-                this.currentElement = null;
+            if (lname.equalsIgnoreCase(this.currentElement.elementName)) {
+				this.currentElement = null;
+			}
         }
 
         this.doEndElement(uri, lname, qname);
@@ -187,11 +189,12 @@ public class ElementParser
             throw new IllegalArgumentException(msg);
         }
 
-        if (this.currentElement != null)
-            this.currentElement.characters(data, start, length);
-        else if (this.currentCharacters != null)
-            this.currentCharacters += new String(data, start, length);
-        else
-            this.currentCharacters = new String(data, start, length);
+        if (this.currentElement != null) {
+			this.currentElement.characters(data, start, length);
+		} else if (this.currentCharacters != null) {
+			this.currentCharacters += new String(data, start, length);
+		} else {
+			this.currentCharacters = new String(data, start, length);
+		}
     }
 }

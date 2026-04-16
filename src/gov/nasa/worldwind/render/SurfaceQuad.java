@@ -370,8 +370,9 @@ public class SurfaceQuad extends AbstractSurfaceShape implements Exportable
             throw new IllegalArgumentException(message);
         }
 
-        if (this.width == 0 && this.height == 0)
-            return null;
+        if (this.width == 0 && this.height == 0) {
+			return null;
+		}
 
         double hw = this.width / 2.0;
         double hh = this.height / 2.0;
@@ -403,8 +404,9 @@ public class SurfaceQuad extends AbstractSurfaceShape implements Exportable
 	protected List<List<LatLon>> createGeometry(Globe globe, double edgeIntervalsPerDegree)
     {
         Iterable<? extends LatLon> originalLocations = this.getLocations(globe);
-        if (originalLocations == null)
-            return null;
+        if (originalLocations == null) {
+			return null;
+		}
 
         ArrayList<LatLon> drawLocations = new ArrayList<>();
         this.generateIntermediateLocations(originalLocations, edgeIntervalsPerDegree, false, drawLocations);
@@ -436,20 +438,24 @@ public class SurfaceQuad extends AbstractSurfaceShape implements Exportable
         super.doRestoreState(rs, context);
 
         LatLon ll = rs.getStateValueAsLatLon(context, "center");
-        if (ll != null)
-            this.setCenter(ll);
+        if (ll != null) {
+			this.setCenter(ll);
+		}
 
         Double d = rs.getStateValueAsDouble(context, "width");
-        if (d != null)
-            this.setWidth(d);
+        if (d != null) {
+			this.setWidth(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "height");
-        if (d != null)
-            this.setHeight(d);
+        if (d != null) {
+			this.setHeight(d);
+		}
 
         d = rs.getStateValueAsDouble(context, "headingDegrees");
-        if (d != null)
-            this.setHeading(Angle.fromDegrees(d));
+        if (d != null) {
+			this.setHeading(Angle.fromDegrees(d));
+		}
     }
 
     @Override
@@ -461,8 +467,9 @@ public class SurfaceQuad extends AbstractSurfaceShape implements Exportable
         // width and height, so these restored values must be converted.
         Double width = rs.getStateValueAsDouble(context, "halfWidth");
         Double height = rs.getStateValueAsDouble(context, "halfHeight");
-        if (width != null && height != null)
-            this.setSize(2 * width, 2 * height);
+        if (width != null && height != null) {
+			this.setSize(2 * width, 2 * height);
+		}
 
         // This property has not changed since the previos version, but it's shown here for reference.
         //LatLon center = rs.getStateValueAsLatLon(context, "center");
@@ -470,8 +477,9 @@ public class SurfaceQuad extends AbstractSurfaceShape implements Exportable
         //    this.setCenter(center);
 
         Double od = rs.getStateValueAsDouble(context, "orientationDegrees");
-        if (od != null)
-            this.setHeading(Angle.fromDegrees(od));
+        if (od != null) {
+			this.setHeading(Angle.fromDegrees(od));
+		}
     }
 
     /**
@@ -582,7 +590,8 @@ public class SurfaceQuad extends AbstractSurfaceShape implements Exportable
         xmlWriter.writeEndElement(); // Placemark
 
         xmlWriter.flush();
-        if (closeWriterWhenFinished)
-            xmlWriter.close();
+        if (closeWriterWhenFinished) {
+			xmlWriter.close();
+		}
     }
 }

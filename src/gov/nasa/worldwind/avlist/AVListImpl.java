@@ -69,8 +69,9 @@ public class AVListImpl implements AVList
      */
     public AVListImpl(Object sourceBean)
     {
-        if (sourceBean != null)
-            this.setValue(PROPERTY_CHANGE_SUPPORT, new PropertyChangeSupport(sourceBean));
+        if (sourceBean != null) {
+			this.setValue(PROPERTY_CHANGE_SUPPORT, new PropertyChangeSupport(sourceBean));
+		}
     }
 
     private boolean hasAvList()
@@ -91,8 +92,9 @@ public class AVListImpl implements AVList
 
     private Map<String, Object> avList(boolean createIfNone)
     {
-        if (createIfNone && !this.hasAvList())
-            this.createAvList();
+        if (createIfNone && !this.hasAvList()) {
+			this.createAvList();
+		}
 
         return this.avList;
     }
@@ -107,8 +109,9 @@ public class AVListImpl implements AVList
             throw new IllegalArgumentException(message);
         }
 
-        if (this.hasAvList())
-            return this.avList.get(key);
+        if (this.hasAvList()) {
+			return this.avList.get(key);
+		}
 
         return null;
     }
@@ -222,8 +225,9 @@ public class AVListImpl implements AVList
     @Override
 	synchronized public AVList clearList()
     {
-        if (this.hasAvList())
-            this.avList.clear();
+        if (this.hasAvList()) {
+			this.avList.clear();
+		}
         return this;
     }
 
@@ -352,15 +356,18 @@ public class AVListImpl implements AVList
     public static Integer getIntegerValue(AVList avList, String key)
     {
         Object o = avList.getValue(key);
-        if (o == null)
-            return null;
+        if (o == null) {
+			return null;
+		}
 
-        if (o instanceof Integer)
-            return (Integer) o;
+        if (o instanceof Integer) {
+			return (Integer) o;
+		}
 
         String v = getStringValue(avList, key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {
@@ -382,15 +389,18 @@ public class AVListImpl implements AVList
     public static Long getLongValue(AVList avList, String key)
     {
         Object o = avList.getValue(key);
-        if (o == null)
-            return null;
+        if (o == null) {
+			return null;
+		}
 
-        if (o instanceof Long)
-            return (Long) o;
+        if (o instanceof Long) {
+			return (Long) o;
+		}
 
         String v = getStringValue(avList, key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {
@@ -412,15 +422,18 @@ public class AVListImpl implements AVList
     public static Double getDoubleValue(AVList avList, String key)
     {
         Object o = avList.getValue(key);
-        if (o == null)
-            return null;
+        if (o == null) {
+			return null;
+		}
 
-        if (o instanceof Double)
-            return (Double) o;
+        if (o instanceof Double) {
+			return (Double) o;
+		}
 
         String v = getStringValue(avList, key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {
@@ -436,8 +449,9 @@ public class AVListImpl implements AVList
     public void getRestorableStateForAVPair(String key, Object value, RestorableSupport rs,
         RestorableSupport.StateObject context)
     {
-        if ((value == null) || key.equals(PROPERTY_CHANGE_SUPPORT))
-            return;
+        if ((value == null) || key.equals(PROPERTY_CHANGE_SUPPORT)) {
+			return;
+		}
 
         if (rs == null)
         {
@@ -458,15 +472,18 @@ public class AVListImpl implements AVList
     public static Boolean getBooleanValue(AVList avList, String key)
     {
         Object o = avList.getValue(key);
-        if (o == null)
-            return null;
+        if (o == null) {
+			return null;
+		}
 
-        if (o instanceof Boolean)
-            return (Boolean) o;
+        if (o instanceof Boolean) {
+			return (Boolean) o;
+		}
 
         String v = getStringValue(avList, key);
-        if (v == null)
-            return null;
+        if (v == null) {
+			return null;
+		}
 
         try
         {

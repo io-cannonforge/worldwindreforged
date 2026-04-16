@@ -72,8 +72,9 @@ public class PolylineGeneralizer
 
     public double[] getVertexEffectiveArea(double[] array)
     {
-        if (array == null || array.length < this.vertexCount)
-            array = new double[this.vertexCount];
+        if (array == null || array.length < this.vertexCount) {
+			array = new double[this.vertexCount];
+		}
 
         System.arraycopy(this.vertexArea, 0, array, 0, this.vertexCount);
 
@@ -143,10 +144,11 @@ public class PolylineGeneralizer
             // If the current point's area is less than that of the last point to be eliminated, use the latter's area
             // instead. This ensures that the current point cannot be filtered before previously eliminated points.
             double area = cur.area;
-            if (area < lastArea)
-                area = lastArea;
-            else // Otherwise, update the last area with the current point's area.
-                lastArea = area;
+            if (area < lastArea) {
+				area = lastArea;
+			} else { // Otherwise, update the last area with the current point's area.
+				lastArea = area;
+			}
             this.vertexArea[cur.ordinal] = area;
 
             // Recompute previous point's effective area, unless it's the start point.
@@ -185,10 +187,11 @@ public class PolylineGeneralizer
         double newArea = this.computeEffectiveArea(e);
         e.area = newArea;
 
-        if (newArea < oldArea)
-            this.siftUp(e.heapIndex, e);
-        else if (newArea > oldArea)
-            this.siftDown(e.heapIndex, e);
+        if (newArea < oldArea) {
+			this.siftUp(e.heapIndex, e);
+		} else if (newArea > oldArea) {
+			this.siftDown(e.heapIndex, e);
+		}
     }
 
     protected void heapify()
@@ -201,8 +204,9 @@ public class PolylineGeneralizer
 
     protected Element pop()
     {
-        if (this.heapSize == 0)
-            return null;
+        if (this.heapSize == 0) {
+			return null;
+		}
 
         int size = --this.heapSize;
         Element top = this.heap[0];
@@ -223,8 +227,9 @@ public class PolylineGeneralizer
         {
             int parent = (k - 1) >>> 1;
             Element e = this.heap[parent];
-            if (x.area >= e.area)
-                break;
+            if (x.area >= e.area) {
+				break;
+			}
 
             this.heap[k] = e;
             e.heapIndex = k;
@@ -244,10 +249,12 @@ public class PolylineGeneralizer
             Element c = this.heap[child];
 
             int right = child + 1;
-            if (right < this.heapSize && c.area > this.heap[right].area)
-                c = this.heap[child = right];
-            if (x.area <= c.area)
-                break;
+            if (right < this.heapSize && c.area > this.heap[right].area) {
+				c = this.heap[child = right];
+			}
+            if (x.area <= c.area) {
+				break;
+			}
 
             this.heap[k] = c;
             c.heapIndex = k;

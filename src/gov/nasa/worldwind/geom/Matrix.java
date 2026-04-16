@@ -132,10 +132,12 @@ public class Matrix
     @Override
 	public final boolean equals(Object obj)
     {
-        if (this == obj)
-            return true;
-        if (obj == null || obj.getClass() != this.getClass())
-            return false;
+        if (this == obj) {
+			return true;
+		}
+        if (obj == null || obj.getClass() != this.getClass()) {
+			return false;
+		}
 
         Matrix that = (Matrix) obj;
         return (this.m11 == that.m11) && (this.m12 == that.m12) && (this.m13 == that.m13) && (this.m14 == that.m14)
@@ -823,10 +825,12 @@ public class Matrix
         }
         else
         {
-            if (Math.abs(Math.tan(theta.getRadians())) > EPSILON)
-                cotTheta = 1 / Math.tan(theta.getRadians());
-            if (Math.abs(Math.tan(phi.getRadians())) > EPSILON)
-                cotPhi = 1 / Math.tan(phi.getRadians());
+            if (Math.abs(Math.tan(theta.getRadians())) > EPSILON) {
+				cotTheta = 1 / Math.tan(theta.getRadians());
+			}
+            if (Math.abs(Math.tan(phi.getRadians())) > EPSILON) {
+				cotPhi = 1 / Math.tan(phi.getRadians());
+			}
         }
 
         return new Matrix(
@@ -1650,8 +1654,9 @@ public class Matrix
         }
 
         Vec4 mean = Vec4.computeAveragePoint(points);
-        if (mean == null)
-            return null;
+        if (mean == null) {
+			return null;
+		}
 
         int count = 0;
         double c11 = 0d;
@@ -1663,8 +1668,9 @@ public class Matrix
 
         for (Vec4 vec : points)
         {
-            if (vec == null)
-                continue;
+            if (vec == null) {
+				continue;
+			}
 
             count++;
             c11 += (vec.x - mean.x) * (vec.x - mean.x);
@@ -1675,8 +1681,9 @@ public class Matrix
             c23 += (vec.y - mean.y) * (vec.z - mean.z); // c23 = c32
         }
 
-        if (count == 0)
-            return null;
+        if (count == 0) {
+			return null;
+		}
 
         return new Matrix(
             c11 / count, c12 / count, c13 / count, 0d,
@@ -1731,8 +1738,9 @@ public class Matrix
         }
 
         Vec4 mean = Vec4.computeAveragePoint3(coordinates, stride);
-        if (mean == null)
-            return null;
+        if (mean == null) {
+			return null;
+		}
 
         int count = 0;
         double c11 = 0d;
@@ -1756,8 +1764,9 @@ public class Matrix
             c23 += (y - mean.y) * (z - mean.z); // c23 = c32
         }
 
-        if (count == 0)
-            return null;
+        if (count == 0) {
+			return null;
+		}
 
         return new Matrix(
             c11 / count, c12 / count, c13 / count, 0d,
@@ -1819,8 +1828,9 @@ public class Matrix
         for (int a = 0; a < MAX_SWEEPS; a++)
         {
             // Exit if off-diagonal entries small enough
-            if ((Math.abs(m12) < EPSILON) && (Math.abs(m13) < EPSILON) && (Math.abs(m23) < EPSILON))
-                break;
+            if ((Math.abs(m12) < EPSILON) && (Math.abs(m13) < EPSILON) && (Math.abs(m23) < EPSILON)) {
+				break;
+			}
 
             // Annihilate (1,2) entry
             if (m12 != 0d)
@@ -2107,10 +2117,11 @@ public class Matrix
      */
     public final Matrix getInverse()
     {
-        if (this.isOrthonormalTransform)
-            return computeTransformInverse(this);
-        else
-            return computeGeneralInverse(this);
+        if (this.isOrthonormalTransform) {
+			return computeTransformInverse(this);
+		} else {
+			return computeGeneralInverse(this);
+		}
     }
 
     private static Matrix computeTransformInverse(Matrix a)
@@ -2156,8 +2167,9 @@ public class Matrix
         }
 
         // The matrix is singular if its determinant is zero or very close to zero.
-        if (Math.abs(d) < NEAR_ZERO_THRESHOLD)
-            return null;
+        if (Math.abs(d) < NEAR_ZERO_THRESHOLD) {
+			return null;
+		}
 
         double[][] Y = new double[4][4];
         double[] col = new double[4];
@@ -2234,14 +2246,16 @@ public class Matrix
             double big = 0.0;
             for (int j = 0; j < 4; j++)
             {
-                if ((temp = Math.abs(A[i][j])) > big)
-                    big = temp;
+                if ((temp = Math.abs(A[i][j])) > big) {
+					big = temp;
+				}
             }
 
-            if (big == 0.0)
-                return 0.0; // Matrix is singular if the entire row contains zero.
-            else
-                vv[i] = 1.0 / big;
+            if (big == 0.0) {
+				return 0.0; // Matrix is singular if the entire row contains zero.
+			} else {
+				vv[i] = 1.0 / big;
+			}
         }
 
         double sum;
@@ -2292,8 +2306,9 @@ public class Matrix
             }
 
             indx[j] = imax;
-            if (A[j][j] == 0.0)
-                A[j][j] = TINY;
+            if (A[j][j] == 0.0) {
+				A[j][j] = TINY;
+			}
 
             if (j != 3)
             {
@@ -2316,8 +2331,9 @@ public class Matrix
     {
         double yRadians = Math.asin(this.m13);
         double cosY = Math.cos(yRadians);
-        if (isZero(cosY))
-            return null;
+        if (isZero(cosY)) {
+			return null;
+		}
 
         double xRadians;
         // No Gimball lock.
@@ -2331,8 +2347,9 @@ public class Matrix
             xRadians = 0;
         }
 
-        if (Double.isNaN(xRadians))
-            return null;
+        if (Double.isNaN(xRadians)) {
+			return null;
+		}
 
         return Angle.fromRadians(xRadians);
     }
@@ -2340,8 +2357,9 @@ public class Matrix
     public final Angle getRotationY()
     {
         double yRadians = Math.asin(this.m13);
-        if (Double.isNaN(yRadians))
-            return null;
+        if (Double.isNaN(yRadians)) {
+			return null;
+		}
 
         return Angle.fromRadians(yRadians);
     }
@@ -2350,8 +2368,9 @@ public class Matrix
     {
         double yRadians = Math.asin(this.m13);
         double cosY = Math.cos(yRadians);
-        if (isZero(cosY))
-            return null;
+        if (isZero(cosY)) {
+			return null;
+		}
 
         double zRadians;
         // No Gimball lock.
@@ -2365,8 +2384,9 @@ public class Matrix
             zRadians = Math.atan2(this.m21, this.m22);
         }
 
-        if (Double.isNaN(zRadians))
-            return null;
+        if (Double.isNaN(zRadians)) {
+			return null;
+		}
 
         return Angle.fromRadians(zRadians);
     }
@@ -2374,8 +2394,9 @@ public class Matrix
     public final Angle getKMLRotationX()    // KML assumes the order of rotations is YXZ, positive CW
     {
         double xRadians = Math.asin(-this.m23);
-        if (Double.isNaN(xRadians))
-            return null;
+        if (Double.isNaN(xRadians)) {
+			return null;
+		}
 
         return Angle.fromRadians(-xRadians);    // negate to make angle CW
     }
@@ -2383,8 +2404,9 @@ public class Matrix
     public final Angle getKMLRotationY()    // KML assumes the order of rotations is YXZ, positive CW
     {
         double xRadians = Math.asin(-this.m23);
-        if (Double.isNaN(xRadians))
-            return null;
+        if (Double.isNaN(xRadians)) {
+			return null;
+		}
 
         double yRadians;
         if (xRadians < Math.PI / 2)
@@ -2403,8 +2425,9 @@ public class Matrix
             yRadians = Math.atan2(-this.m12, this.m11);
         }
 
-        if (Double.isNaN(yRadians))
-            return null;
+        if (Double.isNaN(yRadians)) {
+			return null;
+		}
 
         return Angle.fromRadians(-yRadians);    // negate angle to make it CW
     }
@@ -2412,8 +2435,9 @@ public class Matrix
     public final Angle getKMLRotationZ()    // KML assumes the order of rotations is YXZ, positive CW
     {
         double xRadians = Math.asin(-this.m23);
-        if (Double.isNaN(xRadians))
-            return null;
+        if (Double.isNaN(xRadians)) {
+			return null;
+		}
 
         double zRadians;
         if (xRadians < Math.PI / 2 && xRadians > -Math.PI / 2)
@@ -2425,8 +2449,9 @@ public class Matrix
             zRadians = 0;
         }
 
-        if (Double.isNaN(zRadians))
-            return null;
+        if (Double.isNaN(zRadians)) {
+			return null;
+		}
 
         return Angle.fromRadians(-zRadians);    // negate angle to make it CW
     }

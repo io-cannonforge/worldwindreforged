@@ -121,10 +121,11 @@ public class ViewElevationAnimator extends DoubleAnimator
     @Override
     public void setEnd(Double end)
     {
-        if (this.getUseMidZoom())
-            this.trueEndZoom = end;
-        else
-            this.end = end;
+        if (this.getUseMidZoom()) {
+			this.trueEndZoom = end;
+		} else {
+			this.end = end;
+		}
     }
 
     /**
@@ -137,8 +138,9 @@ public class ViewElevationAnimator extends DoubleAnimator
         final int MAX_SMOOTHING = 1;
         final double ZOOM_START = 0.0;
         final double ZOOM_STOP = 1.0;
-        if (interpolant >= 1.0)
-            this.stop();
+        if (interpolant >= 1.0) {
+			this.stop();
+		}
         double  zoomInterpolant;
 
         if (this.useMidZoom)
@@ -235,16 +237,18 @@ public class ViewElevationAnimator extends DoubleAnimator
 	protected void setImpl(double interpolant)
     {
        Double newValue = this.nextDouble(interpolant);
-       if (newValue == null)
-           return;
+       if (newValue == null) {
+		return;
+	   }
 
        boolean success = this.propertyAccessor.setDouble(newValue);
        if (!success)
        {
            this.flagLastStateInvalid();
        }
-       if (interpolant >= 1.0)
-           this.stop();
+       if (interpolant >= 1.0) {
+		this.stop();
+	   }
     }
 
 

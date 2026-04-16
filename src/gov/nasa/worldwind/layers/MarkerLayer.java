@@ -149,12 +149,14 @@ public class MarkerLayer extends AbstractLayer
 
     protected void draw(DrawContext dc, java.awt.Point pickPoint)
     {
-        if ((this.markers == null) || (dc.getVisibleSector() == null))
-            return;
+        if ((this.markers == null) || (dc.getVisibleSector() == null)) {
+			return;
+		}
 
         SectorGeometryList geos = dc.getSurfaceGeometry();
-        if (geos == null)
-            return;
+        if (geos == null) {
+			return;
+		}
 
         // Adds markers to the draw context's ordered renderable queue. During picking, this gets the pick point and the
         // current layer from the draw context.

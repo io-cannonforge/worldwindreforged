@@ -63,8 +63,9 @@ public abstract class AbstractDataRasterWriter implements DataRasterWriter
     @Override
 	public boolean canWrite(DataRaster raster, String formatSuffix, java.io.File file)
     {
-        if (formatSuffix == null)
-            return false;
+        if (formatSuffix == null) {
+			return false;
+		}
 
         formatSuffix = WWUtil.stripLeadingPeriod(formatSuffix);
 
@@ -81,8 +82,9 @@ public abstract class AbstractDataRasterWriter implements DataRasterWriter
             }
 
             //noinspection SimplifiableIfStatement
-            if (!matchesAny)
-                return false;
+            if (!matchesAny) {
+				return false;
+			}
         }
 
         return this.doCanWrite(raster, formatSuffix, file);
@@ -132,12 +134,14 @@ public abstract class AbstractDataRasterWriter implements DataRasterWriter
      */
     protected String[] copyAndConvertToLowerCase(String[] array)
     {
-        if( null == array )
-            return null;
+        if( null == array ) {
+			return null;
+		}
 
         String[] copy = new String[array.length];
-        for (int i = 0; i < array.length; i++)
-            copy[i] = array[i].toLowerCase();
+        for (int i = 0; i < array.length; i++) {
+			copy[i] = array[i].toLowerCase();
+		}
 
         return copy;
     }

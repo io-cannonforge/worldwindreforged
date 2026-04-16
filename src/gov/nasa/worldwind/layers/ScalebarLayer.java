@@ -351,8 +351,9 @@ public class ScalebarLayer extends AbstractLayer
     @Override
     public void doRender(DrawContext dc)
     {
-        if (dc.isContinuous2DGlobe() && this.frameStampForDrawing == dc.getFrameTimeStamp())
-            return;
+        if (dc.isContinuous2DGlobe() && this.frameStampForDrawing == dc.getFrameTimeStamp()) {
+			return;
+		}
 
         this.addOrderedImage(dc);
 
@@ -362,8 +363,9 @@ public class ScalebarLayer extends AbstractLayer
     @Override
     public void doPick(DrawContext dc, Point pickPoint)
     {
-        if (dc.isContinuous2DGlobe() && this.frameStampForPicking == dc.getFrameTimeStamp())
-            return;
+        if (dc.isContinuous2DGlobe() && this.frameStampForPicking == dc.getFrameTimeStamp()) {
+			return;
+		}
 
         this.addOrderedImage(dc);
 
@@ -380,8 +382,9 @@ public class ScalebarLayer extends AbstractLayer
 
     protected double computePixelSize(DrawContext dc, Position referencePosition)
     {
-        if (referencePosition == null)
-            return -1;
+        if (referencePosition == null) {
+			return -1;
+		}
 
         Vec4 groundTarget = dc.getGlobe().computePointFromPosition(referencePosition);
         double eyeDistance = dc.getView().getEyePoint().distanceTo3(groundTarget);
@@ -459,10 +462,11 @@ public class ScalebarLayer extends AbstractLayer
                 {
                     int digit = Integer.parseInt(String.format("%.0f", scaleSize).substring(0, 1));
                     double divSize = digit * Math.pow(10, pot);
-                    if (digit >= 5)
-                        divSize = 5 * Math.pow(10, pot);
-                    else if (digit >= 2)
-                        divSize = 2 * Math.pow(10, pot);
+                    if (digit >= 5) {
+						divSize = 5 * Math.pow(10, pot);
+					} else if (digit >= 2) {
+						divSize = 2 * Math.pow(10, pot);
+					}
                     double divWidth = width * divSize / scaleSize;
 
                     // Draw scale
@@ -582,10 +586,11 @@ public class ScalebarLayer extends AbstractLayer
     private Color getBackgroundColor(Color color)
     {
         Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), compArray);
-        if (compArray[2] > 0.5)
-            return new Color(0, 0, 0, 0.7f);
-        else
-            return new Color(1, 1, 1, 0.7f);
+        if (compArray[2] > 0.5) {
+			return new Color(0, 0, 0, 0.7f);
+		} else {
+			return new Color(1, 1, 1, 0.7f);
+		}
     }
 
     private double computeScale(java.awt.Rectangle viewport)

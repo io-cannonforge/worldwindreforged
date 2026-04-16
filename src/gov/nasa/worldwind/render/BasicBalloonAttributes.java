@@ -461,20 +461,23 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         super.getRestorableState(restorableSupport, context);
 
         RestorableSupport.StateObject so = restorableSupport.addStateObject(context, "size");
-        if (so != null)
-            this.getSize().getRestorableState(restorableSupport, so);
+        if (so != null) {
+			this.getSize().getRestorableState(restorableSupport, so);
+		}
 
         Size maxSize = this.getMaximumSize();
         if (maxSize != null)
         {
             so = restorableSupport.addStateObject(context, "maxSize");
-            if (so != null)
-                this.getMaximumSize().getRestorableState(restorableSupport, so);
+            if (so != null) {
+				this.getMaximumSize().getRestorableState(restorableSupport, so);
+			}
         }
 
         so = restorableSupport.addStateObject(context, "drawOffset");
-        if (so != null)
-            this.getOffset().getRestorableState(restorableSupport, so);
+        if (so != null) {
+			this.getOffset().getRestorableState(restorableSupport, so);
+		}
 
         so = restorableSupport.addStateObject(context, "insets");
         if (so != null)
@@ -502,8 +505,9 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         }
 
         String encodedColor = RestorableSupport.encodeColor(this.getTextColor());
-        if (encodedColor != null)
-            restorableSupport.addStateValueAsString(context, "textColor", encodedColor);
+        if (encodedColor != null) {
+			restorableSupport.addStateValueAsString(context, "textColor", encodedColor);
+		}
 
         so = restorableSupport.addStateObject(context, "imageOffset");
         if (so != null)
@@ -538,8 +542,9 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         legacySupport.put("Render.FrameFactory.LeaderNone", AVKey.SHAPE_NONE);
 
         RestorableSupport.StateObject so = restorableSupport.getStateObject(context, "size");
-        if (so != null)
-            this.getSize().restoreState(restorableSupport, so);
+        if (so != null) {
+			this.getSize().restoreState(restorableSupport, so);
+		}
 
         so = restorableSupport.getStateObject(context, "maxSize");
         if (so != null)
@@ -550,8 +555,9 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         }
 
         so = restorableSupport.getStateObject(context, "drawOffset");
-        if (so != null)
-            this.getOffset().restoreState(restorableSupport, so);
+        if (so != null) {
+			this.getOffset().restoreState(restorableSupport, so);
+		}
 
         // Restore the insets property only if all parts are available.
         // We will not restore a partial insets (for example, just the top value).
@@ -562,8 +568,9 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
             Integer leftState = restorableSupport.getStateValueAsInteger(so, "left");
             Integer bottomState = restorableSupport.getStateValueAsInteger(so, "bottom");
             Integer rightState = restorableSupport.getStateValueAsInteger(so, "right");
-            if (topState != null && leftState != null && bottomState != null && rightState != null)
-                this.setInsets(new Insets(topState, leftState, bottomState, rightState));
+            if (topState != null && leftState != null && bottomState != null && rightState != null) {
+				this.setInsets(new Insets(topState, leftState, bottomState, rightState));
+			}
         }
 
         String s = restorableSupport.getStateValueAsString(context, "balloonShape");
@@ -571,8 +578,9 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         {
             // Map legacy versions using the FrameFactory constants to new AVKey constants.
             String updatedValue = legacySupport.get(s);
-            if (updatedValue != null)
-                s = updatedValue;
+            if (updatedValue != null) {
+				s = updatedValue;
+			}
 
             this.setBalloonShape(s);
         }
@@ -582,19 +590,22 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         {
             // Map legacy versions using the FrameFactory constants to new AVKey constants.
             String updatedValue = legacySupport.get(s);
-            if (updatedValue != null)
-                s = updatedValue;
+            if (updatedValue != null) {
+				s = updatedValue;
+			}
 
             this.setLeaderShape(s);
         }
 
         Integer i = restorableSupport.getStateValueAsInteger(context, "leaderGapWidth");
-        if (i != null)
-            this.setLeaderWidth(i);
+        if (i != null) {
+			this.setLeaderWidth(i);
+		}
 
         i = restorableSupport.getStateValueAsInteger(context, "cornerRadius");
-        if (i != null)
-            this.setCornerRadius(i);
+        if (i != null) {
+			this.setCornerRadius(i);
+		}
 
         // Restore the font property only if all parts are available.
         // We will not restore a partial font (for example, just the size).
@@ -607,16 +618,18 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
             Integer style = restorableSupport.getStateValueAsInteger(so, "style");
             // The simple font size.
             Integer size = restorableSupport.getStateValueAsInteger(so, "size");
-            if (name != null && style != null && size != null)
-                this.setFont(new Font(name, style, size));
+            if (name != null && style != null && size != null) {
+				this.setFont(new Font(name, style, size));
+			}
         }
 
         s = restorableSupport.getStateValueAsString(context, "textColor");
         if (s != null)
         {
             Color color = RestorableSupport.decodeColor(s);
-            if (color != null)
-                this.setTextColor(color);
+            if (color != null) {
+				this.setTextColor(color);
+			}
         }
 
         // Restore the imageOffset property only if all parts are available.
@@ -626,56 +639,66 @@ public class BasicBalloonAttributes extends BasicShapeAttributes implements Ball
         {
             Double x = restorableSupport.getStateValueAsDouble(so, "x");
             Double y = restorableSupport.getStateValueAsDouble(so, "y");
-            if (x != null && y != null)
-                this.setImageOffset(new Point(x.intValue(), y.intValue()));
+            if (x != null && y != null) {
+				this.setImageOffset(new Point(x.intValue(), y.intValue()));
+			}
         }
 
         Double d = restorableSupport.getStateValueAsDouble(context, "imageOpacity");
-        if (d != null)
-            this.setImageOpacity(d);
+        if (d != null) {
+			this.setImageOpacity(d);
+		}
 
         s = restorableSupport.getStateValueAsString(context, "imageRepeat");
-        if (s != null)
-            this.setImageRepeat(s);
+        if (s != null) {
+			this.setImageRepeat(s);
+		}
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o)
-            return true;
-        if (o == null || this.getClass() != o.getClass() || !super.equals(o))
-            return false;
+        if (this == o) {
+			return true;
+		}
+        if (o == null || this.getClass() != o.getClass() || !super.equals(o)) {
+			return false;
+		}
 
         BasicBalloonAttributes that = (BasicBalloonAttributes) o;
 
-        if (this.size != null ? !this.size.equals(that.size) : that.size != null)
-            return false;
-        if (this.maxSize != null ? !this.maxSize.equals(that.maxSize) : that.maxSize != null)
-            return false;
-        if (this.offset != null ? !this.offset.equals(that.offset) : that.offset != null)
-            return false;
-        if (this.insets != null ? !this.insets.equals(that.insets) : that.insets != null)
-            return false;
-        if (this.balloonShape != null ? !this.balloonShape.equals(that.balloonShape) : that.balloonShape != null)
-            return false;
-        if (this.leaderShape != null ? !this.leaderShape.equals(that.leaderShape) : that.leaderShape != null)
-            return false;
-        if (this.leaderWidth != that.leaderWidth)
-            return false;
-        if (this.cornerRadius != that.cornerRadius)
-            return false;
-        if (this.font != null ? !this.font.equals(that.font) : that.font != null)
-            return false;
-        if (this.textColor != null ? !this.textColor.equals(that.textColor) : that.textColor != null)
-            return false;
-        if (this.imageOffset != null ? !this.imageOffset.equals(that.imageOffset) : that.imageOffset != null)
-            return false;
-        if (Double.compare(this.imageOpacity, that.imageOpacity) != 0)
-            return false;
+        if ((this.size != null ? !this.size.equals(that.size) : that.size != null) || (this.maxSize != null ? !this.maxSize.equals(that.maxSize) : that.maxSize != null) || (this.offset != null ? !this.offset.equals(that.offset) : that.offset != null)
+				|| (this.insets != null ? !this.insets.equals(that.insets) : that.insets != null)) {
+			return false;
+		}
+        if (this.balloonShape != null ? !this.balloonShape.equals(that.balloonShape) : that.balloonShape != null) {
+			return false;
+		}
+        if (this.leaderShape != null ? !this.leaderShape.equals(that.leaderShape) : that.leaderShape != null) {
+			return false;
+		}
+        if (this.leaderWidth != that.leaderWidth) {
+			return false;
+		}
+        if (this.cornerRadius != that.cornerRadius) {
+			return false;
+		}
+        if (this.font != null ? !this.font.equals(that.font) : that.font != null) {
+			return false;
+		}
+        if (this.textColor != null ? !this.textColor.equals(that.textColor) : that.textColor != null) {
+			return false;
+		}
+        if (this.imageOffset != null ? !this.imageOffset.equals(that.imageOffset) : that.imageOffset != null) {
+			return false;
+		}
+        if (Double.compare(this.imageOpacity, that.imageOpacity) != 0) {
+			return false;
+		}
         //noinspection RedundantIfStatement
-        if (this.imageRepeat != null ? !this.imageRepeat.equals(that.imageRepeat) : that.imageRepeat != null)
-            return false;
+        if (this.imageRepeat != null ? !this.imageRepeat.equals(that.imageRepeat) : that.imageRepeat != null) {
+			return false;
+		}
 
         return true;
     }

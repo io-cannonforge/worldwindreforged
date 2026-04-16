@@ -119,21 +119,20 @@ public class FlatGlobe extends EllipsoidalGlobe implements Globe2D
         @Override
         public boolean equals(Object o)
         {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass() || !super.equals(o))
-                return false;
+            if (this == o) {
+				return true;
+			}
+            if (o == null || getClass() != o.getClass() || !super.equals(o)) {
+				return false;
+			}
 
             FlatStateKey that = (FlatStateKey) o;
 
-            if (offset != that.offset)
-                return false;
-            if (Double.compare(that.verticalExaggeration, verticalExaggeration) != 0)
-                return false;
             //noinspection RedundantIfStatement
-            if (projection != null ? !projection.equals(that.projection)
-                : that.projection != null)
-                return false;
+            if ((offset != that.offset) || (Double.compare(that.verticalExaggeration, verticalExaggeration) != 0) || (projection != null ? !projection.equals(that.projection)
+                : that.projection != null)) {
+				return false;
+			}
 
             return true;
         }
@@ -288,14 +287,17 @@ public class FlatGlobe extends EllipsoidalGlobe implements Globe2D
         // Intersection with world plane
         Plane plane = new Plane(0, 0, 1, -(equRadius - this.equatorialRadius));   // Flat globe plane
         Vec4 p = plane.intersect(line);
-        if (p == null)
-            return null;
+        if (p == null) {
+			return null;
+		}
         // Check if we are in the world boundaries
         Position pos = this.computePositionFromPoint(p);
-        if ((pos == null) || pos.getLatitude().degrees < -90 || pos.getLatitude().degrees > 90)
-            return null;
-        if (!this.isContinuous() && (pos.getLongitude().degrees < -180 || pos.getLongitude().degrees > 180))
-            return null;
+        if ((pos == null) || pos.getLatitude().degrees < -90 || pos.getLatitude().degrees > 90) {
+			return null;
+		}
+        if (!this.isContinuous() && (pos.getLongitude().degrees < -180 || pos.getLongitude().degrees > 180)) {
+			return null;
+		}
 
         return new Intersection[] {new Intersection(p, false)};
     }
@@ -403,8 +405,9 @@ public class FlatGlobe extends EllipsoidalGlobe implements Globe2D
         }
 
         // Flat World Note: return zero if outside the lat/lon normal boundaries (OK)
-        if (latitude.degrees < -90 || latitude.degrees > 90 || longitude.degrees < -180 || longitude.degrees > 180)
-            return 0d;
+        if (latitude.degrees < -90 || latitude.degrees > 90 || longitude.degrees < -180 || longitude.degrees > 180) {
+			return 0d;
+		}
 
         return super.getElevation(latitude, longitude);
     }
@@ -455,12 +458,13 @@ public class FlatGlobe extends EllipsoidalGlobe implements Globe2D
         if (this.isContinuous())
         {
             // Wrap if the globe is continuous.
-            if (pos.getLongitude().degrees < -180)
-                pos = Position.fromDegrees(pos.getLatitude().degrees, pos.getLongitude().degrees + 360,
+            if (pos.getLongitude().degrees < -180) {
+				pos = Position.fromDegrees(pos.getLatitude().degrees, pos.getLongitude().degrees + 360,
                     pos.getAltitude());
-            else if (pos.getLongitude().degrees > 180)
-                pos = Position.fromDegrees(pos.getLatitude().degrees, pos.getLongitude().degrees - 360,
+			} else if (pos.getLongitude().degrees > 180) {
+				pos = Position.fromDegrees(pos.getLatitude().degrees, pos.getLongitude().degrees - 360,
                     pos.getAltitude());
+			}
         }
 
         return pos;
@@ -528,8 +532,9 @@ public class FlatGlobe extends EllipsoidalGlobe implements Globe2D
 	public boolean isPointAboveElevation(Vec4 point, double elevation)
     {
         //noinspection SimplifiableIfStatement
-        if (point == null)
-            return false;
+        if (point == null) {
+			return false;
+		}
 
         return point.z() > elevation;
     }

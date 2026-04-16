@@ -30,6 +30,7 @@ package gov.nasa.worldwind.layers.rpf;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -625,7 +626,7 @@ public class RPFTiledImageLayer extends TiledImageLayer
             sb.append(s.getMaxLatitude().getDegrees());
             sb.append("&"); // terminate the query string
 
-            return new java.net.URL(sb.toString().replace(" ", "%20"));
+            return URI.create(sb.toString().replace(" ", "%20")).toURL();
         }
     }
 

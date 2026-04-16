@@ -263,8 +263,9 @@ public class PickPointFrustumList extends ArrayList<PickPointFrustum>
     {
         for (PickPointFrustum frustum : this)
         {
-            if (frustum.intersectsSegment(pa, pb))
-                return true;
+            if (frustum.intersectsSegment(pa, pb)) {
+				return true;
+			}
         }
 
         return false;
