@@ -364,6 +364,10 @@ public class SurfacePolygon extends AbstractSurfaceShape implements Exportable
         if (contours.isEmpty()) {
 			return null;
 		}
+        List<Vertex> outerContour = contours.get(0);
+        if (WWMath.computeWindingOrderOfLocations(outerContour)!=AVKey.COUNTER_CLOCKWISE) {
+        	Collections.reverse(outerContour);
+        }
 
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;

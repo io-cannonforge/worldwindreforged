@@ -243,6 +243,81 @@ public class GpuTriangulatorTest
     }
 
     // -----------------------------------------------------------------------
+    // bridgeHoles winding contract — outer CCW + holes CW
+    //
+    // The bridging algorithm splices a hole into the outer using a rightmost-
+    // vertex bridge, which only yields a simple merged ring when the outer
+    // winds CCW and the holes wind CW. With the wrong winding the merged ring
+    // is self-touching/self-intersecting and the triangulated area does not
+    // equal the donut area.
+    //
+    // SurfacePolygon.buildInteriorVBOs is responsible for normalizing both
+    // outer and holes before calling bridgeHoles. These tests pin that
+    // contract so a regression there shows up here.
+    //
+    // Shapes: 4×4 outer + 2×2 centered hole → expected donut area = 12.
+    // -----------------------------------------------------------------------
+
+    private static final double DONUT_AREA = 12.0;
+    private static final double AREA_TOL   = 0.01;
+
+    private static float[] outerCCW() { return new float[]{ 0,0,  4,0,  4,4,  0,4 }; }
+    private static float[] outerCW()  { return new float[]{ 0,0,  0,4,  4,4,  4,0 }; }
+    private static float[] holeCW()   { return new float[]{ 1,1,  1,3,  3,3,  3,1 }; }
+    private static float[] holeCCW()  { return new float[]{ 1,1,  3,1,  3,3,  1,3 }; }
+
+    private static float[] cat(float[] a, float[] b)
+    {
+        float[] r = new float[a.length + b.length];
+        System.arraycopy(a, 0, r, 0, a.length);
+        System.arraycopy(b, 0, r, a.length, b.length);
+        return r;
+    }
+
+    /** Bridge a single hole into outer, triangulate, return |area|. */
+    private static double triangulatedDonutArea(float[] outer, float[] hole)
+    {
+        float[] v = cat(outer, hole);
+        int outerCount = outer.length / 2;
+        int[] merged = GpuTriangulator.bridgeHoles(v, 0, outerCount,
+            new int[]{outerCount}, new int[]{hole.length / 2});
+        int[] tris = GpuTriangulator.triangulateCPU(v, merged);
+        // signedArea() returns 2× the area sum; divide for true area.
+        return Math.abs(signedArea(v, tris) / 2.0);
+    }
+
+    @Test
+    public void testBridgeHolesNormalized_matchesDonutArea()
+    {
+        // Outer CCW + hole CW — the contract bridgeHoles is built for.
+        double area = triangulatedDonutArea(outerCCW(), holeCW());
+        assertEquals("normalized (outer CCW + hole CW) donut area",
+            DONUT_AREA, area, AREA_TOL);
+    }
+
+    @Test
+    public void testBridgeHolesOuterCW_isBroken()
+    {
+        // Outer CW (against contract) + hole CW. Triangulation must NOT
+        // produce the donut area — this is the case the recent
+        // SurfacePolygon outer-flip fix targets.
+        double area = triangulatedDonutArea(outerCW(), holeCW());
+        assertTrue("CW outer should not triangulate to donut area; got " + area,
+            Math.abs(area - DONUT_AREA) > AREA_TOL);
+    }
+
+    @Test
+    public void testBridgeHolesHoleCCW_isBroken()
+    {
+        // Outer CCW + hole CCW (against contract). Triangulation must NOT
+        // produce the donut area — this is the gap the current
+        // SurfacePolygon fix does not yet close (holes aren't normalized).
+        double area = triangulatedDonutArea(outerCCW(), holeCCW());
+        assertTrue("CCW hole should not triangulate to donut area; got " + area,
+            Math.abs(area - DONUT_AREA) > AREA_TOL);
+    }
+
+    // -----------------------------------------------------------------------
     // generateOutlineIndices
     // -----------------------------------------------------------------------
 
