@@ -623,13 +623,15 @@ public class GpuTessellator
                 }
             }
 
-            // Add the final vertex
+            // Add the final vertex. The assembly loop only emits start-of-edge vertices
+            // (V0..V[numEdges-1]) plus their interpolated midpoints — it never adds the
+            // end of the last edge. For a closed ring that end is always V0, so append
+            // V0 unconditionally (works for both pre-closed input where first==last and
+            // unclosed input where we need to bring the strip back to V0). For an open
+            // path, append the final original vertex.
             if (makeClosedPath)
             {
-                LatLon first = originalVertices.get(0);
-                LatLon last = originalVertices.get(originalVertices.size() - 1);
-                if (!first.equals(last))
-                    locations.add(first);
+                locations.add(originalVertices.get(0));
             }
             else
             {
