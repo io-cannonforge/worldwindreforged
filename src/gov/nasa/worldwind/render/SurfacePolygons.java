@@ -85,6 +85,7 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
     protected int[] polygonRingGroups;
     protected String windingRule = AVKey.CLOCKWISE;
     protected boolean needsInteriorTessellation = true;
+    protected boolean crossesDateLine = false;
     protected WWTexture texture;
     protected Object interiorDisplayListCacheKey = new Object();
 

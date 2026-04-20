@@ -31,10 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-
-import gov.nasa.worldwind.cache.GpuResourceCache;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -59,9 +55,6 @@ public class SurfacePolylines extends AbstractSurfaceShape
 {
     protected List<Sector> sectors;
     protected CompoundVecBuffer buffer;
-    protected boolean needsOutlineTessellation = true;
-    protected boolean crossesDateLine = false;
-    protected Object outlineDisplayListCacheKey = new Object();
 
     public SurfacePolylines(CompoundVecBuffer buffer)
     {
@@ -145,8 +138,6 @@ public class SurfacePolylines extends AbstractSurfaceShape
             return VecBufferSequence.emptyVecBufferSequence(2);
         }
 
-        // Pre-size the backing buffer exactly. Two coords per vertex (lon, lat);
-        // tessellatePart reads coords[0]/coords[1] and hard-codes z=0.
         BufferWrapper backing = WWBufferUtil.newDoubleBufferWrapper(totalPoints * 2, true);
         VecBuffer backingVec = new VecBuffer(2, backing);
         VecBufferSequence sequence = new VecBufferSequence(backingVec, lines.size());
@@ -206,8 +197,8 @@ public class SurfacePolylines extends AbstractSurfaceShape
     @Override
 	protected List<List<LatLon>> createGeometry(Globe globe, SurfaceTileDrawContext sdc)
     {
-        // SurfacePolylines does not invoke this method, so return null indicating this method is not supported.
-        // We avoid invoking computeGeometry by overriding determineActiveGeometry below.
+        // SurfacePolylines supplies its own geometry directly from the CompoundVecBuffer in
+        // determineActiveGeometry, so the base-class generator pipeline is unused.
         return null;
     }
 
@@ -287,136 +278,45 @@ public class SurfacePolylines extends AbstractSurfaceShape
     protected void onGeometryChanged()
     {
         this.sectors = null;
-        this.needsOutlineTessellation = true;
         super.onShapeChanged();
     }
 
+    /**
+     * Publishes each sub-buffer as its own polyline in {@code activeOutlineGeometry}, which
+     * the base class's {@code drawOutline} then renders through the fp64 {@link
+     * gov.nasa.worldwind.render.shaders.DashLineShader} path (matching {@link SurfacePolyline}
+     * / {@link SurfacePolygon} / {@link SurfaceEllipse}). Dateline-crossing lines are split
+     * via {@code repeatAroundDateline} so the outline is drawn on both sides of the seam
+     * without a shader-side translation hack.
+     */
     @Override
 	protected void determineActiveGeometry(DrawContext dc, SurfaceTileDrawContext sdc)
     {
-        // Intentionally left blank in order to override the superclass behavior with nothing.
+        this.activeGeometry.clear();
+        this.activeOutlineGeometry.clear();
+
+        for (int i = 0; i < this.buffer.size(); i++)
+        {
+            VecBuffer sub = this.buffer.subBuffer(i);
+            List<LatLon> line = new ArrayList<>(sub.getSize());
+            for (LatLon ll : sub.getLocations()) {
+                line.add(ll);
+            }
+            if (line.size() < 2) {
+                continue;
+            }
+
+            if (LatLon.locationsCrossDateLine(line)) {
+                this.activeOutlineGeometry.addAll(this.repeatAroundDateline(line));
+            } else {
+                this.activeOutlineGeometry.add(line);
+            }
+        }
     }
 
     @Override
 	protected void drawInterior(DrawContext dc, SurfaceTileDrawContext sdc)
     {
         // Intentionally left blank; SurfacePolylines does not render an interior.
-    }
-
-    @Override
-	protected void drawOutline(DrawContext dc, SurfaceTileDrawContext sdc)
-    {
-        // Exit immediately if the Polyline has no coordinate data.
-        if (this.buffer.size() == 0) {
-			return;
-		}
-
-        Position referencePos = this.getReferencePosition();
-        if (referencePos == null) {
-			return;
-		}
-
-        int hemisphereSign = (int) Math.signum(sdc.getSector().getCentroid().getLongitude().degrees);
-
-        // Attempt to tessellate the Polyline's outline if the Polyline's outline display list is uninitialized, or if
-        // the Polyline is marked as needing tessellation.
-        int[] dlResource = (int[]) dc.getGpuResourceCache().get(this.outlineDisplayListCacheKey);
-        if (dlResource == null || this.needsOutlineTessellation) {
-			dlResource = this.tessellateOutline(dc, referencePos);
-		}
-
-        // Exit immediately if the Polyline's interior failed to tessellate. The cause has already been logged by
-        // tessellateInterior.
-        if (dlResource == null) {
-			return;
-		}
-
-        GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
-        this.applyOutlineState(dc, this.getActiveAttributes());
-        gl.glCallList(dlResource[0]);
-
-        if (this.crossesDateLine)
-        {
-            gl.glPushMatrix();
-            try
-            {
-                // Apply hemisphere offset and draw again
-                gl.glTranslated(360 * hemisphereSign, 0, 0);
-                gl.glCallList(dlResource[0]);
-            }
-            finally
-            {
-                gl.glPopMatrix();
-            }
-        }
-    }
-
-    protected int[] tessellateOutline(DrawContext dc, LatLon referenceLocation)
-    {
-        GL2 gl = dc.getGL().getGL2(); // GL initialization checks for GL2 compatibility.
-        this.crossesDateLine = false;
-
-        int[] dlResource = new int[] {gl.glGenLists(1), 1};
-
-        gl.glNewList(dlResource[0], GL2.GL_COMPILE);
-        try
-        {
-            // Tessellate each part, note if crossing date line
-            for (int i = 0; i < this.buffer.size(); i++)
-            {
-                VecBuffer subBuffer = this.buffer.subBuffer(i);
-                if (this.tessellatePart(gl, subBuffer, referenceLocation)) {
-					this.crossesDateLine = true;
-				}
-            }
-        }
-        finally
-        {
-            gl.glEndList();
-        }
-
-        this.needsOutlineTessellation = false;
-
-        int numBytes = this.buffer.size() * 3 * 4; // 3 float coords
-        dc.getGpuResourceCache().put(this.outlineDisplayListCacheKey, dlResource, GpuResourceCache.DISPLAY_LISTS,
-            numBytes);
-
-        return dlResource;
-    }
-
-    protected boolean tessellatePart(GL2 gl, VecBuffer vecBuffer, LatLon referenceLocation)
-    {
-        Iterable<double[]> iterable = vecBuffer.getCoords(3);
-        boolean dateLineCrossed = false;
-
-        gl.glBegin(GL.GL_LINE_STRIP);
-        try
-        {
-            int sign = 0; // hemisphere offset direction
-            double previousLongitude = 0;
-
-            for (double[] coords : iterable)
-            {
-                if (Math.abs(previousLongitude - coords[0]) > 180)
-                {
-                    // Crossing date line, sum departure point longitude sign for hemisphere offset
-                    sign += (int) Math.signum(previousLongitude);
-                    dateLineCrossed = true;
-                }
-
-                previousLongitude = coords[0];
-
-                double lonDegrees = coords[0] - referenceLocation.getLongitude().degrees;
-                double latDegrees = coords[1] - referenceLocation.getLatitude().degrees;
-                lonDegrees += sign * 360; // apply hemisphere offset
-                gl.glVertex3f((float) lonDegrees, (float) latDegrees, 0);
-            }
-        }
-        finally
-        {
-            gl.glEnd();
-        }
-
-        return dateLineCrossed;
     }
 }
