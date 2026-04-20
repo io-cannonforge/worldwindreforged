@@ -143,6 +143,7 @@ public class ExamplesIndex extends JFrame {
             new ExampleEntry("Multi-Res Path",                  BASE + "MultiResPath",                 "Path with level-of-detail tessellation controlled by view distance."),
             new ExampleEntry("Dashed Lines",                    BASE + "DashedLinesExample",           "Phase 3 GPU dashed/dotted line shader — all stipple patterns.", "Ph3"),
             new ExampleEntry("Small Surface Shapes",            BASE + "SmallSurfaceShapesDemo",       "Sub-metre precision stress test: a collection of ~10 m surface shapes (including a 32-sided 10 m-radius polygon circle) with the camera framed directly overhead. Validates the fp64 double-precision vertex path.", "New"),
+            new ExampleEntry("Surface Polylines (batch)",       BASE + "SurfacePolylinesExample",      "Ten disjoint east–west tracks rendered as a single SurfacePolylines instance built from a multi-line-string (List<List<LatLon>>).", "New"),
             new ExampleEntry("Procedural Fill Patterns",        BASE + "ProceduralFillPatternsExample","Phase 3 procedural fill shader: hatch, crosshatch, and dot patterns.", "Ph3"),
             new ExampleEntry("Surface Shape Showcase",          BASE + "SurfaceShapeShowcase",         "Every surface shape type with Phase 3 fill patterns and colour pickers.", "Ph3"),
             new ExampleEntry("Surface Text",                    BASE + "SurfaceTextUsage",             "Text strings rendered directly on the globe surface."),

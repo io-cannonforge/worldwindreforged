@@ -1635,34 +1635,54 @@ public class BasicElevationModel extends AbstractElevationModel implements BulkR
 
         int j = (int) ((tileHeight - 1) * sLat);
         int i = (int) ((tileWidth - 1) * sLon);
+
+        // Clamp so (j, i) names the NW corner of a valid 4-post cell.
+        if (j >= tileHeight - 1) j = tileHeight - 2;
+        if (i >= tileWidth - 1)  i = tileWidth - 2;
+        if (j < 0) j = 0;
+        if (i < 0) i = 0;
+
         int k = j * tileWidth + i;
 
-        double eLeft = elevations.getDouble(k);
-        double eRight = i < (tileWidth - 1) ? elevations.getDouble(k + 1) : eLeft;
+        double zNW = elevations.getDouble(k);
+        double zNE = elevations.getDouble(k + 1);
+        double zSW = elevations.getDouble(k + tileWidth);
+        double zSE = elevations.getDouble(k + tileWidth + 1);
 
-        if (this.getMissingDataSignal() == eLeft || this.getMissingDataSignal() == eRight) {
-			return this.getMissingDataSignal();
-		}
+        final double missing = this.getMissingDataSignal();
+        if (missing == zNW || missing == zNE || missing == zSW || missing == zSE) {
+            return missing;
+        }
 
         double dw = sectorDeltaLon / (tileWidth - 1);
         double dh = sectorDeltaLat / (tileHeight - 1);
-        double ssLon = (dLon - i * dw) / dw;
-        double ssLat = (dLat - j * dh) / dh;
+        double u = (dLon - i * dw) / dw;   // 0 = west edge, 1 = east edge
+        double v = (dLat - j * dh) / dh;   // 0 = north edge, 1 = south edge
 
-        double eTop = eLeft + ssLon * (eRight - eLeft);
-
-        if (j < tileHeight - 1 && i < tileWidth - 1)
-        {
-            eLeft = elevations.getDouble(k + tileWidth);
-            eRight = elevations.getDouble(k + tileWidth + 1);
-
-            if (this.getMissingDataSignal() == eLeft || this.getMissingDataSignal() == eRight) {
-				return this.getMissingDataSignal();
-			}
+        // TIN lookup: split the cell into two triangles along the diagonal whose
+        // endpoints are closer in elevation, then return the height of the plane
+        // through the triangle that contains (u, v). The diagonal choice is a
+        // deterministic function of the four corners, so every query inside the
+        // cell agrees and the surface stays continuous across the split.
+        if (Math.abs(zNW - zSE) <= Math.abs(zNE - zSW)) {
+            // NW–SE diagonal; split line is v = u.
+            if (v <= u) {
+                // North-east triangle: NW(0,0), NE(1,0), SE(1,1).
+                return zNW + u * (zNE - zNW) + v * (zSE - zNE);
+            } else {
+                // South-west triangle: NW(0,0), SE(1,1), SW(0,1).
+                return zNW + u * (zSE - zSW) + v * (zSW - zNW);
+            }
+        } else {
+            // NE–SW diagonal; split line is u + v = 1.
+            if (u + v <= 1) {
+                // North-west triangle: NW(0,0), NE(1,0), SW(0,1).
+                return zNW + u * (zNE - zNW) + v * (zSW - zNW);
+            } else {
+                // South-east triangle: NE(1,0), SE(1,1), SW(0,1).
+                return zSE + (u - 1) * (zSE - zSW) + (v - 1) * (zSE - zNE);
+            }
         }
-
-        double eBot = eLeft + ssLon * (eRight - eLeft);
-        return eTop + ssLat * (eBot - eTop);
     }
 
     @Override

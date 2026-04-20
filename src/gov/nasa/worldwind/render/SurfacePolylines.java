@@ -27,6 +27,7 @@
  */
 package gov.nasa.worldwind.render;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,10 +40,13 @@ import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.globes.Globe;
+import gov.nasa.worldwind.util.BufferWrapper;
 import gov.nasa.worldwind.util.CompoundVecBuffer;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.SurfaceTileDrawContext;
 import gov.nasa.worldwind.util.VecBuffer;
+import gov.nasa.worldwind.util.VecBufferSequence;
+import gov.nasa.worldwind.util.WWBufferUtil;
 
 /**
  * This class renders fast multiple surface polylines in one pass. It relies on a {@link CompoundVecBuffer}.
@@ -88,6 +92,74 @@ public class SurfacePolylines extends AbstractSurfaceShape
 
         this.sectors = Arrays.asList(sector);
         this.buffer = buffer;
+    }
+
+    /**
+     * Constructs a {@code SurfacePolylines} from a multi-line-string: an iterable of line
+     * strings, each of which is an iterable of {@link LatLon}. Each element of
+     * {@code lineStrings} becomes a separate, disjoint polyline in the rendered shape —
+     * the class draws one {@code GL_LINE_STRIP} per element, with no connecting segments
+     * between them. Elements with fewer than two points are silently skipped.
+     *
+     * @param lineStrings the line strings to render.
+     *
+     * @throws IllegalArgumentException if {@code lineStrings} is null.
+     */
+    public SurfacePolylines(Iterable<? extends Iterable<? extends LatLon>> lineStrings)
+    {
+        if (lineStrings == null)
+        {
+            String message = Logging.getMessage("nullValue.IterableIsNull");
+            Logging.logger().severe(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        this.buffer = buildCompoundBuffer(lineStrings);
+    }
+
+    private static CompoundVecBuffer buildCompoundBuffer(
+        Iterable<? extends Iterable<? extends LatLon>> lineStrings)
+    {
+        List<List<LatLon>> lines = new ArrayList<>();
+        int totalPoints = 0;
+        for (Iterable<? extends LatLon> line : lineStrings)
+        {
+            if (line == null) {
+                continue;
+            }
+            List<LatLon> pts = new ArrayList<>();
+            for (LatLon ll : line)
+            {
+                if (ll != null) {
+                    pts.add(ll);
+                }
+            }
+            if (pts.size() < 2) {
+                continue; // GL_LINE_STRIP requires at least two vertices
+            }
+            lines.add(pts);
+            totalPoints += pts.size();
+        }
+
+        if (lines.isEmpty()) {
+            return VecBufferSequence.emptyVecBufferSequence(2);
+        }
+
+        // Pre-size the backing buffer exactly. Two coords per vertex (lon, lat);
+        // tessellatePart reads coords[0]/coords[1] and hard-codes z=0.
+        BufferWrapper backing = WWBufferUtil.newDoubleBufferWrapper(totalPoints * 2, true);
+        VecBuffer backingVec = new VecBuffer(2, backing);
+        VecBufferSequence sequence = new VecBufferSequence(backingVec, lines.size());
+
+        for (List<LatLon> line : lines)
+        {
+            BufferWrapper subWrapper = WWBufferUtil.newDoubleBufferWrapper(line.size() * 2, true);
+            VecBuffer sub = new VecBuffer(2, subWrapper);
+            sub.putLocations(0, line);
+            sequence.append(sub);
+        }
+
+        return sequence;
     }
 
     /**

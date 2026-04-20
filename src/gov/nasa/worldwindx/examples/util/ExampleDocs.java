@@ -809,6 +809,34 @@ public final class ExampleDocs {
                 + "<li>All parameters are passed as shader uniforms; no texture memory is used</li>"
                 + "</ul>"));
 
+        put("SurfacePolylinesExample",
+            section("Overview",
+                "Demonstrates <code class='api-class'>SurfacePolylines</code> &mdash; the batch-rendering "
+                + "companion to <code class='api-class'>SurfacePolyline</code>. Ten parallel east&ndash;west "
+                + "tracks are stacked in latitude to form a boustrophedon (lawn-mower) pattern, with every "
+                + "other row reversed so the lines run back and forth. All ten line strings are passed to a "
+                + "single <code>SurfacePolylines</code> instance via the multi-line-string constructor, so the "
+                + "entire pattern is tessellated and rendered in one pass. The rows remain visibly disjoint "
+                + "(no connecting segments at the ends), confirming the multi-line-string semantics are "
+                + "preserved through the <code class='api-class'>CompoundVecBuffer</code> plumbing.")
+            + section("What You'll See",
+                "<ul>"
+                + "<li>Ten bright yellow parallel tracks over the central Pacific</li>"
+                + "<li>Row direction alternates (W&rarr;E, E&rarr;W, W&rarr;E, &hellip;) &mdash; but rows are not joined</li>"
+                + "<li>All ten tracks belong to one <code>SurfacePolylines</code> renderable</li>"
+                + "</ul>")
+            + section("How to Interact",
+                "<ul>"
+                + "<li>Zoom and pan normally &mdash; the batch shape behaves like any other surface shape</li>"
+                + "<li>Zoom close to verify sub-km segments still render cleanly (fp64 path)</li>"
+                + "</ul>")
+            + section("Key APIs",
+                "<ul>"
+                + "<li><code class='api-class'>SurfacePolylines</code> &mdash; <code>new SurfacePolylines(Iterable&lt;? extends Iterable&lt;? extends LatLon&gt;&gt;)</code></li>"
+                + "<li>Elements with fewer than 2 points are silently skipped</li>"
+                + "<li>Backed by <code class='api-class'>CompoundVecBuffer</code> / <code class='api-class'>VecBufferSequence</code> internally</li>"
+                + "</ul>"));
+
         put("SurfaceShapeShowcase",
             section("Overview",
                 "A comprehensive showcase of all 7 surface shape types combined with procedural fill patterns "
