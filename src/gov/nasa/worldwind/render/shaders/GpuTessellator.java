@@ -69,6 +69,23 @@ public class GpuTessellator
      */
     private static final double MIN_METRES_FOR_GPU = 1000.0;
 
+    /**
+     * Secondary precision guard: minimum spacing (in metres) between adjacent interpolated
+     * points before the GPU path is abandoned in favour of the CPU double-precision loop.
+     *
+     * <p>fp32 radian math at typical geographic magnitudes has an absolute ULP of ~1 m on
+     * every output vertex, regardless of edge length. That ~1 m noise is invisible when the
+     * viewer is far enough away that one screen pixel is larger than a metre, but becomes
+     * visible ("drunk drew it" lateral wobble along a line viewed end-on) at close zoom —
+     * which is exactly the regime where the caller asks for a fine subdivision.
+     *
+     * <p>We use per-interval spacing as the zoom proxy: if the caller's
+     * {@code edgeIntervalsPerDegree} resolves to intervals shorter than this many metres,
+     * the user is close enough to see fp32's precision floor, so bail. Above it, the GPU
+     * path stays in use and the ~1 m wobble is sub-pixel.
+     */
+    private static final double MIN_INTERVAL_METRES_FOR_GPU = 100.0;
+
     /** Used to convert radians to metres for the precision guard. Matches WGS84 equatorial radius. */
     private static final double EARTH_RADIUS_METRES = 6_378_137.0;
 
@@ -481,6 +498,7 @@ public class GpuTessellator
 
         int totalInterpolated = 0;
         double minEdgeMetres = Double.POSITIVE_INFINITY;
+        double minIntervalMetres = Double.POSITIVE_INFINITY;
 
         for (int e = 0; e < numEdges; e++)
         {
@@ -510,6 +528,16 @@ public class GpuTessellator
             if (numIntervals > 0 && edgeMetres < minEdgeMetres)
                 minEdgeMetres = edgeMetres;
 
+            // Also track the tightest per-interval spacing — a long edge can still resolve to
+            // sub-metre intervals at close zoom, and those intervals carry ~1 m fp32 jitter
+            // that becomes visible even though the edge length alone looked safe.
+            if (numIntervals > 0)
+            {
+                double intervalMetres = edgeMetres / numIntervals;
+                if (intervalMetres < minIntervalMetres)
+                    minIntervalMetres = intervalMetres;
+            }
+
             // Edge data in radians
             this.edgeStagingBuffer.put((float) a.getLongitude().radians);
             this.edgeStagingBuffer.put((float) a.getLatitude().radians);
@@ -523,9 +551,14 @@ public class GpuTessellator
             totalInterpolated += numIntervals;
         }
 
-        // Precision guard: if any interpolated edge is short enough that fp32 radians would
-        // introduce visible jitter, defer to the CPU double-precision path by returning false.
-        if (totalInterpolated > 0 && minEdgeMetres < MIN_METRES_FOR_GPU)
+        // Precision guard: bail to the CPU double-precision path when either (a) any edge is
+        // short enough to be inside fp32's radian precision floor, or (b) the fine-grained
+        // subdivision produces adjacent interpolated points closer than the visibility
+        // threshold — both symptoms of the viewer being zoomed in far enough to see fp32's
+        // ~1 m absolute wobble on every interpolated vertex.
+        if (totalInterpolated > 0
+            && (minEdgeMetres < MIN_METRES_FOR_GPU
+                || minIntervalMetres < MIN_INTERVAL_METRES_FOR_GPU))
             return false;
 
         this.edgeStagingBuffer.flip();

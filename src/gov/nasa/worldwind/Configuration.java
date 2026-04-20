@@ -693,15 +693,13 @@ public class Configuration // Singleton
     /**
      * Returns the highest OpenGL profile available on the current graphics device that is compatible with WorldWind.
      * The returned profile favors hardware acceleration over software acceleration.
-     * seaglassfoundry.com: prefers GL 4.x compatibility (GL4bc) so surface-shape shaders can use
-     * double-precision vertex math (ARB_gpu_shader_fp64 + ARB_vertex_attrib_64bit, core in 4.1).
-     * Falls back to GL3bc on older drivers, and to the highest fixed-function profile on very old hardware.
+     * seaglassfoundry.com: prefers GL 4.x compatibility (GL4bc), falls back to GL3bc on older
+     * drivers, and to the highest fixed-function profile on very old hardware.
      *
      * @return the highest compatible OpenGL profile.
      */
     public static GLProfile getMaxCompatibleGLProfile()
     {
-        // Prefer GL 4.x compatibility — enables fp64 vertex shader path for precision at close zoom.
         if (GLProfile.isAvailable(GLProfile.GL4bc)) {
             return GLProfile.get(GLProfile.GL4bc);
         }

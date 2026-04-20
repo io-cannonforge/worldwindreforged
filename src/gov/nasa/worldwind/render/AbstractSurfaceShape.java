@@ -47,7 +47,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -63,8 +62,6 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES1;
-import com.jogamp.opengl.GL2GL3;
-import com.jogamp.opengl.GL4bc;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.fixedfunc.GLPointerFunc;
 import com.jogamp.opengl.glu.GLU;
@@ -168,9 +165,6 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
     protected OGLStackHandler stackHandler = new OGLStackHandler();
     protected static FloatBuffer vertexBuffer;
     protected static FloatBuffer distBuffer; // cumulative distance for dash shader
-    // seaglassfoundry.com: double-precision position buffer used when the dash shader is the fp64
-    // variant. Coexists with vertexBuffer; only one is populated per drawLineStripWithDist call.
-    protected static DoubleBuffer vertexBufferD;
     // seaglassfoundry.com: shaders are now per-GLContext so that multiple WorldWind windows
     // with independent GL contexts each get their own compiled shader programs.
     // Shader-based dashed line rendering — one per GL context.
@@ -201,7 +195,7 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         final int indexCount;
         final boolean hasTexCoords;
         final int vertexStride;        // bytes per vertex (0 = tightly packed with no tex coords)
-        final int positionGLType;      // GL.GL_FLOAT or GL.GL_DOUBLE
+        final int positionGLType;      // GL.GL_FLOAT (GL_DOUBLE path removed with fp64 shader removal)
         final int texCoordByteOffset;  // byte offset of tex coords within vertex (-1 if none)
 
         InteriorVBOData(int vertexVboId, int indexVboId, int indexCount)
@@ -1250,13 +1244,7 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         int posAttrib = fillShader.getPositionAttribLocation();
         int stride = vboData.vertexStride;
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboData.vertexVboId);
-        if (vboData.positionGLType == GL2GL3.GL_DOUBLE) {
-            // seaglassfoundry.com: glVertexAttribLPointer has no `normalized` flag — the 'L' form
-            // carries double-precision attribute values into the vertex stage untouched.
-            gl.glVertexAttribLPointer(posAttrib, 2, GL2GL3.GL_DOUBLE, stride, 0L);
-        } else {
-            gl.glVertexAttribPointer(posAttrib, 2, GL.GL_FLOAT, false, stride, 0);
-        }
+        gl.glVertexAttribPointer(posAttrib, 2, GL.GL_FLOAT, false, stride, 0);
 
         if (useExplicitTex && vboData.hasTexCoords)
         {
@@ -1290,21 +1278,18 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         ShapeAttributes attrs = this.getActiveAttributes();
         boolean isStippled = attrs.getOutlineStippleFactor() > 0;
 
-        // seaglassfoundry.com: use DashLineShader for ALL outlines (not just stippled ones) when
-        // fp64 is available. The flushDashBatch path in drawLineStripWithDist uploads positions as
-        // GL_DOUBLE when the shader was linked with dvec2, so routing solid outlines through this
-        // path gives them the same sub-metre precision as interior fills. Without this, the solid
-        // outline path (drawOutlineFromVBOs / drawLineStrip) uses glVertexPointer(GL_FLOAT) and
-        // vertex positions quantize to nearest fp32-expressible value — visible as "random" corner
-        // placement on shapes ~10 m or smaller.
+        // seaglassfoundry.com: route ALL outlines (not just stippled ones) through the dash shader
+        // when it's available. The shader path pre-translates MVP by the reference position on the
+        // CPU and uploads positions as fp32 degree offsets — preserving sub-metre precision that
+        // the fixed-function glVertexPointer(GL_FLOAT) path loses to fp32 quantization (visible as
+        // "random" corner placement on shapes ~10 m or smaller).
         boolean dashShaderAvailable = !dc.isPickingMode()
             && !Boolean.TRUE.equals(dashLineShaderFailed.get());
         if (dashShaderAvailable) {
             dashShaderAvailable = initDashShader(dc);
         }
         DashLineShader dashLineShader = dashShaderAvailable ? dashLineShaders.get() : null;
-        boolean useDashShader = dashShaderAvailable
-            && (isStippled || (dashLineShader != null && dashLineShader.isFp64Enabled()));
+        boolean useDashShader = dashShaderAvailable && dashLineShader != null;
 
         this.applyOutlineState(dc, attrs, useDashShader);
 
@@ -1448,15 +1433,11 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         double refLon = refPos.getLongitude().degrees;
         double refLat = refPos.getLatitude().degrees;
 
-        // seaglassfoundry.com: when the fill shader was linked with dvec2 positions, upload full
-        // double-precision vertex data so the MVP multiply preserves sub-metre precision at close
-        // zoom. Triangulation still runs on the float array — topology doesn't need fp64.
-        SurfaceShapeFillShader shader = fillShaders.get();
-        boolean useDoublePositions = shader != null && shader.isFp64Enabled();
-
-        // Flatten all contours into a single vertex array and collect triangle indices
+        // Flatten all contours into a single vertex array and collect triangle indices.
+        // Positions are fp32 degree offsets from the reference position; the MVP is composed in
+        // fp64 on the CPU and cast to fp32 once at upload, so the shader's fp32 × fp32 multiply
+        // retains sub-metre precision without needing a double-precision vertex attribute.
         List<float[]> contourVertices = new ArrayList<>();
-        List<double[]> contourVerticesD = useDoublePositions ? new ArrayList<>() : null;
         int totalVertices = 0;
 
         for (List<LatLon> contour : this.getActiveGeometry())
@@ -1466,23 +1447,14 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 			}
 
             float[] verts = new float[contour.size() * 2];
-            double[] vertsD = useDoublePositions ? new double[contour.size() * 2] : null;
             int vi = 0;
             for (LatLon ll : contour)
             {
-                double dx = ll.getLongitude().degrees - refLon;
-                double dy = ll.getLatitude().degrees - refLat;
-                verts[vi] = (float) dx;
-                verts[vi + 1] = (float) dy;
-                if (vertsD != null)
-                {
-                    vertsD[vi] = dx;
-                    vertsD[vi + 1] = dy;
-                }
+                verts[vi]     = (float) (ll.getLongitude().degrees - refLon);
+                verts[vi + 1] = (float) (ll.getLatitude().degrees  - refLat);
                 vi += 2;
             }
             contourVertices.add(verts);
-            if (contourVerticesD != null) contourVerticesD.add(vertsD);
             totalVertices += contour.size();
         }
 
@@ -1492,21 +1464,14 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
         // Build combined vertex array and triangulate each contour
         float[] allVertices = new float[totalVertices * 2];
-        double[] allVerticesD = useDoublePositions ? new double[totalVertices * 2] : null;
         List<int[]> allTriangles = new ArrayList<>();
         int vertexOffset = 0;
         int totalIndices = 0;
 
-        for (int ci = 0; ci < contourVertices.size(); ci++)
+        for (float[] verts : contourVertices)
         {
-            float[] verts = contourVertices.get(ci);
             int count = verts.length / 2;
             System.arraycopy(verts, 0, allVertices, vertexOffset * 2, verts.length);
-            if (allVerticesD != null)
-            {
-                double[] vertsD = contourVerticesD.get(ci);
-                System.arraycopy(vertsD, 0, allVerticesD, vertexOffset * 2, vertsD.length);
-            }
 
             // Build sequential ring index array for this contour
             int[] ring = new int[count];
@@ -1535,18 +1500,9 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
 
         // Vertex VBO
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboIds[0]);
-        if (useDoublePositions)
-        {
-            DoubleBuffer vertBuf = Buffers.newDirectDoubleBuffer(allVerticesD);
-            gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) allVerticesD.length * Double.BYTES,
-                vertBuf, GL.GL_STATIC_DRAW);
-        }
-        else
-        {
-            FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(allVertices);
-            gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) allVertices.length * Float.BYTES,
-                vertBuf, GL.GL_STATIC_DRAW);
-        }
+        FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(allVertices);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) allVertices.length * Float.BYTES,
+            vertBuf, GL.GL_STATIC_DRAW);
 
         // Index VBO — combine all triangle index arrays
         int[] allIndices = new int[totalIndices];
@@ -1565,9 +1521,8 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
         gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        int positionGLType = useDoublePositions ? GL2GL3.GL_DOUBLE : GL.GL_FLOAT;
         return new InteriorVBOData(vboIds[0], vboIds[1], totalIndices,
-            false, 0, positionGLType, -1);
+            false, 0, GL.GL_FLOAT, -1);
     }
 
     /**
@@ -1700,10 +1655,6 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         DashLineShader dashShader = dashLineShaders.get();
         int posLoc  = dashShader.getPosAttribLocation();
         int distLoc = dashShader.getDistAttribLocation();
-        boolean useDouble = dashShader.isFp64Enabled();
-        // GL4bc is required for the client-memory Buffer form of glVertexAttribLPointer; the fp64
-        // check above already implies GL 4.1+, and WorldWind requests a compatibility profile.
-        GL4bc gl4 = useDouble ? gl.getGL4bc() : null;
 
         // Maximum tile-pixel distance per segment before subdividing. At 512 pixels, float32 has precision of
         // ~0.00003, giving sub-pixel accuracy for mod(v_dist, dashLength). Keep well below 2^16 (65536).
@@ -1740,20 +1691,10 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             }
         }
 
-        if (useDouble)
-        {
-            if (vertexBufferD == null || vertexBufferD.capacity() < 2 * totalVerts) {
-                vertexBufferD = Buffers.newDirectDoubleBuffer(2 * totalVerts);
-            }
-            vertexBufferD.clear();
+        if (vertexBuffer == null || vertexBuffer.capacity() < 2 * totalVerts) {
+            vertexBuffer = Buffers.newDirectFloatBuffer(2 * totalVerts);
         }
-        else
-        {
-            if (vertexBuffer == null || vertexBuffer.capacity() < 2 * totalVerts) {
-                vertexBuffer = Buffers.newDirectFloatBuffer(2 * totalVerts);
-            }
-            vertexBuffer.clear();
-        }
+        vertexBuffer.clear();
         if (distBuffer == null || distBuffer.capacity() < totalVerts) {
             distBuffer = Buffers.newDirectFloatBuffer(totalVerts);
         }
@@ -1792,14 +1733,14 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                         // Flush current batch
                         if (vertexCount > 1)
                         {
-                            flushDashBatch(gl, gl4, useDouble, posLoc, distLoc, vertexCount);
+                            flushDashBatch(gl, posLoc, distLoc, vertexCount);
                         }
 
                         // Reset offset aligned to a dash cycle boundary
                         double prevRel = prevCumulDist - batchOffset;
                         batchOffset = prevCumulDist - (prevRel % dashLengthPixels);
 
-                        if (useDouble) vertexBufferD.clear(); else vertexBuffer.clear();
+                        vertexBuffer.clear();
                         distBuffer.clear();
                         vertexCount = 0;
 
@@ -1817,14 +1758,14 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
                             lastX = prevX + dx * tPrev;
                             lastY = prevY + dy * tPrev;
                         }
-                        if (useDouble) { vertexBufferD.put(lastX); vertexBufferD.put(lastY); }
-                        else { vertexBuffer.put((float) lastX); vertexBuffer.put((float) lastY); }
+                        vertexBuffer.put((float) lastX);
+                        vertexBuffer.put((float) lastY);
                         distBuffer.put((float) (prevCumulDist - batchOffset));
                         vertexCount++;
                     }
 
-                    if (useDouble) { vertexBufferD.put(ix); vertexBufferD.put(iy); }
-                    else { vertexBuffer.put((float) ix); vertexBuffer.put((float) iy); }
+                    vertexBuffer.put((float) ix);
+                    vertexBuffer.put((float) iy);
                     distBuffer.put((float) (iDist - batchOffset));
                     vertexCount++;
                     prevCumulDist = iDist;
@@ -1835,8 +1776,8 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
             else
             {
                 // First vertex
-                if (useDouble) { vertexBufferD.put(x); vertexBufferD.put(y); }
-                else { vertexBuffer.put((float) x); vertexBuffer.put((float) y); }
+                vertexBuffer.put((float) x);
+                vertexBuffer.put((float) y);
                 distBuffer.put(0.0f);
                 vertexCount++;
                 prevCumulDist = 0;
@@ -1850,32 +1791,21 @@ public abstract class AbstractSurfaceShape extends AbstractSurfaceObject impleme
         // Draw the final (or only) batch
         if (vertexCount > 1)
         {
-            flushDashBatch(gl, gl4, useDouble, posLoc, distLoc, vertexCount);
+            flushDashBatch(gl, posLoc, distLoc, vertexCount);
         }
     }
 
     /**
      * Uploads the current position + distance buffers and issues the line-strip draw for
-     * {@link #drawLineStripWithDist}. Handles the fp32 and fp64 attribute paths.
+     * {@link #drawLineStripWithDist}.
      * seaglassfoundry.com
      */
-    private static void flushDashBatch(GL2 gl, GL4bc gl4, boolean useDouble,
-                                       int posLoc, int distLoc, int vertexCount)
+    private static void flushDashBatch(GL2 gl, int posLoc, int distLoc, int vertexCount)
     {
         distBuffer.flip();
-        if (useDouble)
-        {
-            vertexBufferD.flip();
-            if (posLoc >= 0) {
-                gl4.glVertexAttribLPointer(posLoc, 2, GL2GL3.GL_DOUBLE, 0, vertexBufferD);
-            }
-        }
-        else
-        {
-            vertexBuffer.flip();
-            if (posLoc >= 0) {
-                gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
-            }
+        vertexBuffer.flip();
+        if (posLoc >= 0) {
+            gl.glVertexAttribPointer(posLoc, 2, GL.GL_FLOAT, false, 0, vertexBuffer);
         }
         if (distLoc >= 0) {
             gl.glVertexAttribPointer(distLoc, 1, GL.GL_FLOAT, false, 0, distBuffer);

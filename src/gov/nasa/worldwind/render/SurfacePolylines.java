@@ -283,7 +283,7 @@ public class SurfacePolylines extends AbstractSurfaceShape
 
     /**
      * Publishes each sub-buffer as its own polyline in {@code activeOutlineGeometry}, which
-     * the base class's {@code drawOutline} then renders through the fp64 {@link
+     * the base class's {@code drawOutline} then renders through the {@link
      * gov.nasa.worldwind.render.shaders.DashLineShader} path (matching {@link SurfacePolyline}
      * / {@link SurfacePolygon} / {@link SurfaceEllipse}). Dateline-crossing lines are split
      * via {@code repeatAroundDateline} so the outline is drawn on both sides of the seam

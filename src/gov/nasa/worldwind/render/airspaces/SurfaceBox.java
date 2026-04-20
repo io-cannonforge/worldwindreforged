@@ -68,6 +68,112 @@ public class SurfaceBox extends AbstractSurfaceShape
         this.onShapeChanged();
     }
 
+    /**
+     * Convenience setter that expands a two-endpoint centre line into the full perimeter vertex
+     * list {@link #createGeometry} expects, and assigns both the perimeter and the segment counts
+     * in one call. Use this when you have a simple corridor (two endpoints + a half-width on each
+     * side) rather than a pre-tessellated perimeter. For complex shapes with asymmetric end
+     * azimuths, use {@link Box} and let its airspace geometry produce the perimeter.
+     *
+     * @param globe             globe used to convert metre widths to arc-length radians.
+     * @param beginLocation     one endpoint of the corridor centre line.
+     * @param endLocation       the other endpoint.
+     * @param leftWidthMetres   corridor half-width on the left of the begin→end direction.
+     * @param rightWidthMetres  corridor half-width on the right of the begin→end direction.
+     * @param lengthSegments    number of segments along each long side (must be ≥ 1).
+     * @param widthSegments     number of segments along each half of a cap (must be ≥ 1).
+     */
+    public void setLocationsFromCenterLine(Globe globe, LatLon beginLocation, LatLon endLocation,
+        double leftWidthMetres, double rightWidthMetres, int lengthSegments, int widthSegments)
+    {
+        if (globe == null)
+        {
+            String message = Logging.getMessage("nullValue.GlobeIsNull");
+            Logging.logger().severe(message);
+            throw new IllegalArgumentException(message);
+        }
+        if (beginLocation == null || endLocation == null)
+        {
+            String message = Logging.getMessage("nullValue.LatLonIsNull");
+            Logging.logger().severe(message);
+            throw new IllegalArgumentException(message);
+        }
+        if (lengthSegments < 1 || widthSegments < 1)
+        {
+            String message = Logging.getMessage("generic.ArgumentOutOfRange");
+            Logging.logger().severe(message);
+            throw new IllegalArgumentException(message);
+        }
+
+        double beginAzimuth = LatLon.greatCircleAzimuth(beginLocation, endLocation).radians;
+        double endAzimuth   = LatLon.greatCircleAzimuth(endLocation,   beginLocation).radians;
+        double leftArc  = leftWidthMetres  / globe.getRadius();
+        double rightArc = rightWidthMetres / globe.getRadius();
+
+        LatLon beginLeft  = LatLon.greatCircleEndPosition(beginLocation, beginAzimuth - Math.PI / 2, leftArc);
+        LatLon beginRight = LatLon.greatCircleEndPosition(beginLocation, beginAzimuth + Math.PI / 2, rightArc);
+        LatLon endLeft    = LatLon.greatCircleEndPosition(endLocation,   endAzimuth   + Math.PI / 2, leftArc);
+        LatLon endRight   = LatLon.greatCircleEndPosition(endLocation,   endAzimuth   - Math.PI / 2, rightArc);
+
+        List<LatLon> locs = new ArrayList<>();
+
+        // begin side: beginLeft → beginLocation → beginRight (2*widthSegments + 1 pts)
+        appendCenterLineLeg(beginLeft, beginLocation, beginRight, widthSegments, locs);
+
+        // right side: beginRight + (lengthSegments-1) interior + endRight
+        locs.add(beginRight);
+        for (int i = 1; i < lengthSegments; i++)
+        {
+            double amount = (double) i / lengthSegments;
+            LatLon proj = LatLon.interpolateGreatCircle(amount, beginLocation, endLocation);
+            double az   = LatLon.greatCircleAzimuth(proj, endLocation).radians + Math.PI / 2;
+            locs.add(LatLon.greatCircleEndPosition(proj, az, rightArc));
+        }
+        locs.add(endRight);
+
+        // end side: endRight → endLocation → endLeft
+        appendCenterLineLeg(endRight, endLocation, endLeft, widthSegments, locs);
+
+        // left side: endLeft + (lengthSegments-1) interior + beginLeft
+        locs.add(endLeft);
+        for (int i = 1; i < lengthSegments; i++)
+        {
+            double amount = (double) i / lengthSegments;
+            LatLon proj = LatLon.interpolateGreatCircle(amount, endLocation, beginLocation);
+            double az   = LatLon.greatCircleAzimuth(proj, endLocation).radians - Math.PI / 2;
+            locs.add(LatLon.greatCircleEndPosition(proj, az, leftArc));
+        }
+        locs.add(beginLeft);
+
+        this.locations      = locs;
+        this.lengthSegments = lengthSegments;
+        this.widthSegments  = widthSegments;
+        this.onShapeChanged();
+    }
+
+    /** Symmetric-width overload of {@link #setLocationsFromCenterLine}. */
+    public void setLocationsFromCenterLine(Globe globe, LatLon beginLocation, LatLon endLocation,
+        double halfWidthMetres, int lengthSegments, int widthSegments)
+    {
+        this.setLocationsFromCenterLine(globe, beginLocation, endLocation,
+            halfWidthMetres, halfWidthMetres, lengthSegments, widthSegments);
+    }
+
+    private static void appendCenterLineLeg(LatLon begin, LatLon middle, LatLon end,
+        int numSegments, List<LatLon> out)
+    {
+        for (int i = 0; i <= numSegments; i++)
+        {
+            double amount = (double) i / numSegments;
+            out.add(LatLon.interpolateGreatCircle(amount, begin, middle));
+        }
+        for (int i = 1; i <= numSegments; i++) // skip i=0: already added above
+        {
+            double amount = (double) i / numSegments;
+            out.add(LatLon.interpolateGreatCircle(amount, middle, end));
+        }
+    }
+
     public int getLengthSegments()
     {
         return this.lengthSegments;

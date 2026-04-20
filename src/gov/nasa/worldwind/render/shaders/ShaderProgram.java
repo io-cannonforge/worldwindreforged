@@ -24,7 +24,6 @@ import java.util.Map;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL2ES2;
-import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 
 import gov.nasa.worldwind.util.Logging;
@@ -175,38 +174,20 @@ public class ShaderProgram
     }
 
     /**
-     * Reads the current OpenGL modelview and projection matrices, multiplies them (P × MV),
-     * and uploads the result as the named mat4 uniform. Replaces {@code gl_ModelViewProjectionMatrix}
-     * for shaders that want to be compatible with core profile without changing Java call sites.
+     * Reads the current OpenGL modelview and projection matrices as fp64, composes
+     * {@code MVP = P × MV} in fp64, then casts the final 4×4 to fp32 for upload as a {@code mat4}
+     * uniform. Replaces {@code gl_ModelViewProjectionMatrix} for core-profile-compatible shaders.
+     * <p>
+     * Composing in fp64 preserves precision when the MV column 3 (translation) has already been
+     * post-multiplied by a reference-position translation on the CPU (as
+     * {@code AbstractSurfaceShape.applyModelviewTransform} does): the CPU-side fp64 compose picks up
+     * a well-conditioned P × MV, and the single downcast at the end is the only precision loss.
+     * Callers ship positions as fp32 degree offsets from the same reference point, keeping the
+     * shader's {@code u_mvp × vec4(dLon, dLat, 0, 1)} multiply small-magnitude on both operands —
+     * giving the same visible precision as the previous fp64 {@code dmat4} path at fp32 hardware rate.
      * seaglassfoundry.com
      */
     public void setUniformMvp(GL2 gl, String name)
-    {
-        float[] mv   = new float[16];
-        float[] proj = new float[16];
-        gl.glGetFloatv(GLMatrixFunc.GL_MODELVIEW_MATRIX,  mv,   0);
-        gl.glGetFloatv(GLMatrixFunc.GL_PROJECTION_MATRIX, proj, 0);
-        float[] mvp = new float[16];
-        // Column-major multiply: mvp = proj * mv
-        for (int col = 0; col < 4; col++)
-            for (int row = 0; row < 4; row++)
-            {
-                float sum = 0f;
-                for (int k = 0; k < 4; k++)
-                    sum += proj[k * 4 + row] * mv[col * 4 + k];
-                mvp[col * 4 + row] = sum;
-            }
-        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, mvp, 0);
-    }
-
-    /**
-     * Double-precision variant of {@link #setUniformMvp}. Reads the MODELVIEW and PROJECTION matrices
-     * as double (the fixed-function matrix stack stores them as double internally), multiplies them in
-     * double, and uploads the result as a {@code dmat4} uniform via {@code glUniformMatrix4dv}. Requires
-     * a GL 4.0+ context (caller should verify via {@link GLCapabilityCheck#hasShaderFp64}).
-     * seaglassfoundry.com
-     */
-    public void setUniformMvpDouble(GL2 gl, String name)
     {
         double[] mv   = new double[16];
         double[] proj = new double[16];
@@ -221,8 +202,10 @@ public class ShaderProgram
                     sum += proj[k * 4 + row] * mv[col * 4 + k];
                 mvp[col * 4 + row] = sum;
             }
-        GL3 gl3 = gl.getGL3();
-        gl3.glUniformMatrix4dv(getUniformLocation(gl, name), 1, false, mvp, 0);
+        float[] mvpF = new float[16];
+        for (int i = 0; i < 16; i++)
+            mvpF[i] = (float) mvp[i];
+        gl.glUniformMatrix4fv(getUniformLocation(gl, name), 1, false, mvpF, 0);
     }
 
     public int getProgramId()

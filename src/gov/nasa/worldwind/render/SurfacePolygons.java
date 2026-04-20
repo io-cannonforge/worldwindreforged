@@ -30,7 +30,6 @@
  */
 package gov.nasa.worldwind.render;
 
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -40,9 +39,7 @@ import java.util.logging.Level;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL2GL3;
 
-import gov.nasa.worldwind.render.shaders.SurfaceShapeFillShader;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUtessellator;
 import com.jogamp.opengl.glu.GLUtessellatorCallback;
@@ -252,16 +249,12 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
         double refLat = refPos.getLatitude().degrees;
         this.crossesDateLine = false;
 
-        // seaglassfoundry.com: determine upfront whether the fill shader wants doubles so we can
-        // build a parallel double-precision ring list without narrowing through float.
-        SurfaceShapeFillShader shader = fillShaders.get();
-        boolean useDoublePositions = shader != null && shader.isFp64Enabled();
-
         // Flatten all rings, applying hemisphere offset for dateline crossings.
         // Returns null if pole-wrapping is detected (fall back to GLU).
+        // Positions are fp32 degree offsets from the reference; the MVP is composed in fp64 on the
+        // CPU and cast to fp32 once at upload, preserving sub-metre precision without fp64 VBOs.
         int numRings = this.buffer.size();
         List<float[]> ringVertices = new ArrayList<>(numRings);
-        List<double[]> ringVerticesD = useDoublePositions ? new ArrayList<>(numRings) : null;
         for (int i = 0; i < numRings; i++)
         {
             VecBuffer vb = this.buffer.subBuffer(i);
@@ -274,15 +267,6 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 				this.crossesDateLine = true;
 			}
             ringVertices.add(verts);
-            if (ringVerticesD != null)
-            {
-                boolean[] unused = {false};
-                double[] vertsD = this.flattenRingVerticesAsDouble(vb, refLon, refLat, unused);
-                if (vertsD == null) {
-                    return null;
-                }
-                ringVerticesD.add(vertsD);
-            }
         }
 
         // Group rings into polygons (outer + holes)
@@ -370,30 +354,10 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
         int[] vboIds = new int[2];
         gl.glGenBuffers(2, vboIds, 0);
 
-        // seaglassfoundry.com: upload positions as double when the fill shader was linked with
-        // dvec2 inputs. ringVerticesD holds the full-precision per-ring positions built alongside
-        // the float rings above, so we can build globalVertsD by concatenating in ring order.
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboIds[0]);
-        if (useDoublePositions)
-        {
-            double[] globalVertsD = new double[totalVertices * 2];
-            int gviD = 0;
-            for (int i = 0; i < numRings; i++)
-            {
-                double[] v = ringVerticesD.get(i);
-                System.arraycopy(v, 0, globalVertsD, gviD, v.length);
-                gviD += v.length;
-            }
-            DoubleBuffer vertBuf = Buffers.newDirectDoubleBuffer(globalVertsD);
-            gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) globalVertsD.length * Double.BYTES,
-                vertBuf, GL.GL_STATIC_DRAW);
-        }
-        else
-        {
-            FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(globalVerts);
-            gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) globalVerts.length * Float.BYTES,
-                vertBuf, GL.GL_STATIC_DRAW);
-        }
+        FloatBuffer vertBuf = Buffers.newDirectFloatBuffer(globalVerts);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, (long) globalVerts.length * Float.BYTES,
+            vertBuf, GL.GL_STATIC_DRAW);
 
         int[] allIndices = new int[totalIndices];
         int off = 0;
@@ -410,9 +374,8 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
         gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        int positionGLType = useDoublePositions ? GL2GL3.GL_DOUBLE : GL.GL_FLOAT;
         return new InteriorVBOData(vboIds[0], vboIds[1], totalIndices,
-            false, 0, positionGLType, -1);
+            false, 0, GL.GL_FLOAT, -1);
     }
 
     /**
@@ -451,51 +414,6 @@ public class SurfacePolygons extends SurfacePolylines // TODO: Review
 		}
 
         float[] result = new float[points.size() * 2];
-        for (int i = 0; i < points.size(); i++)
-        {
-            result[i * 2] = points.get(i)[0];
-            result[i * 2 + 1] = points.get(i)[1];
-        }
-        return result;
-    }
-
-    /**
-     * Double-precision variant of {@link #flattenRingVertices} — same dateline/pole logic but the
-     * per-vertex (lon-refLon, lat-refLat) pairs are returned without narrowing to float. Used by the
-     * fp64 shader path so sub-metre vertex positions survive the MVP multiply.
-     * seaglassfoundry.com
-     */
-    private double[] flattenRingVerticesAsDouble(VecBuffer vecBuffer, double refLon, double refLat,
-        boolean[] datelineCrossedRef)
-    {
-        List<double[]> dlCrossPoints = this.computeDateLineCrossingPoints(vecBuffer);
-        int pole = this.computePole(dlCrossPoints);
-        if (pole != 0) {
-            return null;
-        }
-
-        List<double[]> points = new ArrayList<>();
-        double[] previousPoint = null;
-        int sign = 0;
-
-        for (double[] coords : vecBuffer.getCoords(3))
-        {
-            if (previousPoint != null && Math.abs(previousPoint[0] - coords[0]) > 180)
-            {
-                sign += (int) Math.signum(previousPoint[0]);
-                datelineCrossedRef[0] = true;
-            }
-            double lon = coords[0] + sign * 360 - refLon;
-            double lat = coords[1] - refLat;
-            points.add(new double[] {lon, lat});
-            previousPoint = coords.clone();
-        }
-
-        if (points.size() < 3) {
-            return null;
-        }
-
-        double[] result = new double[points.size() * 2];
         for (int i = 0; i < points.size(); i++)
         {
             result[i * 2] = points.get(i)[0];

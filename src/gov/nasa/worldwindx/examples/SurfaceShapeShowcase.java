@@ -33,6 +33,7 @@ import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.globes.Earth;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.AbstractSurfaceShape;
 import gov.nasa.worldwind.render.BasicShapeAttributes;
@@ -79,8 +80,9 @@ public class SurfaceShapeShowcase extends ApplicationTemplate
     private static final double ROW2_LAT =  34.0;
     private static final double[] COL_LONS = { -116.0, -104.0, -92.0, -80.0 };
 
-    private static final double RADIUS_M   = 400_000;  // metres for circle/ellipse
-    private static final double QUAD_DEG   = 6.0;      // ~6° side for quad
+    private static final double RADIUS_M         = 400_000;  // metres for circle/ellipse
+    private static final double QUAD_DEG         = 6.0;      // ~6° side for quad
+    private static final double BOX_HALF_WIDTH_M = 120_000;  // corridor half-width for SurfaceBox
 
     // ── Pattern selector ──────────────────────────────────────────────────────
     private static final String[] PATTERN_NAMES = {"None", "Hatch", "Crosshatch", "Dots"};
@@ -261,14 +263,12 @@ public class SurfaceShapeShowcase extends ApplicationTemplate
 
         private static SurfaceBox makeBox()
         {
-            // SurfaceBox: corridor along two endpoints
+            // SurfaceBox: corridor along two centre-line endpoints, expanded to a perimeter.
             double lat = ROW2_LAT, lon = COL_LONS[2];
-            List<LatLon> locs = List.of(
-                LatLon.fromDegrees(lat, lon - 4),
-                LatLon.fromDegrees(lat + 2, lon + 4));
+            LatLon begin = LatLon.fromDegrees(lat,     lon - 4);
+            LatLon end   = LatLon.fromDegrees(lat + 2, lon + 4);
             SurfaceBox box = new SurfaceBox();
-            box.setLocations(locs);
-            box.setWidthSegments(4);
+            box.setLocationsFromCenterLine(new Earth(), begin, end, BOX_HALF_WIDTH_M, 8, 2);
             return box;
         }
 

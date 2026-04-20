@@ -10,9 +10,9 @@
  * New file — stress test for sub-metre surface-shape rendering precision.
  * A collection of very small SurfaceShape instances (≤ 20 m) is placed at a
  * single location and the camera is parked directly overhead at ~60 m altitude.
- * Useful for validating the fp64 double-precision vertex path that preserves
- * line geometry when the viewer is close enough for float32 MVP rounding to
- * produce visible wobble.
+ * Useful for validating the RTE (reference-point) vertex path that preserves
+ * line geometry when the viewer is close enough for naive float32 MVP rounding
+ * to produce visible wobble.
  */
 package gov.nasa.worldwindx.examples;
 
@@ -83,7 +83,7 @@ public class SmallSurfaceShapesDemo extends ApplicationTemplate
             LatLon center = LatLon.fromDegrees(CENTER_LAT, CENTER_LON);
 
             // 1. Featured shape — 32-sided polygon approximating a 10 m-radius circle.
-            //    Rendered as a SurfacePolygon (not SurfaceCircle) so the fp64 vertex
+            //    Rendered as a SurfacePolygon (not SurfaceCircle) so the RTE vertex
             //    path in AbstractSurfaceShape / SurfacePolygon is exercised directly.
             List<LatLon> ring32 = buildCircleVertices(center, 10.0, 32);
             SurfacePolygon circle32 = new SurfacePolygon(ring32);
@@ -146,7 +146,7 @@ public class SmallSurfaceShapesDemo extends ApplicationTemplate
             labels.addAnnotation(label("Polyline\n~30 m zig-zag", zigzag.get(3)));
 
             // 7. Dashed outline version of the 32-gon (no interior), just inside the main one —
-            //    exercises the fp64 path through DashLineShader as well as the fill shader.
+            //    exercises the RTE path through DashLineShader as well as the fill shader.
             List<LatLon> ring32Inner = buildCircleVertices(center, 9.0, 32);
             SurfacePolygon dashed32 = new SurfacePolygon(ring32Inner);
             ShapeAttributes dashAttrs = new BasicShapeAttributes();

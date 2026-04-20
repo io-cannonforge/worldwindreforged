@@ -828,7 +828,7 @@ public final class ExampleDocs {
             + section("How to Interact",
                 "<ul>"
                 + "<li>Zoom and pan normally &mdash; the batch shape behaves like any other surface shape</li>"
-                + "<li>Zoom close to verify sub-km segments still render cleanly (fp64 path)</li>"
+                + "<li>Zoom close to verify sub-km segments still render cleanly (RTE path)</li>"
                 + "</ul>")
             + section("Key APIs",
                 "<ul>"

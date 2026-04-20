@@ -38,14 +38,16 @@ import com.jogamp.opengl.GL2;
  */
 public class DashLineShader
 {
-    // seaglassfoundry.com: positions are now sourced from a generic vertex
-    // attribute (a_position) instead of fixed-function gl_Vertex. Mixing
-    // glVertexPointer with a generic glVertexAttribPointer in the same draw
-    // is undefined in compatibility profile and produced stray dots in the
-    // dashed line example plus state-leak terrain corruption. Both attributes
-    // are pinned to non-zero slots in init() to avoid aliasing with any
-    // remaining fixed-function client array on slot 0.
-    private static final String VERTEX_SOURCE_FP32 = """
+    // seaglassfoundry.com: positions are sourced from a generic vertex attribute (a_position)
+    // instead of fixed-function gl_Vertex. Mixing glVertexPointer with a generic
+    // glVertexAttribPointer in the same draw is undefined in compatibility profile and produced
+    // stray dots in the dashed line example plus state-leak terrain corruption. Both attributes
+    // are pinned to non-zero slots in init() to avoid aliasing with any remaining fixed-function
+    // client array on slot 0.
+    // Sub-metre precision is preserved via RTE: callers pre-translate the MV by the reference
+    // position on the CPU and ship a_position as fp32 degree offsets from that reference. The
+    // MVP is composed in fp64 on the CPU and cast to fp32 once before upload.
+    private static final String VERTEX_SOURCE = """
         #version 130
         uniform mat4 u_mvp;
         in vec2 a_position;
@@ -58,24 +60,6 @@ public class DashLineShader
         void main()
         {
             gl_Position = u_mvp * vec4(a_position, 0.0, 1.0);
-            v_dist = a_dist;
-        }
-        """;
-
-    // seaglassfoundry.com: double-precision variant. Positions and MVP computed in fp64 to
-    // eliminate visible dash wobble at close zoom (sub-metre segment lengths). gl_Position must
-    // still downcast to vec4. a_dist remains float — screen-space distance is small-magnitude and
-    // already rebased every 100k pixels on the CPU side.
-    private static final String VERTEX_SOURCE_FP64 = """
-        #version 410
-        uniform dmat4 u_mvp;
-        in dvec2 a_position;
-        in float a_dist;
-        noperspective out float v_dist;
-
-        void main()
-        {
-            gl_Position = vec4(u_mvp * dvec4(a_position, 0.0LF, 1.0LF));
             v_dist = a_dist;
         }
         """;
@@ -119,51 +103,24 @@ public class DashLineShader
     private ShaderProgram program;
     private int posAttribLocation  = -1;
     private int distAttribLocation = -1;
-    // seaglassfoundry.com: when true, a_position is dvec2 and u_mvp is dmat4; callers must upload
-    // positions via glVertexAttribLPointer(GL_DOUBLE) and the MVP via setUniformMvpDouble.
-    private boolean fp64Enabled;
 
     public boolean init(GL2 gl)
     {
         if (this.program != null && this.program.isValid())
             return true;
 
-        this.fp64Enabled = GLCapabilityCheck.hasShaderFp64(gl);
-        String vertexSource = this.fp64Enabled ? VERTEX_SOURCE_FP64 : VERTEX_SOURCE_FP32;
-
         this.program = new ShaderProgram();
         this.program.bindAttribLocation(POS_ATTRIB_INDEX,  "a_position");
         this.program.bindAttribLocation(DIST_ATTRIB_INDEX, "a_dist");
-        if (!this.program.init(gl, vertexSource, FRAGMENT_SOURCE))
+        if (!this.program.init(gl, VERTEX_SOURCE, FRAGMENT_SOURCE))
         {
-            if (this.fp64Enabled)
-            {
-                this.fp64Enabled = false;
-                this.program = new ShaderProgram();
-                this.program.bindAttribLocation(POS_ATTRIB_INDEX,  "a_position");
-                this.program.bindAttribLocation(DIST_ATTRIB_INDEX, "a_dist");
-                if (!this.program.init(gl, VERTEX_SOURCE_FP32, FRAGMENT_SOURCE))
-                {
-                    this.program = null;
-                    return false;
-                }
-            }
-            else
-            {
-                this.program = null;
-                return false;
-            }
+            this.program = null;
+            return false;
         }
 
         this.posAttribLocation  = gl.glGetAttribLocation(this.program.getProgramId(), "a_position");
         this.distAttribLocation = gl.glGetAttribLocation(this.program.getProgramId(), "a_dist");
         return true;
-    }
-
-    /** @return true if this program uses double-precision positions and MVP. */
-    public boolean isFp64Enabled()
-    {
-        return this.fp64Enabled;
     }
 
     /**
@@ -184,10 +141,7 @@ public class DashLineShader
                       float dashLength, int stipplePattern, boolean picking)
     {
         this.program.use(gl);
-        if (this.fp64Enabled)
-            this.program.setUniformMvpDouble(gl, "u_mvp");
-        else
-            this.program.setUniformMvp(gl, "u_mvp");
+        this.program.setUniformMvp(gl, "u_mvp");
         this.program.setUniform4f(gl, "u_color", r, g, b, a);
         this.program.setUniform1f(gl, "u_dashLength", dashLength);
         this.program.setUniform1i(gl, "u_stipplePattern", stipplePattern & 0xFFFF);

@@ -51,7 +51,10 @@ public class SurfaceShapeFillShader
 {
     // seaglassfoundry.com: Phase 6 — replaced deprecated gl_ModelViewProjectionMatrix with
     // explicit u_mvp uniform (read from GL matrix stack in each begin*() entry point).
-    private static final String VERTEX_SOURCE_FP32 = """
+    // Sub-metre precision is preserved via RTE: callers pre-translate the MV by the reference
+    // position on the CPU and ship a_position as fp32 degree offsets from that reference. The MVP
+    // is composed in fp64 on the CPU and cast to fp32 once before upload.
+    private static final String VERTEX_SOURCE = """
         #version 130
         in vec2 a_position;
         in vec2 a_texCoord;
@@ -66,33 +69,6 @@ public class SurfaceShapeFillShader
             if (u_useTexture == 1)
             {
                 vec4 tc = u_texMatrix * vec4(a_position, 0.0, 1.0);
-                v_texCoord = tc.st;
-            }
-            else if (u_useTexture == 2)
-            {
-                v_texCoord = a_texCoord;
-            }
-        }
-        """;
-
-    // seaglassfoundry.com: double-precision variant. Positions and MVP are computed in double so
-    // sub-metre surface shapes no longer wobble when the camera zooms to close range. Only the
-    // MVP multiply runs at fp64; gl_Position downcasts to vec4 (required). Texture math stays float.
-    private static final String VERTEX_SOURCE_FP64 = """
-        #version 410
-        in dvec2 a_position;
-        in vec2 a_texCoord;
-        uniform dmat4 u_mvp;
-        uniform mat4 u_texMatrix;
-        uniform int u_useTexture;
-        out vec2 v_texCoord;
-
-        void main()
-        {
-            gl_Position = vec4(u_mvp * dvec4(a_position, 0.0LF, 1.0LF));
-            if (u_useTexture == 1)
-            {
-                vec4 tc = u_texMatrix * vec4(vec2(a_position), 0.0, 1.0);
                 v_texCoord = tc.st;
             }
             else if (u_useTexture == 2)
@@ -164,14 +140,7 @@ public class SurfaceShapeFillShader
     private int positionAttribLocation = -1;
     private int texCoordAttribLocation = -1;
     private boolean texCoordAttribEnabled;
-    // seaglassfoundry.com: true when the linked program uses dvec2 positions and dmat4 MVP.
-    // Callers upload position VBOs as GL_DOUBLE via glVertexAttribLPointer and upload the MVP
-    // via setUniformMvpDouble. False on GL 3.x fallback.
-    private boolean fp64Enabled;
 
-    /**
-     * Initializes the shader program. Returns true if compilation and linking succeeded.
-     */
     /** Pattern mode constants matching GLSL u_patternMode values. */
     public static final int PATTERN_NONE       = 0;
     public static final int PATTERN_HATCH      = 1;
@@ -186,40 +155,16 @@ public class SurfaceShapeFillShader
         if (this.program != null && this.program.isValid())
             return true;
 
-        this.fp64Enabled = GLCapabilityCheck.hasShaderFp64(gl);
-        String vertexSource = this.fp64Enabled ? VERTEX_SOURCE_FP64 : VERTEX_SOURCE_FP32;
-
         this.program = new ShaderProgram();
-        if (!this.program.init(gl, vertexSource, FRAGMENT_SOURCE))
+        if (!this.program.init(gl, VERTEX_SOURCE, FRAGMENT_SOURCE))
         {
-            // seaglassfoundry.com: if fp64 compile/link fails (driver claims support but rejects
-            // the program), retry with the fp32 shader so the feature still works.
-            if (this.fp64Enabled)
-            {
-                this.fp64Enabled = false;
-                this.program = new ShaderProgram();
-                if (!this.program.init(gl, VERTEX_SOURCE_FP32, FRAGMENT_SOURCE))
-                {
-                    this.program = null;
-                    return false;
-                }
-            }
-            else
-            {
-                this.program = null;
-                return false;
-            }
+            this.program = null;
+            return false;
         }
 
         this.positionAttribLocation = gl.glGetAttribLocation(this.program.getProgramId(), "a_position");
         this.texCoordAttribLocation = gl.glGetAttribLocation(this.program.getProgramId(), "a_texCoord");
         return true;
-    }
-
-    /** @return true if this program uses double-precision positions and MVP. */
-    public boolean isFp64Enabled()
-    {
-        return this.fp64Enabled;
     }
 
     /**
@@ -234,10 +179,7 @@ public class SurfaceShapeFillShader
     public void beginSolid(GL2 gl, float r, float g, float b, float a)
     {
         this.program.use(gl);
-        if (this.fp64Enabled)
-            this.program.setUniformMvpDouble(gl, "u_mvp");
-        else
-            this.program.setUniformMvp(gl, "u_mvp");
+        this.program.setUniformMvp(gl, "u_mvp");
         this.program.setUniform4f(gl, "u_color", r, g, b, a);
         this.program.setUniform1i(gl, "u_useTexture", 0);
         this.program.setUniform1i(gl, "u_patternMode", PATTERN_NONE);
@@ -262,10 +204,7 @@ public class SurfaceShapeFillShader
     public void beginTextured(GL2 gl, float r, float g, float b, float a, float[] texMatrix)
     {
         this.program.use(gl);
-        if (this.fp64Enabled)
-            this.program.setUniformMvpDouble(gl, "u_mvp");
-        else
-            this.program.setUniformMvp(gl, "u_mvp");
+        this.program.setUniformMvp(gl, "u_mvp");
         this.program.setUniform4f(gl, "u_color", r, g, b, a);
         this.program.setUniform1i(gl, "u_useTexture", 1);
         this.program.setUniform1i(gl, "u_patternMode", PATTERN_NONE);
@@ -297,10 +236,7 @@ public class SurfaceShapeFillShader
         float[] texMatrix, int patternMode, float scale, float lineWidth, float angleDeg)
     {
         this.program.use(gl);
-        if (this.fp64Enabled)
-            this.program.setUniformMvpDouble(gl, "u_mvp");
-        else
-            this.program.setUniformMvp(gl, "u_mvp");
+        this.program.setUniformMvp(gl, "u_mvp");
         this.program.setUniform4f(gl, "u_color", r, g, b, a);
         this.program.setUniform1i(gl, "u_useTexture", 1);   // vertex shader computes v_texCoord
         this.program.setUniform1i(gl, "u_patternMode", patternMode);
@@ -328,10 +264,7 @@ public class SurfaceShapeFillShader
     public void beginExplicitTextured(GL2 gl, float r, float g, float b, float a)
     {
         this.program.use(gl);
-        if (this.fp64Enabled)
-            this.program.setUniformMvpDouble(gl, "u_mvp");
-        else
-            this.program.setUniformMvp(gl, "u_mvp");
+        this.program.setUniformMvp(gl, "u_mvp");
         this.program.setUniform4f(gl, "u_color", r, g, b, a);
         this.program.setUniform1i(gl, "u_useTexture", 2);
         this.program.setUniform1i(gl, "u_texture", 0); // texture unit 0
