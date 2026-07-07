@@ -477,6 +477,105 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer
         }
     }
 
+    //--- Grid line sampling -------------------------------------------------------------
+
+    /**
+     * Samples a UTM/UPS grid line - a line of constant easting or constant northing in the
+     * projected plane - by stepping between the two endpoints in easting/northing space and
+     * inverse-projecting each sample to a geographic {@link Position}.
+     * <p>
+     * A single geodesic (or rhumb, or lat/lon-linear) segment between the two corner positions
+     * does <em>not</em> trace a constant easting/northing line: the two curves coincide only at
+     * the endpoints and diverge in between. The deviation is negligible near the equator but
+     * grows with latitude, reaching the tens-of-metres range over a 100 km edge in the high
+     * latitude bands - visible as a bow when a 100 km cell fills the screen. Emitting
+     * intermediate vertices that lie exactly on the grid line removes that bow. The step count
+     * scales with the projected edge length so the residual stays sub-metre, while short edges
+     * (the finer nested grids) collapse to just their two endpoints.
+     *
+     * @param UTMZone       the UTM zone, or 0 for UPS (polar) squares.
+     * @param hemisphere    {@link AVKey#NORTH} or {@link AVKey#SOUTH}.
+     * @param startEasting  easting of the edge start, in meters.
+     * @param startNorthing northing of the edge start, in meters.
+     * @param endEasting    easting of the edge end, in meters.
+     * @param endNorthing   northing of the edge end, in meters.
+     *
+     * @return the sampled positions along the grid line, ordered start to end.
+     */
+    protected ArrayList<Position> computeGridLinePositions(int UTMZone, String hemisphere,
+        double startEasting, double startNorthing, double endEasting, double endNorthing)
+    {
+        ArrayList<Position> positions = new ArrayList<>();
+        double lengthMeters = Math.hypot(endEasting - startEasting, endNorthing - startNorthing);
+        // One sample per ~10 km of edge; sub-metre residual at 100 km, capped for very long edges.
+        int steps = (int) Math.max(1, Math.min(32, Math.ceil(lengthMeters / 10e3)));
+        for (int i = 0; i <= steps; i++)
+        {
+            double s = (double) i / steps;
+            double easting = startEasting + (endEasting - startEasting) * s;
+            double northing = startNorthing + (endNorthing - startNorthing) * s;
+            Position pos = computePosition(UTMZone, hemisphere, easting, northing);
+            if (pos != null)
+                positions.add(pos);
+        }
+        return positions;
+    }
+
+    /**
+     * Clips a multi-vertex path to a grid zone sector, segment by segment, reusing
+     * {@link #computeTruncatedSegment}. The inside portion of a grid-square edge crossing a
+     * (convex) zone boundary is contiguous, so the clipped vertices remain a single connected
+     * polyline.
+     *
+     * @param pathPositions the full (unclipped) path.
+     * @param sector        the grid zone sector to clip against.
+     * @param out           receives the clipped path.
+     */
+    protected void computeTruncatedPath(ArrayList<Position> pathPositions, Sector sector, ArrayList<Position> out)
+    {
+        for (int i = 0; i < pathPositions.size() - 1; i++)
+        {
+            ArrayList<Position> seg = new ArrayList<>();
+            computeTruncatedSegment(pathPositions.get(i), pathPositions.get(i + 1), sector, seg);
+            if (seg.size() >= 2)
+            {
+                // Avoid duplicating the vertex shared with the previous segment.
+                if (out.isEmpty() || !out.get(out.size() - 1).equals(seg.get(0)))
+                    out.add(seg.get(0));
+                out.add(seg.get(1));
+            }
+        }
+    }
+
+    /**
+     * Builds a grid line {@link GridElement} for a constant-easting or constant-northing edge,
+     * sampling it on the true grid line (see {@link #computeGridLinePositions}) and clipping it to
+     * the grid zone when the square is truncated.
+     *
+     * @return the grid element, or null if fewer than two vertices survive (edge fully outside).
+     */
+    protected GridElement createGridLineElement(int UTMZone, String hemisphere, boolean truncated,
+        Sector UTMZoneSector, double startEasting, double startNorthing, double endEasting, double endNorthing,
+        String type, double value)
+    {
+        ArrayList<Position> positions = computeGridLinePositions(UTMZone, hemisphere,
+            startEasting, startNorthing, endEasting, endNorthing);
+        if (truncated)
+        {
+            ArrayList<Position> clipped = new ArrayList<>();
+            computeTruncatedPath(positions, UTMZoneSector, clipped);
+            positions = clipped;
+        }
+        if (positions.size() < 2)
+            return null;
+
+        Object polyline = createLineRenderable(positions, AVKey.GREAT_CIRCLE);
+        Sector lineSector = Sector.boundingSector(positions);
+        GridElement ge = new GridElement(lineSector, polyline, type);
+        ge.setValue(value);
+        return ge;
+    }
+
     //--- Metric scale support -----------------------------------------------------------
 
     protected class MetricScaleSupport
@@ -1032,98 +1131,38 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer
         {
             this.gridElements = new ArrayList<>();
 
-            ArrayList<Position> positions = new ArrayList<>();
-            Position p1, p2;
-            Object polyline;
-            Sector lineSector;
+            // Each edge is a line of constant easting / constant northing. Sample it on the true
+            // grid line rather than relying on a geodesic between the two corners (see
+            // createGridLineElement).
+            GridElement ge;
 
-            // left segment
-            positions.clear();
-            if (this.isTruncated)
-            {
-                computeTruncatedSegment(sw, nw, this.UTMZoneSector, positions);
-            }
-            else
-            {
-                positions.add(sw);
-                positions.add(nw);
-            }
-            if (positions.size() > 0)
-            {
-                p1 = positions.get(0);
-                p2 = positions.get(1);
-                polyline = createLineRenderable(new ArrayList<>(positions), AVKey.GREAT_CIRCLE);
-                lineSector = Sector.boundingSector(p1, p2);
-                GridElement ge = new GridElement(lineSector, polyline, GridElement.TYPE_LINE_WEST);
-                ge.setValue(this.SWEasting);
+            // left segment (constant easting = SWEasting)
+            ge = createGridLineElement(this.UTMZone, this.hemisphere, this.isTruncated, this.UTMZoneSector,
+                this.SWEasting, this.SWNorthing, this.SWEasting, this.SWNorthing + this.size,
+                GridElement.TYPE_LINE_WEST, this.SWEasting);
+            if (ge != null)
                 this.gridElements.add(ge);
-            }
 
-            // right segment
-            positions.clear();
-            if (this.isTruncated)
-            {
-                computeTruncatedSegment(se, ne, this.UTMZoneSector, positions);
-            }
-            else
-            {
-                positions.add(se);
-                positions.add(ne);
-            }
-            if (positions.size() > 0)
-            {
-                p1 = positions.get(0);
-                p2 = positions.get(1);
-                polyline = createLineRenderable(new ArrayList<>(positions), AVKey.GREAT_CIRCLE);
-                lineSector = Sector.boundingSector(p1, p2);
-                GridElement ge = new GridElement(lineSector, polyline, GridElement.TYPE_LINE_EAST);
-                ge.setValue(this.SWEasting + this.size);
+            // right segment (constant easting = SWEasting + size)
+            ge = createGridLineElement(this.UTMZone, this.hemisphere, this.isTruncated, this.UTMZoneSector,
+                this.SWEasting + this.size, this.SWNorthing, this.SWEasting + this.size, this.SWNorthing + this.size,
+                GridElement.TYPE_LINE_EAST, this.SWEasting + this.size);
+            if (ge != null)
                 this.gridElements.add(ge);
-            }
 
-            // bottom segment
-            positions.clear();
-            if (this.isTruncated)
-            {
-                computeTruncatedSegment(sw, se, this.UTMZoneSector, positions);
-            }
-            else
-            {
-                positions.add(sw);
-                positions.add(se);
-            }
-            if (positions.size() > 0)
-            {
-                p1 = positions.get(0);
-                p2 = positions.get(1);
-                polyline = createLineRenderable(new ArrayList<>(positions), AVKey.GREAT_CIRCLE);
-                lineSector = Sector.boundingSector(p1, p2);
-                GridElement ge = new GridElement(lineSector, polyline, GridElement.TYPE_LINE_SOUTH);
-                ge.setValue(this.SWNorthing);
+            // bottom segment (constant northing = SWNorthing)
+            ge = createGridLineElement(this.UTMZone, this.hemisphere, this.isTruncated, this.UTMZoneSector,
+                this.SWEasting, this.SWNorthing, this.SWEasting + this.size, this.SWNorthing,
+                GridElement.TYPE_LINE_SOUTH, this.SWNorthing);
+            if (ge != null)
                 this.gridElements.add(ge);
-            }
 
-            // top segment
-            positions.clear();
-            if (this.isTruncated)
-            {
-                computeTruncatedSegment(nw, ne, this.UTMZoneSector, positions);
-            }
-            else
-            {
-                positions.add(nw);
-                positions.add(ne);
-            }
-            if (positions.size() > 0)
-            {
-                p1 = positions.get(0);
-                p2 = positions.get(1);
-                polyline = createLineRenderable(new ArrayList<>(positions), AVKey.GREAT_CIRCLE);
-                lineSector = Sector.boundingSector(p1, p2);
-                GridElement ge = new GridElement(lineSector, polyline, GridElement.TYPE_LINE_NORTH);
-                ge.setValue(this.SWNorthing + this.size);
+            // top segment (constant northing = SWNorthing + size)
+            ge = createGridLineElement(this.UTMZone, this.hemisphere, this.isTruncated, this.UTMZoneSector,
+                this.SWEasting, this.SWNorthing + this.size, this.SWEasting + this.size, this.SWNorthing + this.size,
+                GridElement.TYPE_LINE_NORTH, this.SWNorthing + this.size);
+            if (ge != null)
                 this.gridElements.add(ge);
-            }
 
             // Label
             if (this.name != null)
@@ -1259,62 +1298,26 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer
         {
             this.gridElements = new ArrayList<>();
             double gridStep = this.size / 10;
-            Position p1, p2;
-            ArrayList<Position> positions = new ArrayList<>();
 
-            // South-North lines
+            // South-North lines (constant easting)
             for (int i = 1; i <= 9; i++)
             {
                 double easting = this.SWEasting + gridStep * i;
-                positions.clear();
-                p1 = computePosition(this.UTMZone, this.hemisphere, easting, SWNorthing);
-                p2 = computePosition(this.UTMZone, this.hemisphere, easting, SWNorthing + this.size);
-                if (this.isTruncated)
-                {
-                    computeTruncatedSegment(p1, p2, this.UTMZoneSector, positions);
-                }
-                else
-                {
-                    positions.add(p1);
-                    positions.add(p2);
-                }
-                if (positions.size() > 0)
-                {
-                    p1 = positions.get(0);
-                    p2 = positions.get(1);
-                    Object polyline = createLineRenderable(new ArrayList<>(positions), AVKey.GREAT_CIRCLE);
-                    Sector lineSector = Sector.boundingSector(p1, p2);
-                    GridElement ge = new GridElement(lineSector, polyline, GridElement.TYPE_LINE_EASTING);
-                    ge.setValue(easting);
+                GridElement ge = createGridLineElement(this.UTMZone, this.hemisphere, this.isTruncated,
+                    this.UTMZoneSector, easting, this.SWNorthing, easting, this.SWNorthing + this.size,
+                    GridElement.TYPE_LINE_EASTING, easting);
+                if (ge != null)
                     this.gridElements.add(ge);
-                }
             }
-            // West-East lines
+            // West-East lines (constant northing)
             for (int i = 1; i <= 9; i++)
             {
                 double northing = this.SWNorthing + gridStep * i;
-                positions.clear();
-                p1 = computePosition(this.UTMZone, this.hemisphere, SWEasting, northing);
-                p2 = computePosition(this.UTMZone, this.hemisphere, SWEasting + this.size, northing);
-                if (this.isTruncated)
-                {
-                    computeTruncatedSegment(p1, p2, this.UTMZoneSector, positions);
-                }
-                else
-                {
-                    positions.add(p1);
-                    positions.add(p2);
-                }
-                if (positions.size() > 0)
-                {
-                    p1 = positions.get(0);
-                    p2 = positions.get(1);
-                    Object polyline = createLineRenderable(new ArrayList<>(positions), AVKey.GREAT_CIRCLE);
-                    Sector lineSector = Sector.boundingSector(p1, p2);
-                    GridElement ge = new GridElement(lineSector, polyline, GridElement.TYPE_LINE_NORTHING);
-                    ge.setValue(northing);
+                GridElement ge = createGridLineElement(this.UTMZone, this.hemisphere, this.isTruncated,
+                    this.UTMZoneSector, this.SWEasting, northing, this.SWEasting + this.size, northing,
+                    GridElement.TYPE_LINE_NORTHING, northing);
+                if (ge != null)
                     this.gridElements.add(ge);
-                }
             }
         }
     }
